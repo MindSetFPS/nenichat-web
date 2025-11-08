@@ -9,10 +9,10 @@ services:
     depends_on:
       - postgres
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
       - DB_USER=user
       - DB_PASSWORD=password
+      - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_NAME=mydb
   whatsapp:
     image: ghcr.io/aldinokemal/go-whatsapp-web-multidevice
