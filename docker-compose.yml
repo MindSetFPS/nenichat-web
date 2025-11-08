@@ -1,0 +1,54 @@
+services:
+  api:
+    build: ./my-app
+    image: webhook-api:0.0.1
+    container_name: webhook-api
+    restart: always
+    ports:
+      - "5200:3000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=mydb
+  whatsapp:
+    image: ghcr.io/aldinokemal/go-whatsapp-web-multidevice
+    container_name: whatsapp
+    restart: always
+    ports:
+      - "5100:3000"
+    volumes:
+      - whatsapp:/app/storages
+    command:
+      - rest
+      # - --basic-auth=admin:admin
+      - --port=3000
+      - --debug=true
+      - --os=Chrome
+      - --account-validation=false
+      - --webhook="http://192.168.1.64:5101/message-webhook"
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=mydb
+    ports:
+      - "5969:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  whodb:
+    image: clidey/whodb
+    ports:
+      - "4949:8080"
+
+volumes:
+  whatsapp:
+  postgres_data:
