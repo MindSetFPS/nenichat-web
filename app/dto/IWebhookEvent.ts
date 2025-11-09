@@ -56,6 +56,14 @@ export class WebhookEvent implements IWebhookEvent {
     this.timestamp = data.timestamp;
   }
 
+  isSentByMe(): boolean {
+    return this.sender_id !== this.chat_id
+  }
+
+  isSentByCustomer(): boolean {
+    return this.sender_id == this.chat_id
+  }
+
   /**
    * Checks if the event is a message acknowledgement.
    */
