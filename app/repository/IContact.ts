@@ -1,7 +1,11 @@
 export interface IContact {
-  id: bigint;
-  phone_number: string;
+  id: bigint | null;
+  phone_number: string | null;
+  lid: string | null; // local id
+  username: string | null;
   pushname: string | null;
+  contact_name: string | null;
+
   created_at: Date;
   updated_at: Date;
 }
