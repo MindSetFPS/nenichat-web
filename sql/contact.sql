@@ -12,11 +12,12 @@ CREATE TABLE contacts (
     username TEXT UNIQUE,            -- Twitter-like handle, should be unique if it exists
     pushname TEXT,                   -- WhatsApp display name, can be duplicated
     contact_name TEXT,               -- A name assigned by the system/user
+    is_user BOOLEAN NOT NULL DEFAULT FALSE,
 
     -- 4. Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 
     -- 5. Data Integrity Constraint
-    CONSTRAINT chk_identifier_present CHECK (phone_number IS NOT NULL OR lid IS NOT NULL)
+    -- CONSTRAINT chk_identifier_present CHECK (phone_number IS NOT NULL OR lid IS NOT NULL)
 );
