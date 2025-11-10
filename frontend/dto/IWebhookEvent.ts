@@ -28,11 +28,11 @@ export interface IWebhookEvent {
   chat_id?: string;
   from?: string;
   message?: IMessageContent;
-  pushname?: string;
+  pushname: string | null;
   sender_id?: string;
 
   // Common field present in all events
-  timestamp: string; // ISO 8601 date string
+  timestamp: string;
 }
 
 export class WebhookEvent implements IWebhookEvent {
@@ -41,7 +41,7 @@ export class WebhookEvent implements IWebhookEvent {
   chat_id?: string;
   from?: string;
   message?: IMessageContent;
-  pushname?: string;
+  pushname: string | null;
   sender_id?: string;
   timestamp: string;
 
