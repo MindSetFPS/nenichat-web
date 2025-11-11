@@ -1,62 +1,42 @@
-import { IAudienceRepository } from './IAudienceRepository';
 import { IAudience } from '../dto/IAudience';
+import { IAudienceRepository } from './IAudienceRepository';
 import { sql } from './db';
 
 export class AudienceRepository implements IAudienceRepository {
-    constructor(private sql: any) { }
+  constructor(private sql: any) { }
 
-    async create(audience: IAudience): Promise<IAudience> {
-        const result = await this.sql`
-            INSERT INTO audiences (name, description, created_at)
-            VALUES (${audience.name}, ${audience.description}, ${audience.created_at})
-            RETURNING id, name, description, created_at;
-        `.execute();
-        return result.rows[0] as IAudience;
-    }
+  private toAudience(data: any): IAudience {
+    if (!data) return data;
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      created_at: data.created_at,
+    };
+  }
 
-    async findById(id: number): Promise<IAudience | null> {
-        const result = await this.sql`
-            SELECT id, name, description, created_at
-            FROM audiences
-            WHERE id = ${id};
-        `.execute();
-        return result.rows[0] ? (result.rows[0] as IAudience) : null;
-    }
+  async findById(id: number): Promise<IAudience | null> {
+    const result: any[] = await this.sql`SELECT * FROM audiences WHERE id = ${id}`;
 
-    async findAll(): Promise<IAudience[]> {
-        const result = await this.sql`
-            SELECT id, name, description, created_at
-            FROM audiences;
-        `.execute();
-        console.log(result)
-        return result as IAudience[];
+    if (result.length === 0) {
+      return null;
     }
+    return this.toAudience(result[0]);
+  }
 
-    async update(audience: IAudience): Promise<IAudience> {
-        const result = await this.sql`
-            UPDATE audiences
-            SET name = ${audience.name}, description = ${audience.description}, created_at = ${audience.created_at}
-            WHERE id = ${audience.id}
-            RETURNING id, name, description, created_at;
-        `.execute();
-        return result.rows[0] as IAudience;
-    }
+  async findAll(): Promise<IAudience[]> {
+    const result: any[] = await this.sql`SELECT * FROM audiences`;
+    return result.map(this.toAudience);
+  }
 
-    async delete(id: number): Promise<void> {
-        await this.sql`
-            DELETE FROM audiences
-            WHERE id = ${id};
-        `.execute();
-    }
-
-    async search(query: string): Promise<IAudience[]> {
-        const result = await this.sql`
-            SELECT id, name, description, created_at
-            FROM audiences
-            WHERE name ILIKE ${`%${query}%`} OR description ILIKE ${`%${query}%`};
-        `.execute();
-        return result.rows as IAudience[];
-    }
+  async create(audience: Omit<IAudience, 'id' | 'created_at'>): Promise<IAudience> {
+    const result: any[] = await this.sql`
+      INSERT INTO audiences (name, description)
+      VALUES (${audience.name}, ${audience.description})
+      RETURNING *
+    `;
+    return this.toAudience(result[0]);
+  }
 }
 
 export const audienceRepository = new AudienceRepository(sql);

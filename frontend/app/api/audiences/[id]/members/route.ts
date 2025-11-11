@@ -1,0 +1,49 @@
+import { NextResponse } from 'next/server';
+import { audienceContactRepository } from '@/repository/AudienceContactRepository';
+import { contactRepository } from '@/repository/ContactRepository';
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = await params;
+    const audienceMembers = await audienceContactRepository.findByAudienceId(id);
+    const allContacts = await contactRepository.list(0, 1000);
+
+    return NextResponse.json({ audienceMembers, allContacts });
+  } catch (error) {
+    console.error('Error fetching audience members:', error);
+    return NextResponse.json(
+      { message: 'Error fetching audience members' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = await params;
+    const { contactIds } = await request.json();
+
+    if (!Array.isArray(contactIds)) {
+      return NextResponse.json(
+        { message: 'Invalid request body: contactIds must be an array' },
+        { status: 400 }
+      );
+    }
+
+    await audienceContactRepository.updateAudienceMembers(id, contactIds);
+
+    return NextResponse.json({ message: 'Audience members updated successfully' });
+  } catch (error) {
+    console.error('Error updating audience members:', error);
+    return NextResponse.json(
+      { message: 'Error updating audience members' },
+      { status: 500 }
+    );
+  }
+}

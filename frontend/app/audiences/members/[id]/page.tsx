@@ -16,39 +16,33 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner"; // Import toast
 
-interface Contact {
-  id: string;
-  name: string;
-  phone: string;
-}
+import { IContact } from '@/repository/IContact';
+import { IAudience } from '@/dto/IAudience'; // Import IAudience
 
-const mockContacts: Contact[] = [
-  { id: "c1", name: "Alice Smith", phone: "+11234567890" },
-  { id: "c2", name: "Bob Johnson", phone: "+19876543210" },
-  { id: "c3", name: "Charlie Brown", phone: "+15551234567" },
-  { id: "c4", name: "Diana Prince", phone: "+12223334444" },
-  { id: "c5", name: "Eve Adams", phone: "+17778889999" },
-];
-
-// Mock function to simulate fetching audience details
-const fetchAudienceDetails = (id: string) => {
-  // In a real app, this would fetch from an API
-  const audiences = [
-    { id: "1", name: "Marketing Leads", description: "..." },
-    { id: "2", name: "Existing Customers", description: "..." },
-    { id: "3", name: "Website Visitors", description: "..." },
-  ];
-  return audiences.find((aud) => aud.id === id);
+// Function to fetch audience details from the API
+const fetchAudienceDetails = async (id: string) => {
+  const response = await fetch(`/api/audiences/${id}`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null; // Audience not found
+    }
+    throw new Error("Failed to fetch audience details");
+  }
+  const data = await response.json();
+  return data as IAudience;
 };
 
-// Mock function to simulate fetching audience members
-const fetchAudienceMembers = (audienceId: string): string[] => {
-  // In a real app, this would fetch from an API
-  // For now, let's randomly assign some contacts to audience 1
-  if (audienceId === "1") {
-    return ["c1", "c3"];
+// Function to fetch audience members and all contacts from the API
+const fetchAudienceMembers = async (audienceId: string) => {
+  const response = await fetch(`/api/audiences/${audienceId}/members`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch audience members");
   }
-  return [];
+  const data = await response.json();
+  return {
+    audienceMembers: data.audienceMembers as IContact[],
+    allContacts: data.allContacts as IContact[],
+  };
 };
 
 export default function AudienceMembersPage() {
@@ -58,17 +52,28 @@ export default function AudienceMembersPage() {
 
   const [audienceName, setAudienceName] = useState("Loading...");
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
+  const [allContacts, setAllContacts] = useState<IContact[]>([]);
 
   useEffect(() => {
-    const audience = fetchAudienceDetails(audienceId);
-    if (audience) {
-      setAudienceName(audience.name);
-    } else {
-      setAudienceName("Audience Not Found");
-    }
+    const fetchMembersAndContacts = async () => {
+      try {
+        const audience = await fetchAudienceDetails(audienceId);
+        if (audience) {
+          setAudienceName(audience.name);
+        } else {
+          setAudienceName("Audience Not Found");
+        }
 
-    const members = fetchAudienceMembers(audienceId);
-    setSelectedContactIds(new Set(members));
+        const { audienceMembers, allContacts } = await fetchAudienceMembers(audienceId);
+        setSelectedContactIds(new Set(audienceMembers.map(c => c.id?.toString() || '')));
+        setAllContacts(allContacts);
+      } catch (error) {
+        console.error("Failed to fetch audience details, members or all contacts:", error);
+        toast.error("Failed to load audience details, members or contacts.");
+      }
+    };
+
+    fetchMembersAndContacts();
   }, [audienceId]);
 
   const handleCheckboxChange = (contactId: string, isChecked: boolean) => {
@@ -83,14 +88,26 @@ export default function AudienceMembersPage() {
     });
   };
 
-  const handleSaveMembers = () => {
-    // In a real application, you would send selectedContactIds to your backend
-    console.log(
-      `Saving members for audience ${audienceId}:`,
-      Array.from(selectedContactIds)
-    );
-    toast.success(`Members for "${audienceName}" saved!`); // Use toast instead of alert
-    router.push("/audiences"); // Navigate back to audiences page
+  const handleSaveMembers = async () => {
+    try {
+      const response = await fetch(`/api/audiences/${audienceId}/members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ contactIds: Array.from(selectedContactIds) }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save audience members");
+      }
+
+      toast.success(`Members for "${audienceName}" saved!`);
+      router.push("/audiences");
+    } catch (error) {
+      console.error("Error saving audience members:", error);
+      toast.error("Failed to save audience members.");
+    }
   };
 
   return (
@@ -110,10 +127,10 @@ export default function AudienceMembersPage() {
             <TableRow>
               <TableHead className="w-[50px]">
                 <Checkbox
-                  checked={selectedContactIds.size === mockContacts.length && mockContacts.length > 0}
+                  checked={selectedContactIds.size === allContacts.length && allContacts.length > 0}
                   onCheckedChange={(checked) => {
                     if (checked) {
-                      setSelectedContactIds(new Set(mockContacts.map(c => c.id)));
+                      setSelectedContactIds(new Set(allContacts.map(c => c.id?.toString() || '')));
                     } else {
                       setSelectedContactIds(new Set());
                     }
@@ -125,18 +142,18 @@ export default function AudienceMembersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockContacts.map((contact) => (
-              <TableRow key={contact.id}>
+            {allContacts.map((contact) => (
+              <TableRow key={contact.id?.toString()}>
                 <TableCell>
                   <Checkbox
-                    checked={selectedContactIds.has(contact.id)}
+                    checked={selectedContactIds.has(contact.id?.toString() || '')}
                     onCheckedChange={(checked) =>
-                      handleCheckboxChange(contact.id, checked as boolean)
+                      handleCheckboxChange(contact.id?.toString() || '', checked as boolean)
                     }
                   />
                 </TableCell>
-                <TableCell className="font-medium">{contact.name}</TableCell>
-                <TableCell>{contact.phone}</TableCell>
+                <TableCell className="font-medium">{contact.contact_name || contact.pushname || contact.username || contact.phone_number}</TableCell>
+                <TableCell>{contact.phone_number}</TableCell>
               </TableRow>
             ))}
           </TableBody>
