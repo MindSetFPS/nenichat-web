@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link"; // Import Link
+import { useRouter } from "next/navigation"; // Import useRouter
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -31,6 +31,7 @@ export default function AudiencesPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedAudience, setSelectedAudience] = useState<IAudience | null>(null);
+  const router = useRouter(); // Initialize useRouter
 
   const fetchAudiences = async () => {
     try {
@@ -153,12 +154,14 @@ export default function AudiencesPage() {
               </TableRow>
             ) : (
               audiences.map((audience) => (
-                <TableRow key={audience.id} className="cursor-pointer">
-                  <Link href={`/audiences/members/${audience.id}`} passHref className="contents">
-                    <TableCell className="font-medium">{audience.name}</TableCell>
-                    <TableCell>{audience.description}</TableCell>
-                    <TableCell>{new Date(audience.created_at).toLocaleDateString()}</TableCell>
-                  </Link>
+                <TableRow
+                  key={audience.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/audiences/members/${audience.id}`)}
+                >
+                  <TableCell className="font-medium">{audience.name}</TableCell>
+                  <TableCell>{audience.description}</TableCell>
+                  <TableCell>{new Date(audience.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -170,7 +173,7 @@ export default function AudiencesPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent Link click from firing
+                            e.stopPropagation(); // Prevent TableRow click from firing
                             setSelectedAudience(audience);
                             setIsEditDialogOpen(true);
                           }}
@@ -179,7 +182,7 @@ export default function AudiencesPage() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent Link click from firing
+                            e.stopPropagation(); // Prevent TableRow click from firing
                             setSelectedAudience(audience);
                             setIsDeleteDialogOpen(true);
                           }}
