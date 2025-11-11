@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link"; // Import Link
 import { Button } from "@/components/ui/button";
 import {
@@ -23,67 +23,85 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-
-interface Audience {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-}
-
-const initialAudiences: Audience[] = [
-  {
-    id: "1",
-    name: "Marketing Leads",
-    description: "Potential customers from recent campaigns",
-    createdAt: "2023-10-26",
-  },
-  {
-    id: "2",
-    name: "Existing Customers",
-    description: "All customers who have made a purchase",
-    createdAt: "2023-09-15",
-  },
-  {
-    id: "3",
-    name: "Website Visitors",
-    description: "Users who visited the website in the last 30 days",
-    createdAt: "2023-11-01",
-  },
-];
+import { IAudience } from "@/dto/IAudience";
 
 export default function AudiencesPage() {
-  const [audiences, setAudiences] = useState<Audience[]>(initialAudiences);
+  const [audiences, setAudiences] = useState<IAudience[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedAudience, setSelectedAudience] = useState<Audience | null>(null);
+  const [selectedAudience, setSelectedAudience] = useState<IAudience | null>(null);
 
-  const handleCreateAudience = (name: string, description: string) => {
-    const newAudience: Audience = {
-      id: String(audiences.length + 1),
-      name,
-      description,
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-    setAudiences([...audiences, newAudience]);
-    setIsCreateDialogOpen(false);
+  const fetchAudiences = async () => {
+    try {
+      const response = await fetch("/api/audiences");
+      if (!response.ok) {
+        throw new Error("Failed to fetch audiences");
+      }
+      const data: IAudience[] = await response.json();
+      setAudiences(data);
+    } catch (error) {
+      console.error("Error fetching audiences:", error);
+    }
   };
 
-  const handleEditAudience = (id: string, name: string, description: string) => {
-    setAudiences(
-      audiences.map((aud) =>
-        aud.id === id ? { ...aud, name, description } : aud
-      )
-    );
-    setIsEditDialogOpen(false);
-    setSelectedAudience(null);
+  useEffect(() => {
+    fetchAudiences();
+  }, []);
+
+  const handleCreateAudience = async (name: string, description: string) => {
+    try {
+      const response = await fetch("/api/audiences", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create audience");
+      }
+      setIsCreateDialogOpen(false);
+      fetchAudiences(); // Refresh the list
+    } catch (error) {
+      console.error("Error creating audience:", error);
+    }
   };
 
-  const handleDeleteAudience = (id: string) => {
-    setAudiences(audiences.filter((aud) => aud.id !== id));
-    setIsDeleteDialogOpen(false);
-    setSelectedAudience(null);
+  const handleEditAudience = async (id: number, name: string, description: string) => {
+    try {
+      const response = await fetch(`/api/audiences/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update audience");
+      }
+      setIsEditDialogOpen(false);
+      setSelectedAudience(null);
+      fetchAudiences(); // Refresh the list
+    } catch (error) {
+      console.error("Error updating audience:", error);
+    }
+  };
+
+  const handleDeleteAudience = async (id: number) => {
+    try {
+      const response = await fetch(`/api/audiences/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete audience");
+      }
+      setIsDeleteDialogOpen(false);
+      setSelectedAudience(null);
+      fetchAudiences(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting audience:", error);
+    }
   };
 
   return (
@@ -106,45 +124,74 @@ export default function AudiencesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {audiences.map((audience) => (
-              <TableRow key={audience.id} className="cursor-pointer">
-                <Link href={`/audiences/members/${audience.id}`} passHref className="contents">
-                  <TableCell className="font-medium">{audience.name}</TableCell>
-                  <TableCell>{audience.description}</TableCell>
-                  <TableCell>{audience.createdAt}</TableCell>
-                </Link>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent Link click from firing
-                          setSelectedAudience(audience);
-                          setIsEditDialogOpen(true);
-                        }}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent Link click from firing
-                          setSelectedAudience(audience);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {audiences.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center">
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                      />
+                    </svg>
+                    <p className="mt-4 text-lg text-gray-600">
+                      No audiences found.
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Click "Create Audience" to add your first one.
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              audiences.map((audience) => (
+                <TableRow key={audience.id} className="cursor-pointer">
+                  <Link href={`/audiences/members/${audience.id}`} passHref className="contents">
+                    <TableCell className="font-medium">{audience.name}</TableCell>
+                    <TableCell>{audience.description}</TableCell>
+                    <TableCell>{new Date(audience.created_at).toLocaleDateString()}</TableCell>
+                  </Link>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent Link click from firing
+                            setSelectedAudience(audience);
+                            setIsEditDialogOpen(true);
+                          }}
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent Link click from firing
+                            setSelectedAudience(audience);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
