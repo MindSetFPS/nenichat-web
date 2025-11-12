@@ -24,7 +24,6 @@ interface AppSidebarProps {
 export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const pathname = usePathname()
     const contacts: IContact[] = JSON.parse(contactsJson)
-    console.log(contacts)
     const isActive = (path: string) => {
         return pathname === path
     }

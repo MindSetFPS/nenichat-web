@@ -27,7 +27,6 @@ export default function ChatView({
     e.preventDefault()
     // Sending messages is disabled for now.
     if (newMessage.trim() === "") return
-    console.log("Sending message:", newMessage)
     setNewMessage("")
   }
 
