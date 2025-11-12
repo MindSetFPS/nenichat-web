@@ -7,11 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { EditMessageDialog } from "@/components/EditMessageDialog";
-import { CalendarDays, MessageSquare, Users } from "lucide-react";
+import { CalendarDays, MessageSquare } from "lucide-react";
 import { campaignRepository } from '@/repository/CampaignRepository';
 import { ICampaign } from '@/dto/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
+import Link from "next/link";
 
 export default async function CampaignsPage() {
   const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
@@ -87,10 +87,11 @@ export default async function CampaignsPage() {
                 </CardContent>
               )}
               <CardFooter className="flex-col justify-between gap-2">
-                <EditMessageDialog
-                  campaignId={Number(campaign.id)}
-                  initialMessage={campaign.description || ''}
-                />
+                <Link href={`/campaigns/${campaign.id}`} className="w-full">
+                  <Button variant="outline" className="w-full">
+                    Edit Campaign
+                  </Button>
+                </Link>
                 <Button variant="default" className="w-full">
                   Send Campaign
                 </Button>

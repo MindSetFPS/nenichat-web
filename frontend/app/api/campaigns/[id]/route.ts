@@ -1,0 +1,24 @@
+import { NextResponse } from 'next/server';
+import { campaignRepository } from '@/repository/CampaignRepository';
+import { ICampaign } from '@/dto/ICampaign';
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = await params;
+    const body: Partial<ICampaign> = await request.json();
+
+    const campaignToUpdate: Partial<ICampaign> = {
+      id: id,
+      ...body
+    };
+
+    const updatedCampaign = await campaignRepository.update(campaignToUpdate);
+
+    return NextResponse.json(updatedCampaign);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
