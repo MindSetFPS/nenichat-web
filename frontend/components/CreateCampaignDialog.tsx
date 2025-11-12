@@ -182,11 +182,6 @@ export function CreateCampaignDialog() {
               />
             </div>
           </div>
-          {error && (
-            <p className="col-span-4 text-center text-red-500 text-sm">
-              {error}
-            </p>
-          )}
           <DialogFooter>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Creating..." : "Create Campaign"}
