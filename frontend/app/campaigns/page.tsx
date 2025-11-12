@@ -9,67 +9,15 @@ import {
 } from "@/components/ui/card";
 import { EditMessageDialog } from "@/components/EditMessageDialog";
 import { CalendarDays, MessageSquare, Users } from "lucide-react";
+import { campaignRepository } from '@/repository/CampaignRepository';
+import { ICampaign } from '@/dto/ICampaign';
+import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 
-const campaigns = [
-  {
-    id: 1,
-    name: "Welcome Campaign",
-    audience: "New Users",
-    message: "Welcome to our platform! We are excited to have you.",
-    runAt: "2025-11-09", // Past date (yesterday)
-  },
-  {
-    id: 2,
-    name: "Black Friday Promo",
-    audience: "All Users",
-    message: "Get 50% off on all products this Black Friday!",
-    runAt: "2025-11-05", // Past date (this week)
-  },
-  {
-    id: 3,
-    name: "New Feature Announcement",
-    audience: "Active Users",
-    message: "We've just launched a new feature! Check it out now.",
-    runAt: "2025-10-20", // Past date (this month)
-  },
-  {
-    id: 4,
-    name: "Upcoming Sale",
-    audience: "All Users",
-    message: "Get ready for our amazing upcoming sale!",
-    runAt: "2025-12-01", // Future date
-  },
-  {
-    id: 5,
-    name: "Holiday Greetings",
-    audience: "All Users",
-    message: "Happy holidays from our team!",
-    runAt: "2025-12-25", // Future date
-  },
-  {
-    id: 6,
-    name: "Daily Digest",
-    audience: "Subscribers",
-    message: "Your daily dose of news and updates.",
-    runAt: "2025-11-10", // Today
-  },
-  {
-    id: 7,
-    name: "Weekly Newsletter",
-    audience: "Subscribers",
-    message: "Our weekly roundup of exciting content.",
-    runAt: "2025-11-08", // This week
-  },
-  {
-    id: 8,
-    name: "Monthly Report",
-    audience: "Premium Users",
-    message: "Your personalized monthly performance report.",
-    runAt: "2025-10-30", // This month
-  },
-];
+export default async function CampaignsPage() {
+  const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
 
-export default function CampaignsPage() {
+  console.log("All Campaigns:", allCampaigns);
+
   const now = new Date();
   now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
 
@@ -80,33 +28,42 @@ export default function CampaignsPage() {
 
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const sortedCampaigns = campaigns.sort(
-    (a, b) => new Date(b.runAt).getTime() - new Date(a.runAt).getTime()
+  const sortedCampaigns = allCampaigns.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
   const futureCampaigns = sortedCampaigns.filter(
-    (campaign) => new Date(campaign.runAt) > now
+    (campaign) => campaign.run_at && new Date(campaign.run_at) > now && new Date(campaign.run_at).toDateString() !== startOfDay.toDateString()
   );
 
   const todayCampaigns = sortedCampaigns.filter(
-    (campaign) => new Date(campaign.runAt).toDateString() === startOfDay.toDateString()
+    (campaign) => campaign.run_at && new Date(campaign.run_at).toDateString() === startOfDay.toDateString()
   );
+
+  console.log("Today Campaigns:", todayCampaigns);
 
   const thisWeekCampaigns = sortedCampaigns.filter(
     (campaign) =>
-      new Date(campaign.runAt) >= startOfWeek && new Date(campaign.runAt) < startOfDay
+      campaign.run_at &&
+      new Date(campaign.run_at) >= startOfWeek &&
+      new Date(campaign.run_at) < startOfDay
   );
 
   const thisMonthCampaigns = sortedCampaigns.filter(
     (campaign) =>
-      new Date(campaign.runAt) >= startOfMonth && new Date(campaign.runAt) < startOfWeek
+      campaign.run_at &&
+      new Date(campaign.run_at) >= startOfMonth &&
+      new Date(campaign.run_at) < startOfWeek
   );
 
   const olderCampaigns = sortedCampaigns.filter(
-    (campaign) => new Date(campaign.runAt) < startOfMonth
+    (campaign) =>
+      !campaign.run_at || new Date(campaign.run_at) < startOfMonth
   );
 
-  const renderCampaignSection = (title: string, campaignsToRender: typeof campaigns) => {
+  console.log("Older Campaigns:", olderCampaigns);
+
+  const renderCampaignSection = (title: string, campaignsToRender: ICampaign[]) => {
     if (campaignsToRender.length === 0) return null;
     return (
       <>
@@ -116,23 +73,23 @@ export default function CampaignsPage() {
             <Card key={campaign.id}>
               <CardHeader>
                 <CardTitle>{campaign.name}</CardTitle>
-                <CardDescription className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>{campaign.audience}</span>
-                </CardDescription>
-                <CardDescription className="flex items-center gap-1">
-                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                  <span>{campaign.runAt}</span>
-                </CardDescription>
+                {campaign.run_at && (
+                  <CardDescription className="flex items-center gap-1">
+                    <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                    <span>{new Date(campaign.run_at).toLocaleString()}</span>
+                  </CardDescription>
+                )}
               </CardHeader>
-              <CardContent className="flex items-center gap-1 text-sm text-muted-foreground">
-                <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                <p>{campaign.message}</p>
-              </CardContent>
+              {campaign.description && (
+                <CardContent className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  <p>{campaign.description}</p>
+                </CardContent>
+              )}
               <CardFooter className="flex-col justify-between gap-2">
                 <EditMessageDialog
-                  campaignId={campaign.id}
-                  initialMessage={campaign.message}
+                  campaignId={Number(campaign.id)}
+                  initialMessage={campaign.description || ''}
                 />
                 <Button variant="default" className="w-full">
                   Send Campaign
@@ -149,8 +106,14 @@ export default function CampaignsPage() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Campaigns</h1>
-        <Button>Create Campaign</Button>
+        <CreateCampaignDialog />
       </div>
+      <p>To make it work correctly we need to:
+        1. Randomize the message to avoid spam filters.
+        2. Only send message to currently engaged users (they have talked in previous 24 hours.
+        3. Time limits and randomization to avoid being marked as spam.
+      </p>
+
 
       {renderCampaignSection("Upcoming Campaigns", futureCampaigns)}
       {renderCampaignSection("Today's Campaigns", todayCampaigns)}
