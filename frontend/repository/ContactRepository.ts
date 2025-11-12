@@ -1,126 +1,161 @@
+import { Pool } from 'pg';
 import { IContact } from './IContact';
 import { IContactRepository } from './IContactRepository';
 import { Contact } from './Contact';
-import { sql } from './db';
+import { pool } from '../repository/db';
 
 export class ContactRepository implements IContactRepository {
-  constructor(private sql: any) {}
+  private pool: Pool;
 
-  private toContact(data: any): IContact {
-    if (!data) return data;
+  constructor(pool: Pool) {
+    this.pool = pool;
+  }
+
+  public async findById(id: bigint): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE id = $1', [id]);
+    if (result.rows.length === 0) {
+      return null;
+    }
+    const row = result.rows[0];
     return new Contact(
-      data.id,
-      data.phone_number,
-      data.lid,
-      data.username,
-      data.pushname,
-      data.contact_name,
-      data.is_user,
-      data.created_at,
-      data.updated_at
+      row.id,
+      row.phone_number,
+      row.lid,
+      row.username,
+      row.pushname,
+      row.contact_name,
+      row.is_user,
+      row.created_at,
+      row.updated_at
     );
   }
 
-  async findById(id: bigint): Promise<IContact | null> {
-    const result: any[] = await this.sql`SELECT * FROM contacts WHERE id = ${id}`;
-
-    if (result.length === 0) {
+  public async findByPhoneNumber(phoneNumber: string): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE phone_number = $1', [
+      phoneNumber,
+    ]);
+    if (result.rows.length === 0) {
       return null;
     }
-    return this.toContact(result[0]);
+    const row = result.rows[0];
+    return new Contact(
+      row.id,
+      row.phone_number,
+      row.lid,
+      row.username,
+      row.pushname,
+      row.contact_name,
+      row.is_user,
+      row.created_at,
+      row.updated_at
+    );
   }
 
-  async findByPhoneNumber(phoneNumber: string): Promise<IContact | null> {
-    const result: any[] =
-      await this.sql`SELECT * FROM contacts WHERE phone_number = ${phoneNumber}`;
-
-    if (result.length === 0) {
+  public async findByLid(lid: string): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE lid = $1', [lid]);
+    if (result.rows.length === 0) {
       return null;
     }
-    return this.toContact(result[0]);
+    const row = result.rows[0];
+    return new Contact(
+      row.id,
+      row.phone_number,
+      row.lid,
+      row.username,
+      row.pushname,
+      row.contact_name,
+      row.is_user,
+      row.created_at,
+      row.updated_at
+    );
   }
 
-  async findByLid(lid: string): Promise<IContact | null> {
-    const result: any[] =
-      await this.sql`SELECT * FROM contacts WHERE lid = ${lid}`;
-
-    if (result.length === 0) {
-      return null;
-    }
-    return this.toContact(result[0]);
-  }
-
-  async save(contact: Partial<IContact>): Promise<IContact> {
-    const { phone_number, lid, username, pushname, contact_name, is_user } =
-      contact;
-
-    if (!phone_number && !lid) {
-      throw new Error(
-        'Either phone_number or lid must be provided to save a contact.'
-      );
-    }
-
-    let existingContact: IContact | null = null;
-    if (phone_number) {
-      existingContact = await this.findByPhoneNumber(phone_number);
-    }
-    if (!existingContact && lid) {
-      existingContact = await this.findByLid(lid);
-    }
-
-    if (existingContact) {
-      // Update existing contact
-      const contactToUpdate = { ...existingContact, ...contact };
-      const result: any[] = await this.sql`
-        UPDATE contacts
-        SET
-          phone_number = ${contactToUpdate.phone_number},
-          lid = ${contactToUpdate.lid},
-          username = ${contactToUpdate.username},
-          pushname = ${contactToUpdate.pushname},
-          contact_name = ${contactToUpdate.contact_name},
-          is_user = ${contactToUpdate.is_user},
-          updated_at = NOW()
-        WHERE id = ${existingContact.id}
-        RETURNING *
-      `;
-      if (!result || result.length === 0) {
-        throw new Error('Failed to save contact.');
+  public async save(contact: Partial<IContact>): Promise<IContact> {
+    if (contact.phone_number || contact.lid) {
+      let existingContact;
+      if (contact.phone_number) {
+        existingContact = await this.findByPhoneNumber(contact.phone_number);
       }
-      return this.toContact(result[0]);
-    } else {
-      // Insert new contact
-      const result: any[] = await this.sql`
-        INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user)
-        VALUES (${phone_number || null}, ${lid || null}, ${username || null}, ${
-        pushname || null
-      }, ${contact_name || null}, ${is_user || false})
-        RETURNING *
-      `;
-      if (!result || result.length === 0) {
-        throw new Error('Failed to save contact.');
+      if (!existingContact && contact.lid) {
+        existingContact = await this.findByLid(contact.lid);
       }
-      return this.toContact(result[0]);
+
+      if (existingContact && existingContact.id) {
+        // Update
+        const newContact = { ...existingContact, ...contact };
+        const result = await this.pool.query(
+          'UPDATE contacts SET phone_number = $1, lid = $2, username = $3, pushname = $4, contact_name = $5, is_user = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
+          [
+            newContact.phone_number,
+            newContact.lid,
+            newContact.username,
+            newContact.pushname,
+            newContact.contact_name,
+            newContact.is_user,
+            existingContact.id,
+          ]
+        );
+        const row = result.rows[0];
+        return new Contact(
+          row.id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.created_at,
+          row.updated_at
+        );
+      }
     }
+
+    // Create
+    const result = await this.pool.query(
+      'INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [
+        contact.phone_number,
+        contact.lid,
+        contact.username,
+        contact.pushname,
+        contact.contact_name,
+        contact.is_user,
+      ]
+    );
+    const row = result.rows[0];
+    return new Contact(
+      row.id,
+      row.phone_number,
+      row.lid,
+      row.username,
+      row.pushname,
+      row.contact_name,
+      row.is_user,
+      row.created_at,
+      row.updated_at
+    );
   }
 
-
-  async findUser(): Promise<IContact | null> {
-    const result: any[] =
-      await this.sql`SELECT * FROM contacts WHERE is_user = true LIMIT 1`;
-
-    if (result.length === 0) {
-      return null;
-    }
-    return this.toContact(result[0]);
-  }
-
-  async list(offset: number, limit: number): Promise<IContact[]> {
-    const contacts: any[] =
-      await this.sql`SELECT * FROM contacts WHERE is_user = false ORDER BY created_at DESC, id DESC LIMIT ${limit} OFFSET ${offset}`;
-
-    return contacts.map((d) => this.toContact(d));
+  public async list(offset: number, limit: number): Promise<IContact[]> {
+    const result = await this.pool.query('SELECT * FROM contacts ORDER BY created_at DESC LIMIT $1 OFFSET $2', [
+      limit,
+      offset,
+    ]);
+    return result.rows.map(
+      (row) =>
+        new Contact(
+          row.id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.created_at,
+          row.updated_at
+        )
+    );
   }
 }
 
-export const contactRepository = new ContactRepository(sql);
+export const contactRepository = new ContactRepository(pool);

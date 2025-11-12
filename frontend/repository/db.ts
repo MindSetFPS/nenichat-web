@@ -1,3 +1,5 @@
+import { Pool } from 'pg';
+
 const user = process.env.DB_USER;
 const password = process.env.DB_PASSWORD;
 const host = process.env.DB_HOST;
@@ -12,4 +14,6 @@ if (!db) throw new Error("Missing environment variable: POSTGRES_DB");
 
 const connectionString = `postgres://${user}:${password}@${host}:${port}/${db}`;
 
-export const sql = new Bun.SQL(connectionString);
+export const pool = new Pool({
+    connectionString,
+});
