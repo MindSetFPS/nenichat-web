@@ -1,10 +1,11 @@
+import { Pool } from 'pg';
 import { IContact } from './IContact';
 import { IAudienceContactRepository } from './IAudienceContactRepository';
 import { Contact } from './Contact';
-import { sql } from './db';
+import { pool } from './db';
 
 export class AudienceContactRepository implements IAudienceContactRepository {
-  constructor(private sql: any) {}
+  constructor(private pool: Pool) {}
 
   private toContact(data: any): IContact {
     if (!data) return data;
@@ -22,51 +23,69 @@ export class AudienceContactRepository implements IAudienceContactRepository {
   }
 
   async findByAudienceId(audienceId: string): Promise<IContact[]> {
-    const result: any[] = await this.sql`
+    const result = await this.pool.query(`
       SELECT c.*
       FROM contacts c
       JOIN audience_contacts ac ON c.id = ac.contact_id
-      WHERE ac.audience_id = ${audienceId}
-    `;
-    return result.map(this.toContact);
+      WHERE ac.audience_id = $1
+    `, [audienceId]);
+    return result.rows.map(this.toContact);
   }
 
   async addContactToAudience(audienceId: string, contactId: string): Promise<void> {
-    await this.sql`
+    await this.pool.query(`
       INSERT INTO audience_contacts (audience_id, contact_id)
-      VALUES (${audienceId}, ${contactId})
+      VALUES ($1, $2)
       ON CONFLICT (audience_id, contact_id) DO NOTHING
-    `;
+    `, [audienceId, contactId]);
   }
 
   async removeContactFromAudience(audienceId: string, contactId: string): Promise<void> {
-    await this.sql`
+    await this.pool.query(`
       DELETE FROM audience_contacts
-      WHERE audience_id = ${audienceId} AND contact_id = ${contactId}
-    `;
+      WHERE audience_id = $1 AND contact_id = $2
+    `, [audienceId, contactId]);
   }
 
   async updateAudienceMembers(audienceId: string, contactIds: string[]): Promise<void> {
-    await this.sql.begin(async (sql: any) => {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
       // Delete existing members for the audience
-      await sql`
-        DELETE FROM audience_contacts
-        WHERE audience_id = ${audienceId}
-      `;
+      await client.query(
+        'DELETE FROM audience_contacts WHERE audience_id = $1',
+        [audienceId]
+      );
 
       // Insert new members
       if (contactIds.length > 0) {
-        const values = contactIds.map(contactId => ({
-          audience_id: audienceId,
-          contact_id: contactId
-        }));
-        await sql`
-          INSERT INTO audience_contacts ${sql(values)}
+        const valueStrings = [];
+        const queryParams = [];
+        let paramIndex = 1;
+        for (const contactId of contactIds) {
+          valueStrings.push(`($${paramIndex++}, $${paramIndex++})`);
+          queryParams.push(audienceId);
+          queryParams.push(contactId);
+        }
+
+        const queryText = `
+          INSERT INTO audience_contacts (audience_id, contact_id)
+          VALUES ${valueStrings.join(', ')}
           ON CONFLICT (audience_id, contact_id) DO NOTHING
         `;
+
+        await client.query(queryText, queryParams);
       }
-    });
+
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
   }
 }
 
-export const audienceContactRepository = new AudienceContactRepository(sql);
+export const audienceContactRepository = new AudienceContactRepository(pool);

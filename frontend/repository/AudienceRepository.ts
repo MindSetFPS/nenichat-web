@@ -1,9 +1,10 @@
+import { Pool } from 'pg';
 import { IAudience } from '../dto/IAudience';
 import { IAudienceRepository } from './IAudienceRepository';
-import { sql } from './db';
+import { pool } from './db';
 
 export class AudienceRepository implements IAudienceRepository {
-  constructor(private sql: any) { }
+  constructor(private pool: Pool) { }
 
   private toAudience(data: any): IAudience {
     if (!data) return data;
@@ -16,27 +17,30 @@ export class AudienceRepository implements IAudienceRepository {
   }
 
   async findById(id: number): Promise<IAudience | null> {
-    const result: any[] = await this.sql`SELECT * FROM audiences WHERE id = ${id}`;
+    const result = await this.pool.query('SELECT * FROM audiences WHERE id = $1', [id]);
 
-    if (result.length === 0) {
+    if (result.rows.length === 0) {
       return null;
     }
-    return this.toAudience(result[0]);
+    return this.toAudience(result.rows[0]);
   }
 
   async findAll(): Promise<IAudience[]> {
-    const result: any[] = await this.sql`SELECT * FROM audiences`;
-    return result.map(this.toAudience);
+    const result = await this.pool.query('SELECT * FROM audiences');
+    return result.rows.map(this.toAudience);
   }
 
   async create(audience: Omit<IAudience, 'id' | 'created_at'>): Promise<IAudience> {
-    const result: any[] = await this.sql`
+    const result = await this.pool.query(
+      `
       INSERT INTO audiences (name, description)
-      VALUES (${audience.name}, ${audience.description})
+      VALUES ($1, $2)
       RETURNING *
-    `;
-    return this.toAudience(result[0]);
+    `,
+      [audience.name, audience.description]
+    );
+    return this.toAudience(result.rows[0]);
   }
 }
 
-export const audienceRepository = new AudienceRepository(sql);
+export const audienceRepository = new AudienceRepository(pool);

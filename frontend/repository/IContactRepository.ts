@@ -4,6 +4,7 @@ export interface IContactRepository {
   findById(id: bigint): Promise<IContact | null>;
   findByPhoneNumber(phoneNumber: string): Promise<IContact | null>;
   findByLid(lid: string): Promise<IContact | null>;
+  findMe(): Promise<IContact | null>;
 
   /**
    * Saves a contact (creates or updates).

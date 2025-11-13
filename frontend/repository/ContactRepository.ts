@@ -70,6 +70,25 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
+  public async findMe(): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE is_user = TRUE LIMIT 1');
+    if (result.rows.length === 0) {
+      return null;
+    }
+    const row = result.rows[0];
+    return new Contact(
+      row.id,
+      row.phone_number,
+      row.lid,
+      row.username,
+      row.pushname,
+      row.contact_name,
+      row.is_user,
+      row.created_at,
+      row.updated_at
+    );
+  }
+
   public async save(contact: Partial<IContact>): Promise<IContact> {
     if (contact.phone_number || contact.lid) {
       let existingContact;

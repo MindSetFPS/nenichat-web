@@ -1,10 +1,11 @@
+import { Pool } from 'pg';
 import { IMessage } from './IMessage';
 import { IMessageRepository } from './IMessageRepository';
 import { Message } from './Message';
-import { sql } from './db';
+import { pool } from './db';
 
 export class MessageRepository implements IMessageRepository {
-  constructor(private sql: any) {}
+  constructor(private pool: Pool) {}
 
   private toMessage(data: any): IMessage {
     if (!data) return data;
@@ -20,12 +21,12 @@ export class MessageRepository implements IMessageRepository {
   }
 
   async findById(id: string): Promise<IMessage | null> {
-    const result: any[] = await this.sql`SELECT * FROM messages WHERE id = ${id}`;
+    const result = await this.pool.query('SELECT * FROM messages WHERE id = $1', [id]);
 
-    if (result.length === 0) {
+    if (result.rows.length === 0) {
       return null;
     }
-    return this.toMessage(result[0]);
+    return this.toMessage(result.rows[0]);
   }
 
   async save(message: Partial<IMessage>): Promise<IMessage> {
@@ -40,51 +41,68 @@ export class MessageRepository implements IMessageRepository {
     if (existingMessage) {
       // Update existing message
       const messageToUpdate = { ...existingMessage, ...message };
-      const result: any[] = await this.sql`
+      const result = await this.pool.query(
+        `
         UPDATE messages
         SET
-          chat_id = ${messageToUpdate.chat_id},
-          sender_id = ${messageToUpdate.sender_id},
-          text_content = ${messageToUpdate.text_content},
-          replied_to_message_id = ${messageToUpdate.replied_to_message_id},
-          quoted_message_text = ${messageToUpdate.quoted_message_text}
-        WHERE id = ${existingMessage.id}
+          chat_id = $1,
+          sender_id = $2,
+          text_content = $3,
+          replied_to_message_id = $4,
+          quoted_message_text = $5
+        WHERE id = $6
         RETURNING *
-      `;
-      if (!result || result.length === 0) {
+      `,
+        [
+          messageToUpdate.chat_id,
+          messageToUpdate.sender_id,
+          messageToUpdate.text_content,
+          messageToUpdate.replied_to_message_id,
+          messageToUpdate.quoted_message_text,
+          existingMessage.id,
+        ]
+      );
+      if (!result || result.rows.length === 0) {
         throw new Error('Failed to save message.');
       }
-      return this.toMessage(result[0]);
+      return this.toMessage(result.rows[0]);
     } else {
       // Insert new message
       if (!chat_id || !sender_id) {
           throw new Error('chat_id and sender_id must be provided for a new message.');
       }
-      const result: any[] = await this.sql`
+      const result = await this.pool.query(
+        `
         INSERT INTO messages (id, chat_id, sender_id, text_content, replied_to_message_id, quoted_message_text)
-        VALUES (${id}, ${chat_id}, ${sender_id}, ${text_content || null}, ${replied_to_message_id || null}, ${quoted_message_text || null})
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
-      `;
-      if (!result || result.length === 0) {
+      `,
+        [id, chat_id, sender_id, text_content || null, replied_to_message_id || null, quoted_message_text || null]
+      );
+      if (!result || result.rows.length === 0) {
         throw new Error('Failed to save message.');
       }
-      return this.toMessage(result[0]);
+      return this.toMessage(result.rows[0]);
     }
   }
 
   async list(offset: number, limit: number): Promise<IMessage[]> {
-    const messages: any[] =
-      await this.sql`SELECT * FROM messages ORDER BY created_at DESC, id DESC LIMIT ${limit} OFFSET ${offset}`;
+    const result = await this.pool.query(
+      'SELECT * FROM messages ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
 
-    return messages.map((d) => this.toMessage(d));
+    return result.rows.map((d) => this.toMessage(d));
   }
 
   async findByChatId(chat_id: string, offset: number, limit: number): Promise<IMessage[]> {
-    const messages: any[] =
-      await this.sql`SELECT * FROM messages WHERE chat_id = ${chat_id} ORDER BY created_at DESC, id DESC LIMIT ${limit} OFFSET ${offset}`;
+    const result = await this.pool.query(
+      'SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2 OFFSET $3',
+      [chat_id, limit, offset]
+    );
 
-    return messages.map((d) => this.toMessage(d));
+    return result.rows.map((d) => this.toMessage(d));
   }
 }
 
-export const messageRepository = new MessageRepository(sql);
+export const messageRepository = new MessageRepository(pool);

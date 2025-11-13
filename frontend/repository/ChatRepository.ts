@@ -1,10 +1,11 @@
+import { Pool } from 'pg';
 import { IChat } from './IChat';
 import { IChatRepository } from './IChatRepository';
 import { Chat } from './Chat';
-import { sql } from './db';
+import { pool } from './db';
 
 export class ChatRepository implements IChatRepository {
-  constructor(private sql: any) {}
+  constructor(private pool: Pool) {}
 
   private toChat(data: any): IChat {
     if (!data) return data;
@@ -16,12 +17,12 @@ export class ChatRepository implements IChatRepository {
   }
 
   async findById(id: bigint): Promise<IChat | null> {
-    const result: any[] = await this.sql`SELECT * FROM chats WHERE id = ${id}`;
+    const result = await this.pool.query('SELECT * FROM chats WHERE id = $1', [id]);
 
-    if (result.length === 0) {
+    if (result.rows.length === 0) {
       return null;
     }
-    return this.toChat(result[0]);
+    return this.toChat(result.rows[0]);
   }
 
   async save(chat: Partial<IChat>): Promise<IChat> {
@@ -36,37 +37,45 @@ export class ChatRepository implements IChatRepository {
     if (existingChat) {
       // Update existing chat
       const chatToUpdate = { ...existingChat, ...chat };
-      const result: any[] = await this.sql`
+      const result = await this.pool.query(
+        `
         UPDATE chats
         SET
-          is_group = ${chatToUpdate.is_group}
-        WHERE id = ${existingChat.id}
+          is_group = $1
+        WHERE id = $2
         RETURNING *
-      `;
-      if (!result || result.length === 0) {
+      `,
+        [chatToUpdate.is_group, existingChat.id]
+      );
+      if (!result || result.rows.length === 0) {
         throw new Error('Failed to save chat.');
       }
-      return this.toChat(result[0]);
+      return this.toChat(result.rows[0]);
     } else {
       // Insert new chat
-      const result: any[] = await this.sql`
+      const result = await this.pool.query(
+        `
         INSERT INTO chats (id, is_group)
-        VALUES (${id}, ${is_group || false})
+        VALUES ($1, $2)
         RETURNING *
-      `;
-      if (!result || result.length === 0) {
+      `,
+        [id, is_group || false]
+      );
+      if (!result || result.rows.length === 0) {
         throw new Error('Failed to save chat.');
       }
-      return this.toChat(result[0]);
+      return this.toChat(result.rows[0]);
     }
   }
 
   async list(offset: number, limit: number): Promise<IChat[]> {
-    const chats: any[] =
-      await this.sql`SELECT * FROM chats ORDER BY created_at DESC, id DESC LIMIT ${limit} OFFSET ${offset}`;
+    const result = await this.pool.query(
+      'SELECT * FROM chats ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
 
-    return chats.map((d) => this.toChat(d));
+    return result.rows.map((d) => this.toChat(d));
   }
 }
 
-export const chatRepository = new ChatRepository(sql);
+export const chatRepository = new ChatRepository(pool);

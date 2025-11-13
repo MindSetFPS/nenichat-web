@@ -8,7 +8,7 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
 
   const contactData = await contactRepository.findById(BigInt(params.id))
   const messagesData = await messageRepository.findByChatId(params.id, 0, 100)
-  const meData = await contactRepository.findUser()
+  const meData = await contactRepository.findMe()
 
   const contact = JSON.parse(JSON.stringify(contactData))
   const messages = JSON.parse(JSON.stringify(messagesData))
