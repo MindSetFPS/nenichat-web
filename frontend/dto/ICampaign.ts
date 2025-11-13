@@ -4,4 +4,5 @@ export interface ICampaign {
   run_at?: string;
   description?: string;
   created_at: string;
+  audienceIds?: number[];
 }

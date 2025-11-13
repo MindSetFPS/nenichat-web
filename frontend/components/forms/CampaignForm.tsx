@@ -13,35 +13,68 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ICampaign } from "@/dto/ICampaign";
+import { IAudience } from "@/dto/IAudience";
+import { Checkbox } from "../ui/checkbox";
 
 interface CampaignFormProps {
-  onSubmit: (data: { name: string; description: string; run_at?: Date }) => Promise<void>;
+  onSubmit: (data: {
+    name: string;
+    description: string;
+    run_at?: Date;
+    audienceIds?: number[];
+  }) => Promise<void>;
   initialData?: Partial<ICampaign>;
   isLoading: boolean;
   submitButtonText: string;
 }
 
-export function CampaignForm({ onSubmit, initialData, isLoading, submitButtonText }: CampaignFormProps) {
+export function CampaignForm({
+  onSubmit,
+  initialData,
+  isLoading,
+  submitButtonText,
+}: CampaignFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [runAt, setRunAt] = useState<Date | undefined>(new Date());
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [audiences, setAudiences] = useState<IAudience[]>([]);
+  const [selectedAudienceIds, setSelectedAudienceIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (initialData) {
       setName(initialData.name || "");
       setDescription(initialData.description || "");
       setRunAt(initialData.run_at ? new Date(initialData.run_at) : new Date());
+      setSelectedAudienceIds(initialData.audienceIds || []);
     } else {
-        setName("");
-        setDescription("");
-        setRunAt(new Date());
+      setName("");
+      setDescription("");
+      setRunAt(new Date());
+      setSelectedAudienceIds([]);
     }
   }, [initialData]);
 
+  useEffect(() => {
+    const fetchAudiences = async () => {
+      const response = await fetch("/api/audiences");
+      const data = await response.json();
+      setAudiences(data);
+    };
+    fetchAudiences();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ name, description, run_at: runAt });
+    await onSubmit({ name, description, run_at: runAt, audienceIds: selectedAudienceIds });
+  };
+
+  const handleAudienceSelection = (audienceId: number) => {
+    setSelectedAudienceIds((prev) =>
+      prev.includes(audienceId)
+        ? prev.filter((id) => id !== audienceId)
+        : [...prev, audienceId]
+    );
   };
 
   return (
@@ -70,6 +103,34 @@ export function CampaignForm({ onSubmit, initialData, isLoading, submitButtonTex
           disabled={isLoading}
         />
       </div>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="audiences" className="text-right">
+          Audiences
+        </Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="col-span-3">
+              Select Audiences ({selectedAudienceIds.length})
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="grid gap-4">
+              {audiences.map((audience) => (
+                <div key={audience.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`audience-${audience.id}`}
+                    checked={selectedAudienceIds.includes(audience.id)}
+                    onCheckedChange={() => handleAudienceSelection(audience.id)}
+                  />
+                  <Label htmlFor={`audience-${audience.id}`}>
+                    {audience.name}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       <Label htmlFor="run_at" className="text-right font-bold">
         Run At (HH:MM)
       </Label>
@@ -89,7 +150,10 @@ export function CampaignForm({ onSubmit, initialData, isLoading, submitButtonTex
                 <ChevronDownIcon />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <PopoverContent
+              className="w-auto overflow-hidden p-0"
+              align="start"
+            >
               <Calendar
                 mode="single"
                 selected={runAt}
@@ -99,13 +163,13 @@ export function CampaignForm({ onSubmit, initialData, isLoading, submitButtonTex
                     setRunAt(undefined);
                     setPopoverOpen(false);
                     return;
-                  };
+                  }
                   const newDate = new Date(runAt || new Date());
                   newDate.setFullYear(selectedDate.getFullYear());
                   newDate.setMonth(selectedDate.getMonth());
                   newDate.setDate(selectedDate.getDate());
                   setRunAt(newDate);
-                  setPopoverOpen(false)
+                  setPopoverOpen(false);
                 }}
               />
             </PopoverContent>
@@ -123,7 +187,7 @@ export function CampaignForm({ onSubmit, initialData, isLoading, submitButtonTex
             value={runAt ? runAt.toTimeString().slice(0, 8) : ""}
             onChange={(e) => {
               const newDate = runAt ? new Date(runAt) : new Date();
-              const [hours, minutes, seconds] = e.target.value.split(':');
+              const [hours, minutes, seconds] = e.target.value.split(":");
               newDate.setHours(parseInt(hours, 10));
               newDate.setMinutes(parseInt(minutes, 10));
               if (seconds) {

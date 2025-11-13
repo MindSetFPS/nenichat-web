@@ -2,6 +2,22 @@ import { NextResponse } from 'next/server';
 import { campaignRepository } from '@/repository/CampaignRepository';
 import { ICampaign } from '@/dto/ICampaign';
 
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = await params;
+    const campaign = await campaignRepository.findById(id, true);
+    if (!campaign) {
+      return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
+    }
+    return NextResponse.json(campaign);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }

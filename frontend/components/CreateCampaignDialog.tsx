@@ -19,28 +19,34 @@ export function CreateCampaignDialog() {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = async (data: { name: string; description: string; run_at?: Date }) => {
+  const handleSubmit = async (data: {
+    name: string;
+    description: string;
+    run_at?: Date;
+    audienceIds?: number[];
+  }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/campaigns', {
-        method: 'POST',
+      const response = await fetch("/api/campaigns", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: data.name,
           description: data.description,
           run_at: data.run_at,
+          audienceIds: data.audienceIds,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create campaign');
+        throw new Error(errorData.error || "Failed to create campaign");
       }
 
-      toast.success('Campaign created successfully!');
+      toast.success("Campaign created successfully!");
       setOpen(false);
       router.refresh();
     } catch (error: any) {

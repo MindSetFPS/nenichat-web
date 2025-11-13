@@ -1,10 +1,10 @@
 import { campaignRepository } from '@/repository/CampaignRepository';
 import { EditCampaignForm } from '@/components/EditCampaignForm';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CardDescription } from '@/components/ui/card';
 
 export default async function EditCampaignPage({ params }: { params: { id: string } }) {
   const { id } = await params;
-  const campaign = await campaignRepository.findById(id);
+  const campaign = await campaignRepository.findById(id, true);
 
   if (!campaign) {
     return <div>Campaign not found</div>;
@@ -17,6 +17,7 @@ export default async function EditCampaignPage({ params }: { params: { id: strin
     run_at: campaign.run_at,
     description: campaign.description,
     created_at: campaign.created_at,
+    audienceIds: campaign.audienceIds,
   };
 
   return (

@@ -14,29 +14,35 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (data: { name: string; description: string; run_at?: Date }) => {
+  const handleSubmit = async (data: {
+    name: string;
+    description: string;
+    run_at?: Date;
+    audienceIds?: number[];
+  }) => {
     setIsLoading(true);
 
     try {
       const response = await fetch(`/api/campaigns/${campaign.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: data.name,
           description: data.description,
           run_at: data.run_at,
+          audienceIds: data.audienceIds,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update campaign');
+        throw new Error(errorData.error || "Failed to update campaign");
       }
 
-      toast.success('Campaign updated successfully!');
-      router.push('/campaigns');
+      toast.success("Campaign updated successfully!");
+      router.push("/campaigns");
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);
