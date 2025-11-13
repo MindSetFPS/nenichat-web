@@ -58,7 +58,7 @@ export class CampaignRepository implements ICampaignRepository {
         "INSERT INTO campaigns (name, run_at, description) VALUES ($1, $2, $3) RETURNING *",
         [
           name,
-          run_at instanceof Date ? run_at.toTimeString().split(" ")[0] : run_at,
+          run_at || null,
           description || null,
         ]
       );

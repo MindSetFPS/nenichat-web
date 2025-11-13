@@ -4,10 +4,10 @@ import { contactRepository } from '@/repository/ContactRepository';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id;
     const audienceMembers = await audienceContactRepository.findByAudienceId(id);
     const allContacts = await contactRepository.list(0, 1000);
 
@@ -23,10 +23,10 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const id = (await params).id;
     const { contactIds } = await request.json();
 
     if (!Array.isArray(contactIds)) {

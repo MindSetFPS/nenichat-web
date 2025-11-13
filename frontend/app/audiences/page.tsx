@@ -31,7 +31,7 @@ export default function AudiencesPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedAudience, setSelectedAudience] = useState<IAudience | null>(null);
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const fetchAudiences = async () => {
     try {
@@ -228,7 +228,7 @@ export default function AudiencesPage() {
             <AudienceForm
               initialData={{
                 name: selectedAudience.name,
-                description: selectedAudience.description,
+                description: selectedAudience.description || '',
               }}
               onSubmit={(name, description) =>
                 handleEditAudience(selectedAudience.id, name, description)

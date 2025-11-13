@@ -76,7 +76,7 @@ export default function ChatView({
               key={message.id}
               className={cn(
                 "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                message.sender_id === me?.id.toString()
+                message.sender_id === me?.id
                   ? "ml-auto bg-primary text-primary-foreground"
                   : "bg-muted"
               )}
@@ -85,7 +85,7 @@ export default function ChatView({
               <span
                 className={cn(
                   "text-xs self-end",
-                  message.sender_id === me?.id.toString()
+                  message.sender_id === me?.id
                     ? "text-primary-foreground/70"
                     : "text-muted-foreground"
                 )}
