@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner"; // Import Spinner
+import { Spinner } from "@/components/ui/spinner";
 
 import { IContact } from '@/repository/IContact';
 import { IAudience } from '@/dto/IAudience';
@@ -52,11 +52,11 @@ export default function AudienceMembersPage() {
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
   const [initialSelectedContactIds, setInitialSelectedContactIds] = useState<Set<string>>(new Set());
   const [allContacts, setAllContacts] = useState<IContact[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMembersAndContacts = async () => {
-      setIsLoading(true); // Set loading to true
+      setIsLoading(true);
       try {
         const audience = await fetchAudienceDetails(audienceId);
         if (audience) {
@@ -68,13 +68,13 @@ export default function AudienceMembersPage() {
         const { audienceMembers, allContacts } = await fetchAudienceMembers(audienceId);
         const initialIds = new Set(audienceMembers.map(c => c.id?.toString() || ''));
         setSelectedContactIds(initialIds);
-        setInitialSelectedContactIds(new Set(initialIds)); // Store a copy for comparison
+        setInitialSelectedContactIds(new Set(initialIds));
         setAllContacts(allContacts);
       } catch (error) {
         console.error("Failed to fetch audience details, members or all contacts:", error);
         toast.error("Failed to load audience details, members or contacts.");
       } finally {
-        setIsLoading(false); // Set loading to false
+        setIsLoading(false);
       }
     };
 
@@ -125,9 +125,6 @@ export default function AudienceMembersPage() {
         <h2 className="text-3xl font-bold tracking-tight">
           Manage Members for: {audienceName}
         </h2>
-        <Button onClick={() => router.push("/audiences")}>
-          Back to Audiences
-        </Button>
       </div>
 
       {isLoading ? (
