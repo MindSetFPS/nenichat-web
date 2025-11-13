@@ -2,7 +2,7 @@ import { campaignRepository } from '@/repository/CampaignRepository';
 import { EditCampaignForm } from '@/components/EditCampaignForm';
 import { CardDescription } from '@/components/ui/card';
 
-export default async function EditCampaignPage({ params }: { params: { id: string } }) {
+export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const campaign = await campaignRepository.findById(id, true);
 
