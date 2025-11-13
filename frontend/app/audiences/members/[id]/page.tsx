@@ -12,19 +12,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // Import toast
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner"; // Import Spinner
 
 import { IContact } from '@/repository/IContact';
-import { IAudience } from '@/dto/IAudience'; // Import IAudience
+import { IAudience } from '@/dto/IAudience';
 
-// Function to fetch audience details from the API
 const fetchAudienceDetails = async (id: string) => {
   const response = await fetch(`/api/audiences/${id}`);
   if (!response.ok) {
     if (response.status === 404) {
-      return null; // Audience not found
+      return null;
     }
     throw new Error("Failed to fetch audience details");
   }
@@ -32,7 +31,6 @@ const fetchAudienceDetails = async (id: string) => {
   return data as IAudience;
 };
 
-// Function to fetch audience members and all contacts from the API
 const fetchAudienceMembers = async (audienceId: string) => {
   const response = await fetch(`/api/audiences/${audienceId}/members`);
   if (!response.ok) {
@@ -52,10 +50,13 @@ export default function AudienceMembersPage() {
 
   const [audienceName, setAudienceName] = useState("Loading...");
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
+  const [initialSelectedContactIds, setInitialSelectedContactIds] = useState<Set<string>>(new Set());
   const [allContacts, setAllContacts] = useState<IContact[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchMembersAndContacts = async () => {
+      setIsLoading(true); // Set loading to true
       try {
         const audience = await fetchAudienceDetails(audienceId);
         if (audience) {
@@ -65,16 +66,24 @@ export default function AudienceMembersPage() {
         }
 
         const { audienceMembers, allContacts } = await fetchAudienceMembers(audienceId);
-        setSelectedContactIds(new Set(audienceMembers.map(c => c.id?.toString() || '')));
+        const initialIds = new Set(audienceMembers.map(c => c.id?.toString() || ''));
+        setSelectedContactIds(initialIds);
+        setInitialSelectedContactIds(new Set(initialIds)); // Store a copy for comparison
         setAllContacts(allContacts);
       } catch (error) {
         console.error("Failed to fetch audience details, members or all contacts:", error);
         toast.error("Failed to load audience details, members or contacts.");
+      } finally {
+        setIsLoading(false); // Set loading to false
       }
     };
 
     fetchMembersAndContacts();
   }, [audienceId]);
+
+  const hasChanges =
+    selectedContactIds.size !== initialSelectedContactIds.size ||
+    ![...selectedContactIds].every((id) => initialSelectedContactIds.has(id));
 
   const handleCheckboxChange = (contactId: string, isChecked: boolean) => {
     setSelectedContactIds((prev) => {
@@ -121,48 +130,60 @@ export default function AudienceMembersPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={selectedContactIds.size === allContacts.length && allContacts.length > 0}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setSelectedContactIds(new Set(allContacts.map(c => c.id?.toString() || '')));
-                    } else {
-                      setSelectedContactIds(new Set());
-                    }
-                  }}
-                />
-              </TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Phone</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {allContacts.map((contact) => (
-              <TableRow key={contact.id?.toString()}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedContactIds.has(contact.id?.toString() || '')}
-                    onCheckedChange={(checked) =>
-                      handleCheckboxChange(contact.id?.toString() || '', checked as boolean)
-                    }
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{contact.contact_name || contact.pushname || contact.username || contact.phone_number}</TableCell>
-                <TableCell>{contact.phone_number}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Spinner className="h-5 w-5" />
+        </div>
+      ) : allContacts.length === 0 ? (
+        <div className="flex justify-center items-center h-64 text-gray-500">
+          No contacts available to add to this audience.
+        </div>
+      ) : (
+        <>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">
+                    <Checkbox
+                      checked={selectedContactIds.size === allContacts.length && allContacts.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedContactIds(new Set(allContacts.map(c => c.id?.toString() || '')));
+                        } else {
+                          setSelectedContactIds(new Set());
+                        }
+                      }}
+                    />
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Phone</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {allContacts.map((contact) => (
+                  <TableRow key={contact.id?.toString()}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedContactIds.has(contact.id?.toString() || '')}
+                        onCheckedChange={(checked) =>
+                          handleCheckboxChange(contact.id?.toString() || '', checked as boolean)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{contact.contact_name || contact.pushname || contact.username || contact.phone_number}</TableCell>
+                    <TableCell>{contact.phone_number}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSaveMembers}>Save Members</Button>
-      </div>
+          <div className="flex justify-end">
+            <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
