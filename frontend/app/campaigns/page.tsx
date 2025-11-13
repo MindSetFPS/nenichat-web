@@ -115,12 +115,21 @@ export default async function CampaignsPage() {
         3. Time limits and randomization to avoid being marked as spam.
       </p>
 
-
-      {renderCampaignSection("Upcoming Campaigns", futureCampaigns)}
-      {renderCampaignSection("Today's Campaigns", todayCampaigns)}
-      {renderCampaignSection("This Week's Campaigns", thisWeekCampaigns)}
-      {renderCampaignSection("This Month's Campaigns", thisMonthCampaigns)}
-      {renderCampaignSection("Older Campaigns", olderCampaigns)}
+      {allCampaigns.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-gray-500">
+          <h2 className="text-2xl font-semibold mb-4">No Campaigns Yet</h2>
+          <p className="mb-8">It looks like you haven't created any campaigns. Start by creating one!</p>
+          <CreateCampaignDialog />
+        </div>
+      ) : (
+        <>
+          {renderCampaignSection("Upcoming Campaigns", futureCampaigns)}
+          {renderCampaignSection("Today's Campaigns", todayCampaigns)}
+          {renderCampaignSection("This Week's Campaigns", thisWeekCampaigns)}
+          {renderCampaignSection("This Month's Campaigns", thisMonthCampaigns)}
+          {renderCampaignSection("Older Campaigns", olderCampaigns)}
+        </>
+      )}
     </div>
   );
 }
