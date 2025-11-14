@@ -7,3 +7,4 @@
 ## Coding Style
 
 - Always use strict equality (`===` and `!==`).
+- Use { params: Promise<{ id: string }> } in route.js parameters definition 
