@@ -9,7 +9,7 @@ export class AudienceRepository implements IAudienceRepository {
   private toAudience(data: any): IAudience {
     if (!data) return data;
     return {
-      id: data.id,
+      id: Number(data.id),
       name: data.name,
       description: data.description,
       created_at: data.created_at,
