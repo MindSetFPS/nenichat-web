@@ -16,8 +16,6 @@ import Link from "next/link";
 export default async function CampaignsPage() {
   const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
 
-  console.log("All Campaigns:", allCampaigns);
-
   const now = new Date();
   now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
 
@@ -40,8 +38,6 @@ export default async function CampaignsPage() {
     (campaign) => campaign.run_at && new Date(campaign.run_at).toDateString() === startOfDay.toDateString()
   );
 
-  console.log("Today Campaigns:", todayCampaigns);
-
   const thisWeekCampaigns = sortedCampaigns.filter(
     (campaign) =>
       campaign.run_at &&
@@ -60,8 +56,6 @@ export default async function CampaignsPage() {
     (campaign) =>
       !campaign.run_at || new Date(campaign.run_at) < startOfMonth
   );
-
-  console.log("Older Campaigns:", olderCampaigns);
 
   const renderCampaignSection = (title: string, campaignsToRender: ICampaign[]) => {
     if (campaignsToRender.length === 0) return null;
