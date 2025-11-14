@@ -16,8 +16,20 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 import { IContact } from '@/repository/IContact';
 import { IAudience } from '@/dto/IAudience';
+import { AudienceForm } from "@/components/forms/AudienceForm";
 
 const fetchAudienceDetails = async (id: string) => {
   const response = await fetch(`/api/audiences/${id}`);
@@ -48,38 +60,60 @@ export default function AudienceMembersPage() {
   const audienceId = params.id as string;
   const router = useRouter();
 
-  const [audienceName, setAudienceName] = useState("Loading...");
+  const [audience, setAudience] = useState<IAudience | null>(null);
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
   const [initialSelectedContactIds, setInitialSelectedContactIds] = useState<Set<string>>(new Set());
   const [allContacts, setAllContacts] = useState<IContact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const fetchMembersAndContacts = async () => {
+    setIsLoading(true);
+    try {
+      const audienceData = await fetchAudienceDetails(audienceId);
+      if (audienceData) {
+        setAudience(audienceData);
+      }
+
+      const { audienceMembers, allContacts } = await fetchAudienceMembers(audienceId);
+      const initialIds = new Set(audienceMembers.map(c => c.id?.toString() || ''));
+      setSelectedContactIds(initialIds);
+      setInitialSelectedContactIds(new Set(initialIds));
+      setAllContacts(allContacts);
+    } catch (error) {
+      console.error("Failed to fetch audience details, members or all contacts:", error);
+      toast.error("Failed to load audience details, members or contacts.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMembersAndContacts = async () => {
-      setIsLoading(true);
-      try {
-        const audience = await fetchAudienceDetails(audienceId);
-        if (audience) {
-          setAudienceName(audience.name);
-        } else {
-          setAudienceName("Audience Not Found");
-        }
-
-        const { audienceMembers, allContacts } = await fetchAudienceMembers(audienceId);
-        const initialIds = new Set(audienceMembers.map(c => c.id?.toString() || ''));
-        setSelectedContactIds(initialIds);
-        setInitialSelectedContactIds(new Set(initialIds));
-        setAllContacts(allContacts);
-      } catch (error) {
-        console.error("Failed to fetch audience details, members or all contacts:", error);
-        toast.error("Failed to load audience details, members or contacts.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchMembersAndContacts();
   }, [audienceId]);
+
+  const handleEditAudience = async (name: string, description: string) => {
+    if (!audience) return;
+
+    try {
+      const response = await fetch(`/api/audiences/${audience.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update audience");
+      }
+      setIsEditDialogOpen(false);
+      toast.success(`Audience "${name}" updated!`);
+      fetchMembersAndContacts(); // Refresh the data
+    } catch (error) {
+      console.error("Error updating audience:", error);
+      toast.error("Failed to update audience.");
+    }
+  };
 
   const hasChanges =
     selectedContactIds.size !== initialSelectedContactIds.size ||
@@ -111,7 +145,7 @@ export default function AudienceMembersPage() {
         throw new Error("Failed to save audience members");
       }
 
-      toast.success(`Members for "${audienceName}" saved!`);
+      toast.success(`Members for "${audience?.name}" saved!`);
       router.push("/audiences");
     } catch (error) {
       console.error("Error saving audience members:", error);
@@ -123,8 +157,11 @@ export default function AudienceMembersPage() {
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">
-          Manage Members for: {audienceName}
+          Manage Members for: {audience?.name || 'Loading...'}
         </h2>
+        <Button onClick={() => setIsEditDialogOpen(true)}>
+          Edit Audience
+        </Button>
       </div>
 
       {isLoading ? (
@@ -181,6 +218,28 @@ export default function AudienceMembersPage() {
           </div>
         </>
       )}
+
+      {/* Edit Audience Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Audience</DialogTitle>
+            <DialogDescription>
+              Make changes to your audience here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          {audience && (
+            <AudienceForm
+              initialData={{
+                name: audience.name,
+                description: audience.description || '',
+              }}
+              onSubmit={handleEditAudience}
+              onCancel={() => setIsEditDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
