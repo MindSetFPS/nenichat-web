@@ -1,5 +1,5 @@
 export interface IAudience {
-    id: number;
+    id: number | BigInt;
     name: string;
     description?: string;
     created_at: Date;

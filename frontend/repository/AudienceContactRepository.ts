@@ -22,7 +22,7 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     );
   }
 
-  async findByAudienceId(audienceId: string): Promise<IContact[]> {
+  async findByAudienceId(audienceId: number| BigInt): Promise<IContact[]> {
     const result = await this.pool.query(`
       SELECT c.*
       FROM contacts c
