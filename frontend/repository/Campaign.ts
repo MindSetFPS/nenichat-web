@@ -5,6 +5,7 @@ export class Campaign implements ICampaign {
   name: string;
   run_at?: string;
   description?: string;
+  message?: string;
   created_at: string;
   audienceIds?: number[];
 
@@ -14,6 +15,7 @@ export class Campaign implements ICampaign {
     created_at: string,
     run_at?: string,
     description?: string,
+    message?: string,
     audienceIds?: number[]
   ) {
     this.id = id;
@@ -21,6 +23,7 @@ export class Campaign implements ICampaign {
     this.created_at = created_at;
     this.run_at = run_at;
     this.description = description;
+    this.message = message;
     this.audienceIds = audienceIds;
   }
 }

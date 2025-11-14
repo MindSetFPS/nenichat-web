@@ -20,6 +20,7 @@ interface CampaignFormProps {
   onSubmit: (data: {
     name: string;
     description: string;
+    message: string;
     run_at?: Date;
     audienceIds?: number[];
   }) => Promise<void>;
@@ -36,6 +37,7 @@ export function CampaignForm({
 }: CampaignFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [message, setMessage] = useState("");
   const [runAt, setRunAt] = useState<Date | undefined>(new Date());
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -45,11 +47,13 @@ export function CampaignForm({
     if (initialData) {
       setName(initialData.name || "");
       setDescription(initialData.description || "");
+      setMessage(initialData.message || "");
       setRunAt(initialData.run_at ? new Date(initialData.run_at) : new Date());
       setSelectedAudienceIds(initialData.audienceIds || []);
     } else {
       setName("");
       setDescription("");
+      setMessage("");
       setRunAt(new Date());
       setSelectedAudienceIds([]);
     }
@@ -66,7 +70,13 @@ export function CampaignForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit({ name, description, run_at: runAt, audienceIds: selectedAudienceIds });
+    await onSubmit({
+      name,
+      description,
+      message,
+      run_at: runAt,
+      audienceIds: selectedAudienceIds,
+    });
   };
 
   const handleAudienceSelection = (audienceId: number) => {
@@ -99,6 +109,18 @@ export function CampaignForm({
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          className="col-span-3"
+          disabled={isLoading}
+        />
+      </div>
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="message" className="text-right">
+          Message
+        </Label>
+        <Textarea
+          id="message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           className="col-span-3"
           disabled={isLoading}
         />

@@ -6,7 +6,7 @@ import { ICampaign } from '@/dto/ICampaign';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, run_at, audienceIds } = body;
+    const { name, description, run_at, audienceIds, message } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
       description,
       run_at,
       audienceIds,
+      message,
     } as Partial<ICampaign>);
 
     return NextResponse.json(campaign, { status: 201 });

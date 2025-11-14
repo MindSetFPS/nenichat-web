@@ -4,7 +4,7 @@ import { CardDescription } from '@/components/ui/card';
 
 export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const campaign = await campaignRepository.findById(id, true);
+  const campaign = await campaignRepository.findById(id, true, true);
 
   if (!campaign) {
     return <div>Campaign not found</div>;
@@ -18,6 +18,7 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
     description: campaign.description,
     created_at: campaign.created_at,
     audienceIds: campaign.audienceIds,
+    message: campaign.message,
   };
 
   return (

@@ -3,6 +3,7 @@ export interface ICampaign {
   name: string;
   run_at?: string;
   description?: string;
+  message?: string;
   created_at: string;
   audienceIds?: number[];
 }

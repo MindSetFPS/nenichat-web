@@ -7,7 +7,7 @@ import { pool } from "./db";
 export class CampaignRepository implements ICampaignRepository {
   constructor(private pool: Pool) {}
 
-  private toCampaign(data: any): ICampaign {
+  private async toCampaign(data: any, includeMessage: boolean): Promise<ICampaign> {
     if (!data) return data;
     const campaign = new Campaign(
       data.id,
@@ -19,12 +19,20 @@ export class CampaignRepository implements ICampaignRepository {
     if (data.audience_ids) {
       campaign.audienceIds = (data.audience_ids[0] === null ? [] : data.audience_ids).map(Number);
     }
+
+    if (includeMessage) {
+      const messageResult = await this.pool.query('SELECT * FROM campaign_messages WHERE campaign_id = $1', [campaign.id]);
+      if (messageResult.rows.length > 0) {
+        campaign.message = messageResult.rows[0].content;
+      }
+    }
     return campaign;
   }
 
   async findById(
     id: string,
-    includeAudiences = false
+    includeAudiences = false,
+    includeMessage = false
   ): Promise<ICampaign | null> {
     let query = "SELECT * FROM campaigns WHERE id = $1";
     if (includeAudiences) {
@@ -41,11 +49,11 @@ export class CampaignRepository implements ICampaignRepository {
     if (result.rows.length === 0) {
       return null;
     }
-    return this.toCampaign(result.rows[0]);
+    return await this.toCampaign(result.rows[0], includeMessage);
   }
 
   async create(campaign: Partial<ICampaign>): Promise<ICampaign> {
-    const { name, run_at, description, audienceIds } = campaign;
+    const { name, run_at, description, audienceIds, message } = campaign;
 
     if (!name) {
       throw new Error("Campaign name is required to create a campaign.");
@@ -75,8 +83,15 @@ export class CampaignRepository implements ICampaignRepository {
         );
       }
 
+      if (message) {
+        await client.query(
+          'INSERT INTO campaign_messages (campaign_id, content) VALUES ($1, $2)',
+          [newCampaign.id, message]
+        );
+      }
+
       await client.query("COMMIT");
-      const createdCampaign = await this.findById(newCampaign.id, true);
+      const createdCampaign = await this.findById(newCampaign.id, true, true);
       return createdCampaign!;
     } catch (e) {
       await client.query("ROLLBACK");
@@ -87,7 +102,7 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async update(campaign: Partial<ICampaign>): Promise<ICampaign> {
-    const { id, name, run_at, description, audienceIds } = campaign;
+    const { id, name, run_at, description, audienceIds, message } = campaign;
 
     if (!id) {
       throw new Error("Campaign ID is required to update a campaign.");
@@ -124,8 +139,16 @@ export class CampaignRepository implements ICampaignRepository {
         }
       }
 
+      if (message) {
+        await client.query('DELETE FROM campaign_messages WHERE campaign_id = $1', [id]);
+        await client.query(
+          'INSERT INTO campaign_messages (campaign_id, content) VALUES ($1, $2)',
+          [id, message]
+        );
+      }
+
       await client.query("COMMIT");
-      const updatedCampaign = await this.findById(id, true);
+      const updatedCampaign = await this.findById(id, true, true);
       return updatedCampaign!;
     } catch (e) {
       await client.query("ROLLBACK");
@@ -138,7 +161,8 @@ export class CampaignRepository implements ICampaignRepository {
   async list(
     offset: number,
     limit: number,
-    includeAudiences = false
+    includeAudiences = false,
+    includeMessage = false
   ): Promise<ICampaign[]> {
     let query =
       "SELECT * FROM campaigns ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2";
@@ -154,7 +178,8 @@ export class CampaignRepository implements ICampaignRepository {
     }
     const result = await this.pool.query(query, [limit, offset]);
 
-    return result.rows.map((d) => this.toCampaign(d));
+    const campaigns = await Promise.all(result.rows.map((d) => this.toCampaign(d, includeMessage)));
+    return campaigns;
   }
 }
 

@@ -22,6 +22,7 @@ export function CreateCampaignDialog() {
   const handleSubmit = async (data: {
     name: string;
     description: string;
+    message: string;
     run_at?: Date;
     audienceIds?: number[];
   }) => {
@@ -36,6 +37,7 @@ export function CreateCampaignDialog() {
         body: JSON.stringify({
           name: data.name,
           description: data.description,
+          message: data.message,
           run_at: data.run_at,
           audienceIds: data.audienceIds,
         }),
