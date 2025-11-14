@@ -25,6 +25,11 @@ export class AudienceRepository implements IAudienceRepository {
     return this.toAudience(result.rows[0]);
   }
 
+  async getByIds(ids: number[]): Promise<IAudience[]> {
+    const result = await this.pool.query('SELECT * FROM audiences WHERE id = ANY($1)', [ids]);
+    return result.rows.map(this.toAudience);
+  }
+
   async findAll(): Promise<IAudience[]> {
     const result = await this.pool.query('SELECT * FROM audiences');
     return result.rows.map(this.toAudience);
