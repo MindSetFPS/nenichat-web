@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                             <AppSidebar contacts={contactsJson} />
                             <SidebarTrigger />
                             <SidebarInset>
-                                <div className="flex flex-col box-border h-full w-full md:w-4xl 
+                                <div className="flex flex-col box-border h-full w-full md:w-4xl my-2
                                 bg-background mx-auto border rounded-r-lg md:rounded-lg overflow-hidden">
                                     {children}
                                 </div>

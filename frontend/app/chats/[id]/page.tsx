@@ -15,7 +15,7 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
   const me = JSON.parse(JSON.stringify(meData))
 
   // const classess = "flex flex-col h-full bg-background max-w-4xl mx-auto border rounded-lg overflow-hidden"
-  const classess = "flex flex-col h-full border rounded-lg mx-w-4xl"
+  const classess = "flex flex-col h-full rounded-lg mx-w-4xl"
 
   return (
     <div className="h-full">
