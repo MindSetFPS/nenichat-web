@@ -175,6 +175,169 @@ export class ContactRepository implements IContactRepository {
         )
     );
   }
+
+  public async search(query: string, limit = 10): Promise<IContact[]> {
+    const result = await this.pool.query(
+      "SELECT * FROM contacts WHERE phone_number ILIKE $1 OR lid ILIKE $1 ORDER BY created_at DESC LIMIT $2",
+      [`%${query}%`, limit]
+    );
+    return result.rows.map(
+      (row) =>
+        new Contact(
+          row.id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.created_at,
+          row.updated_at
+        )
+    );
+  }
+
+  public async findMergeCandidates(): Promise<IContact[]> {
+    const result = await this.pool.query(
+      'SELECT * FROM contacts WHERE phone_number IS NULL OR lid IS NULL ORDER BY created_at DESC'
+    );
+    return result.rows.map(
+      (row) =>
+        new Contact(
+          row.id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.created_at,
+          row.updated_at
+        )
+    );
+  }
+
+  public async mergeContacts(primaryContactId: bigint, secondaryContactIds: bigint[]): Promise<void> {
+    if (!primaryContactId || secondaryContactIds.length === 0) {
+      throw new Error('Primary contact ID and at least one secondary contact ID are required for merging.');
+    }
+    if (secondaryContactIds.includes(primaryContactId)) {
+      throw new Error('Primary contact ID cannot be present in secondary contact IDs.');
+    }
+
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const primaryContact = await this.findById(primaryContactId);
+      if (!primaryContact) {
+        throw new Error(`Primary contact with ID ${primaryContactId} not found.`);
+      }
+
+      const secondaryContacts: IContact[] = [];
+      for (const id of secondaryContactIds) {
+        const contact = await this.findById(id);
+        if (!contact) {
+          throw new Error(`Secondary contact with ID ${id} not found.`);
+        }
+        secondaryContacts.push(contact);
+      }
+
+      // 1. Update foreign key references
+      const secondaryIdsArray = `{${secondaryContactIds.join(',')}}`;
+
+      // Update audience_contacts
+      await client.query(
+        'UPDATE audience_contacts SET contact_id = $1 WHERE contact_id = ANY($2::bigint[])',
+        [primaryContactId, secondaryIdsArray]
+      );
+
+      // Update messages (sender_id)
+      await client.query(
+        'UPDATE messages SET sender_id = $1 WHERE sender_id = ANY($2::bigint[])',
+        [primaryContactId, secondaryIdsArray]
+      );
+
+      // Update messages (chat_id) - messages from secondary chats move to primary chat
+      await client.query(
+        'UPDATE messages SET chat_id = $1 WHERE chat_id = ANY($2::bigint[])',
+        [primaryContactId, secondaryIdsArray]
+      );
+
+      // Update recipients
+      await client.query(
+        'UPDATE recipients SET contact_id = $1 WHERE contact_id = ANY($2::bigint[])',
+        [primaryContactId, secondaryIdsArray]
+      );
+
+      // 2. Merge contact data into primary contact
+      let mergedPhoneNumber = primaryContact.phone_number;
+      let mergedLid = primaryContact.lid;
+      let mergedUsername = primaryContact.username;
+      let mergedPushname = primaryContact.pushname;
+      let mergedContactName = primaryContact.contact_name;
+      let mergedIsUser = primaryContact.is_user;
+      let mergedCreatedAt = primaryContact.created_at;
+      let mergedUpdatedAt = primaryContact.updated_at;
+
+      for (const secondary of secondaryContacts) {
+        if (!mergedPhoneNumber && secondary.phone_number) {
+          mergedPhoneNumber = secondary.phone_number;
+        }
+        if (!mergedLid && secondary.lid) {
+          mergedLid = secondary.lid;
+        }
+        if (!mergedUsername && secondary.username) {
+          mergedUsername = secondary.username;
+        }
+        if (!mergedPushname && secondary.pushname) {
+          mergedPushname = secondary.pushname;
+        }
+        if (!mergedContactName && secondary.contact_name) {
+          mergedContactName = secondary.contact_name;
+        }
+        if (secondary.is_user) {
+          mergedIsUser = true;
+        }
+        if (secondary.created_at < mergedCreatedAt) {
+          mergedCreatedAt = secondary.created_at;
+        }
+        if (secondary.updated_at > mergedUpdatedAt) {
+          mergedUpdatedAt = secondary.updated_at;
+        }
+      }
+
+      // Update the primary contact with merged data
+      await client.query(
+        `UPDATE contacts
+         SET phone_number = $1, lid = $2, username = $3, pushname = $4, contact_name = $5, is_user = $6, created_at = $7, updated_at = NOW()
+         WHERE id = $8`,
+        [
+          mergedPhoneNumber,
+          mergedLid,
+          mergedUsername,
+          mergedPushname,
+          mergedContactName,
+          mergedIsUser,
+          mergedCreatedAt,
+          primaryContactId,
+        ]
+      );
+
+      // 3. Delete secondary contacts
+      await client.query(
+        'DELETE FROM contacts WHERE id = ANY($1::bigint[])',
+        [secondaryIdsArray]
+      );
+
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 export const contactRepository = new ContactRepository(pool);

@@ -25,4 +25,26 @@ export interface IContactRepository {
    * @returns A promise that resolves to an array of contacts.
    */
   list(offset: number, limit: number): Promise<IContact[]>;
+
+  /**
+   * Finds contacts that are candidates for merging.
+   * A contact is a candidate if either its phone_number or lid is null.
+   * @returns A promise that resolves to an array of incomplete contacts.
+   */
+  findMergeCandidates(): Promise<IContact[]>;
+
+  /**
+   * Merges multiple secondary contacts into a primary contact.
+   * All related records (chats, messages, audience_contacts, recipients) will be
+   * re-assigned to the primary contact. Secondary contacts will be deleted.
+   * @param primaryContactId The ID of the contact to merge into.
+   * @param secondaryContactIds An array of IDs of contacts to be merged and then deleted.
+   * @returns A promise that resolves when the merge operation is complete.
+   */
+  mergeContacts(primaryContactId: bigint, secondaryContactIds: bigint[]): Promise<void>;
+
+  /**
+   * Sets the contact property "is_user" as true, meaning this contact represents the user themselves.
+   */
+  setMe(): Promise<void>;
 }
