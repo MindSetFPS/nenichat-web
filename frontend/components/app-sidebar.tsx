@@ -1,5 +1,5 @@
 'use client'
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Sidebar,
     SidebarHeader,
@@ -11,7 +11,7 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from '@/components/ui/sidebar'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { IContact } from '@/repository/IContact'
@@ -29,52 +29,81 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     }
 
     return (
-        <Sidebar variant="inset">
+        <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
-                <p>Nenichat</p>
+                {/* <p>Nenichat</p> */}
             </SidebarHeader>
             <SidebarContent>
 
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <Link href="/" passHref>
-                            <SidebarMenuButton isActive={isActive('/')}>
-                                <HomeIcon className="w-4 h-4 mr-2" />
-                                Home
+                <SidebarGroup>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/')}>
+                                <Link href="/" passHref>
+                                    <HomeIcon className="w-4 h-4 " />
+                                    <span>
+                                        Home
+                                    </span>
+                                </Link>
                             </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
+                        </SidebarMenuItem>
 
-                    <SidebarMenuItem>
-                        <Link href="/campaigns" passHref>
-                            <SidebarMenuButton isActive={isActive('/campaigns')}>
-                                <SendIcon className="w-4 h-4 mr-2" />
-                                Campañas
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/campaigns')}>
+                                <Link href="/campaigns" passHref>
+                                    <SendIcon className="w-4 h-4 " />
+                                    <span>
+
+                                        Campañas
+                                    </span>
+                                </Link>
                             </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
+                        </SidebarMenuItem>
 
-                    <SidebarMenuItem>
-                        <Link href="/audiences" passHref>
-                            <SidebarMenuButton isActive={isActive('/audiences')}>
-                                <MailIcon className="w-4 h-4 mr-2" />
-                                Audiencias
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/audiences')}>
+                                <Link href="/audiences" passHref>
+                                    <MailIcon className="w-4 h-4 " />
+                                    <span>
+
+                                        Audiencias
+                                    </span>
+                                </Link>
                             </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
+                        </SidebarMenuItem>
 
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/products')}>
+                                <Link href="/products" passHref>
+                                    <PackageIcon className="w-4 h-4 " />
+                                    <span>
 
-                </SidebarMenu>
+                                        Products
+                                    </span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
+
                 <SidebarGroup>
                     <SidebarGroupLabel>Contacts</SidebarGroupLabel>
                     <SidebarMenu>
                         {contacts.map((contact: IContact) => (
                             <SidebarMenuItem key={contact.id}>
-                                <Link href={`/chats/${contact.id}`} passHref>
-                                    <SidebarMenuButton isActive={isActive(`/chats/${contact.id}`)}>
-                                        {contact.contact_name || contact.pushname || contact.phone_number}
-                                    </SidebarMenuButton>
-                                </Link>
+                                <SidebarMenuButton asChild isActive={isActive(`/chats/${contact.id}`)}>
+                                    <Link href={`/chats/${contact.id}`} passHref>
+                                        <Avatar className="h-full w-auto">
+                                            <AvatarImage src="https://github.com/shadcn.png" />
+                                            {/* <AvatarFallback> */}
+                                            {/* </AvatarFallback> */}
+                                        </Avatar>
+                                        <span>
+                                            {contact.contact_name || contact.pushname || contact.phone_number}
+                                        </span>
+
+                                    </Link>
+                                </SidebarMenuButton>
                             </SidebarMenuItem>
                         ))}
                     </SidebarMenu>
