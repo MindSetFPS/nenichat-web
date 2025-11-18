@@ -11,7 +11,7 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
 } from '@/components/ui/sidebar'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { IContact } from '@/repository/IContact'
@@ -79,6 +79,36 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                     <span>
 
                                         Products
+                                    </span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/messages')}>
+                                <Link href="/messages" passHref>
+                                    <MailIcon className="w-4 h-4 " />
+                                    <span>
+                                        Messages
+                                    </span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/profile')}>
+                                <Link href="/profile" passHref>
+                                    <UserIcon className="w-4 h-4 " />
+                                    <span>
+                                        My Profile
+                                    </span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild isActive={isActive('/contacts/merge')}>
+                                <Link href="/contacts/merge" passHref>
+                                    <UsersIcon className="w-4 h-4 " />
+                                    <span>
+                                        Merge Contacts
                                     </span>
                                 </Link>
                             </SidebarMenuButton>
