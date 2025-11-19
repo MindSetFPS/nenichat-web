@@ -42,7 +42,7 @@ export function ComboboxDemo({ contacts, onSearch, onSelectContact }: ComboboxDe
           className="w-[200px] justify-between"
         >
           {value
-            ? currentContacts.find((contact) => contact.id === value)?.pushname || "Select contact..."
+            ? currentContacts.find((contact) => contact.id?.toString() === value)?.pushname || "Select contact..."
             : "Select contact..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -54,18 +54,18 @@ export function ComboboxDemo({ contacts, onSearch, onSelectContact }: ComboboxDe
           <CommandGroup>
             {currentContacts.map((contact) => (
               <CommandItem
-                key={contact.id}
-                value={contact.id}
+                key={contact.id?.toString()}
+                value={contact.id?.toString()}
                 onSelect={(currentValue) => {
                   setValue(currentValue === value ? "" : currentValue)
                   setOpen(false)
-                  onSelectContact(contact.id)
+                  onSelectContact(contact.id?.toString() || "")
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === contact.id ? "opacity-100" : "opacity-0"
+                    value === contact.id?.toString() ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {contact.pushname || contact.phone_number}

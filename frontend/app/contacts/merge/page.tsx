@@ -14,8 +14,12 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
+interface ContactCandidate extends Omit<IContact, 'id'> {
+  id: string;
+}
+
 export default function MergeContactsPage() {
-  const [candidates, setCandidates] = useState<IContact[]>([]);
+  const [candidates, setCandidates] = useState<ContactCandidate[]>([]);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [primaryContactId, setPrimaryContactId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +34,7 @@ export default function MergeContactsPage() {
       const data = await response.json();
       // In Next.js, when data is serialized from server to client, BigInts are often converted to strings.
       // We'll work with strings for IDs on the client side to avoid issues.
-      setCandidates(data.map((c: any) => ({ ...c, id: c.id.toString() })));
+      setCandidates(data.map((c: any) => ({ ...c, id: c.id ? c.id.toString() : '' })));
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -133,25 +137,25 @@ export default function MergeContactsPage() {
               </TableRow>
             ) : (
               candidates.map((contact) => (
-                <TableRow key={contact.id.toString()}>
+                <TableRow key={contact.id}>
                   <TableCell>
                     <Checkbox
-                      checked={!!selected[contact.id.toString()]}
-                      onCheckedChange={(checked) => handleSelect(contact.id.toString(), !!checked)}
+                      checked={!!selected[contact.id]}
+                      onCheckedChange={(checked) => handleSelect(contact.id, !!checked)}
                     />
                   </TableCell>
                   <TableCell>
-                    {selected[contact.id.toString()] && (
+                    {selected[contact.id] && (
                       <Button
-                        variant={primaryContactId === contact.id.toString() ? 'default' : 'outline'}
+                        variant={primaryContactId === contact.id ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setPrimaryContactId(contact.id.toString())}
+                        onClick={() => setPrimaryContactId(contact.id)}
                       >
-                        {primaryContactId === contact.id.toString() ? 'Primary' : 'Set Primary'}
+                        {primaryContactId === contact.id ? 'Primary' : 'Set Primary'}
                       </Button>
                     )}
                   </TableCell>
-                  <TableCell>{contact.id.toString()}</TableCell>
+                  <TableCell>{contact.id}</TableCell>
                   <TableCell>{contact.phone_number || 'N/A'}</TableCell>
                   <TableCell>{contact.lid || 'N/A'}</TableCell>
                   <TableCell>{contact.username || 'N/A'}</TableCell>

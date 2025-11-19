@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = (await params).id;
+    const id = parseInt((await params).id, 10);
     const audienceMembers = await audienceContactRepository.findByAudienceId(id);
     const allContacts = await contactRepository.list(0, 1000);
 

@@ -138,13 +138,13 @@ export function CampaignForm({
           <PopoverContent>
             <div className="grid gap-4">
               {audiences.map((audience) => (
-                <div key={audience.id} className="flex items-center gap-2">
+                <div key={audience.id.toString()} className="flex items-center gap-2">
                   <Checkbox
-                    id={`audience-${audience.id}`}
-                    checked={selectedAudienceIds.includes(audience.id)}
-                    onCheckedChange={() => handleAudienceSelection(audience.id)}
+                    id={`audience-${audience.id.toString()}`}
+                    checked={selectedAudienceIds.includes(Number(audience.id))}
+                    onCheckedChange={() => handleAudienceSelection(Number(audience.id))}
                   />
-                  <Label htmlFor={`audience-${audience.id}`}>
+                  <Label htmlFor={`audience-${audience.id.toString()}`}>
                     {audience.name}
                   </Label>
                 </div>

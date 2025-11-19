@@ -153,11 +153,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  * @param {NextRequest} request - The incoming Next.js request.
  * @param {Object} params - The route parameters.
  * @param {string} params.id - The ID of the product.
- * @param {string} params.imageId - The ID of the image to delete.
  * @returns {NextResponse} A response indicating success or failure.
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string, imageId: string } }) {
-  const { id: productId, imageId } = params;
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: productId } = await params;
+
+  // Get imageId from query parameters or request body
+  const { searchParams } = new URL(request.url);
+  const imageId = searchParams.get('imageId');
+
+  if (!imageId) {
+    return NextResponse.json({ error: 'imageId is required' }, { status: 400 });
+  }
 
   const client = await pool.connect();
   try {
