@@ -57,9 +57,32 @@ export default function ChatView({
             <h2 className="text-lg font-semibold">
               {contactName || "Unknown Contact"}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {contact?.phone_number}
-            </p>
+            <div className="flex flex-wrap gap-x-4 text-xs text-muted-foreground">
+              <span>
+                {contact?.id ? `${contact.id} (ID)` : "No ID"}
+              </span>
+              {contactName !== contact?.username && (
+                <span>
+                  {contact?.username ? `${contact.username} (Username)` : "No Username"}
+                </span>
+              )}
+              {contactName !== contact?.pushname && (
+                <span>
+                  {contact?.pushname ? `${contact.pushname} (Pushname)` : "No Pushname"}
+                </span>
+              )}
+              {contactName !== contact?.contact_name && (
+                <span>
+                  {contact?.contact_name ? `${contact.contact_name} (Contact Name)` : "No Contact Name"}
+                </span>
+              )}
+              <span>
+                {contact?.phone_number ? `${contact.phone_number} (Phone Number)` : "No Phone Number"}
+              </span>
+              <span>
+                {contact?.lid ? `${contact.lid} (LID)` : "No LID"}
+              </span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
