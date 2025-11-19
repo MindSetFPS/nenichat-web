@@ -54,7 +54,7 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
     }
   };
 
-  const handleExecuteCampaign = async (e) => {
+  const handleExecuteCampaign = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsExecuting(true);
     try {
