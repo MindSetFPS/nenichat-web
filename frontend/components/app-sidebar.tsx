@@ -10,8 +10,12 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarGroupLabel,
+    SidebarMenuSub,
+    SidebarMenuSubItem,
+    SidebarMenuSubButton,
 } from '@/components/ui/sidebar'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { IContact } from '@/repository/IContact'
@@ -28,6 +32,62 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
         return pathname === path
     }
 
+    const menuItems = [
+        {
+            id: 'home',
+            href: '/',
+            icon: HomeIcon,
+            label: 'Home'
+        },
+        {
+            id: 'campaigns',
+            href: '/campaigns',
+            icon: SendIcon,
+            label: 'Campañas'
+        },
+        {
+            id: 'audiences',
+            href: '/audiences',
+            icon: MailIcon,
+            label: 'Audiencias'
+        },
+        {
+            id: 'contacts',
+            icon: UsersIcon,
+            label: 'Contacts',
+            submenu: [
+                {
+                    id: 'contacts-list',
+                    href: '/contacts',
+                    label: 'All Contacts'
+                },
+                {
+                    id: 'merge-contacts',
+                    href: '/contacts/merge',
+                    label: 'Merge Contacts'
+                }
+            ]
+        },
+        {
+            id: 'products',
+            href: '/products',
+            icon: PackageIcon,
+            label: 'Products'
+        },
+        {
+            id: 'messages',
+            href: '/messages',
+            icon: MailIcon,
+            label: 'Messages'
+        },
+        {
+            id: 'profile',
+            href: '/profile',
+            icon: UserIcon,
+            label: 'My Profile'
+        }
+    ]
+
     return (
         <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
@@ -37,82 +97,53 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
 
                 <SidebarGroup>
                     <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/')}>
-                                <Link href="/" passHref>
-                                    <HomeIcon className="w-4 h-4 " />
-                                    <span>
-                                        Home
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
+                        {menuItems.map((item) => {
+                            const Icon = item.icon
 
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/campaigns')}>
-                                <Link href="/campaigns" passHref>
-                                    <SendIcon className="w-4 h-4 " />
-                                    <span>
+                            // If item has submenu, render collapsible
+                            if (item.submenu && item.submenu.length > 0) {
+                                return (
+                                    <Collapsible key={item.id} defaultOpen className="group/collapsible">
+                                        <SidebarMenuItem>
+                                            <CollapsibleTrigger asChild>
+                                                <SidebarMenuButton>
+                                                    <Icon className="w-4 h-4" />
+                                                    <span>{item.label}</span>
+                                                    <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                                                </SidebarMenuButton>
+                                            </CollapsibleTrigger>
+                                            <CollapsibleContent>
+                                                <SidebarMenuSub>
+                                                    {item.submenu.map((subItem) => (
+                                                        <SidebarMenuSubItem key={subItem.id}>
+                                                            <SidebarMenuSubButton asChild isActive={isActive(subItem.href)}>
+                                                                <Link href={subItem.href} passHref>
+                                                                    <span>{subItem.label}</span>
+                                                                </Link>
+                                                            </SidebarMenuSubButton>
+                                                        </SidebarMenuSubItem>
+                                                    ))}
+                                                </SidebarMenuSub>
+                                            </CollapsibleContent>
+                                        </SidebarMenuItem>
+                                    </Collapsible>
+                                )
+                            }
 
-                                        Campañas
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/audiences')}>
-                                <Link href="/audiences" passHref>
-                                    <MailIcon className="w-4 h-4 " />
-                                    <span>
-
-                                        Audiencias
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/products')}>
-                                <Link href="/products" passHref>
-                                    <PackageIcon className="w-4 h-4 " />
-                                    <span>
-
-                                        Products
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/messages')}>
-                                <Link href="/messages" passHref>
-                                    <MailIcon className="w-4 h-4 " />
-                                    <span>
-                                        Messages
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/profile')}>
-                                <Link href="/profile" passHref>
-                                    <UserIcon className="w-4 h-4 " />
-                                    <span>
-                                        My Profile
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive={isActive('/contacts/merge')}>
-                                <Link href="/contacts/merge" passHref>
-                                    <UsersIcon className="w-4 h-4 " />
-                                    <span>
-                                        Merge Contacts
-                                    </span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
+                            // Regular menu item without submenu
+                            return (
+                                <SidebarMenuItem key={item.id}>
+                                    <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                                        <Link href={item.href} passHref>
+                                            <Icon className="w-4 h-4" />
+                                            <span>
+                                                {item.label}
+                                            </span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )
+                        })}
                     </SidebarMenu>
                 </SidebarGroup>
 
