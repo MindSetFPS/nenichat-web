@@ -8,6 +8,8 @@ import Link from 'next/link';
 
 const productRepository = new ProductRepository(pool);
 
+export const dynamic = 'force-dynamic';
+
 /**
  * @function ProductsPage
  * @description A server component page to display a list of products.

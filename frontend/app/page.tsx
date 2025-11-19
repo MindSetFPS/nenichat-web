@@ -12,6 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const messagesPerDay = await messageRepository.getMessageCountPerDay();
 

@@ -13,6 +13,8 @@ import { ICampaign } from '@/dto/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CampaignsPage() {
   const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
 

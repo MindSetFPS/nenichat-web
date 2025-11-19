@@ -34,7 +34,6 @@ export async function POST(request: Request) {
 
     const messageData = webhookEvent.message;
     if (!messageData) {
-        console.log("message is empty", messageData.message)
         return new Response(null, { status: 200 });
     }
 

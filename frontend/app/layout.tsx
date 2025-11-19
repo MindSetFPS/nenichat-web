@@ -10,7 +10,12 @@ interface RootLayoutProps {
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    const contacts = await contactRepository.list(0, 10)
+    let contacts: any[] = [];
+    try {
+        contacts = await contactRepository.list(0, 10);
+    } catch (error) {
+        console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
+    }
     const contactsJson = JSON.stringify(contacts)
     return (
         <>
