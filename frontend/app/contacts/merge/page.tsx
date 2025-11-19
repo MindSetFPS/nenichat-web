@@ -119,7 +119,7 @@ export default function MergeContactsPage() {
               <TableHead>Phone Number</TableHead>
               <TableHead>LID</TableHead>
               <TableHead>Username</TableHead>
-              <TableHead>Contact Name</TableHead>
+              <TableHead>Pushname</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,7 +155,7 @@ export default function MergeContactsPage() {
                   <TableCell>{contact.phone_number || 'N/A'}</TableCell>
                   <TableCell>{contact.lid || 'N/A'}</TableCell>
                   <TableCell>{contact.username || 'N/A'}</TableCell>
-                  <TableCell>{contact.contact_name || 'N/A'}</TableCell>
+                  <TableCell>{contact.pushname || 'N/A'}</TableCell>
                 </TableRow>
               ))
             )}
