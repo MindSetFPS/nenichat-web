@@ -217,6 +217,80 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
+  /**
+   * Retrieves an existing contact by LID or phone number, or creates a new one if not found.
+   * @param contactId The LID or phone number of the contact.
+   * @returns A promise that resolves to the found or newly created contact.
+   */
+  public async getOrCreateContact(contactId: string): Promise<IContact> {
+    let contact: IContact | null = null;
+
+    // Check if contactId is a LID (ends with "@lid" or doesn't start with "521")
+    const isLid = contactId.endsWith('@lid') || !contactId.startsWith('521');
+
+    if (isLid) {
+      contact = await this.findByLid(contactId);
+    }
+
+    // If not found by LID or if it's a phone number, try finding by phone number
+    if (!contact && !isLid) {
+      contact = await this.findByPhoneNumber(contactId);
+    }
+
+    if (contact) {
+      return contact;
+    } else {
+      // Create a new contact if not found
+      const newContactData: Partial<IContact> = {};
+      if (isLid) {
+        newContactData.lid = contactId;
+      } else {
+        newContactData.phone_number = contactId;
+      }
+      newContactData.is_user = false; // Set is_user to false for new contacts
+      // You might want to add more default values or logic here for new contacts
+      return this.save(newContactData);
+    }
+  }
+
+  public async setMe(userId: bigint): Promise<IContact> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Set all contacts to is_user = FALSE
+      await client.query('UPDATE contacts SET is_user = FALSE WHERE is_user = TRUE');
+
+      // Set the specified contact to is_user = TRUE and return it
+      const result = await client.query('UPDATE contacts SET is_user = TRUE WHERE id = $1 RETURNING *', [userId]);
+
+      if (result.rows.length === 0) {
+        throw new Error(`Contact with ID ${userId} not found.`);
+      }
+
+      const row = result.rows[0];
+      const userContact = new Contact(
+        row.id,
+        row.phone_number,
+        row.lid,
+        row.username,
+        row.pushname,
+        row.contact_name,
+        row.is_user,
+        row.created_at,
+        row.updated_at
+      );
+
+      await client.query('COMMIT');
+      return userContact;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   public async mergeContacts(primaryContactId: bigint, secondaryContactIds: bigint[]): Promise<void> {
     if (!primaryContactId || secondaryContactIds.length === 0) {
       throw new Error('Primary contact ID and at least one secondary contact ID are required for merging.');

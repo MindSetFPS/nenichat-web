@@ -44,7 +44,16 @@ export interface IContactRepository {
   mergeContacts(primaryContactId: bigint, secondaryContactIds: bigint[]): Promise<void>;
 
   /**
-   * Sets the contact property "is_user" as true, meaning this contact represents the user themselves.
+   * Retrieves an existing contact by LID or phone number, or creates a new one if not found.
+   * @param contactId The LID or phone number of the contact.
+   * @returns A promise that resolves to the found or newly created contact.
    */
-  setMe(): Promise<void>;
+  getOrCreateContact(contactId: string): Promise<IContact>;
+
+  /**
+   * Sets the contact property "is_user" as true for the given userId, meaning this contact represents the user themselves.
+   * All other contacts will have their "is_user" property set to false.
+   * @param userId The ID of the contact to set as the user.
+   */
+  setMe(userId: bigint): Promise<IContact>;
 }

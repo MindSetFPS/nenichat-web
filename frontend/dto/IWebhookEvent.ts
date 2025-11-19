@@ -56,6 +56,12 @@ export class WebhookEvent implements IWebhookEvent {
     this.timestamp = data.timestamp;
   }
 
+
+  // This confirmation logic is weak:
+  // sender_id can be either a phone number of a lid
+  // and there is no way to know which one is which
+  // so we should save all mesages and all contacts
+  // and then merge them later via ui
   isSentByMe(): boolean {
     return this.sender_id !== this.chat_id
   }
