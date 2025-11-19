@@ -23,15 +23,23 @@ export default function MergeContactsPage() {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [primaryContactId, setPrimaryContactId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCandidates, setTotalCandidates] = useState(0);
+  const PAGE_SIZE = 20;
 
   const fetchCandidates = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/contacts/candidates');
+      const response = await fetch(`/api/contacts/candidates?page=${currentPage}&limit=${PAGE_SIZE}`);
       if (!response.ok) {
         throw new Error('Failed to fetch merge candidates');
       }
-      const data = await response.json();
+      const result = await response.json();
+      const data = result.data;
+      setTotalPages(result.meta.totalPages);
+      setTotalCandidates(result.meta.total);
+
       // In Next.js, when data is serialized from server to client, BigInts are often converted to strings.
       // We'll work with strings for IDs on the client side to avoid issues.
       setCandidates(data.map((c: any) => ({ ...c, id: c.id ? c.id.toString() : '' })));
@@ -44,7 +52,7 @@ export default function MergeContactsPage() {
 
   useEffect(() => {
     fetchCandidates();
-  }, []);
+  }, [currentPage]);
 
   const handleSelect = (contactId: string, isChecked: boolean) => {
     const newSelected = { ...selected };
@@ -100,71 +108,102 @@ export default function MergeContactsPage() {
   const selectedContacts = Object.keys(selected);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Merge Contacts</h1>
-      <p className="mb-4 text-muted-foreground">Select contacts to merge. Choose one as the primary contact, and the others will be merged into it.</p>
+    <div className="container mx-auto p-4 h-[calc(100vh-2rem)] flex flex-col">
+      <div className="flex-none">
+        <h1 className="text-2xl font-bold mb-4">Merge Contacts</h1>
+        <p className="mb-4 text-muted-foreground">Select contacts to merge. Choose one as the primary contact, and the others will be merged into it.</p>
 
-      <div className="mb-4">
-        <Button
-          onClick={handleMerge}
-          disabled={!primaryContactId || selectedContacts.length < 2}
-        >
-          Merge Selected ({selectedContacts.length})
-        </Button>
+        <div className="mb-4">
+          <Button
+            onClick={handleMerge}
+            disabled={!primaryContactId || selectedContacts.length < 2}
+          >
+            Merge Selected ({selectedContacts.length})
+          </Button>
+        </div>
       </div>
 
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">Select</TableHead>
-              <TableHead>Primary</TableHead>
-              <TableHead>ID</TableHead>
-              <TableHead>Phone Number</TableHead>
-              <TableHead>LID</TableHead>
-              <TableHead>Username</TableHead>
-              <TableHead>Pushname</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+      <div className="flex-1 border rounded-lg overflow-hidden relative min-h-0">
+        <div className="absolute inset-0 overflow-auto">
+          <table className="w-full caption-bottom text-sm">
+            <TableHeader className="sticky top-0 bg-background z-10">
               <TableRow>
-                <TableCell colSpan={7} className="text-center h-24">Loading...</TableCell>
+                <TableHead className="w-[50px]">Select</TableHead>
+                <TableHead>Primary</TableHead>
+                <TableHead>ID</TableHead>
+                <TableHead>Phone Number</TableHead>
+                <TableHead>LID</TableHead>
+                <TableHead>Username</TableHead>
+                <TableHead>Pushname</TableHead>
               </TableRow>
-            ) : candidates.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center h-24">No merge candidates found.</TableCell>
-              </TableRow>
-            ) : (
-              candidates.map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={!!selected[contact.id]}
-                      onCheckedChange={(checked) => handleSelect(contact.id, !!checked)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {selected[contact.id] && (
-                      <Button
-                        variant={primaryContactId === contact.id ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setPrimaryContactId(contact.id)}
-                      >
-                        {primaryContactId === contact.id ? 'Primary' : 'Set Primary'}
-                      </Button>
-                    )}
-                  </TableCell>
-                  <TableCell>{contact.id}</TableCell>
-                  <TableCell>{contact.phone_number || 'N/A'}</TableCell>
-                  <TableCell>{contact.lid || 'N/A'}</TableCell>
-                  <TableCell>{contact.username || 'N/A'}</TableCell>
-                  <TableCell>{contact.pushname || 'N/A'}</TableCell>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center h-24">Loading...</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : candidates.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center h-24">No merge candidates found.</TableCell>
+                </TableRow>
+              ) : (
+                candidates.map((contact) => (
+                  <TableRow key={contact.id} className='overflow-y-auto h-full'>
+                    <TableCell>
+                      <Checkbox
+                        checked={!!selected[contact.id]}
+                        onCheckedChange={(checked) => handleSelect(contact.id, !!checked)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {selected[contact.id] && (
+                        <Button
+                          variant={primaryContactId === contact.id ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setPrimaryContactId(contact.id)}
+                        >
+                          {primaryContactId === contact.id ? 'Primary' : 'Set Primary'}
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>{contact.id}</TableCell>
+                    <TableCell>{contact.phone_number || 'N/A'}</TableCell>
+                    <TableCell>{contact.lid || 'N/A'}</TableCell>
+                    <TableCell>{contact.username || 'N/A'}</TableCell>
+                    <TableCell>{contact.pushname || 'N/A'}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </table>
+        </div>
+      </div>
+
+      <div className="flex-none flex items-center justify-between mt-4">
+        <div className="text-sm text-muted-foreground">
+          Showing {candidates.length} of {totalCandidates} candidates
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1 || isLoading}
+          >
+            Previous
+          </Button>
+          <div className="flex items-center px-2 text-sm font-medium">
+            Page {currentPage} of {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages || isLoading}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );
