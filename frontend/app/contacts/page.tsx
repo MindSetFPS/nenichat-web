@@ -30,6 +30,7 @@ interface IContactResponse {
 export default function ContactsPage() {
     const [response, setResponse] = useState<IContactResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [columnVisibility, setColumnVisibility] = useState({
@@ -72,67 +73,101 @@ export default function ContactsPage() {
         return contact.contact_name || contact.pushname || contact.username || contact.phone_number || contact.lid || "Unknown";
     };
 
+    const handleSyncContacts = async () => {
+        setIsSyncing(true);
+        try {
+            const response = await fetch("/api/contacts/sync");
+            if (!response.ok) {
+                throw new Error("Failed to sync contacts");
+            }
+            const data = await response.json();
+            console.log("Sync response:", data);
+            // Refresh the contacts list after sync
+            await fetchContacts(page, pageSize);
+        } catch (error) {
+            console.error("Error syncing contacts:", error);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuCheckboxItem
-                            checked={columnVisibility.name}
-                            onCheckedChange={(value) =>
-                                setColumnVisibility((prev) => ({ ...prev, name: value }))
-                            }
-                        >
-                            Name
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={columnVisibility.phoneNumber}
-                            onCheckedChange={(value) =>
-                                setColumnVisibility((prev) => ({ ...prev, phoneNumber: value }))
-                            }
-                        >
-                            Phone Number
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={columnVisibility.lid}
-                            onCheckedChange={(value) =>
-                                setColumnVisibility((prev) => ({ ...prev, lid: value }))
-                            }
-                        >
-                            LID
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={columnVisibility.username}
-                            onCheckedChange={(value) =>
-                                setColumnVisibility((prev) => ({ ...prev, username: value }))
-                            }
-                        >
-                            Username
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={columnVisibility.pushname}
-                            onCheckedChange={(value) =>
-                                setColumnVisibility((prev) => ({ ...prev, pushname: value }))
-                            }
-                        >
-                            Pushname
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={columnVisibility.createdAt}
-                            onCheckedChange={(value) =>
-                                setColumnVisibility((prev) => ({ ...prev, createdAt: value }))
-                            }
-                        >
-                            Created At
-                        </DropdownMenuCheckboxItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={handleSyncContacts}
+                        disabled={isSyncing}
+                    >
+                        {isSyncing ? (
+                            <>
+                                <Spinner className="h-4 w-4 mr-2" />
+                                Syncing...
+                            </>
+                        ) : (
+                            "Sync Contacts"
+                        )}
+                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                Columns
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.name}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, name: value }))
+                                }
+                            >
+                                Name
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.phoneNumber}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, phoneNumber: value }))
+                                }
+                            >
+                                Phone Number
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.lid}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, lid: value }))
+                                }
+                            >
+                                LID
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.username}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, username: value }))
+                                }
+                            >
+                                Username
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.pushname}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, pushname: value }))
+                                }
+                            >
+                                Pushname
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.createdAt}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, createdAt: value }))
+                                }
+                            >
+                                Created At
+                            </DropdownMenuCheckboxItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
 
             {isLoading ? (

@@ -19,6 +19,16 @@ export interface IContactRepository {
   save(contact: Partial<IContact>): Promise<IContact>;
 
   /**
+   * Saves a batch of contacts (creates or updates).
+   *
+   * - Contacts with 'phone_number' are upserted based on 'phone_number'.
+   * - Contacts with 'lid' (and no 'phone_number') are upserted based on 'lid'.
+   *
+   * @param contacts An array of partial IContact objects to save.
+   */
+  saveBatch(contacts: Partial<IContact>[]): Promise<void>;
+
+  /**
    * Retrieves a paginated list of contacts.
    * @param offset The number of contacts to skip.
    * @param limit The maximum number of contacts to return.

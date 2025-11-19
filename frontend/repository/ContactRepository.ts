@@ -155,6 +155,96 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
+  public async saveBatch(contacts: Partial<IContact>[]): Promise<void> {
+    if (contacts.length === 0) return;
+
+    const phoneContacts = contacts.filter((c) => c.phone_number);
+    const lidContacts = contacts.filter((c) => c.lid && !c.phone_number);
+
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      if (phoneContacts.length > 0) {
+        // Construct bulk insert query for phone contacts
+        const values: any[] = [];
+        const placeholders: string[] = [];
+        let paramIndex = 1;
+
+        for (const contact of phoneContacts) {
+          placeholders.push(
+            `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`
+          );
+          values.push(
+            contact.phone_number,
+            contact.lid || null,
+            contact.username || null,
+            contact.pushname || null,
+            contact.contact_name || null,
+            contact.is_user || false
+          );
+          paramIndex += 6;
+        }
+
+        const query = `
+          INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user)
+          VALUES ${placeholders.join(', ')}
+          ON CONFLICT (phone_number) DO UPDATE SET
+            lid = COALESCE(EXCLUDED.lid, contacts.lid),
+            username = COALESCE(EXCLUDED.username, contacts.username),
+            pushname = COALESCE(EXCLUDED.pushname, contacts.pushname),
+            contact_name = COALESCE(EXCLUDED.contact_name, contacts.contact_name),
+            is_user = EXCLUDED.is_user,
+            updated_at = NOW()
+        `;
+
+        await client.query(query, values);
+      }
+
+      if (lidContacts.length > 0) {
+        // Construct bulk insert query for lid contacts
+        const values: any[] = [];
+        const placeholders: string[] = [];
+        let paramIndex = 1;
+
+        for (const contact of lidContacts) {
+          placeholders.push(
+            `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`
+          );
+          values.push(
+            null, // phone_number is null for lid-only contacts
+            contact.lid,
+            contact.username || null,
+            contact.pushname || null,
+            contact.contact_name || null,
+            contact.is_user || false
+          );
+          paramIndex += 6;
+        }
+
+        const query = `
+          INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user)
+          VALUES ${placeholders.join(', ')}
+          ON CONFLICT (lid) DO UPDATE SET
+            username = COALESCE(EXCLUDED.username, contacts.username),
+            pushname = COALESCE(EXCLUDED.pushname, contacts.pushname),
+            contact_name = COALESCE(EXCLUDED.contact_name, contacts.contact_name),
+            is_user = EXCLUDED.is_user,
+            updated_at = NOW()
+        `;
+
+        await client.query(query, values);
+      }
+
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   public async list(offset: number, limit: number): Promise<IContact[]> {
     const result = await this.pool.query('SELECT * FROM contacts ORDER BY created_at DESC LIMIT $1 OFFSET $2', [
       limit,
