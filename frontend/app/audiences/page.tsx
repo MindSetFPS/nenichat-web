@@ -20,10 +20,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MailIcon, MoreHorizontal } from "lucide-react";
 import { IAudience } from "@/dto/IAudience";
 import { AudienceForm } from "@/components/forms/AudienceForm";
 import { Spinner } from "@/components/ui/spinner";
+import { EmptyList } from "@/components/empy-list";
 
 export default function AudiencesPage() {
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -87,6 +88,16 @@ export default function AudiencesPage() {
       console.error("Error deleting audience:", error);
     }
   };
+
+  if (audiences.length === 0) {
+    return <EmptyList
+      action={
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}>Create Audience</Button>}
+      description="Start building your product catalog by creating your first product. Add details, images, and pricing to get started."
+      title="No audiences found"
+      icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
+  }
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
