@@ -25,6 +25,7 @@ import { IAudience } from "@/dto/IAudience";
 import { AudienceForm } from "@/components/forms/AudienceForm";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyList } from "@/components/empy-list";
+import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";
 
 export default function AudiencesPage() {
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -89,143 +90,94 @@ export default function AudiencesPage() {
     }
   };
 
-  if (audiences.length === 0) {
-    return <EmptyList
-      action={
-        <Button
-          onClick={() => setIsCreateDialogOpen(true)}>Create Audience</Button>}
-      description="Start building your product catalog by creating your first product. Add details, images, and pricing to get started."
-      title="No audiences found"
-      icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Spinner className="h-5 w-5" />
+      </div>
+    )
   }
 
+  const createAudienceButton = <Button onClick={() => setIsCreateDialogOpen(true)}>Create Audience</Button>
+
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Audiences</h2>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          Create Audience
-        </Button>
-      </div>
+    <div className="flex-1 space-y-4 mx-4 md:p-8 md:pt-6">
 
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spinner className="h-5 w-5" />
-        </div>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {audiences.length === 0 ? (
+      {audiences.length === 0 ?
+
+        <EmptyList
+          action={createAudienceButton}
+          description="Start building your product catalog by creating your first product. Add details, images, and pricing to get started."
+          title="No audiences found"
+          icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
+        :
+        <>
+          <div className="flex items-center justify-between space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight">Audiences</h2>
+            {createAudienceButton}
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 "
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-                        />
-                      </svg>
-                      <p className="mt-4 text-lg ">
-                        No audiences found.
-                      </p>
-                      <p className="text-sm ">
-                        Click "Create Audience" to add your first one.
-                      </p>
-                    </div>
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Created At</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                audiences.map((audience) => (
-                  <TableRow
-                    key={Number(audience.id)}
-                    className="cursor-pointer"
-                    onClick={() => router.push(`/audiences/members/${audience.id}`)}
-                  >
-                    <TableCell className="font-medium">{audience.name}</TableCell>
-                    <TableCell>{audience.description}</TableCell>
-                    <TableCell>{new Date(audience.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent TableRow click from firing
-                              setSelectedAudience(audience);
-                              setIsDeleteDialogOpen(true);
-                            }}
-                          >
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {
+                  audiences.map((audience) => (
+                    <TableRow
+                      key={Number(audience.id)}
+                      className="cursor-pointer"
+                      onClick={() => router.push(`/audiences/members/${audience.id}`)}
+                    >
+                      <TableCell className="font-medium">{audience.name}</TableCell>
+                      <TableCell>{audience.description}</TableCell>
+                      <TableCell>{new Date(audience.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent TableRow click from firing
+                                setSelectedAudience(audience);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                }
+              </TableBody>
+            </Table>
+          </div>
+        </>
+      }
+      <CreateAudienceDialog
+        handleCreateAudience={handleCreateAudience}
+        isCreateDialogOpen={isCreateDialogOpen}
+        setIsCreateDialogOpen={setIsCreateDialogOpen} />
 
-      {/* Create Audience Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Create Audience</DialogTitle>
-            <DialogDescription>
-              Create a new audience to group your contacts.
-            </DialogDescription>
-          </DialogHeader>
-          <AudienceForm
-            onSubmit={handleCreateAudience}
-            onCancel={() => setIsCreateDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Audience Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Delete Audience</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this audience? This action cannot
-              be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={() => selectedAudience && handleDeleteAudience(Number(selectedAudience.id))}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteAudienceDialog
+        handleDeleteAudience={handleDeleteAudience}
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        selectedAudience={selectedAudience}
+        setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+      />
     </div>
   );
 }
+
