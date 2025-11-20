@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { Pagination } from '@/components/ui/pagination';
 
 interface ContactCandidate extends Omit<IContact, 'id'> {
   id: string;
@@ -179,32 +180,13 @@ export default function MergeContactsPage() {
         </div>
       </div>
 
-      <div className="flex-none flex items-center justify-between mt-4">
-        <div className="text-sm text-muted-foreground">
-          Showing {candidates.length} of {totalCandidates} candidates
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1 || isLoading}
-          >
-            Previous
-          </Button>
-          <div className="flex items-center px-2 text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages || isLoading}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        page={currentPage}
+        pageSize={totalPages}
+        setPage={setCurrentPage}
+        totalPages={totalPages}
+      />
+
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Pagination } from "@/components/ui/pagination";
 
 interface IMessageResponse {
   data: IMessageWithSender[];
@@ -64,10 +65,6 @@ export default function MessagesPage() {
     fetchMessages(page, pageSize);
   }, [page, pageSize]);
 
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPageSize(Number(e.target.value));
-    setPage(1); // Reset to first page when page size changes
-  };
 
   const getSenderName = (message: IMessageWithSender) => {
     if (message.sender) {
@@ -220,41 +217,15 @@ export default function MessagesPage() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex justify-between items-center space-x-2 py-4">
-            <div>
-              <select
-                value={pageSize}
-                onChange={handlePageSizeChange}
-                className="p-2 border rounded-md"
-              >
-                <option value={10}>10 per page</option>
-                <option value={20}>20 per page</option>
-                <option value={50}>50 per page</option>
-                <option value={100}>100 per page</option>
-              </select>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-              >
-                Previous
-              </Button>
-              <span className="text-sm">
-                Page {response?.page} of {response?.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(page + 1)}
-                disabled={page === response?.totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+
+          <Pagination
+            pageSize={Number(pageSize)}
+            page={page}
+            setPage={setPage}
+            setPageSize={setPageSize}
+            totalPages={response?.totalPages || 0}
+          />
+
         </>
       )}
     </div>
