@@ -1,10 +1,11 @@
-import { ProductRepository } from '../../repository/ProductRepository';
-import { pool } from '../../repository/db';
-import { getProductImageUrl } from '../../lib/utils';
 import Image from 'next/image';
-import { IProduct } from '../../dto/IProduct';
-import { ProductActions } from './ProductActions';
 import Link from 'next/link';
+import { pool } from '../../repository/db';
+import { IProduct } from '../../dto/IProduct';
+import { ProductRepository } from '../../repository/ProductRepository';
+import { getProductImageUrl } from '../../lib/utils';
+import { ProductActions } from './ProductActions';
+import { EmptyProducts } from '@/components/empty-products';
 
 const productRepository = new ProductRepository(pool);
 
@@ -34,10 +35,10 @@ export default async function ProductsPage() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Our Products</h1>
-        <ProductActions /> {/* Render the client component */}
+        <ProductActions />
       </div>
       {products.length === 0 ? (
-        <p>No products found. Please add some products.</p>
+        <EmptyProducts />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {products.map((product) => (
