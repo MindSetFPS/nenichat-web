@@ -125,7 +125,7 @@ export default function MergeContactsPage() {
 
       <div className="flex-1 border rounded-lg overflow-hidden relative min-h-0">
         <div className="absolute inset-0 overflow-auto">
-          <table className="w-full caption-bottom text-sm">
+          <Table className="w-full caption-bottom text-sm">
             <TableHeader className="sticky top-0 bg-background z-10">
               <TableRow>
                 <TableHead className="w-[50px]">Select</TableHead>
@@ -175,7 +175,7 @@ export default function MergeContactsPage() {
                 ))
               )}
             </TableBody>
-          </table>
+          </Table>
         </div>
       </div>
 
