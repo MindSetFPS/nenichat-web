@@ -19,6 +19,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Pagination } from "./ui/pagination";
 
 interface IContactResponse {
     data: IContact[];
@@ -116,9 +117,7 @@ export function ContactsTable({
     const fetchContacts = async (page: number, size: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch(
-                `${endpoint}?page=${page}&pageSize=${size}`
-            );
+            const response = await fetch(`${endpoint}?page=${page}&pageSize=${size}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch contacts");
             }
@@ -150,17 +149,13 @@ export function ContactsTable({
     // but it's implied by the existing code.
     // I will add a `refreshId` prop that when changed, triggers a refetch.
 
-    const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setPageSize(Number(e.target.value));
-        setPage(1);
-    };
-
     const getContactName = (contact: IContact) => {
         return contact.contact_name || contact.pushname || contact.username || contact.phone_number || contact.lid || "Unknown";
     };
 
     return (
-        <div className="space-y-4">
+        // <div className="container mx-auto h-full flex flex-col space-y-4 ">
+        <>
             <div className="flex items-center justify-between space-y-2">
                 <div className="flex gap-2">
                     {headerActions}
@@ -171,7 +166,6 @@ export function ContactsTable({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-
 
                             <DropdownMenuCheckboxItem
                                 checked={columnVisibility.id}
@@ -237,119 +231,92 @@ export function ContactsTable({
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                    <Spinner className="h-5 w-5" />
-                </div>
+                <Spinner className="h-5 w-5" />
             ) : (
                 <>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    {enableSelection && (
-                                        <TableHead className="w-[50px]">
-                                            <Checkbox
-                                                checked={isAllSelected || (isSomeSelected ? "indeterminate" : false)}
-                                                onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                                            />
-                                        </TableHead>
-                                    )}
-                                    {columnVisibility.id && <TableHead>id</TableHead>}
-                                    {columnVisibility.name && <TableHead>Name</TableHead>}
-                                    {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
-                                    {columnVisibility.lid && <TableHead>LID</TableHead>}
-                                    {columnVisibility.username && <TableHead>Username</TableHead>}
-                                    {columnVisibility.pushname && <TableHead>Pushname</TableHead>}
-                                    {columnVisibility.createdAt && <TableHead>Created At</TableHead>}
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {response?.data.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={Object.values(columnVisibility).filter(Boolean).length + (enableSelection ? 1 : 0)}
-                                            className="h-24 text-center"
-                                        >
-                                            No contacts found.
-                                        </TableCell>
+                    <div className="flex-1 border rounded-lg overflow-hidden relative">
+                        <div className="absolute inset-0 overflow-auto">
+                            <Table>
+                                <TableHeader className="sticky">
+                                    <TableRow className="sticky">
+                                        {enableSelection && (
+                                            <TableHead className="w-[50px]">
+                                                <Checkbox
+                                                    checked={isAllSelected || (isSomeSelected ? "indeterminate" : false)}
+                                                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                                                />
+                                            </TableHead>
+                                        )}
+                                        {columnVisibility.id && <TableHead>id</TableHead>}
+                                        {columnVisibility.name && <TableHead>Name</TableHead>}
+                                        {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
+                                        {columnVisibility.lid && <TableHead>LID</TableHead>}
+                                        {columnVisibility.username && <TableHead>Username</TableHead>}
+                                        {columnVisibility.pushname && <TableHead>Pushname</TableHead>}
+                                        {columnVisibility.createdAt && <TableHead>Created At</TableHead>}
                                     </TableRow>
-                                ) : (
-                                    response?.data.map((contact) => (
-                                        <TableRow key={String(contact.id)}>
-                                            {enableSelection && (
-                                                <TableCell>
-                                                    <Checkbox
-                                                        checked={selectedIds.has(String(contact.id))}
-                                                        onCheckedChange={(checked) => handleSelectOne(!!checked, String(contact.id))}
-                                                    />
-                                                </TableCell>
-                                            )}
-                                            {columnVisibility.id && (
-                                                <TableCell>{contact.id || "-"}</TableCell>
-                                            )}
-                                            {columnVisibility.name && (
-                                                <TableCell>{getContactName(contact)}</TableCell>
-                                            )}
-                                            {columnVisibility.phoneNumber && (
-                                                <TableCell>{contact.phone_number || "-"}</TableCell>
-                                            )}
-                                            {columnVisibility.lid && (
-                                                <TableCell>{contact.lid || "-"}</TableCell>
-                                            )}
-                                            {columnVisibility.username && (
-                                                <TableCell>{contact.username || "-"}</TableCell>
-                                            )}
-                                            {columnVisibility.pushname && (
-                                                <TableCell>{contact.pushname || "-"}</TableCell>
-                                            )}
-                                            {columnVisibility.createdAt && (
-                                                <TableCell>
-                                                    {new Date(contact.created_at).toLocaleString()}
-                                                </TableCell>
-                                            )}
+                                </TableHeader>
+                                <TableBody>
+                                    {response?.data.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={Object.values(columnVisibility).filter(Boolean).length + (enableSelection ? 1 : 0)}
+                                                className="h-24 text-center"
+                                            >
+                                                No contacts found.
+                                            </TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                    <div className="flex justify-between items-center space-x-2 py-4">
-                        <div>
-                            <select
-                                value={pageSize}
-                                onChange={handlePageSizeChange}
-                                className="p-2 border rounded-md"
-                            >
-                                <option value={10}>10 per page</option>
-                                <option value={20}>20 per page</option>
-                                <option value={50}>50 per page</option>
-                                <option value={100}>100 per page</option>
-                            </select>
+                                    ) : (
+                                        response?.data.map((contact) => (
+                                            <TableRow key={String(contact.id)}>
+                                                {enableSelection && (
+                                                    <TableCell>
+                                                        <Checkbox
+                                                            checked={selectedIds.has(String(contact.id))}
+                                                            onCheckedChange={(checked) => handleSelectOne(!!checked, String(contact.id))}
+                                                        />
+                                                    </TableCell>
+                                                )}
+                                                {columnVisibility.id && (
+                                                    <TableCell>{contact.id || "-"}</TableCell>
+                                                )}
+                                                {columnVisibility.name && (
+                                                    <TableCell>{getContactName(contact)}</TableCell>
+                                                )}
+                                                {columnVisibility.phoneNumber && (
+                                                    <TableCell>{contact.phone_number || "-"}</TableCell>
+                                                )}
+                                                {columnVisibility.lid && (
+                                                    <TableCell>{contact.lid || "-"}</TableCell>
+                                                )}
+                                                {columnVisibility.username && (
+                                                    <TableCell>{contact.username || "-"}</TableCell>
+                                                )}
+                                                {columnVisibility.pushname && (
+                                                    <TableCell>{contact.pushname || "-"}</TableCell>
+                                                )}
+                                                {columnVisibility.createdAt && (
+                                                    <TableCell>
+                                                        {new Date(contact.created_at).toLocaleString()}
+                                                    </TableCell>
+                                                )}
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage(page - 1)}
-                                disabled={page === 1}
-                            >
-                                Previous
-                            </Button>
-                            <span className="text-sm">
-                                Page {response?.page} of {response?.totalPages}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage(page + 1)}
-                                disabled={page === response?.totalPages}
-                            >
-                                Next
-                            </Button>
-                        </div>
                     </div>
+                    <Pagination
+                        page={page}
+                        pageSize={pageSize}
+                        setPage={setPage}
+                        totalPages={response?.totalPages || 0}
+                        setPageSize={setPageSize}
+                    />
                 </>
             )}
-        </div>
+        </>
+        // </div>
     );
 }
