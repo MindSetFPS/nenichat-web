@@ -511,6 +511,34 @@ export class ContactRepository implements IContactRepository {
       client.release();
     }
   }
+
+
+  public async findRecentContacts(limit: number): Promise<IContact[]> {
+    const result = await this.pool.query(
+      `SELECT c.*
+       FROM contacts c
+       JOIN messages m ON c.id = m.sender_id
+       GROUP BY c.id
+       ORDER BY MAX(m.created_at) DESC
+       LIMIT $1`,
+      [limit]
+    );
+
+    return result.rows.map(
+      (row) =>
+        new Contact(
+          row.id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.created_at,
+          row.updated_at
+        )
+    );
+  }
 }
 
 export const contactRepository = new ContactRepository(pool);

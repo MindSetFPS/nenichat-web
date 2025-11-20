@@ -12,7 +12,7 @@ interface RootLayoutProps {
 export default async function RootLayout({ children }: RootLayoutProps) {
     let contacts: any[] = [];
     try {
-        contacts = await contactRepository.list(0, 10);
+        contacts = await contactRepository.findRecentContacts(20);
     } catch (error) {
         console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
     }
@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                                 bg-background mx-auto border rounded-r-lg md:rounded-lg overflow-hidden">
                                     {children}
                                 </div>
-                                <ToasterProvider /> {/* Use ToasterProvider here */}
+                                <ToasterProvider />
                             </SidebarInset>
                         </SidebarProvider>
                     </ThemeProvider>

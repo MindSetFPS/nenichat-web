@@ -68,4 +68,10 @@ export interface IContactRepository {
    * @param userId The ID of the contact to set as the user.
    */
   setMe(userId: bigint): Promise<IContact>;
+  /**
+   * Retrieves the most recent contacts who have sent messages.
+   * @param limit The maximum number of contacts to return.
+   * @returns A promise that resolves to an array of contacts ordered by their latest message.
+   */
+  findRecentContacts(limit: number): Promise<IContact[]>;
 }
