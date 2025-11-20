@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const contacts = await contactRepository.search(query);
+    const contacts = await contactRepository.search(query, 10);
     return NextResponse.json(contacts);
   } catch (error) {
     console.error('Error searching contacts:', error);
