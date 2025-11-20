@@ -3,15 +3,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -20,16 +11,14 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import { IContact } from '@/repository/IContact';
 import { IAudience } from '@/dto/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
+import { ContactsTable } from "@/components/contacts-table";
 
 const fetchAudienceDetails = async (id: string) => {
   const response = await fetch(`/api/audiences/${id}`);
@@ -51,7 +40,7 @@ const fetchAudienceMembers = async (audienceId: string) => {
   const data = await response.json();
   return {
     audienceMembers: data.audienceMembers as IContact[],
-    allContacts: data.allContacts as IContact[],
+    // We don't need allContacts anymore as ContactsTable fetches them
   };
 };
 
@@ -63,11 +52,10 @@ export default function AudienceMembersPage() {
   const [audience, setAudience] = useState<IAudience | null>(null);
   const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
   const [initialSelectedContactIds, setInitialSelectedContactIds] = useState<Set<string>>(new Set());
-  const [allContacts, setAllContacts] = useState<IContact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const fetchMembersAndContacts = async () => {
+  const fetchMembersAndAudience = async () => {
     setIsLoading(true);
     try {
       const audienceData = await fetchAudienceDetails(audienceId);
@@ -75,21 +63,20 @@ export default function AudienceMembersPage() {
         setAudience(audienceData);
       }
 
-      const { audienceMembers, allContacts } = await fetchAudienceMembers(audienceId);
+      const { audienceMembers } = await fetchAudienceMembers(audienceId);
       const initialIds = new Set(audienceMembers.map(c => c.id?.toString() || ''));
       setSelectedContactIds(initialIds);
       setInitialSelectedContactIds(new Set(initialIds));
-      setAllContacts(allContacts);
     } catch (error) {
-      console.error("Failed to fetch audience details, members or all contacts:", error);
-      toast.error("Failed to load audience details, members or contacts.");
+      console.error("Failed to fetch audience details or members:", error);
+      toast.error("Failed to load audience details or members.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMembersAndContacts();
+    fetchMembersAndAudience();
   }, [audienceId]);
 
   const handleEditAudience = async (name: string, description: string) => {
@@ -108,7 +95,7 @@ export default function AudienceMembersPage() {
       }
       setIsEditDialogOpen(false);
       toast.success(`Audience "${name}" updated!`);
-      fetchMembersAndContacts(); // Refresh the data
+      fetchMembersAndAudience(); // Refresh the data
     } catch (error) {
       console.error("Error updating audience:", error);
       toast.error("Failed to update audience.");
@@ -118,18 +105,6 @@ export default function AudienceMembersPage() {
   const hasChanges =
     selectedContactIds.size !== initialSelectedContactIds.size ||
     ![...selectedContactIds].every((id) => initialSelectedContactIds.has(id));
-
-  const handleCheckboxChange = (contactId: string, isChecked: boolean) => {
-    setSelectedContactIds((prev) => {
-      const newSet = new Set(prev);
-      if (isChecked) {
-        newSet.add(contactId);
-      } else {
-        newSet.delete(contactId);
-      }
-      return newSet;
-    });
-  };
 
   const handleSaveMembers = async () => {
     try {
@@ -168,58 +143,21 @@ export default function AudienceMembersPage() {
         <div className="flex justify-center items-center h-64">
           <Spinner className="h-5 w-5" />
         </div>
-      ) : allContacts.length === 0 ? (
-        <div className="flex justify-center items-center h-64 text-gray-500">
-          No contacts available to add to this audience.
-        </div>
       ) : (
         <>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">
-                    <Checkbox
-                      checked={selectedContactIds.size === allContacts.length && allContacts.length > 0}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedContactIds(new Set(allContacts.map(c => c.id?.toString() || '')));
-                        } else {
-                          setSelectedContactIds(new Set());
-                        }
-                      }}
-                    />
-                  </TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Phone</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allContacts.map((contact) => (
-                  <TableRow key={contact.id?.toString()}>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedContactIds.has(contact.id?.toString() || '')}
-                        onCheckedChange={(checked) =>
-                          handleCheckboxChange(contact.id?.toString() || '', checked as boolean)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{contact.contact_name || contact.pushname || contact.username || contact.phone_number}</TableCell>
-                    <TableCell>{contact.phone_number}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <ContactsTable
+            endpoint="/api/contacts"
+            enableSelection={true}
+            selectedIds={Array.from(selectedContactIds)}
+            onSelectionChange={(ids) => setSelectedContactIds(new Set(ids))}
+          />
 
-          <div className="flex justify-end">
+          <div className="flex justify-end mt-4">
             <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
           </div>
         </>
       )}
 
-      {/* Edit Audience Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
