@@ -92,9 +92,7 @@ export default function AudiencesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full">
-        <Spinner className="h-5 w-5" />
-      </div>
+      <Spinner className="h-5 w-5" />
     )
   }
 

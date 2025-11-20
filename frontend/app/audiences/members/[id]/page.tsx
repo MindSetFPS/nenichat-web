@@ -128,23 +128,31 @@ export default function AudienceMembersPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Spinner className="h-5 w-5" />
+    )
+  }
+
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+    <div className="container mx-auto flex-1 space-y-4 px-4 md:p-8 md:pt-4  h-[calc(100vh-2rem)] flex flex-col">
+      <div className="flex-col md:flex-row items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">
           Manage Members for: {audience?.name || 'Loading...'}
         </h2>
-        <Button onClick={() => setIsEditDialogOpen(true)}>
-          Edit Audience
-        </Button>
+        <div className="flex justify-end md:justify-start mt-4 space-x-1">
+          <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
+          <Button onClick={() => setIsEditDialogOpen(true)}>
+            Edit Audience
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spinner className="h-5 w-5" />
-        </div>
+        <Spinner className="h-5 w-5" />
       ) : (
         <>
+
           <ContactsTable
             endpoint="/api/contacts"
             enableSelection={true}
@@ -152,9 +160,6 @@ export default function AudienceMembersPage() {
             onSelectionChange={(ids) => setSelectedContactIds(new Set(ids))}
           />
 
-          <div className="flex justify-end mt-4">
-            <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
-          </div>
         </>
       )}
 
