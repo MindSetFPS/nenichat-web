@@ -18,6 +18,7 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface IContactResponse {
     data: IContact[];
@@ -39,8 +40,22 @@ interface ContactsTableProps {
     };
     headerActions?: React.ReactNode;
     refreshTrigger?: number;
+    enableSelection?: boolean;
+    onSelectionChange?: (selectedIds: string[]) => void;
 }
 
+/**
+ * ContactsTable Component
+ *
+ * A reusable table component for displaying contacts with pagination, column visibility, and optional row selection.
+ *
+ * @param {string} endpoint - The API endpoint to fetch contacts from.
+ * @param {Object} defaultColumnVisibility - Initial visibility state for columns.
+ * @param {React.ReactNode} headerActions - Optional actions to render in the header (e.g., Sync button).
+ * @param {number} refreshTrigger - A number that, when changed, triggers a refresh of the table data.
+ * @param {boolean} enableSelection - Whether to show checkboxes for row selection.
+ * @param {function} onSelectionChange - Callback fired when a checkbock is clicked. Receives an array of selected contact IDs.
+ */
 export function ContactsTable({
     endpoint,
     defaultColumnVisibility = {
@@ -53,12 +68,43 @@ export function ContactsTable({
     },
     headerActions,
     refreshTrigger = 0,
+    enableSelection = false,
+    onSelectionChange,
 }: ContactsTableProps) {
     const [response, setResponse] = useState<IContactResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            const newSelected = new Set(selectedIds);
+            response?.data.forEach((contact) => newSelected.add(String(contact.id)));
+            setSelectedIds(newSelected);
+            onSelectionChange?.(Array.from(newSelected));
+        } else {
+            const newSelected = new Set(selectedIds);
+            response?.data.forEach((contact) => newSelected.delete(String(contact.id)));
+            setSelectedIds(newSelected);
+            onSelectionChange?.(Array.from(newSelected));
+        }
+    };
+
+    const handleSelectOne = (checked: boolean, id: string) => {
+        const newSelected = new Set(selectedIds);
+        if (checked) {
+            newSelected.add(id);
+        } else {
+            newSelected.delete(id);
+        }
+        setSelectedIds(newSelected);
+        onSelectionChange?.(Array.from(newSelected));
+    };
+
+    const isAllSelected = response?.data.length! > 0 && response?.data.every((contact) => selectedIds.has(String(contact.id)));
+    const isSomeSelected = response?.data.some((contact) => selectedIds.has(String(contact.id))) && !isAllSelected;
 
     const fetchContacts = async (page: number, size: number) => {
         setIsLoading(true);
@@ -182,6 +228,14 @@ export function ContactsTable({
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    {enableSelection && (
+                                        <TableHead className="w-[50px]">
+                                            <Checkbox
+                                                checked={isAllSelected || (isSomeSelected ? "indeterminate" : false)}
+                                                onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                                            />
+                                        </TableHead>
+                                    )}
                                     {columnVisibility.name && <TableHead>Name</TableHead>}
                                     {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
                                     {columnVisibility.lid && <TableHead>LID</TableHead>}
@@ -194,7 +248,7 @@ export function ContactsTable({
                                 {response?.data.length === 0 ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={Object.values(columnVisibility).filter(Boolean).length}
+                                            colSpan={Object.values(columnVisibility).filter(Boolean).length + (enableSelection ? 1 : 0)}
                                             className="h-24 text-center"
                                         >
                                             No contacts found.
@@ -203,6 +257,14 @@ export function ContactsTable({
                                 ) : (
                                     response?.data.map((contact) => (
                                         <TableRow key={String(contact.id)}>
+                                            {enableSelection && (
+                                                <TableCell>
+                                                    <Checkbox
+                                                        checked={selectedIds.has(String(contact.id))}
+                                                        onCheckedChange={(checked) => handleSelectOne(!!checked, String(contact.id))}
+                                                    />
+                                                </TableCell>
+                                            )}
                                             {columnVisibility.name && (
                                                 <TableCell>{getContactName(contact)}</TableCell>
                                             )}
