@@ -33,11 +33,12 @@ export default function MessagesPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [columnVisibility, setColumnVisibility] = useState({
+    id: true,
     sender: true,
     chat: true,
     message: true,
-    repliedTo: true,
-    quotedMessage: true,
+    repliedTo: false,
+    quotedMessage: false,
     date: true,
   });
 
@@ -70,7 +71,7 @@ export default function MessagesPage() {
 
   const getSenderName = (message: IMessageWithSender) => {
     if (message.sender) {
-      return message.sender.contact_name || message.sender.pushname || message.sender.username || message.sender.phone_number;
+      return message.sender.contact_name || message.sender.pushname || message.sender.username || message.sender.phone_number || message.sender.lid;
     }
     return String(message.sender_id);
   }
@@ -86,6 +87,16 @@ export default function MessagesPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+
+            <DropdownMenuCheckboxItem
+              checked={columnVisibility.id}
+              onCheckedChange={(value) =>
+                setColumnVisibility((prev) => ({ ...prev, id: value }))
+              }
+            >
+              id
+            </DropdownMenuCheckboxItem>
+
             <DropdownMenuCheckboxItem
               checked={columnVisibility.sender}
               onCheckedChange={(value) =>
@@ -151,9 +162,10 @@ export default function MessagesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  {columnVisibility.id && <TableHead>id</TableHead>}
                   {columnVisibility.sender && <TableHead>Sender</TableHead>}
                   {columnVisibility.chat && <TableHead>Chat</TableHead>}
-                  {columnVisibility.message && <TableHead>Message</TableHead>}
+                  {columnVisibility.message && <TableHead className="max-w-24">Message</TableHead>}
                   {columnVisibility.repliedTo && (
                     <TableHead>Replied To</TableHead>
                   )}
@@ -176,6 +188,10 @@ export default function MessagesPage() {
                 ) : (
                   response?.data.map((message) => (
                     <TableRow key={message.id}>
+                      {columnVisibility.id && (
+                        <TableCell>{message.sender?.id}</TableCell>
+                      )}
+
                       {columnVisibility.sender && (
                         <TableCell>{getSenderName(message)}</TableCell>
                       )}
@@ -183,7 +199,7 @@ export default function MessagesPage() {
                         <TableCell>{String(message.chat_id)}</TableCell>
                       )}
                       {columnVisibility.message && (
-                        <TableCell>{message.text_content}</TableCell>
+                        <TableCell className="max-w-full wrap-break-word whitespace-pre-wrap">{message.text_content}</TableCell>
                       )}
                       {columnVisibility.repliedTo && (
                         <TableCell>
