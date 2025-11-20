@@ -480,6 +480,12 @@ export class ContactRepository implements IContactRepository {
         }
       }
 
+      // 3. Delete secondary contacts
+      await client.query(
+        'DELETE FROM contacts WHERE id = ANY($1::bigint[])',
+        [`{${secondaryContactIds.join(',')}}`]
+      );
+
       // Update the primary contact with merged data
       await client.query(
         `UPDATE contacts
@@ -495,12 +501,6 @@ export class ContactRepository implements IContactRepository {
           mergedCreatedAt,
           primaryContactId,
         ]
-      );
-
-      // 3. Delete secondary contacts
-      await client.query(
-        'DELETE FROM contacts WHERE id = ANY($1::bigint[])',
-        [secondaryIdsArray]
       );
 
       await client.query('COMMIT');
