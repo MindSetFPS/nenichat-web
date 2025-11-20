@@ -31,6 +31,7 @@ interface IContactResponse {
 interface ContactsTableProps {
     endpoint: string;
     defaultColumnVisibility?: {
+        id: boolean;
         name: boolean;
         phoneNumber: boolean;
         lid: boolean;
@@ -61,6 +62,7 @@ interface ContactsTableProps {
 export function ContactsTable({
     endpoint,
     defaultColumnVisibility = {
+        id: true,
         name: true,
         phoneNumber: true,
         lid: true,
@@ -169,6 +171,17 @@ export function ContactsTable({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+
+
+                            <DropdownMenuCheckboxItem
+                                checked={columnVisibility.id}
+                                onCheckedChange={(value) =>
+                                    setColumnVisibility((prev) => ({ ...prev, id: value }))
+                                }
+                            >
+                                id
+                            </DropdownMenuCheckboxItem>
+
                             <DropdownMenuCheckboxItem
                                 checked={columnVisibility.name}
                                 onCheckedChange={(value) =>
@@ -177,6 +190,7 @@ export function ContactsTable({
                             >
                                 Name
                             </DropdownMenuCheckboxItem>
+
                             <DropdownMenuCheckboxItem
                                 checked={columnVisibility.phoneNumber}
                                 onCheckedChange={(value) =>
@@ -240,6 +254,7 @@ export function ContactsTable({
                                             />
                                         </TableHead>
                                     )}
+                                    {columnVisibility.id && <TableHead>id</TableHead>}
                                     {columnVisibility.name && <TableHead>Name</TableHead>}
                                     {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
                                     {columnVisibility.lid && <TableHead>LID</TableHead>}
@@ -268,6 +283,9 @@ export function ContactsTable({
                                                         onCheckedChange={(checked) => handleSelectOne(!!checked, String(contact.id))}
                                                     />
                                                 </TableCell>
+                                            )}
+                                            {columnVisibility.id && (
+                                                <TableCell>{contact.id || "-"}</TableCell>
                                             )}
                                             {columnVisibility.name && (
                                                 <TableCell>{getContactName(contact)}</TableCell>
