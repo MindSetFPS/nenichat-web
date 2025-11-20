@@ -5,7 +5,7 @@ import { Campaign } from "./Campaign";
 import { pool } from "./db";
 
 export class CampaignRepository implements ICampaignRepository {
-  constructor(private pool: Pool) {}
+  constructor(private pool: Pool) { }
 
   private async toCampaign(data: any, includeMessage: boolean): Promise<ICampaign> {
     if (!data) return data;
@@ -14,6 +14,7 @@ export class CampaignRepository implements ICampaignRepository {
       data.name,
       data.created_at,
       data.run_at,
+      data.executed_at,
       data.description
     );
     if (data.audience_ids) {
@@ -53,7 +54,7 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async create(campaign: Partial<ICampaign>): Promise<ICampaign> {
-    const { name, run_at, description, audienceIds, message } = campaign;
+    const { name, run_at, executed_at, description, audienceIds, message } = campaign;
 
     if (!name) {
       throw new Error("Campaign name is required to create a campaign.");
@@ -63,10 +64,11 @@ export class CampaignRepository implements ICampaignRepository {
     try {
       await client.query("BEGIN");
       const result = await client.query(
-        "INSERT INTO campaigns (name, run_at, description) VALUES ($1, $2, $3) RETURNING *",
+        "INSERT INTO campaigns (name, run_at, executed_at, description) VALUES ($1, $2, $3, $4) RETURNING *",
         [
           name,
           run_at || null,
+          executed_at || null,
           description || null,
         ]
       );
@@ -102,7 +104,7 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async update(campaign: Partial<ICampaign>): Promise<ICampaign> {
-    const { id, name, run_at, description, audienceIds, message } = campaign;
+    const { id, name, run_at, executed_at, description, audienceIds, message } = campaign;
 
     if (!id) {
       throw new Error("Campaign ID is required to update a campaign.");
@@ -117,10 +119,11 @@ export class CampaignRepository implements ICampaignRepository {
         SET
           name = $1,
           run_at = $2,
-          description = $3
-        WHERE id = $4
+          executed_at = $3,
+          description = $4
+        WHERE id = $5
         RETURNING *`,
-        [name, run_at, description, id]
+        [name, run_at, executed_at, description, id]
       );
 
       if (audienceIds) {

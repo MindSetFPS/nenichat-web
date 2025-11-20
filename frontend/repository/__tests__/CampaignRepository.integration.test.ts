@@ -20,7 +20,7 @@ describe('CampaignRepository - Integration', () => {
     const newCampaignData = {
       name: 'Test Campaign',
       description: 'This is a test campaign.',
-      run_at: new Date(),
+      run_at: new Date().toISOString(),
     };
 
     createdCampaign = await campaignRepository.create(newCampaignData);
@@ -29,6 +29,21 @@ describe('CampaignRepository - Integration', () => {
     expect(createdCampaign.id).toBeDefined();
     expect(createdCampaign.name).toBe(newCampaignData.name);
     expect(createdCampaign.description).toBe(newCampaignData.description);
+  });
+
+  it('should create a new campaign with executed_at', async () => {
+    const newCampaignData = {
+      name: 'Test Campaign Executed',
+      description: 'This is a test campaign with executed_at.',
+      run_at: new Date().toISOString(),
+      executed_at: new Date().toISOString(),
+    };
+
+    createdCampaign = await campaignRepository.create(newCampaignData);
+
+    expect(createdCampaign).not.toBeNull();
+    expect(createdCampaign.id).toBeDefined();
+    expect(createdCampaign.executed_at).toBeDefined();
   });
 
   it('should find a campaign by ID', async () => {
