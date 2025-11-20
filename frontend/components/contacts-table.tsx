@@ -41,6 +41,7 @@ interface ContactsTableProps {
     headerActions?: React.ReactNode;
     refreshTrigger?: number;
     enableSelection?: boolean;
+    selectedIds?: string[];
     onSelectionChange?: (selectedIds: string[]) => void;
 }
 
@@ -54,6 +55,7 @@ interface ContactsTableProps {
  * @param {React.ReactNode} headerActions - Optional actions to render in the header (e.g., Sync button).
  * @param {number} refreshTrigger - A number that, when changed, triggers a refresh of the table data.
  * @param {boolean} enableSelection - Whether to show checkboxes for row selection.
+ * @param {string[]} selectedIds - Optional array of selected IDs for controlled selection.
  * @param {function} onSelectionChange - Callback fired when a checkbock is clicked. Receives an array of selected contact IDs.
  */
 export function ContactsTable({
@@ -69,6 +71,7 @@ export function ContactsTable({
     headerActions,
     refreshTrigger = 0,
     enableSelection = false,
+    selectedIds: controlledSelectedIds,
     onSelectionChange,
 }: ContactsTableProps) {
     const [response, setResponse] = useState<IContactResponse | null>(null);
@@ -76,18 +79,20 @@ export function ContactsTable({
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [internalSelectedIds, setInternalSelectedIds] = useState<Set<string>>(new Set());
+
+    const selectedIds = controlledSelectedIds ? new Set(controlledSelectedIds) : internalSelectedIds;
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
             const newSelected = new Set(selectedIds);
             response?.data.forEach((contact) => newSelected.add(String(contact.id)));
-            setSelectedIds(newSelected);
+            if (!controlledSelectedIds) setInternalSelectedIds(newSelected);
             onSelectionChange?.(Array.from(newSelected));
         } else {
             const newSelected = new Set(selectedIds);
             response?.data.forEach((contact) => newSelected.delete(String(contact.id)));
-            setSelectedIds(newSelected);
+            if (!controlledSelectedIds) setInternalSelectedIds(newSelected);
             onSelectionChange?.(Array.from(newSelected));
         }
     };
@@ -99,7 +104,7 @@ export function ContactsTable({
         } else {
             newSelected.delete(id);
         }
-        setSelectedIds(newSelected);
+        if (!controlledSelectedIds) setInternalSelectedIds(newSelected);
         onSelectionChange?.(Array.from(newSelected));
     };
 
@@ -155,7 +160,6 @@ export function ContactsTable({
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
                 <div className="flex gap-2">
                     {headerActions}
                     <DropdownMenu>
