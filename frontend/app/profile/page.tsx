@@ -91,20 +91,37 @@ const MyProfilePage = () => {
 const ProfileSelector = ({ onUserSelected }: { onUserSelected: () => void }) => {
   const [contacts, setContacts] = useState<IContact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
-    if (debouncedSearchTerm.length > 2) {
-      const fetchContacts = async () => {
-        const response = await fetch(`/api/contacts/search?query=${debouncedSearchTerm}`);
+    const fetchContacts = async () => {
+      setLoading(true);
+      try {
+        let url = '/api/contacts/search';
+        if (debouncedSearchTerm && debouncedSearchTerm.length > 2) {
+          url += `?query=${debouncedSearchTerm}`;
+        } else if (debouncedSearchTerm === '') {
+          // Fetch all contacts on initial load or when search term is cleared
+          url = '/api/contacts'; // Assuming this endpoint fetches all contacts
+        } else {
+          // If search term is 1 or 2 characters, clear contacts and don't fetch
+          // setContacts([]);
+          return;
+        }
+
+        const response = await fetch(url);
         const data = await response.json();
         console.log(data)
-        setContacts(data);
-      };
-      fetchContacts();
-    } else {
-      setContacts([]);
-    }
+        setContacts(data.data);
+      } catch (error) {
+        console.error("Failed to fetch contacts:", error);
+        setContacts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContacts();
   }, [debouncedSearchTerm]);
 
   const handleSelectContact = async (contactId: string) => {
@@ -123,6 +140,7 @@ const ProfileSelector = ({ onUserSelected }: { onUserSelected: () => void }) => 
       contacts={contacts}
       onSearch={setSearchTerm}
       onSelectContact={handleSelectContact}
+      loading={loading}
     />
   );
 };
