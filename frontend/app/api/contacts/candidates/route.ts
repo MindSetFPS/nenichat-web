@@ -19,10 +19,24 @@ import { contactRepository } from '@/repository/ContactRepository';
  *       500:
  *         description: Internal server error.
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const candidates = await contactRepository.findMergeCandidates();
-    return NextResponse.json(candidates, { status: 200 });
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const offset = (page - 1) * limit;
+
+    const { contacts, total } = await contactRepository.findMergeCandidates(offset, limit);
+
+    return NextResponse.json({
+      data: contacts,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error('Error fetching merge candidates:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
