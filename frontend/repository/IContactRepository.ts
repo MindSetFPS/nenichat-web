@@ -39,9 +39,11 @@ export interface IContactRepository {
   /**
    * Finds contacts that are candidates for merging.
    * A contact is a candidate if either its phone_number or lid is null.
-   * @returns A promise that resolves to an array of incomplete contacts.
+   * @param offset The number of contacts to skip.
+   * @param limit The maximum number of contacts to return.
+   * @returns A promise that resolves to an object containing the contacts and the total count.
    */
-  findMergeCandidates(): Promise<IContact[]>;
+  findMergeCandidates(offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }>;
 
   /**
    * Merges multiple secondary contacts into a primary contact.

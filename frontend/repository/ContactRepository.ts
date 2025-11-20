@@ -287,11 +287,18 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async findMergeCandidates(): Promise<IContact[]> {
-    const result = await this.pool.query(
-      'SELECT * FROM contacts WHERE phone_number IS NULL OR lid IS NULL ORDER BY created_at DESC'
+  public async findMergeCandidates(offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }> {
+    const countResult = await this.pool.query(
+      'SELECT COUNT(*) FROM contacts WHERE phone_number IS NULL OR lid IS NULL'
     );
-    return result.rows.map(
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    const result = await this.pool.query(
+      'SELECT * FROM contacts WHERE phone_number IS NULL OR lid IS NULL ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
+    );
+
+    const contacts = result.rows.map(
       (row) =>
         new Contact(
           row.id,
@@ -305,6 +312,8 @@ export class ContactRepository implements IContactRepository {
           row.updated_at
         )
     );
+
+    return { contacts, total };
   }
 
   /**
