@@ -14,9 +14,9 @@ CREATE TABLE contact_addresses (
 COMMENT ON TABLE contact_addresses IS 'Stores multiple shipping addresses for contacts.';
 
 -- =================================================================
--- SECTION 2: SALES
+-- SECTION 2: orders
 -- =================================================================
-CREATE TABLE sales (
+CREATE TABLE orders (
     id BIGSERIAL PRIMARY KEY,
     contact_id BIGINT REFERENCES contacts(id) ON DELETE SET NULL,
     
@@ -40,14 +40,14 @@ CREATE TABLE sales (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON TABLE sales IS 'Stores sales transactions including payment and shipping status.';
+COMMENT ON TABLE orders IS 'Stores orders transactions including payment and shipping status.';
 
 -- =================================================================
 -- SECTION 3: SALE ITEMS
 -- =================================================================
 CREATE TABLE sale_items (
     id BIGSERIAL PRIMARY KEY,
-    sale_id BIGINT NOT NULL REFERENCES sales(id) ON DELETE CASCADE,
+    sale_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id TEXT REFERENCES products(id) ON DELETE SET NULL, -- Preserve history if product is deleted
     
     quantity INTEGER NOT NULL DEFAULT 1,
@@ -61,8 +61,8 @@ COMMENT ON TABLE sale_items IS 'Stores individual items within a sale, linking t
 -- SECTION 4: INDEXES
 -- =================================================================
 CREATE INDEX idx_contact_addresses_contact_id ON contact_addresses(contact_id);
-CREATE INDEX idx_sales_contact_id ON sales(contact_id);
-CREATE INDEX idx_sales_status ON sales(status);
-CREATE INDEX idx_sales_payment_status ON sales(payment_status);
+CREATE INDEX idx_orders_contact_id ON orders(contact_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_payment_status ON orders(payment_status);
 CREATE INDEX idx_sale_items_sale_id ON sale_items(sale_id);
 CREATE INDEX idx_sale_items_product_id ON sale_items(product_id);
