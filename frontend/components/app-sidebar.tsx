@@ -15,7 +15,7 @@ import {
     SidebarMenuSubButton,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { IContact } from '@/repository/IContact'
@@ -73,6 +73,12 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             href: '/products',
             icon: PackageIcon,
             label: 'Products'
+        },
+        {
+            id: 'sales',
+            href: '/orders',
+            icon: ShoppingBag,
+            label: 'Orders'
         },
         {
             id: 'messages',
@@ -133,8 +139,8 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                             // Regular menu item without submenu
                             return (
                                 <SidebarMenuItem key={item.id}>
-                                    <SidebarMenuButton asChild isActive={isActive(item.href)}>
-                                        <Link href={item.href} passHref>
+                                    <SidebarMenuButton asChild isActive={isActive(item.href!)}>
+                                        <Link href={item.href!} passHref>
                                             <Icon className="w-4 h-4" />
                                             <span>
                                                 {item.label}

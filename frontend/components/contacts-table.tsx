@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     Table,
     TableBody,
@@ -281,7 +282,11 @@ export function ContactsTable({
                                                     <TableCell>{contact.id || "-"}</TableCell>
                                                 )}
                                                 {columnVisibility.name && (
-                                                    <TableCell>{getContactName(contact)}</TableCell>
+                                                    <TableCell>
+                                                        <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline">
+                                                            {getContactName(contact)}
+                                                        </Link>
+                                                    </TableCell>
                                                 )}
                                                 {columnVisibility.phoneNumber && (
                                                     <TableCell>{contact.phone_number || "-"}</TableCell>
