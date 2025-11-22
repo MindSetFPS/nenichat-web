@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "./ui/pagination";
+import { EmptyList } from "./empty-list";
+import { UsersIcon } from "lucide-react";
 
 interface IContactResponse {
     data: IContact[];
@@ -154,9 +156,8 @@ export function ContactsTable({
         return contact.contact_name || contact.pushname || contact.username || contact.phone_number || contact.lid || "Unknown";
     };
 
-    return (
-        // <div className="container mx-auto h-full flex flex-col space-y-4 ">
-        <>
+    function headerActionsComponent() {
+        return (
             <div className="flex items-center justify-between space-y-2">
                 <div className="flex gap-2">
                     {headerActions}
@@ -230,98 +231,98 @@ export function ContactsTable({
                     </DropdownMenu>
                 </div>
             </div>
+        )
+    }
 
-            {isLoading ? (
-                <Spinner className="h-5 w-5" />
-            ) : (
-                <>
-                    <div className="flex-1 border rounded-lg overflow-hidden relative">
-                        <div className="absolute inset-0 overflow-auto">
-                            <Table>
-                                <TableHeader className="sticky">
-                                    <TableRow className="sticky">
-                                        {enableSelection && (
-                                            <TableHead className="w-[50px]">
-                                                <Checkbox
-                                                    checked={isAllSelected || (isSomeSelected ? "indeterminate" : false)}
-                                                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                                                />
-                                            </TableHead>
-                                        )}
-                                        {columnVisibility.id && <TableHead>id</TableHead>}
-                                        {columnVisibility.name && <TableHead>Name</TableHead>}
-                                        {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
-                                        {columnVisibility.lid && <TableHead>LID</TableHead>}
-                                        {columnVisibility.username && <TableHead>Username</TableHead>}
-                                        {columnVisibility.pushname && <TableHead>Pushname</TableHead>}
-                                        {columnVisibility.createdAt && <TableHead>Created At</TableHead>}
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {response?.data.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={Object.values(columnVisibility).filter(Boolean).length + (enableSelection ? 1 : 0)}
-                                                className="h-24 text-center"
-                                            >
-                                                No contacts found.
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        response?.data.map((contact) => (
-                                            <TableRow key={String(contact.id)}>
-                                                {enableSelection && (
-                                                    <TableCell>
-                                                        <Checkbox
-                                                            checked={selectedIds.has(String(contact.id))}
-                                                            onCheckedChange={(checked) => handleSelectOne(!!checked, String(contact.id))}
-                                                        />
-                                                    </TableCell>
-                                                )}
-                                                {columnVisibility.id && (
-                                                    <TableCell>{contact.id || "-"}</TableCell>
-                                                )}
-                                                {columnVisibility.name && (
-                                                    <TableCell>
-                                                        <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline">
-                                                            {getContactName(contact)}
-                                                        </Link>
-                                                    </TableCell>
-                                                )}
-                                                {columnVisibility.phoneNumber && (
-                                                    <TableCell>{contact.phone_number || "-"}</TableCell>
-                                                )}
-                                                {columnVisibility.lid && (
-                                                    <TableCell>{contact.lid || "-"}</TableCell>
-                                                )}
-                                                {columnVisibility.username && (
-                                                    <TableCell>{contact.username || "-"}</TableCell>
-                                                )}
-                                                {columnVisibility.pushname && (
-                                                    <TableCell>{contact.pushname || "-"}</TableCell>
-                                                )}
-                                                {columnVisibility.createdAt && (
-                                                    <TableCell>
-                                                        {new Date(contact.created_at).toLocaleString()}
-                                                    </TableCell>
-                                                )}
-                                            </TableRow>
-                                        ))
+    if (isLoading) return (<Spinner className="h-5 w-5" />)
+
+    if (response && response?.data.length === 0) {
+        return (
+            <EmptyList
+                title="Sin contactos"
+                description="Agrega un contacto o espera a que se sincronicen los contactos"
+                icon={<UsersIcon />}
+                action="" />
+        )
+    }
+
+    return (
+        <>
+            {headerActionsComponent()}
+            <div className="flex-1 border rounded-lg overflow-hidden relative">
+                <div className="absolute inset-0 overflow-auto">
+                    <Table>
+                        <TableHeader className="sticky">
+                            <TableRow className="sticky">
+                                {enableSelection && (
+                                    <TableHead className="w-[50px]">
+                                        <Checkbox
+                                            checked={isAllSelected || (isSomeSelected ? "indeterminate" : false)}
+                                            onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                                        />
+                                    </TableHead>
+                                )}
+                                {columnVisibility.id && <TableHead>id</TableHead>}
+                                {columnVisibility.name && <TableHead>Name</TableHead>}
+                                {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
+                                {columnVisibility.lid && <TableHead>LID</TableHead>}
+                                {columnVisibility.username && <TableHead>Username</TableHead>}
+                                {columnVisibility.pushname && <TableHead>Pushname</TableHead>}
+                                {columnVisibility.createdAt && <TableHead>Created At</TableHead>}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {(response?.data.map((contact) => (
+                                <TableRow key={String(contact.id)}>
+                                    {enableSelection && (
+                                        <TableCell>
+                                            <Checkbox
+                                                checked={selectedIds.has(String(contact.id))}
+                                                onCheckedChange={(checked) => handleSelectOne(!!checked, String(contact.id))}
+                                            />
+                                        </TableCell>
                                     )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </div>
-                    <Pagination
-                        page={page}
-                        pageSize={pageSize}
-                        setPage={setPage}
-                        totalPages={response?.totalPages || 0}
-                        setPageSize={setPageSize}
-                    />
-                </>
-            )}
+                                    {columnVisibility.id && (
+                                        <TableCell>{contact.id || "-"}</TableCell>
+                                    )}
+                                    {columnVisibility.name && (
+                                        <TableCell>
+                                            <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline">
+                                                {getContactName(contact)}
+                                            </Link>
+                                        </TableCell>
+                                    )}
+                                    {columnVisibility.phoneNumber && (
+                                        <TableCell>{contact.phone_number || "-"}</TableCell>
+                                    )}
+                                    {columnVisibility.lid && (
+                                        <TableCell>{contact.lid || "-"}</TableCell>
+                                    )}
+                                    {columnVisibility.username && (
+                                        <TableCell>{contact.username || "-"}</TableCell>
+                                    )}
+                                    {columnVisibility.pushname && (
+                                        <TableCell>{contact.pushname || "-"}</TableCell>
+                                    )}
+                                    {columnVisibility.createdAt && (
+                                        <TableCell>
+                                            {new Date(contact.created_at).toLocaleString()}
+                                        </TableCell>
+                                    )}
+                                </TableRow>
+                            ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
+            <Pagination
+                page={page}
+                pageSize={pageSize}
+                setPage={setPage}
+                totalPages={response?.totalPages || 0}
+                setPageSize={setPageSize}
+            />
         </>
-        // </div>
     );
 }
