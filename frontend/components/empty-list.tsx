@@ -13,7 +13,7 @@ import { MailIcon } from 'lucide-react'
 interface EmptyListProps {
     title: string;
     description: string;
-    action: React.ReactNode;
+    action?: React.ReactNode;
     icon: React.ReactNode;
 }
 
@@ -23,8 +23,8 @@ export function EmptyList({ action, description, title, icon }: EmptyListProps) 
             <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-md px-6">
 
                 <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent blur-2xl rounded-full" />
-                    <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 p-8 rounded-3xl border border-primary/20 shadow-lg">
+                    <div className="absolute inset-0 bg-linear-to-r from-indigo-500/30 via-purple-500/50 to-pink-500/50 blur-3xl rounded-full animate-glow" />
+                    <div className="relative bg-linear-to-br from-primary/10 to-primary/5 p-8 rounded-3xl border border-primary/20 shadow-lg">
                         {icon}
                     </div>
                 </div>

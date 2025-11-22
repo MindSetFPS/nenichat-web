@@ -12,6 +12,7 @@ import { campaignRepository } from '@/repository/CampaignRepository';
 import { ICampaign } from '@/dto/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
+import { EmptyList } from "@/components/empty-list";
 
 export const dynamic = 'force-dynamic';
 
@@ -113,9 +114,12 @@ export default async function CampaignsPage() {
 
       {allCampaigns.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-gray-500">
-          <h2 className="text-2xl font-semibold mb-4">No Campaigns Yet</h2>
-          <p className="mb-8">It looks like you haven't created any campaigns. Start by creating one!</p>
-          <CreateCampaignDialog />
+          <EmptyList
+            title="No Campaigns"
+            description="It looks like you haven't created any campaigns. Start by creating one!"
+            action={<CreateCampaignDialog />}
+            icon={<CalendarDays className="w-12 h-12 text-primary" />}
+          />
         </div>
       ) : (
         <>

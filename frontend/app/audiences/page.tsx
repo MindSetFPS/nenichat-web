@@ -16,7 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MailIcon, MoreHorizontal } from "lucide-react";
 import { IAudience } from "@/dto/IAudience";
 import { Spinner } from "@/components/ui/spinner";
-import { EmptyList } from "@/components/empy-list";
+import { EmptyList } from "@/components/empty-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";
 
 export default function AudiencesPage() {

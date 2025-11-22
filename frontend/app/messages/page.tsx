@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Pagination } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
+import { EmptyList } from "@/components/empty-list";
+import { MessageSquare } from "lucide-react";
 
 interface IMessageResponse {
   data: IMessageWithSender[];
@@ -153,9 +155,18 @@ export default function MessagesPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spinner className="h-5 w-5" />
-        </div>
+
+        <Spinner className="h-5 w-5" />
+
+      ) : (<></>)}
+
+      {response?.data.length === 0 ? (
+        <EmptyList
+          title="No messages found"
+          description="There are no messages to display at the moment."
+          icon={<MessageSquare className="w-12 h-12 text-primary" />}
+          action={<Button onClick={() => router.push("/chats")}>Create Chat</Button>}
+        />
       ) : (
         <>
           <div className="rounded-md border">

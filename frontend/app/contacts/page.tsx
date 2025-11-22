@@ -27,10 +27,6 @@ export default function ContactsPage() {
         }
     };
 
-    const handleSelection = (selectedRows: any[]) => {
-        console.log("Selected rows:", selectedRows);
-    };
-
     return (
         <div className="container mx-auto space-y-4 p-4 pt-6 h-[calc(100vh-2rem)] flex flex-col">
             <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
