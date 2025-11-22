@@ -3,7 +3,7 @@ import { Message } from "@/repository/Message";
 import { Contact } from "@/repository/Contact";
 import { messageRepository } from "@/repository/MessageRepository";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { chatRepository } from "@/repository/ChatRepository";
+import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository";
 
 const getOrCreateChat = async (contactId: bigint) => {
     let chat = await chatRepository.findById(contactId);

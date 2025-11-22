@@ -1,11 +1,11 @@
 import { Pool } from 'pg';
-import { IChat } from './IChat';
-import { IChatRepository } from './IChatRepository';
-import { Chat } from './Chat';
-import { pool } from './db';
+import { IChat } from '../../domain/IChat';
+import { IChatRepository } from '../../domain/IChatRepository';
+import { Chat } from '../../domain/Chat';
+import { pool } from '../../../../repository/db';
 
 export class ChatRepository implements IChatRepository {
-  constructor(private pool: Pool) {}
+  constructor(private pool: Pool) { }
 
   private toChat(data: any): IChat {
     if (!data) return data;

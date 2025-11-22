@@ -5,5 +5,5 @@ export class Chat implements IChat {
     public id: bigint,
     public is_group: boolean,
     public created_at: Date
-  ) {}
+  ) { }
 }
