@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { IAudienceContactRepository } from '../../domain/IAudienceContactRepository';
 import { Contact } from '@/Nenichat/Contacts/domain/Contact';
-import { pool } from '../../../../repository/db';
+import { pool } from '../../../Shared/infra/persistance/db';
 
 export class AudienceContactRepository implements IAudienceContactRepository {
   constructor(private pool: Pool) { }

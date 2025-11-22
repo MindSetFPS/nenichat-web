@@ -1,5 +1,5 @@
 import { ProductRepository } from '../../../Nenichat/Products/infra/persistance/ProductRepository';
-import { pool } from '../../../repository/db';
+import { pool } from '../../../Nenichat/Shared/infra/persistance/db';
 import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/ProductForm'; // Import the new edit form
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';

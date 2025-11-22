@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { IContact } from '../../domain/IContact';
 import { IContactRepository } from '../../domain/IContactRepository';
 import { Contact } from '../../domain/Contact';
-import { pool } from '../../../../repository/db';
+import { pool } from '../../../Shared/infra/persistance/db';
 
 export class ContactRepository implements IContactRepository {
   private pool: Pool;

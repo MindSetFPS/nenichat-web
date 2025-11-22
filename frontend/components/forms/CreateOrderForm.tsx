@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { IProduct } from "@/dto/IProduct";
+import { IProduct } from "@/Nenichat/Products/domain/IProduct";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 

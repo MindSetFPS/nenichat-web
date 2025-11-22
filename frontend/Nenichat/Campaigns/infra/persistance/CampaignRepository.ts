@@ -1,8 +1,8 @@
 import { Pool } from "pg";
 import { ICampaign } from "../../domain/ICampaign";
-import { ICampaignRepository } from "../../../../repository/ICampaignRepository";
+import { ICampaignRepository } from "../../domain/ICampaignRepository";
 import { Campaign } from "../../domain/Campaign";
-import { pool } from "../../../../repository/db";
+import { pool } from "../../../Shared/infra/persistance/db";
 
 export class CampaignRepository implements ICampaignRepository {
   constructor(private pool: Pool) { }

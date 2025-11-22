@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/repository/db';
+import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { OrderRepository } from '@/Nenichat/Orders/infra/persistance/OrderRepository';
 import { OrderItemRepository } from '@/Nenichat/Orders/infra/persistance/OrderItemRepository';
 

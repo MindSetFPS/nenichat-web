@@ -1,4 +1,4 @@
-import { IAudience } from '../Nenichat/Audiences/domain/IAudience';
+import { IAudience } from './IAudience';
 
 export class Audience implements IAudience {
     id: number;

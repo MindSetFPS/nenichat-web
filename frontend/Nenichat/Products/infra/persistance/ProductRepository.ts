@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { IProduct } from '../../domain/IProduct';
 import { IProductRepository } from '../../domain/IProductRepository';
 import { Product } from '../../domain/Product';
-import { pool } from '../../../../repository/db';
+import { pool } from '../../../Shared/infra/persistance/db';
 import { IImage } from '../../../../dto/IImage';
 
 /**

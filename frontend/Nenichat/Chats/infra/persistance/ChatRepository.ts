@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { IChat } from '../../domain/IChat';
 import { IChatRepository } from '../../domain/IChatRepository';
 import { Chat } from '../../domain/Chat';
-import { pool } from '../../../../repository/db';
+import { pool } from '../../../Shared/infra/persistance/db';
 
 export class ChatRepository implements IChatRepository {
   constructor(private pool: Pool) { }

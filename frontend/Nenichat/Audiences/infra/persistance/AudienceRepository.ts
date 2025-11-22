@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { IAudience } from '../../domain/IAudience';
 import { IAudienceRepository } from '../../domain/IAudienceRepository';
-import { pool } from '../../../../repository/db';
+import { pool } from '../../../Shared/infra/persistance/db';
 
 export class AudienceRepository implements IAudienceRepository {
   constructor(private pool: Pool) { }

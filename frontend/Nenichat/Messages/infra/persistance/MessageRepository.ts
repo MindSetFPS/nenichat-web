@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { IMessage } from '../../domain/IMessage';
 import { IMessageRepository } from '../../domain/IMessageRepository';
 import { Message } from '../../domain/Message';
-import { pool } from '../../../../repository/db';
+import { pool } from '../../../Shared/infra/persistance/db';
 import { IMessageWithSender } from '@/Nenichat/Messages/domain/IMessageWithSender';
 import { IContact } from '../../../Contacts/domain/IContact';
 import { IMessagesReport } from '../../domain/IMessagesReport';

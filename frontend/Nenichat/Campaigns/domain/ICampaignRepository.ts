@@ -1,4 +1,4 @@
-import { ICampaign } from '../Nenichat/Campaigns/domain/ICampaign';
+import { ICampaign } from './ICampaign';
 
 export interface ICampaignRepository {
   findById(id: string): Promise<ICampaign | null>;

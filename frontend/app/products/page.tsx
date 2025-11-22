@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { pool } from '../../repository/db';
+import { pool } from '../../Nenichat/Shared/infra/persistance/db';
 import { IProduct } from '../../Nenichat/Products/domain/IProduct';
 import { ProductRepository } from '../../Nenichat/Products/infra/persistance/ProductRepository';
 import { getProductImageUrl } from '../../lib/utils';

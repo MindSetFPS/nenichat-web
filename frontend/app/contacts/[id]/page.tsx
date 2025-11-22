@@ -1,4 +1,4 @@
-import { pool } from "@/repository/db";
+import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { notFound } from "next/navigation";
