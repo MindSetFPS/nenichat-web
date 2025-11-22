@@ -11,18 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MailIcon, MoreHorizontal } from "lucide-react";
 import { IAudience } from "@/dto/IAudience";
-import { AudienceForm } from "@/components/forms/AudienceForm";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyList } from "@/components/empy-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";

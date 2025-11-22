@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Pagination } from "@/components/ui/pagination";
+import { useRouter } from "next/navigation";
 
 interface IMessageResponse {
   data: IMessageWithSender[];
@@ -42,6 +43,8 @@ export default function MessagesPage() {
     quotedMessage: false,
     date: true,
   });
+
+  const router = useRouter();
 
   const fetchMessages = async (page: number, size: number) => {
     setIsLoading(true);
@@ -184,11 +187,14 @@ export default function MessagesPage() {
                   </TableRow>
                 ) : (
                   response?.data.map((message) => (
-                    <TableRow key={message.id}>
+                    <TableRow
+                      className="cursor-pointer"
+                      onClick={() => router.push(`/chats/${message.chat_id}`)}
+                      key={message.id}>
                       {columnVisibility.id && (
                         <TableCell>{message.sender?.id}</TableCell>
                       )}
-
+                      { }
                       {columnVisibility.sender && (
                         <TableCell>{getSenderName(message)}</TableCell>
                       )}
