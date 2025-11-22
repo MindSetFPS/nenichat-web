@@ -14,7 +14,7 @@ import {
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MailIcon, MoreHorizontal } from "lucide-react";
-import { IAudience } from "@/dto/IAudience";
+import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyList } from "@/components/empty-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";

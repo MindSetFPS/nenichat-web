@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ICampaign } from "@/dto/ICampaign";
-import { IAudience } from "@/dto/IAudience";
+import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
 
 interface CampaignFormProps {

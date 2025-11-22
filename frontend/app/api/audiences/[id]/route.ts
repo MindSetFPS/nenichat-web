@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { audienceRepository } from '@/repository/AudienceRepository';
+import { audienceRepository } from '@/Nenichat/Audiences/infra/persistance/AudienceRepository';
 
 export async function GET(
   request: Request,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { audienceRepository } from "@/repository/AudienceRepository";
-import { IAudience } from "@/dto/IAudience";
+import { audienceRepository } from "@/Nenichat/Audiences/infra/persistance/AudienceRepository";
+import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 
 export async function GET() {
   try {
