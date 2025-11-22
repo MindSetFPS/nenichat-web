@@ -13,7 +13,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IContact } from "@/Nenichat/Chats/domain/IContact";
+import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { IProduct } from "@/dto/IProduct";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";

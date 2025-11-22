@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { IContact } from '@/Nenichat/Chats/domain/IContact';
+import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { IAudience } from '@/dto/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
 import { ContactsTable } from "@/components/contacts-table";

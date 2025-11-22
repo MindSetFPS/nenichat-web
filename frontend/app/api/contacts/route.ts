@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { contactRepository } from '@/Nenichat/Chats/infra/persistance/ContactRepository';
-import { IContact } from '@/Nenichat/Chats/domain/IContact';
+import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
+import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);

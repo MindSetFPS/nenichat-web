@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { IContact } from "@/Nenichat/Chats/domain/IContact";
+import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,

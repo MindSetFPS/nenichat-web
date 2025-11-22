@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { audienceContactRepository } from '@/repository/AudienceContactRepository';
-import { contactRepository } from '@/Nenichat/Chats/infra/persistance/ContactRepository';
+import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
 
 export async function GET(
   request: Request,

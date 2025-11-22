@@ -1,5 +1,5 @@
 import { pool } from "@/repository/db";
-import { ContactRepository } from "@/Nenichat/Chats/infra/persistance/ContactRepository";
+import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { OrderRepository } from "@/repository/OrderRepository";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

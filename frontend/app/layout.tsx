@@ -2,7 +2,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import "../styles/globals.css"
 import { AppSidebar } from "../components/app-sidebar"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
-import { contactRepository } from "@/Nenichat/Chats/infra/persistance/ContactRepository"
+import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { ToasterProvider } from "@/components/toaster-provider" // Import ToasterProvider
 
 interface RootLayoutProps {

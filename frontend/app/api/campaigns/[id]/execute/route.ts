@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ICampaign } from "@/dto/ICampaign";
 import { campaignRepository } from "@/repository/CampaignRepository";
 import { audienceContactRepository } from "@/repository/AudienceContactRepository";
-import { IContact } from "@/Nenichat/Chats/domain/IContact";
+import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 
 /**
  * Executes a campaign by sending messages to all contacts in the audience.

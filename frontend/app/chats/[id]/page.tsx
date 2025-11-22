@@ -1,4 +1,4 @@
-import { contactRepository } from "@/Nenichat/Chats/infra/persistance/ContactRepository"
+import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { messageRepository } from "@/repository/MessageRepository"
 import ChatView from "./ChatView"
 import { Suspense } from "react"
