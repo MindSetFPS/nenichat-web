@@ -1,4 +1,4 @@
-import { IContactAddress } from '../dto/IContactAddress';
+import { IContactAddress } from './IContactAddress';
 
 export class ContactAddress implements IContactAddress {
     constructor(

@@ -1,4 +1,4 @@
-import { IContactAddress } from '../dto/IContactAddress';
+import { IContactAddress } from './IContactAddress';
 
 export interface IContactAddressRepository {
     getById(id: number): Promise<IContactAddress | null>;

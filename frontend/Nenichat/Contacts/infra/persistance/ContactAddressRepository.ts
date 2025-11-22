@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
-import { IContactAddress } from '../dto/IContactAddress';
-import { IContactAddressRepository } from './IContactAddressRepository';
-import { ContactAddress } from './ContactAddress';
+import { IContactAddress } from '../../domain/IContactAddress';
+import { IContactAddressRepository } from '../../domain/IContactAddressRepository';
+import { ContactAddress } from '../../domain/ContactAddress';
 
 export class ContactAddressRepository implements IContactAddressRepository {
     private pool: Pool;
