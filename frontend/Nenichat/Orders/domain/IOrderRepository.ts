@@ -1,4 +1,4 @@
-import { IOrder } from '../dto/IOrder';
+import { IOrder } from './IOrder';
 
 export interface IOrderRepository {
     getById(id: number): Promise<IOrder | null>;

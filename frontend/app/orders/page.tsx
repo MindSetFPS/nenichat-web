@@ -1,5 +1,5 @@
 import { pool } from "@/repository/db";
-import { OrderRepository } from "@/repository/OrderRepository";
+import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { OrdersTable } from "@/components/orders-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

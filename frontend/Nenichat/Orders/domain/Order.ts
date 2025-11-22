@@ -1,4 +1,4 @@
-import { IOrder } from '../dto/IOrder';
+import { IOrder } from './IOrder';
 
 export class Order implements IOrder {
     id: number;

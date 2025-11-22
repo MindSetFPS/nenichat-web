@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/repository/db";
-import { OrderRepository } from "@/repository/OrderRepository";
+import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 
 const orderRepository = new OrderRepository(pool);
 

@@ -1,6 +1,6 @@
 import { pool } from "@/repository/db";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { OrderRepository } from "@/repository/OrderRepository";
+import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OrdersTable } from "@/components/orders-table";

@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
-import { IOrderItem } from '../dto/IOrderItem';
-import { IOrderItemWithProduct } from '../dto/IOrderItemWithProduct';
-import { IOrderItemRepository } from './IOrderItemRepository';
-import { OrderItem } from './OrderItem';
+import { IOrderItem } from '../../domain/IOrderItem';
+import { IOrderItemWithProduct } from '../../domain/IOrderItemWithProduct';
+import { IOrderItemRepository } from '../../domain/IOrderItemRepository';
+import { OrderItem } from '../../domain/OrderItem';
 
 export class OrderItemRepository implements IOrderItemRepository {
     private pool: Pool;

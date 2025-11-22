@@ -1,5 +1,5 @@
-import { IOrderItem } from '../dto/IOrderItem';
-import { IOrderItemWithProduct } from '../dto/IOrderItemWithProduct';
+import { IOrderItem } from './IOrderItem';
+import { IOrderItemWithProduct } from './IOrderItemWithProduct';
 
 export interface IOrderItemRepository {
     getById(id: number): Promise<IOrderItem | null>;

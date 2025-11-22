@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
-import { IOrder } from '../dto/IOrder';
-import { IOrderRepository } from './IOrderRepository';
-import { Order } from './Order';
+import { IOrder } from '../../domain/IOrder';
+import { IOrderRepository } from '../../domain/IOrderRepository';
+import { Order } from '../../domain/Order';
 
 export class OrderRepository implements IOrderRepository {
     private pool: Pool;
