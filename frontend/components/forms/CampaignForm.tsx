@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ICampaign } from "@/dto/ICampaign";
+import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
 

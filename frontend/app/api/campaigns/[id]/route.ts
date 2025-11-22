@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { campaignRepository } from '@/repository/CampaignRepository';
-import { ICampaign } from '@/dto/ICampaign';
+import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
+import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 
 export async function GET(
   request: Request,

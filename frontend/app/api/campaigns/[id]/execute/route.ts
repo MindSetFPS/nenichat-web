@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { ICampaign } from "@/dto/ICampaign";
-import { campaignRepository } from "@/repository/CampaignRepository";
+import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
+import { campaignRepository } from "@/Nenichat/Campaigns/infra/persistance/CampaignRepository";
 import { audienceContactRepository } from "@/Nenichat/Audiences/infra/persistance/AudienceContactRepository";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 

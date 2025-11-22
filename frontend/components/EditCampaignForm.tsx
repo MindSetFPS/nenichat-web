@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
-import { ICampaign } from "@/dto/ICampaign";
+import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { Button } from "@/components/ui/button"; // Import Button component
 import { Loader2 } from "lucide-react"; // Import Loader2 for loading spinner
 

@@ -1,4 +1,4 @@
-import { ICampaign } from '../dto/ICampaign';
+import { ICampaign } from './ICampaign';
 
 export class Campaign implements ICampaign {
   id: string;

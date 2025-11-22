@@ -1,4 +1,4 @@
-import { campaignRepository } from '@/repository/CampaignRepository';
+import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
 import { EditCampaignForm } from '@/components/EditCampaignForm';
 import { CardDescription } from '@/components/ui/card';
 

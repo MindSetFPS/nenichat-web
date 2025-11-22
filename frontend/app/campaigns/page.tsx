@@ -8,8 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CalendarDays, MessageSquare } from "lucide-react";
-import { campaignRepository } from '@/repository/CampaignRepository';
-import { ICampaign } from '@/dto/ICampaign';
+import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
+import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 import { EmptyList } from "@/components/empty-list";

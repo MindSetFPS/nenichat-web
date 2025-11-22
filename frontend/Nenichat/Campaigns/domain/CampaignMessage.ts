@@ -1,4 +1,4 @@
-import { ICampaignMessage } from '../dto/ICampaignMessage';
+import { ICampaignMessage } from './ICampaignMessage';
 
 export class CampaignMessage implements ICampaignMessage {
   id: number;
