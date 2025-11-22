@@ -1,7 +1,7 @@
 import { IWebhookEvent, WebhookEvent } from "@/dto/IWebhookEvent";
-import { Message } from "@/repository/Message";
+import { Message } from "@/Nenichat/Messages/domain/Message";
 import { Contact } from "@/repository/Contact";
-import { messageRepository } from "@/repository/MessageRepository";
+import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository";
 

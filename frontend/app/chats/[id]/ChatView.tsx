@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
-import { IMessage } from "@/repository/IMessage"
+import { IMessage } from "@/Nenichat/Messages/domain/IMessage"
 import { ArrowLeft, MoreVertical, Paperclip, Send, Smile } from "lucide-react"
 import { useState } from "react"
 

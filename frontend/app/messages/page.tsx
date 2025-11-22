@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { IMessageWithSender } from "@/dto/IMessageWithSender";
+import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,

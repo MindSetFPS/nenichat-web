@@ -1,14 +1,14 @@
 import { Pool } from 'pg';
-import { IMessage } from './IMessage';
-import { IMessageRepository } from './IMessageRepository';
-import { Message } from './Message';
-import { pool } from './db';
-import { IMessageWithSender } from '@/dto/IMessageWithSender';
-import { IContact } from './IContact';
-import { IMessagesReport } from './IMessagesReport';
+import { IMessage } from '../../domain/IMessage';
+import { IMessageRepository } from '../../domain/IMessageRepository';
+import { Message } from '../../domain/Message';
+import { pool } from '../../../../repository/db';
+import { IMessageWithSender } from '@/Nenichat/Messages/domain/IMessageWithSender';
+import { IContact } from '../../../Contacts/domain/IContact';
+import { IMessagesReport } from '../../domain/IMessagesReport';
 
 export class MessageRepository implements IMessageRepository {
-  constructor(private pool: Pool) {}
+  constructor(private pool: Pool) { }
 
   private toMessage(data: any): IMessage {
     if (!data) return data;
@@ -72,7 +72,7 @@ export class MessageRepository implements IMessageRepository {
     } else {
       // Insert new message
       if (!chat_id || !sender_id) {
-          throw new Error('chat_id and sender_id must be provided for a new message.');
+        throw new Error('chat_id and sender_id must be provided for a new message.');
       }
       const result = await this.pool.query(
         `
@@ -125,29 +125,29 @@ export class MessageRepository implements IMessageRepository {
     );
 
     return result.rows.map((d) => {
-        const message: IMessage = {
-            id: d.id,
-            chat_id: d.chat_id,
-            sender_id: d.sender_id,
-            text_content: d.text_content,
-            replied_to_message_id: d.replied_to_message_id,
-            quoted_message_text: d.quoted_message_text,
-            created_at: d.created_at,
-        };
-        
-        const sender: IContact | undefined = d.sender_contact_id ? {
-            id: d.sender_contact_id,
-            contact_name: d.contact_name,
-            pushname: d.pushname,
-            username: d.username,
-            phone_number: d.phone_number,
-            lid: d.lid,
-            is_user: d.is_user,
-            created_at: d.sender_created_at,
-            updated_at: d.sender_updated_at,
-        } : undefined;
+      const message: IMessage = {
+        id: d.id,
+        chat_id: d.chat_id,
+        sender_id: d.sender_id,
+        text_content: d.text_content,
+        replied_to_message_id: d.replied_to_message_id,
+        quoted_message_text: d.quoted_message_text,
+        created_at: d.created_at,
+      };
 
-        return { ...message, sender };
+      const sender: IContact | undefined = d.sender_contact_id ? {
+        id: d.sender_contact_id,
+        contact_name: d.contact_name,
+        pushname: d.pushname,
+        username: d.username,
+        phone_number: d.phone_number,
+        lid: d.lid,
+        is_user: d.is_user,
+        created_at: d.sender_created_at,
+        updated_at: d.sender_updated_at,
+      } : undefined;
+
+      return { ...message, sender };
     });
   }
 
