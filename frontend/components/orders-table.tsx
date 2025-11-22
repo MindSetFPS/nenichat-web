@@ -8,7 +8,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { IOrder } from "@/dto/IOrder";
+import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import Link from "next/link";
