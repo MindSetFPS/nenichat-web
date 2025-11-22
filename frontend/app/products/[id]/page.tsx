@@ -1,8 +1,8 @@
-import { ProductRepository } from '../../../repository/ProductRepository';
+import { ProductRepository } from '../../../Nenichat/Products/infra/persistance/ProductRepository';
 import { pool } from '../../../repository/db';
 import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/ProductForm'; // Import the new edit form
-import { IProduct } from '@/dto/IProduct';
+import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 
 const productRepository = new ProductRepository(pool);
 

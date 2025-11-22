@@ -1,4 +1,4 @@
-import { IImage } from './IImage';
+import { IImage } from '../../../dto/IImage';
 
 /**
  * @interface IProduct

@@ -1,7 +1,7 @@
 import { CreateOrderForm } from "@/components/forms/CreateOrderForm";
 import { pool } from "@/repository/db";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { ProductRepository } from "@/repository/ProductRepository";
+import { ProductRepository } from "@/Nenichat/Products/infra/persistance/ProductRepository";
 
 const contactRepository = new ContactRepository(pool);
 const productRepository = new ProductRepository(pool);

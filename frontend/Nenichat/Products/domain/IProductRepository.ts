@@ -1,4 +1,4 @@
-import { IProduct } from '../dto/IProduct';
+import { IProduct } from './IProduct';
 
 /**
  * @interface IProductRepository

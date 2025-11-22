@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ProductRepository } from '../../../repository/ProductRepository';
+import { ProductRepository } from '../../../Nenichat/Products/infra/persistance/ProductRepository';
 import { pool } from '../../../repository/db';
-import { IProduct } from '../../../dto/IProduct';
+import { IProduct } from '../../../Nenichat/Products/domain/IProduct';
 import { IImage } from '../../../dto/IImage';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';

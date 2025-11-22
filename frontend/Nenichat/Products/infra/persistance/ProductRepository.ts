@@ -1,9 +1,9 @@
 import { Pool } from 'pg';
-import { IProduct } from '../dto/IProduct';
-import { IProductRepository } from './IProductRepository';
-import { Product } from './Product';
-import { pool } from '../repository/db';
-import { IImage } from '../dto/IImage';
+import { IProduct } from '../../domain/IProduct';
+import { IProductRepository } from '../../domain/IProductRepository';
+import { Product } from '../../domain/Product';
+import { pool } from '../../../../repository/db';
+import { IImage } from '../../../../dto/IImage';
 
 /**
  * @class ProductRepository

@@ -1,5 +1,5 @@
-import { IProduct } from '../dto/IProduct';
-import { IImage } from '../dto/IImage';
+import { IProduct } from './IProduct';
+import { IImage } from '../../../dto/IImage';
 
 export class Product implements IProduct {
   id: string;

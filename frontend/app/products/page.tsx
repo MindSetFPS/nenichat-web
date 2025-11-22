@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { pool } from '../../repository/db';
-import { IProduct } from '../../dto/IProduct';
-import { ProductRepository } from '../../repository/ProductRepository';
+import { IProduct } from '../../Nenichat/Products/domain/IProduct';
+import { ProductRepository } from '../../Nenichat/Products/infra/persistance/ProductRepository';
 import { getProductImageUrl } from '../../lib/utils';
 import { ProductActions } from './ProductActions';
 import { EmptyList } from '@/components/empty-list';

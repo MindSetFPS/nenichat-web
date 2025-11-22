@@ -6,7 +6,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { IProduct } from '@/dto/IProduct';
+import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 import { IImage } from '@/dto/IImage';
 import { getProductImageUrl } from '@/lib/utils';
 import Image from 'next/image';
