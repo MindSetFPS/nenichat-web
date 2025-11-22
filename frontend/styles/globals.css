@@ -129,7 +129,26 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes glow {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(2.7);
+  }
+}
+
+.animate-glow {
+  animation: glow 9s ease-in-out infinite;
 }
