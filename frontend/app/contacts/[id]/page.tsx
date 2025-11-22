@@ -3,10 +3,10 @@ import { ContactRepository } from "@/repository/ContactRepository";
 import { OrderRepository } from "@/repository/OrderRepository";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { Separator } from "@/components/ui/separator";
 import { OrdersTable } from "@/components/orders-table";
+import { Button } from "@/components/ui/button";
+import { Mail } from "lucide-react"
+import Link from "next/link";
 
 const contactRepository = new ContactRepository(pool);
 const orderRepository = new OrderRepository(pool);
@@ -45,7 +45,15 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Profile</CardTitle>
+                            <div className="flex justify-between align-middle items-center  ">
+                                <CardTitle>Profile</CardTitle>
+                                <Link href={`/chats/${contact.id}`}>
+                                    <Button>
+                                        <Mail />
+                                    </Button>
+                                </Link>
+
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
