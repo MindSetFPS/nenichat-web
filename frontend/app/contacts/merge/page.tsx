@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { IContact } from '@/repository/IContact';
+import { IContact } from '@/Nenichat/Chats/domain/IContact';
 import { Button } from '@/components/ui/button';
 import {
   Table,

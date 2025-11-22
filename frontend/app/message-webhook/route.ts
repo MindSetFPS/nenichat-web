@@ -2,7 +2,7 @@ import { IWebhookEvent, WebhookEvent } from "@/dto/IWebhookEvent";
 import { Message } from "@/repository/Message";
 import { Contact } from "@/repository/Contact";
 import { messageRepository } from "@/repository/MessageRepository";
-import { contactRepository } from "@/repository/ContactRepository";
+import { contactRepository } from "@/Nenichat/Chats/infra/persistance/ContactRepository";
 import { chatRepository } from "@/repository/ChatRepository";
 
 const getOrCreateChat = async (contactId: bigint) => {

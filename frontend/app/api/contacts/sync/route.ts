@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { contactRepository } from "@/repository/ContactRepository";
-import { IContact } from "@/repository/IContact";
+import { contactRepository } from "@/Nenichat/Chats/infra/persistance/ContactRepository";
+import { IContact } from "@/Nenichat/Chats/domain/IContact";
 
 /**
  * Syncs contacts from the WhatsApp API

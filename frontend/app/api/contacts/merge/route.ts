@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { contactRepository } from '@/repository/ContactRepository';
+import { contactRepository } from '@/Nenichat/Chats/infra/persistance/ContactRepository';
 
 /**
  * @swagger

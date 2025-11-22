@@ -18,7 +18,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { IContact } from '@/repository/IContact'
+import { IContact } from '@/Nenichat/Chats/domain/IContact'
 import { ModeToggle } from './mode-toggle'
 
 interface AppSidebarProps {

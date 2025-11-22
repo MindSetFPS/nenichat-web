@@ -1,7 +1,7 @@
 import { pool } from "@/repository/db";
 import { OrderRepository } from "@/repository/OrderRepository";
 import { OrderItemRepository } from "@/repository/OrderItemRepository";
-import { ContactRepository } from "@/repository/ContactRepository";
+import { ContactRepository } from "@/Nenichat/Chats/infra/persistance/ContactRepository";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

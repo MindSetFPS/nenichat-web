@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { IContact } from "@/repository/IContact"
+import { IContact } from "@/Nenichat/Chats/domain/IContact"
 import { Loader2 } from "lucide-react"
 interface ComboboxDemoProps {
   contacts: IContact[];
