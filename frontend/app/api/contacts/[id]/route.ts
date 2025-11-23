@@ -12,8 +12,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         contact!.contact_name = body!.contact_name!
 
         const contactUpdated = await contactRepository.save(contact!);
-        console.log(contactUpdated)
-
 
         return NextResponse.json(contactUpdated)
     } catch (e) {

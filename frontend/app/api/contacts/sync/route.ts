@@ -18,8 +18,6 @@ export async function GET() {
             );
         }
 
-        console.log("Fetching contacts from:", wappUrl);
-
         const response = await fetch("http://" + wappUrl + "/user/my/contacts");
 
         if (!response.ok) {
@@ -31,13 +29,11 @@ export async function GET() {
         }
 
         const data = await response.json();
-        console.log("Response from WAPP_URL:", data);
 
         if (data.results && Array.isArray(data.results.data)) {
             const contactsToSave: Partial<IContact>[] = [];
 
             for (const contact of data.results.data) {
-                // console.log(contact);
                 const { jid, name } = contact;
                 if (!jid) continue;
 
