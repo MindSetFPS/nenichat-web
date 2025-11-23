@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { MessagesChart } from "@/components/messages-chart";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { PageHeader } from "@/components/ui/page-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,16 +20,12 @@ export default async function Page() {
   const messagesPerDay = await messageRepository.getMessageCountPerDay();
 
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} flex items-center justify-center font-sans `}
-    >
-      <main className="flex w-full max-w-3xl flex-col items-center py-32 px-16 sm:items-start">
-        <h1 className="text-4xl font-bold">Welcome</h1>
-        <div className="mt-8 w-full">
-          <h2 className="text-2xl font-bold mb-4">Messages per Day</h2>
-          <MessagesChart data={messagesPerDay} />
-        </div>
-      </main>
-    </div>
+    <>
+      <PageHeader content={<h1 className="text-2xl font-bold">Welcome</h1>} />
+      <div className={`${geistSans.className} ${geistMono.className} flex flex-col items-center justify-center font-sans `}>
+        <h2 className="text-2xl font-bold">Messages per Day</h2>
+        <MessagesChart data={messagesPerDay} />
+      </div>
+    </>
   );
 }
