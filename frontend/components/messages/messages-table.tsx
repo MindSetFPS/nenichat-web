@@ -54,8 +54,6 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
         actions: !me,
     });
 
-    console.log(columnVisibility)
-
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -95,9 +93,8 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
     }, [page, pageSize]);
 
     return (
-        <div className="container mx-auto flex flex-col space-y-4 px-4 md:p-8 md:pt-6 h-[calc(100vh-2rem)]">
+        <div className="container mx-auto flex flex-col space-y-4 h-[calc(100vh-2rem)]">
             <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">Messages</h2>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
