@@ -23,19 +23,3 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / pageSize),
     });
 }
-
-export async function POST(request: NextRequest) {
-    try {
-        const body: Partial<IContact> = await request.json();
-
-        if (!body.phone_number && !body.lid) {
-            return NextResponse.json({ message: 'phone_number or lid is required' }, { status: 400 });
-        }
-
-        const contact = await contactRepository.save(body);
-        return NextResponse.json(contact);
-    } catch (e) {
-        const error = e as Error;
-        return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-}

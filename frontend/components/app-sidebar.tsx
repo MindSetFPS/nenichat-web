@@ -1,5 +1,10 @@
 'use client'
+import Link from 'next/link'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag } from 'lucide-react'
+import { avataaars } from '@dicebear/collection'
+import { usePathname } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { createAvatar } from '@dicebear/core'
 import {
     Sidebar,
     SidebarHeader,
@@ -15,15 +20,15 @@ import {
     SidebarMenuSubButton,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag } from 'lucide-react'
-import { usePathname } from 'next/navigation'
-import Link from 'next/link'
 import { IContact } from '@/Nenichat/Contacts/domain/IContact'
 import { ModeToggle } from './mode-toggle'
+import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
+import ContactAvatar from './contact-avatar'
 
 interface AppSidebarProps {
     contacts: string
 }
+
 
 export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const pathname = usePathname()
@@ -161,14 +166,15 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                 <SidebarMenuButton asChild isActive={isActive(`/chats/${contact.id}`)}>
                                     <Link href={`/chats/${contact.id}`} passHref>
                                         <Avatar className="h-full w-auto">
-                                            <AvatarImage src="https://github.com/shadcn.png" />
-                                            {/* <AvatarFallback> */}
-                                            {/* </AvatarFallback> */}
+                                            <ContactAvatar seed={getContactIdentifier(contact!)!} />
+
+                                            <AvatarFallback>
+                                                <AvatarImage src="https://github.com/shadcn.png" />
+                                            </AvatarFallback>
                                         </Avatar>
                                         <span>
-                                            {contact.contact_name || contact.pushname || contact.phone_number}
+                                            {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
                                         </span>
-
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

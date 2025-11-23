@@ -1,6 +1,6 @@
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository"
-import ChatView from "./ChatView"
+import ChatView from "@/components/chat/chat-view"
 import { Suspense } from "react"
 
 export default async function ChatPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
@@ -14,16 +14,11 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
   const messages = JSON.parse(JSON.stringify(messagesData))
   const me = JSON.parse(JSON.stringify(meData))
 
-  // const classess = "flex flex-col h-full bg-background max-w-4xl mx-auto border rounded-lg overflow-hidden"
-  const classess = "flex flex-col h-full rounded-lg mx-w-4xl"
-
   return (
-    <div className="h-full">
-      <div className={classess}>
-        <Suspense fallback={<p>Loading...</p>}>
-          <ChatView initialMessages={messages.reverse()} contact={contact} me={me} />
-        </Suspense>
-      </div>
+    <div className="container mx-auto h-[calc(100vh-2rem)] flex flex-col rounded-lg mx-w-4xl">
+      <Suspense fallback={<p>Loading...</p>}>
+        <ChatView initialMessages={messages.reverse()} contact={contact} me={me} />
+      </Suspense>
     </div>
   )
 }
