@@ -1,6 +1,6 @@
 import { IWebhookEvent, WebhookEvent } from "@/dto/IWebhookEvent";
 import { Message } from "@/Nenichat/Messages/domain/Message";
-import { Contact } from "@/repository/Contact";
+import { Contact } from "@/Nenichat/Contacts/domain/Contact";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository";
@@ -21,14 +21,7 @@ export async function POST(request: Request) {
     const body: IWebhookEvent = await request.json();
     const webhookEvent = new WebhookEvent(body);
 
-    // console.log("Received webhook event:", webhookEvent);
-
-    /* if (webhookEvent.isGroup() || webhookEvent.isAck()) {
-        return new Response(null, { status: 200 });
-    } */
-
     if (!webhookEvent.isMessage()) {
-        console.log("is not message")
         return new Response(null, { status: 200 });
     }
 
@@ -40,7 +33,6 @@ export async function POST(request: Request) {
     let senderContact: Contact;
     let chatContact: Contact; // The contact that defines the chat
 
-    console.log(webhookEvent.isSentByMe())
     if (webhookEvent.isSentByMe()) {
         // senderContact = await getOrCreateContact(webhookEvent.sender_id!, webhookEvent.pushname, true);
         senderContact = await contactRepository.getOrCreateContact(webhookEvent.sender_id!);
@@ -51,9 +43,6 @@ export async function POST(request: Request) {
         senderContact = await contactRepository.getOrCreateContact(webhookEvent.chat_id!);
         chatContact = senderContact;
     }
-
-    console.log("sender Contact", senderContact)
-    console.log("chat Contact", chatContact)
     const chat = await getOrCreateChat(chatContact.id!);
 
     const message = new Message(

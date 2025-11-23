@@ -8,6 +8,7 @@ import { ComboboxDemo } from './combobox';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 
 const MyProfilePage = () => {
   const [user, setUser] = useState<IContact | null>(null);
@@ -50,38 +51,41 @@ const MyProfilePage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src={''} alt={user.pushname || user.username || 'User'} />
-              <AvatarFallback>{(user.pushname || user.username || 'U').charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle>{user.pushname || user.username}</CardTitle>
-              <CardDescription>{user.phone_number}</CardDescription>
+    <>
+      <PageHeader content={<h1 className="text-2xl font-bold">Profile</h1>} />
+      <div className="container mx-auto p-4">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage src={''} alt={user.pushname || user.username || 'User'} />
+                <AvatarFallback>{(user.pushname || user.username || 'U').charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle>{user.pushname || user.username}</CardTitle>
+                <CardDescription>{user.phone_number}</CardDescription>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="font-semibold">Username</h3>
-              <p>{user.username || 'Not set'}</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold">Username</h3>
+                <p>{user.username || 'Not set'}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">LID</h3>
+                <p>{user.lid || 'Not set'}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Contact Name</h3>
+                <p>{user.contact_name || 'Not set'}</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold">LID</h3>
-              <p>{user.lid || 'Not set'}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Contact Name</h3>
-              <p>{user.contact_name || 'Not set'}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 };
 
@@ -109,7 +113,6 @@ const ProfileSelector = ({ onUserSelected }: { onUserSelected: () => void }) => 
 
         const response = await fetch(url);
         const data = await response.json();
-        console.log(data)
         setContacts(data.data);
       } catch (error) {
         console.error("Failed to fetch contacts:", error);

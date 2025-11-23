@@ -1,5 +1,6 @@
 import { MessagesTable } from "@/components/messages/messages-table";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function Messages({
   searchParams,
@@ -12,10 +13,13 @@ export default async function Messages({
   me = JSON.parse(JSON.stringify(me))
 
   return (
-    <MessagesTable
-      page={page ? Number(page) : 1}
-      pageSize={pageSize ? Number(pageSize) : 20}
-      me={me!}
-    />
+    <>
+      <PageHeader content={<h1 className="text-2xl font-bold">Messages</h1>} />
+      <MessagesTable
+        page={page ? Number(page) : 1}
+        pageSize={pageSize ? Number(pageSize) : 20}
+        me={me!}
+      />
+    </>
   )
 }

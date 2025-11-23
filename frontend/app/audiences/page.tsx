@@ -18,6 +18,7 @@ import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyList } from "@/components/empty-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function AudiencesPage() {
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -91,7 +92,8 @@ export default function AudiencesPage() {
   const createAudienceButton = <Button onClick={() => setIsCreateDialogOpen(true)}>Create Audience</Button>
 
   return (
-    <div className="flex-1 space-y-4 mx-4 md:p-8 md:pt-6">
+    <div className="flex-1 space-y-4 mx-4">
+      <PageHeader content={<h1 className="text-2xl font-bold">Audiences</h1>} />
 
       {audiences.length === 0 ?
 

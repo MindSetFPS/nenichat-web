@@ -13,6 +13,7 @@ import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 import { EmptyList } from "@/components/empty-list";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const dynamic = 'force-dynamic';
 
@@ -101,9 +102,9 @@ export default async function CampaignsPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Campaigns</h1>
+    <div className="">
+      <div className="flex justify-between items-center">
+        <PageHeader content={<h1 className="text-2xl font-bold">Campaigns</h1>} />
         <CreateCampaignDialog />
       </div>
       <p>To make it work correctly we need to:
