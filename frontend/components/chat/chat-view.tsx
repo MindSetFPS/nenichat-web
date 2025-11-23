@@ -4,18 +4,15 @@ import { cn } from "@/lib/utils"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { IMessage } from "@/Nenichat/Messages/domain/IMessage"
 import { useState, useRef, useEffect } from "react"
-import ChatHeader from "./chat-header"
 import ChatControls from "./chat-controls"
 
 interface ChatViewProps {
   initialMessages: IMessage[]
-  contact: IContact | null
   me: IContact | null
 }
 
 export default function ChatView({
   initialMessages,
-  contact,
   me,
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessage[]>(initialMessages)
@@ -32,8 +29,6 @@ export default function ChatView({
 
   return (
     <div className="flex flex-col h-full ">
-      <ChatHeader contact={contact!} />
-
       <main className="flex-1 h-full overflow-y-auto p-4 flex-col space-y-4">
         {messages.map((message) => (
           <div
@@ -63,7 +58,6 @@ export default function ChatView({
         ))}
         <div ref={messagesEndRef} />
       </main>
-
       <ChatControls />
     </div>
   )

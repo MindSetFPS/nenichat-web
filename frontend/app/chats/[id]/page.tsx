@@ -2,6 +2,12 @@ import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/Contact
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository"
 import ChatView from "@/components/chat/chat-view"
 import { Suspense } from "react"
+import { PageHeader } from "@/components/ui/page-header"
+import ContactAvatar from "@/components/contact-avatar"
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import ChatHeader from "@/components/chat/chat-header"
+import Link from "next/link"
 
 export default async function ChatPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
   const params = await paramsPromise
@@ -15,10 +21,30 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
   const me = JSON.parse(JSON.stringify(meData))
 
   return (
-    <div className="container mx-auto h-[calc(100vh-2rem)] flex flex-col rounded-lg mx-w-4xl">
-      <Suspense fallback={<p>Loading...</p>}>
-        <ChatView initialMessages={messages.reverse()} contact={contact} me={me} />
-      </Suspense>
-    </div>
+    <>
+      <PageHeader content={
+        <div className="md:flex items-center gap-2 w-full">
+          <div className="flex items-center gap-2 w-full max-w-xs">
+            <Avatar>
+              <ContactAvatar seed={getContactIdentifier(contact)!} />
+              <AvatarFallback>
+                {getContactIdentifier(contact)?.charAt(0) || "C"}
+              </AvatarFallback>
+            </Avatar>
+            <Link href={`/contacts/${contact.id}`}>
+              <h1 className="text-2xl font-bold ">{contact.pushname || contact.username || contact.phone_number}</h1>
+            </Link>
+          </div>
+
+          <ChatHeader contact={contact!} />
+        </div>
+      } />
+
+      <div className="container mx-auto h-[calc(100vh-2rem)] flex flex-col rounded-lg mx-w-4xl">
+        <Suspense fallback={<p>Loading...</p>}>
+          <ChatView initialMessages={messages.reverse()} contact={contact} me={me} />
+        </Suspense>
+      </div>
+    </>
   )
 }
