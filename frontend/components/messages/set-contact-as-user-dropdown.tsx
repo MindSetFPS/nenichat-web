@@ -30,11 +30,27 @@ export function SetContactAsUserDropdown({ contact }: SetContactAsUserDropdownPr
     const [showConfirmDialog, setShowConfirmDialog] = useState(false)
     const router = useRouter()
 
-    const handleAccept = () => {
-        // Placeholder for future logic
-        console.log("Setting contact as user:", contact)
-        setShowConfirmDialog(false)
-        router.refresh()
+    const handleAccept = async () => {
+        try {
+            const response = await fetch("/api/profile/set-user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId: contact.id }),
+            })
+
+            if (response.ok) {
+                console.log("Contact set as user successfully:", contact)
+                router.push("/profile")
+                setShowConfirmDialog(false)
+            } else {
+                const errorData = await response.json()
+                console.error("Failed to set contact as user:", errorData)
+            }
+        } catch (error) {
+            console.error("Network error or unexpected issue:", error)
+        }
     }
 
     return (
