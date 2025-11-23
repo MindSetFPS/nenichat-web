@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { ComboboxDemo } from './combobox';
 import { useDebounce } from '@/hooks/use-debounce';
+import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 const MyProfilePage = () => {
   const [user, setUser] = useState<IContact | null>(null);
@@ -31,12 +33,7 @@ const MyProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen py-2">
-        <h1 className="text-4xl font-bold">My Profile</h1>
-        <p className="mt-3 text-xl">
-          Loading...
-        </p>
-      </div>
+      <Spinner />
     );
   }
 
