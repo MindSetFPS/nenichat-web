@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ContactsTable } from "@/components/contacts-table";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function ContactsPage() {
     const [isSyncing, setIsSyncing] = useState(false);
@@ -17,7 +18,6 @@ export default function ContactsPage() {
                 throw new Error("Failed to sync contacts");
             }
             const data = await response.json();
-            console.log("Sync response:", data);
             // Trigger refresh of the table
             setRefreshTrigger(prev => prev + 1);
         } catch (error) {
@@ -28,8 +28,8 @@ export default function ContactsPage() {
     };
 
     return (
-        <div className="container mx-auto space-y-4 p-4 pt-6 h-[calc(100vh-2rem)] flex flex-col">
-            <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
+        <div className="container mx-auto space-y-4 h-[calc(100vh-2rem)] flex flex-col">
+            <PageHeader content={<h1 className="text-2xl font-bold">Contacts</h1>} />
             <ContactsTable
                 endpoint="/api/contacts"
                 refreshTrigger={refreshTrigger}

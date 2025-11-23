@@ -14,6 +14,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Pagination } from '@/components/ui/pagination';
+import { PageHeader } from '@/components/ui/page-header';
 
 interface ContactCandidate extends Omit<IContact, 'id'> {
   id: string;
@@ -109,9 +110,9 @@ export default function MergeContactsPage() {
   const selectedContacts = Object.keys(selected);
 
   return (
-    <div className="container mx-auto p-4 h-[calc(100vh-2rem)] flex flex-col">
+    <div className="container mx-auto h-[calc(100vh-2rem)] flex flex-col">
       <div className="flex-none">
-        <h1 className="text-2xl font-bold mb-4">Merge Contacts</h1>
+        <PageHeader content={<h1 className="text-2xl font-bold">Merge Contacts</h1>} />
         <p className="mb-4 text-muted-foreground">Select contacts to merge. Choose one as the primary contact, and the others will be merged into it.</p>
 
         <div className="mb-4">

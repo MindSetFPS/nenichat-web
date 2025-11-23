@@ -7,6 +7,11 @@ import { OrdersTable } from "@/components/orders-table";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react"
 import Link from "next/link";
+import ChatHeader from "@/components/chat/chat-header";
+import { PageHeader } from "@/components/ui/page-header";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import ContactAvatar from "@/components/contact-avatar";
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 
 const contactRepository = new ContactRepository(pool);
 const orderRepository = new OrderRepository(pool);
@@ -21,7 +26,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
     const { id } = await params;
     const contactId = BigInt(id);
 
-    const contact = await contactRepository.findById(contactId);
+    let contact = await contactRepository.findById(contactId);
     if (!contact) {
         notFound();
     }
@@ -33,21 +38,35 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
 
     // Serialize for client component
     const plainOrders = JSON.parse(JSON.stringify(orders));
+    const plainContact = JSON.parse(JSON.stringify(contact));
 
     return (
-        <div className="container mx-auto p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Contact Details</h1>
-            </div>
+        <div className="container mx-auto space-y-6">
+            <PageHeader content={
+                <div className="md:flex items-center gap-2 w-full">
+                    <div className="flex items-center gap-2 w-full max-w-xs">
+                        <Avatar>
+                            <ContactAvatar seed={getContactIdentifier(plainContact)!} />
+                            <AvatarFallback>
+                                {getContactIdentifier(plainContact)?.charAt(0) || "C"}
+                            </AvatarFallback>
+                        </Avatar>
+                        <Link href={`/chats/${plainContact.id}`}>
+                            <h1 className="text-2xl font-bold ">{plainContact.pushname || plainContact.username || plainContact.phone_number}</h1>
+                        </Link>
+                    </div>
+
+                    <ChatHeader contact={plainContact!} />
+                </div>
+            } />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Sidebar / Profile */}
                 <div className="space-y-6">
                     <Card>
                         <CardHeader>
                             <div className="flex justify-between align-middle items-center  ">
                                 <CardTitle>Profile</CardTitle>
-                                <Link href={`/chats/${contact.id}`}>
+                                <Link href={`/chats/${plainContact.id}`}>
                                     <Button>
                                         <Mail />
                                     </Button>
@@ -58,22 +77,22 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                         <CardContent className="space-y-4">
                             <div>
                                 <div className="text-sm font-medium text-gray-500">Name</div>
-                                <div className="text-lg font-medium">{contact.contact_name || contact.pushname || 'Unknown'}</div>
+                                <div className="text-lg font-medium">{plainContact.contact_name || plainContact.pushname || 'Unknown'}</div>
                             </div>
                             <div>
                                 <div className="text-sm font-medium text-gray-500">Phone</div>
-                                <div>{contact.phone_number}</div>
+                                <div>{plainContact.phone_number}</div>
                             </div>
-                            {contact.username && (
+                            {plainContact.username && (
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">Username</div>
-                                    <div>@{contact.username}</div>
+                                    <div>@{plainContact.username}</div>
                                 </div>
                             )}
-                            {contact.lid && (
+                            {plainContact.lid && (
                                 <div>
                                     <div className="text-sm font-medium text-gray-500">LID</div>
-                                    <div className="text-xs text-gray-400 break-all">{contact.lid}</div>
+                                    <div className="text-xs text-gray-400 break-all">{plainContact.lid}</div>
                                 </div>
                             )}
                         </CardContent>
@@ -98,7 +117,6 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                     </Card>
                 </div>
 
-                {/* Main Content / History */}
                 <div className="md:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
