@@ -22,6 +22,8 @@ import { Pagination } from "@/components/ui/pagination";
 import { useRouter } from "next/navigation";
 import { EmptyList } from "@/components/empty-list";
 import { MessageSquare } from "lucide-react";
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { SetContactAsUserDropdown } from "@/components/messages/set-contact-as-user-dropdown";
 
 interface IMessageResponse {
   data: IMessageWithSender[];
@@ -44,10 +46,10 @@ export default function MessagesPage() {
     repliedTo: false,
     quotedMessage: false,
     date: true,
+    actions: true,
   });
 
   const router = useRouter();
-
   const fetchMessages = async (page: number, size: number) => {
     setIsLoading(true);
     try {
@@ -69,14 +71,6 @@ export default function MessagesPage() {
   useEffect(() => {
     fetchMessages(page, pageSize);
   }, [page, pageSize]);
-
-
-  const getSenderName = (message: IMessageWithSender) => {
-    if (message.sender) {
-      return message.sender.contact_name || message.sender.pushname || message.sender.username || message.sender.phone_number || message.sender.lid;
-    }
-    return String(message.sender_id);
-  }
 
   return (
     <div className="flex-1 space-y-4 px-4 md:p-8 md:pt-6">
@@ -150,6 +144,14 @@ export default function MessagesPage() {
             >
               Date
             </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={columnVisibility.actions}
+              onCheckedChange={(value) =>
+                setColumnVisibility((prev) => ({ ...prev, actions: value }))
+              }
+            >
+              Actions
+            </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -184,6 +186,7 @@ export default function MessagesPage() {
                     <TableHead>Quoted Message</TableHead>
                   )}
                   {columnVisibility.date && <TableHead>Date</TableHead>}
+                  {columnVisibility.actions && <TableHead>Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -207,7 +210,7 @@ export default function MessagesPage() {
                       )}
                       { }
                       {columnVisibility.sender && (
-                        <TableCell>{getSenderName(message)}</TableCell>
+                        <TableCell>{getContactIdentifier(message.sender!)}</TableCell>
                       )}
                       {columnVisibility.chat && (
                         <TableCell>{String(message.chat_id)}</TableCell>
@@ -228,6 +231,13 @@ export default function MessagesPage() {
                           {new Date(message.created_at).toLocaleString()}
                         </TableCell>
                       )}
+                      {columnVisibility.actions && (
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          {message.sender && (
+                            <SetContactAsUserDropdown contact={message.sender} />
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))
                 )}
@@ -244,7 +254,8 @@ export default function MessagesPage() {
           />
 
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
