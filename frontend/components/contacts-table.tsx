@@ -242,7 +242,7 @@ export function ContactsTable({
                 title="Sin contactos"
                 description="Agrega un contacto o espera a que se sincronicen los contactos"
                 icon={<UsersIcon />}
-                action="" />
+                action={headerActions} />
         )
     }
 
