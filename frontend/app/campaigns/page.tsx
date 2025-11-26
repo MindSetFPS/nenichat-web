@@ -103,10 +103,12 @@ export default async function CampaignsPage() {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <PageHeader content={<h1 className="text-2xl font-bold">Campaigns</h1>} />
-        <CreateCampaignDialog />
-      </div>
+      <PageHeader content={
+        <div className="w-full flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Campaigns</h1>
+          <CreateCampaignDialog />
+        </div>
+      } />
       <p>To make it work correctly we need to:
         1. Randomize the message to avoid spam filters.
         2. Only send message to currently engaged users (they have talked in previous 24 hours.
