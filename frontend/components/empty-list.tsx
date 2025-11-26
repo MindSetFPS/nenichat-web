@@ -1,9 +1,5 @@
 'use client';
 
-import { Package, Sparkles } from 'lucide-react';
-import { ProductActions } from '@/app/products/ProductActions';
-import { MailIcon } from 'lucide-react'
-
 /**
  * @function EmptyProducts
  * @description An attractive empty state component for when there are no products.
@@ -19,11 +15,11 @@ interface EmptyListProps {
 
 export function EmptyList({ action, description, title, icon }: EmptyListProps) {
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-200px)] w-full">
+        <div className="flex items-center justify-center w-full h-full">
             <div className="flex flex-col items-center justify-center text-center space-y-6 max-w-md px-6">
 
                 <div className="relative">
-                    <div className="absolute inset-0 bg-linear-to-r from-indigo-500/30 via-purple-500/50 to-pink-500/50 blur-3xl rounded-full animate-glow" />
+                    <div className="absolute animate-spin inset-0 bg-linear-to-r from-indigo-500/30 via-purple-500/50 to-pink-500/50 blur-3xl rounded-full animate-glow" />
                     <div className="relative bg-linear-to-br from-primary/10 to-primary/5 p-8 rounded-3xl border border-primary/20 shadow-lg">
                         {icon}
                     </div>

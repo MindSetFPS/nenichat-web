@@ -102,7 +102,7 @@ export default async function CampaignsPage() {
   };
 
   return (
-    <div className="">
+    <>
       <div className="flex justify-between items-center">
         <PageHeader content={<h1 className="text-2xl font-bold">Campaigns</h1>} />
         <CreateCampaignDialog />
@@ -114,14 +114,12 @@ export default async function CampaignsPage() {
       </p>
 
       {allCampaigns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-gray-500">
-          <EmptyList
-            title="No Campaigns"
-            description="It looks like you haven't created any campaigns. Start by creating one!"
-            action={<CreateCampaignDialog />}
-            icon={<CalendarDays className="w-12 h-12 text-primary" />}
-          />
-        </div>
+        <EmptyList
+          title="No Campaigns"
+          description="It looks like you haven't created any campaigns. Start by creating one!"
+          action={<CreateCampaignDialog />}
+          icon={<CalendarDays className="w-12 h-12 text-primary" />}
+        />
       ) : (
         <>
           {renderCampaignSection("Upcoming Campaigns", futureCampaigns)}
@@ -131,6 +129,6 @@ export default async function CampaignsPage() {
           {renderCampaignSection("Older Campaigns", olderCampaigns)}
         </>
       )}
-    </div>
+    </>
   );
 }

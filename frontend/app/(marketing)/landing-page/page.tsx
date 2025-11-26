@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { WaitlistForm } from "@/components/landing/waitlist-form"
+import { HeroChatAnimation } from "@/components/landing/hero-chat-animation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Check, Bot, BarChart3, ShoppingBag, Megaphone, ArrowRight, Zap, Shield, Globe, Package, Truck, CreditCard } from "lucide-react"
@@ -23,7 +24,7 @@ export default function LandingPage() {
                         <Link href="#about" className="hover:text-primary transition-colors">About</Link>
                     </nav>
                     <div className="flex items-center gap-4">
-                        <Link href="/login">
+                        <Link href="/">
                             <Button variant="ghost" size="sm">Log in</Button>
                         </Link>
                         <Link href="/signup">
@@ -69,49 +70,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* Right Column: Chat Animation */}
-                            <div className="relative w-full max-w-[500px] mx-auto lg:mr-0">
-                                <div className="bg-[#efeae2] dark:bg-[#0b141a] border rounded-2xl p-6 shadow-2xl overflow-hidden">
-                                    <div className="flex flex-col gap-4">
-                                        {/* Bubble 1: Green, Right */}
-                                        <div className="self-end max-w-[80%] animate-chat-bubble" style={{ animationDelay: '0.2s' }}>
-                                            <div className="bg-[#d9fdd3] dark:bg-[#005c4b] text-black dark:text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
-                                                <p className="text-sm">Hi! Do you have an Optimus Prima toy? ☀️</p>
-                                                <div className="text-[10px] text-gray-500 dark:text-gray-300 text-right mt-1">10:42 AM</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Bubble 2: White, Left */}
-                                        <div className="self-start max-w-[80%] animate-chat-bubble" style={{ animationDelay: '1.5s' }}>
-                                            <div className="bg-white dark:bg-[#202c33] text-black dark:text-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm">
-                                                <p className="text-sm">Hey there! Great choice. We have it in stock! 🛍️</p>
-                                                <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right mt-1">10:42 AM</div>
-                                            </div>
-                                        </div>
-
-                                        {/* Bubble 3: Green, Right */}
-                                        <div className="self-end max-w-[80%] animate-chat-bubble" style={{ animationDelay: '3s' }}>
-                                            <div className="bg-[#d9fdd3] dark:bg-[#005c4b] text-black dark:text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
-                                                <p className="text-sm">Yes, please! Send it over.</p>
-                                                <div className="text-[10px] text-gray-500 dark:text-gray-300 text-right mt-1">10:43 AM</div>
-                                            </div>
-                                        </div>
-
-
-                                        {/* Bubble 4: White, Left */}
-                                        <div className="self-start max-w-[80%] animate-chat-bubble" style={{ animationDelay: '4.5s' }}>
-                                            <div className="bg-white dark:bg-[#202c33] text-black dark:text-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm">
-                                                <p className="text-sm">We got your order! We will send it to your address in 2 days.</p>
-                                                <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right mt-1">10:44 AM</div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                {/* Decorative elements behind chat */}
-                                <div className="absolute -top-10 -right-10 h-20 w-20 bg-primary/10 rounded-full blur-xl animate-pulse"></div>
-                                <div className="absolute -bottom-10 -left-10 h-32 w-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-                            </div>
+                            <HeroChatAnimation />
                         </div>
                     </div>
                 </section>

@@ -40,11 +40,11 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
         </div>
       } />
 
-      <div className="container mx-auto h-[calc(100vh-2rem)] flex flex-col rounded-lg mx-w-4xl">
-        <Suspense fallback={<p>Loading...</p>}>
-          <ChatView initialMessages={messages.reverse()} me={me} />
-        </Suspense>
-      </div>
+      {/* <div className="container mx-auto flex flex-col h-full rounded-lg mx-w-4xl"> */}
+      {/* <Suspense fallback={<p>Loading...</p>}> */}
+      <ChatView initialMessages={messages.reverse()} me={me} />
+      {/* </Suspense> */}
+      {/* </div> */}
     </>
   )
 }

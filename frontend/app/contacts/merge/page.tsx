@@ -110,7 +110,7 @@ export default function MergeContactsPage() {
   const selectedContacts = Object.keys(selected);
 
   return (
-    <div className="container mx-auto h-[calc(100vh-2rem)] flex flex-col">
+    <>
       <div className="flex-none">
         <PageHeader content={<h1 className="text-2xl font-bold">Merge Contacts</h1>} />
         <p className="mb-4 text-muted-foreground">Select contacts to merge. Choose one as the primary contact, and the others will be merged into it.</p>
@@ -187,7 +187,6 @@ export default function MergeContactsPage() {
         setPage={setCurrentPage}
         totalPages={totalPages}
       />
-
-    </div>
+    </>
   );
 }

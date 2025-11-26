@@ -28,7 +28,7 @@ export default function ContactsPage() {
     };
 
     return (
-        <div className="container mx-auto space-y-4 h-[calc(100vh-2rem)] flex flex-col">
+        <>
             <PageHeader content={<h1 className="text-2xl font-bold">Contacts</h1>} />
             <ContactsTable
                 endpoint="/api/contacts"
@@ -50,6 +50,6 @@ export default function ContactsPage() {
                     </Button>
                 }
             />
-        </div>
+        </>
     );
 }

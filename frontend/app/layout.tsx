@@ -3,7 +3,7 @@ import "../styles/globals.css"
 import { AppSidebar } from "../components/app-sidebar"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
-import { ToasterProvider } from "@/components/toaster-provider" // Import ToasterProvider
+import { ToasterProvider } from "@/components/toaster-provider"
 
 interface RootLayoutProps {
     children: React.ReactNode
@@ -31,8 +31,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         <SidebarProvider>
                             <AppSidebar contacts={contactsJson} />
                             <div className="flex flex-col md:flex-row w-full">
-                                <SidebarInset>
-                                    <div className="flex flex-col box-border h-full w-full md:w-4xl md:my-2 bg-background mx-auto p-2 md:p-4 md:border rounded-r-lg md:rounded-lg overflow-hidden">
+                                <SidebarInset className="justify-center">
+                                    <div className="flex flex-col box-border w-full h-[calc(100vh-1rem)]
+                                                    md:w-4xl md:my-2 bg-background mx-auto p-2 md:p-4 space-y-4
+                                                    md:border rounded-r-lg md:rounded-lg overflow-hidden">
                                         {children}
                                     </div>
                                     <ToasterProvider />

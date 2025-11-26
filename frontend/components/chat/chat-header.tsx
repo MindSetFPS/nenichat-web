@@ -1,5 +1,3 @@
-import { ArrowLeft, MoreVertical } from "lucide-react";
-import { Button } from "../ui/button";
 import { Contact } from "@/Nenichat/Contacts/domain/Contact";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { ChatDropDownDialog } from "./chat-dropdown";

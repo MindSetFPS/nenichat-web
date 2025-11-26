@@ -28,7 +28,7 @@ export default function ChatView({
 
 
   return (
-    <div className="flex flex-col h-full ">
+    <>
       <main className="flex-1 h-full overflow-y-auto p-4 flex-col space-y-4">
         {messages.map((message) => (
           <div
@@ -59,6 +59,6 @@ export default function ChatView({
         <div ref={messagesEndRef} />
       </main>
       <ChatControls />
-    </div>
+    </>
   )
 }

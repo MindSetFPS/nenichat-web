@@ -93,7 +93,7 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
     }, [page, pageSize]);
 
     return (
-        <div className="container mx-auto flex flex-col space-y-4 h-[calc(100vh-2rem)]">
+        <>
             <div className="flex items-center justify-between space-y-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -277,6 +277,6 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
                 </>
             )
             }
-        </div >
+        </>
     );
 }

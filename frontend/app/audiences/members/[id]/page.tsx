@@ -135,7 +135,7 @@ export default function AudienceMembersPage() {
   }
 
   return (
-    <div className="container mx-auto flex-1 space-y-4 px-4 md:p-8 md:pt-4  h-[calc(100vh-2rem)] flex flex-col">
+    <>
       <div className="flex-col md:flex-row items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">
           Manage Members for: {audience?.name || 'Loading...'}
@@ -148,20 +148,22 @@ export default function AudienceMembersPage() {
         </div>
       </div>
 
-      {isLoading ? (
-        <Spinner className="h-5 w-5" />
-      ) : (
-        <>
+      {
+        isLoading ? (
+          <Spinner className="h-5 w-5" />
+        ) : (
+          <>
 
-          <ContactsTable
-            endpoint="/api/contacts"
-            enableSelection={true}
-            selectedIds={Array.from(selectedContactIds)}
-            onSelectionChange={(ids) => setSelectedContactIds(new Set(ids))}
-          />
+            <ContactsTable
+              endpoint="/api/contacts"
+              enableSelection={true}
+              selectedIds={Array.from(selectedContactIds)}
+              onSelectionChange={(ids) => setSelectedContactIds(new Set(ids))}
+            />
 
-        </>
-      )}
+          </>
+        )
+      }
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -183,6 +185,6 @@ export default function AudienceMembersPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
