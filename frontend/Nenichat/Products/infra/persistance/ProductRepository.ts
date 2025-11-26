@@ -44,7 +44,6 @@ export class ProductRepository implements IProductRepository {
       return null;
     }
     const row = result.rows[0];
-    console.log(row)
     return new Product(
       row.id,
       row.name,

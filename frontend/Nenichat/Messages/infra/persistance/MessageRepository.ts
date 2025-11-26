@@ -6,6 +6,7 @@ import { pool } from '../../../Shared/infra/persistance/db';
 import { IMessageWithSender } from '@/Nenichat/Messages/domain/IMessageWithSender';
 import { IContact } from '../../../Contacts/domain/IContact';
 import { IMessagesReport } from '../../domain/IMessagesReport';
+import { Contact } from '../../../Contacts/domain/Contact';
 
 export class MessageRepository implements IMessageRepository {
   constructor(private pool: Pool) { }
@@ -135,17 +136,17 @@ export class MessageRepository implements IMessageRepository {
         created_at: d.created_at,
       };
 
-      const sender: IContact | undefined = d.sender_contact_id ? {
-        id: d.sender_contact_id,
-        contact_name: d.contact_name,
-        pushname: d.pushname,
-        username: d.username,
-        phone_number: d.phone_number,
-        lid: d.lid,
-        is_user: d.is_user,
-        created_at: d.sender_created_at,
-        updated_at: d.sender_updated_at,
-      } : undefined;
+      const sender: IContact | undefined = d.sender_contact_id ? new Contact(
+        d.sender_contact_id,
+        d.phone_number,
+        d.lid,
+        d.username,
+        d.pushname,
+        d.contact_name,
+        d.is_user,
+        d.sender_created_at,
+        d.sender_updated_at
+      ) : undefined;
 
       return { ...message, sender };
     });
@@ -158,6 +159,60 @@ export class MessageRepository implements IMessageRepository {
     );
 
     return result.rows.map((d) => this.toMessage(d));
+  }
+
+  async findByChatIdWithSender(chat_id: string, offset: number, limit: number): Promise<IMessageWithSender[]> {
+    const result = await this.pool.query(
+      `SELECT 
+        m.id,
+        m.chat_id,
+        m.sender_id,
+        m.text_content,
+        m.replied_to_message_id,
+        m.quoted_message_text,
+        m.created_at,
+        c.id as sender_contact_id,
+        c.contact_name, 
+        c.pushname, 
+        c.username, 
+        c.phone_number,
+        c.lid,
+        c.is_user,
+        c.created_at as sender_created_at,
+        c.updated_at as sender_updated_at
+      FROM messages m
+      LEFT JOIN contacts c ON m.sender_id = c.id
+      WHERE m.chat_id = $1
+      ORDER BY m.created_at DESC, m.id DESC 
+      LIMIT $2 OFFSET $3`,
+      [chat_id, limit, offset]
+    );
+
+    return result.rows.map((d) => {
+      const message: IMessage = {
+        id: d.id,
+        chat_id: d.chat_id,
+        sender_id: d.sender_id,
+        text_content: d.text_content,
+        replied_to_message_id: d.replied_to_message_id,
+        quoted_message_text: d.quoted_message_text,
+        created_at: d.created_at,
+      };
+
+      const sender: IContact | undefined = d.sender_contact_id ? new Contact(
+        d.sender_contact_id,
+        d.phone_number,
+        d.lid,
+        d.username,
+        d.pushname,
+        d.contact_name,
+        d.is_user,
+        d.sender_created_at,
+        d.sender_updated_at
+      ) : undefined;
+
+      return { ...message, sender };
+    });
   }
 
   async count(): Promise<number> {
