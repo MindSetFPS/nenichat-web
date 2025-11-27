@@ -4,6 +4,7 @@ import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { campaignRepository } from "@/Nenichat/Campaigns/infra/persistance/CampaignRepository";
 import { audienceContactRepository } from "@/Nenichat/Audiences/infra/persistance/AudienceContactRepository";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import SendMessage from "@/Nenichat/Messages/app/send-message";
 
 /**
  * Executes a campaign by sending messages to all contacts in the audience.
@@ -27,7 +28,7 @@ export async function POST(
     const campaign: ICampaign | null = await campaignRepository.findById(
       campaignId,
       true,
-      false
+      true
     );
 
     if (!campaign) {
@@ -57,9 +58,14 @@ export async function POST(
       return acc;
     }, [] as IContact[]);
 
-    uniqueContacts.forEach((contact) => {
-      console.log(contact);
+    uniqueContacts.forEach(async (contact: IContact) => {
+      if (contact.phone_number && campaign.message) {
+        await SendMessage(contact.phone_number, campaign.message);
+      }
     });
+
+    campaign.executed_at = new Date().toISOString();
+    await campaignRepository.update(campaign);
 
     return NextResponse.json({ message: "Campaign executed successfully" });
   } catch (error) {

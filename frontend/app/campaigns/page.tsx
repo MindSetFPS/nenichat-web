@@ -20,6 +20,8 @@ export const dynamic = 'force-dynamic';
 export default async function CampaignsPage() {
   const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
 
+  console.log(allCampaigns);
+
   const now = new Date();
   now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
 
@@ -90,7 +92,7 @@ export default async function CampaignsPage() {
                     Edit Campaign
                   </Button>
                 </Link>
-                <Button variant="default" className="w-full">
+                <Button variant="default" className="w-full" disabled={typeof campaign.executed_at !== 'undefined'}>
                   Send Campaign
                 </Button>
               </CardFooter>

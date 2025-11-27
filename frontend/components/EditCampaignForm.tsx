@@ -17,6 +17,8 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false); // New state for execute button
 
+  const isExecuted = typeof campaign.executed_at !== 'undefined';
+
   const handleSubmit = async (data: {
     name: string;
     description: string;
@@ -89,7 +91,7 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
       />
       <Button
         onClick={handleExecuteCampaign}
-        disabled={isExecuting || isLoading}
+        disabled={isExecuting || isLoading || isExecuted}
         className="w-full"
       >
         {isExecuting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
