@@ -149,7 +149,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 /**
  * @function DELETE
- * @description Handles DELETE requests to remove a specific image from a product.
+ * @description Handles DELETE requests to remove a product or a specific image from a product.
  * @param {NextRequest} request - The incoming Next.js request.
  * @param {Object} params - The route parameters.
  * @param {string} params.id - The ID of the product.
@@ -162,65 +162,22 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   const { searchParams } = new URL(request.url);
   const imageId = searchParams.get('imageId');
 
-  if (!imageId) {
-    return NextResponse.json({ error: 'imageId is required' }, { status: 400 });
-  }
-
-  const client = await pool.connect();
   try {
-    await client.query('BEGIN');
-
-    // 1. Get image path from the images table
-    const imageResult = await client.query('SELECT path FROM images WHERE id = $1', [imageId]);
-    if (imageResult.rows.length === 0) {
-      await client.query('ROLLBACK');
-      return NextResponse.json({ error: 'Image not found' }, { status: 404 });
-    }
-    const imagePath = imageResult.rows[0].path;
-
-    // 2. Delete the association from product_images
-    const deleteAssociationResult = await client.query(
-      'DELETE FROM product_images WHERE product_id = $1 AND image_id = $2',
-      [productId, imageId]
-    );
-
-    if (deleteAssociationResult.rowCount === 0) {
-      await client.query('ROLLBACK');
-      return NextResponse.json({ error: 'Image not associated with this product' }, { status: 404 });
-    }
-
-    // 3. Check if the image is referenced by any other product
-    const checkReferencesResult = await client.query(
-      'SELECT COUNT(*) FROM product_images WHERE image_id = $1',
-      [imageId]
-    );
-    const isImageReferenced = parseInt(checkReferencesResult.rows[0].count, 10) > 0;
-
-    // 4. If not referenced by any other product, delete from images table and filesystem
-    if (!isImageReferenced) {
-      await client.query('DELETE FROM images WHERE id = $1', [imageId]);
-
-      const absolutePath = path.join(process.cwd(), 'public', imagePath);
-      try {
-        await fs.unlink(absolutePath);
-      } catch (fsError: any) {
-        if (fsError.code === 'ENOENT') {
-          console.warn(`File not found on disk, skipping deletion: ${absolutePath}`);
-        } else {
-          console.error(`Failed to delete file ${absolutePath}:`, fsError);
-          await client.query('ROLLBACK');
-          return NextResponse.json({ error: 'Failed to delete image file' }, { status: 500 });
-        }
+    if (imageId) {
+      const success = await productRepository.deleteImage(productId, imageId);
+      if (!success) {
+        return NextResponse.json({ error: 'Failed to delete image (not found or not associated)' }, { status: 404 });
       }
+      return NextResponse.json({ message: 'Image deleted successfully' }, { status: 200 });
+    } else {
+      const success = await productRepository.delete(productId);
+      if (!success) {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      }
+      return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 });
     }
-
-    await client.query('COMMIT');
-    return NextResponse.json({ message: 'Image deleted successfully' }, { status: 200 });
   } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Error deleting image:', error);
-    return NextResponse.json({ error: 'Failed to delete image' }, { status: 500 });
-  } finally {
-    client.release();
+    console.error('Error in DELETE operation:', error);
+    return NextResponse.json({ error: 'Failed to perform delete operation' }, { status: 500 });
   }
 }

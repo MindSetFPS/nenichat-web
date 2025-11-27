@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { MessagesChart } from "@/components/messages-chart";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { PageHeader } from "@/components/ui/page-header";
 
 const geistSans = Geist({

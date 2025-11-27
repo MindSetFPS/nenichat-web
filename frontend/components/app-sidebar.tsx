@@ -1,10 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag } from 'lucide-react'
-import { avataaars } from '@dicebear/collection'
 import { usePathname } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { createAvatar } from '@dicebear/core'
 import {
     Sidebar,
     SidebarHeader,

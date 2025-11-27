@@ -10,7 +10,7 @@ import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 import { IImage } from '@/dto/IImage';
 import { getProductImageUrl } from '@/lib/utils';
 import Image from 'next/image';
-import { XCircle, PlusCircle, Loader2 } from 'lucide-react';
+import { XCircle, PlusCircle, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -43,6 +43,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   const [newImages, setNewImages] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [imageToDelete, setImageToDelete] = useState<IImage | null>(null);
+  const [showDeleteProductDialog, setShowDeleteProductDialog] = useState(false);
 
   const newImagePreviews = useMemo(() => {
     return newImages.map((file) => URL.createObjectURL(file));
@@ -73,7 +74,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/products/${product.id}/images/${imageToDelete.id}`, {
+      const response = await fetch(`/api/products/${product.id}?imageId=${imageToDelete.id}`, {
         method: 'DELETE',
       });
 
@@ -94,6 +95,36 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     } finally {
       setLoading(false);
       setImageToDelete(null);
+    }
+  };
+
+  const handleProductDelete = async () => {
+    if (!product) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/products/${product.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete product');
+      }
+
+      toast('Success!', {
+        description: 'Product deleted successfully.',
+      });
+
+      router.push('/products');
+      router.refresh();
+    } catch (error: any) {
+      toast('Error', {
+        description: error.message,
+      });
+      setLoading(false);
+    } finally {
+      setShowDeleteProductDialog(false);
     }
   };
 
@@ -258,29 +289,63 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-4 mt-6">
-        <Button type="button" variant="outline" onClick={handleCancel} disabled={loading}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {loading ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Product')}
-        </Button>
+      <div className="flex justify-between items-center pt-4 mt-6">
+        {isEditMode ? (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => setShowDeleteProductDialog(true)}
+            disabled={loading}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Product
+          </Button>
+        ) : (
+          <div></div> // Spacer
+        )}
+        <div className="flex gap-4">
+          <Button type="button" variant="outline" onClick={handleCancel} disabled={loading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Product')}
+          </Button>
+        </div>
       </div>
 
       {isEditMode && (
-        <AlertDialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>This action cannot be undone. This will permanently delete the image.</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleImageDelete}>Continue</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <>
+          <AlertDialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Image?</AlertDialogTitle>
+                <AlertDialogDescription>This action cannot be undone. This will permanently delete the image.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleImageDelete}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog open={showDeleteProductDialog} onOpenChange={setShowDeleteProductDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete <strong>{product?.name}</strong>? This action cannot be undone and will remove the product and all its images.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleProductDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )}
     </form>
   );

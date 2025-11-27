@@ -39,4 +39,12 @@ export interface IProductRepository {
    * @returns {Promise<boolean>} A promise that resolves to true if the product was deleted, otherwise false.
    */
   delete(id: string): Promise<boolean>;
+
+  /**
+   * Deletes a specific image from a product.
+   * @param {string} productId - The ID of the product.
+   * @param {string} imageId - The ID of the image to delete.
+   * @returns {Promise<boolean>} A promise that resolves to true if the image was deleted, otherwise false.
+   */
+  deleteImage(productId: string, imageId: string): Promise<boolean>;
 }
