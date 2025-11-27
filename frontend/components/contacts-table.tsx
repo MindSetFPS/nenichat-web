@@ -23,6 +23,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "./ui/pagination";
 import { EmptyList } from "./empty-list";
 import { UsersIcon } from "lucide-react";
+import { Input } from "./ui/input";
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 
 interface IContactResponse {
     data: IContact[];
@@ -86,18 +88,19 @@ export function ContactsTable({
     const [pageSize, setPageSize] = useState(20);
     const [columnVisibility, setColumnVisibility] = useState(defaultColumnVisibility);
     const [internalSelectedIds, setInternalSelectedIds] = useState<Set<string>>(new Set());
+    const [contacts, setContacts] = useState<IContact[]>([]);
 
     const selectedIds = controlledSelectedIds ? new Set(controlledSelectedIds) : internalSelectedIds;
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
             const newSelected = new Set(selectedIds);
-            response?.data.forEach((contact) => newSelected.add(String(contact.id)));
+            contacts.forEach((contact) => newSelected.add(String(contact.id)));
             if (!controlledSelectedIds) setInternalSelectedIds(newSelected);
             onSelectionChange?.(Array.from(newSelected));
         } else {
             const newSelected = new Set(selectedIds);
-            response?.data.forEach((contact) => newSelected.delete(String(contact.id)));
+            contacts.forEach((contact) => newSelected.delete(String(contact.id)));
             if (!controlledSelectedIds) setInternalSelectedIds(newSelected);
             onSelectionChange?.(Array.from(newSelected));
         }
@@ -114,8 +117,8 @@ export function ContactsTable({
         onSelectionChange?.(Array.from(newSelected));
     };
 
-    const isAllSelected = response?.data.length! > 0 && response?.data.every((contact) => selectedIds.has(String(contact.id)));
-    const isSomeSelected = response?.data.some((contact) => selectedIds.has(String(contact.id))) && !isAllSelected;
+    const isAllSelected = contacts.length > 0 && contacts.every((contact) => selectedIds.has(String(contact.id)));
+    const isSomeSelected = contacts.some((contact) => selectedIds.has(String(contact.id))) && !isAllSelected;
 
     const fetchContacts = async (page: number, size: number) => {
         setIsLoading(true);
@@ -126,6 +129,7 @@ export function ContactsTable({
             }
             const data: IContactResponse = await response.json();
             setResponse(data);
+            setContacts(data.data);
         } catch (error) {
             console.error("Error fetching contacts:", error);
         } finally {
@@ -137,106 +141,88 @@ export function ContactsTable({
         fetchContacts(page, pageSize);
     }, [page, pageSize, endpoint, refreshTrigger]);
 
-    // Expose a refresh method if needed, or just rely on internal state.
-    // If the parent needs to trigger a refresh (like after sync), we might need a ref or a dependency prop.
-    // For now, let's assume the parent might pass a key or we can expose a ref later if needed.
-    // Actually, for the "Sync" button which is passed as headerActions, it might want to refresh this table.
-    // A simple way is to accept a `refreshTrigger` prop.
-
-    // Let's add a way to refresh.
-    // But wait, the user said "includes the dropdown menu, and pagination buttons".
-    // The sync button is external (headerActions).
-    // If I click sync in parent, I want this table to refresh.
-    // I'll add a `refreshKey` prop or `onRef`? 
-    // Let's stick to the simple requirement first. The user didn't explicitly ask for refresh coordination yet, 
-    // but it's implied by the existing code.
-    // I will add a `refreshId` prop that when changed, triggers a refetch.
-
-    const getContactName = (contact: IContact) => {
-        return contact.contact_name || contact.pushname || contact.username || contact.phone_number || contact.lid || "Unknown";
-    };
-
     function headerActionsComponent() {
         return (
-            <div className="flex items-center justify-between space-y-2">
-                <div className="flex gap-2">
-                    {headerActions}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                                Columns
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.id}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, id: value }))
-                                }
-                            >
-                                id
-                            </DropdownMenuCheckboxItem>
-
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.name}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, name: value }))
-                                }
-                            >
-                                Name
-                            </DropdownMenuCheckboxItem>
-
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.phoneNumber}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, phoneNumber: value }))
-                                }
-                            >
-                                Phone Number
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.lid}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, lid: value }))
-                                }
-                            >
-                                LID
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.username}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, username: value }))
-                                }
-                            >
-                                Username
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.pushname}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, pushname: value }))
-                                }
-                            >
-                                Pushname
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={columnVisibility.createdAt}
-                                onCheckedChange={(value) =>
-                                    setColumnVisibility((prev) => ({ ...prev, createdAt: value }))
-                                }
-                            >
-                                Created At
-                            </DropdownMenuCheckboxItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+            <div className="md:flex items-center w-full justify-between mb-0 space-y-2 space-x-2">
+                <div className="flex gap-2 w-full">
+                    <Input className="w-full min-w-40" type="text" placeholder="Search contacts" />
+                    <Button className="w-auto">Seleccionar columna</Button>
                 </div>
+                {headerActions}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button className="p-2 mb-2 mr-2" variant="outline">
+                            Columns
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.id}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, id: value }))
+                            }
+                        >
+                            id
+                        </DropdownMenuCheckboxItem>
+
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.name}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, name: value }))
+                            }
+                        >
+                            Name
+                        </DropdownMenuCheckboxItem>
+
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.phoneNumber}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, phoneNumber: value }))
+                            }
+                        >
+                            Phone Number
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.lid}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, lid: value }))
+                            }
+                        >
+                            LID
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.username}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, username: value }))
+                            }
+                        >
+                            Username
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.pushname}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, pushname: value }))
+                            }
+                        >
+                            Pushname
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem
+                            checked={columnVisibility.createdAt}
+                            onCheckedChange={(value) =>
+                                setColumnVisibility((prev) => ({ ...prev, createdAt: value }))
+                            }
+                        >
+                            Created At
+                        </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         )
     }
 
     if (isLoading) return (<Spinner className="h-5 w-5" />)
 
-    if (response && response?.data.length === 0) {
+    if (contacts.length === 0) {
         return (
             <EmptyList
                 title="Sin contactos"
@@ -272,7 +258,7 @@ export function ContactsTable({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {(response?.data.map((contact) => (
+                            {(contacts.map((contact) => (
                                 <TableRow key={String(contact.id)}>
                                     {enableSelection && (
                                         <TableCell>
@@ -288,7 +274,7 @@ export function ContactsTable({
                                     {columnVisibility.name && (
                                         <TableCell>
                                             <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline">
-                                                {getContactName(contact)}
+                                                {getContactIdentifier(contact)}
                                             </Link>
                                         </TableCell>
                                     )}

@@ -18,7 +18,7 @@ export function Pagination({ page, pageSize, setPage, setPageSize, totalPages }:
     };
 
     return (
-        <div className="md:flex justify-between items-center space-x-2 py-4">
+        <div className="md:flex justify-between items-center space-x-2">
             {setPageSize && (
                 <div className="w-full">
                     <select
