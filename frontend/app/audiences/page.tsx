@@ -3,22 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MailIcon, MoreHorizontal } from "lucide-react";
+import { MailIcon } from "lucide-react";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyList } from "@/components/empty-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";
 import { PageHeader } from "@/components/ui/page-header";
+import { AudiencesTable } from "@/components/audiences/audiences-table";
 
 export default function AudiencesPage() {
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -104,58 +95,14 @@ export default function AudiencesPage() {
           icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
         :
         <>
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Audiences</h2>
-            {createAudienceButton}
-          </div>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {
-                  audiences.map((audience) => (
-                    <TableRow
-                      key={Number(audience.id)}
-                      className="cursor-pointer"
-                      onClick={() => router.push(`/audiences/members/${audience.id}`)}
-                    >
-                      <TableCell className="font-medium">{audience.name}</TableCell>
-                      <TableCell>{audience.description}</TableCell>
-                      <TableCell>{new Date(audience.created_at).toLocaleDateString()}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent TableRow click from firing
-                                setSelectedAudience(audience);
-                                setIsDeleteDialogOpen(true);
-                              }}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                }
-              </TableBody>
-            </Table>
-          </div>
+          {createAudienceButton}
+          <AudiencesTable
+            audiences={audiences}
+            onDeleteClick={(audience) => {
+              setSelectedAudience(audience);
+              setIsDeleteDialogOpen(true);
+            }}
+          />
         </>
       }
       <CreateAudienceDialog
