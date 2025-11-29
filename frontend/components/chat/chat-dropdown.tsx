@@ -21,13 +21,35 @@ import {
 import { EditContactForm } from "../forms/EditContactForm"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { useRouter } from "next/navigation"
+import { AssignToAudienceDialogContent } from "../assign-to-audience-dialog-content"
 
 interface ChatDropDownDialogProps {
     contact: IContact;
 }
 
+interface EditContactDialogContentProps {
+    contact: IContact;
+    onSubmitSuccess: () => void;
+}
+
+
+function EditContactDialogContent({ contact, onSubmitSuccess }: EditContactDialogContentProps) {
+    return (
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>Editar contacto</DialogTitle>
+                <DialogDescription>
+                    Actualiza la informacion del contacto.
+                </DialogDescription>
+            </DialogHeader>
+            <EditContactForm contact={contact} onSubmitSuccess={onSubmitSuccess} />
+        </DialogContent>
+    )
+}
+
 export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
     const [showNewDialog, setShowNewDialog] = useState(false)
+    const [showAssignToAudienceDialog, setShowAssignToAudienceDialog] = useState(false)
     const router = useRouter()
 
     const onSubmitSuccess = () => {
@@ -48,20 +70,21 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                         <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
                             Editar contacto
                         </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
+                            Asignar a audiencia
+                        </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
             <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Editar contacto</DialogTitle>
-                        <DialogDescription>
-                            Actualiza la informacion del contacto.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <EditContactForm contact={contact} onSubmitSuccess={onSubmitSuccess} />
-                </DialogContent>
+                <EditContactDialogContent contact={contact} onSubmitSuccess={onSubmitSuccess} />
             </Dialog>
+            <AssignToAudienceDialogContent
+                contact={contact}
+                onSubmitSuccess={onSubmitSuccess}
+                open={showAssignToAudienceDialog}
+                onOpenChange={setShowAssignToAudienceDialog}
+            />
         </>
     )
 }

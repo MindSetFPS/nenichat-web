@@ -3,6 +3,8 @@ import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { IAudienceContactRepository } from '../../domain/IAudienceContactRepository';
 import { Contact } from '@/Nenichat/Contacts/domain/Contact';
 import { pool } from '../../../Shared/infra/persistance/db';
+import { IAudience } from '../../domain/IAudience';
+import { Audience } from '../../domain/Audience';
 
 export class AudienceContactRepository implements IAudienceContactRepository {
   constructor(private pool: Pool) { }
@@ -32,12 +34,53 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     return result.rows.map(this.toContact);
   }
 
-  async addContactToAudience(audienceId: string, contactId: string): Promise<void> {
-    await this.pool.query(`
+  /*
+  * Get audiences by contact id
+  */
+
+
+  async findByContactId(contactId: number | BigInt): Promise<IAudience[]> {
+    const result = await this.pool.query(`
+      SELECT a.*
+      FROM audiences a
+      JOIN audience_contacts ac ON a.id = ac.audience_id
+      WHERE ac.contact_id = $1
+    `, [contactId]);
+    return result.rows.map(this.toAudience);
+  }
+
+  private toAudience(data: any): IAudience {
+    if (!data) return data;
+    return new Audience(
+      data.id,
+      data.name,
+      data.description,
+      data.created_at,
+    );
+  }
+
+  async addContactToAudiences(audiencesIds: string[], contactId: string): Promise<void> {
+    if (audiencesIds.length === 0) {
+      return;
+    }
+
+    const valueStrings: string[] = [];
+    const queryParams: (string | number)[] = [];
+    let paramIndex = 1;
+
+    for (const audienceId of audiencesIds) {
+      valueStrings.push(`($${paramIndex++}, $${paramIndex++})`);
+      queryParams.push(audienceId);
+      queryParams.push(contactId);
+    }
+
+    const queryText = `
       INSERT INTO audience_contacts (audience_id, contact_id)
-      VALUES ($1, $2)
+      VALUES ${valueStrings.join(', ')}
       ON CONFLICT (audience_id, contact_id) DO NOTHING
-    `, [audienceId, contactId]);
+    `;
+
+    await this.pool.query(queryText, queryParams);
   }
 
   async removeContactFromAudience(audienceId: string, contactId: string): Promise<void> {

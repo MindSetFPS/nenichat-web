@@ -16,26 +16,82 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MoreHorizontal } from "lucide-react";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 
 interface AudiencesTableProps {
     audiences: IAudience[];
+    selectedAudiences?: IAudience[];
+    showCheckboxes?: boolean;
+    showCreatedAt?: boolean;
+    showActions?: boolean;
+    onSelectionChange?: (audiences: IAudience[]) => void;
     onDeleteClick: (audience: IAudience) => void;
 }
 
-export function AudiencesTable({ audiences, onDeleteClick }: AudiencesTableProps) {
+export function AudiencesTable({
+    audiences,
+    onDeleteClick,
+    showCheckboxes = false,
+    selectedAudiences = [],
+    onSelectionChange,
+    showCreatedAt = true,
+    showActions = true,
+}: AudiencesTableProps) {
     const router = useRouter();
 
+    const handleSelectAll = (checked: boolean) => {
+        if (onSelectionChange) {
+            if (checked) {
+                onSelectionChange(audiences);
+            } else {
+                onSelectionChange([]);
+            }
+        }
+    };
+
+    /**
+     * Handles the selection or deselection of a single audience row.
+     * If `checked` is true, the audience is added to the `selectedAudiences`.
+     * If `checked` is false, the audience is removed from the `selectedAudiences`.
+     *
+     * @param audience The audience object being selected or deselected.
+     * @param checked A boolean indicating whether the audience is being checked (true) or unchecked (false).
+     */
+    const handleSelectRow = (audience: IAudience, checked: boolean) => {
+        if (onSelectionChange) {
+            if (checked) {
+                onSelectionChange([...selectedAudiences, audience]);
+            } else {
+                let d = selectedAudiences.filter((a) => String(a.id) !== String(audience.id))
+                console.log("filter", d)
+                onSelectionChange(d);
+            }
+        }
+    };
+
     return (
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
+                        {showCheckboxes && (
+                            <TableHead className="w-[50px]">
+                                <Checkbox
+                                    checked={
+                                        audiences.length > 0 &&
+                                        selectedAudiences.length === audiences.length
+                                    }
+                                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                                    aria-label="Select all"
+                                />
+                            </TableHead>
+                        )}
                         <TableHead>Name</TableHead>
                         <TableHead>Description</TableHead>
-                        <TableHead>Created At</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        {showCreatedAt && <TableHead>Created At</TableHead>}
+                        {showActions && <TableHead className="text-right">Actions</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -45,31 +101,46 @@ export function AudiencesTable({ audiences, onDeleteClick }: AudiencesTableProps
                             className="cursor-pointer"
                             onClick={() => router.push(`/audiences/members/${audience.id}`)}
                         >
+                            {showCheckboxes && (
+                                <TableCell onClick={(e) => e.stopPropagation()}>
+                                    <Checkbox
+                                        checked={selectedAudiences.some((a) => String(a.id) === String(audience.id))}
+                                        onCheckedChange={(checked) =>
+                                            handleSelectRow(audience, !!checked)
+                                        }
+                                        aria-label={`Select ${audience.name}`}
+                                    />
+                                </TableCell>
+                            )}
                             <TableCell className="font-medium">{audience.name}</TableCell>
                             <TableCell>{audience.description}</TableCell>
-                            <TableCell>
-                                {new Date(audience.created_at).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <span className="sr-only">Open menu</span>
-                                            <MoreHorizontal className="h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Prevent TableRow click from firing
-                                                onDeleteClick(audience);
-                                            }}
-                                        >
-                                            Delete
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
+                            {showCreatedAt && (
+                                <TableCell>
+                                    {new Date(audience.created_at).toLocaleDateString()}
+                                </TableCell>
+                            )}
+                            {showActions && (
+                                <TableCell className="text-right">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                <span className="sr-only">Open menu</span>
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent TableRow click from firing
+                                                    onDeleteClick(audience);
+                                                }}
+                                            >
+                                                Delete
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            )}
                         </TableRow>
                     ))}
                 </TableBody>

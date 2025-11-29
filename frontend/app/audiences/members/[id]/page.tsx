@@ -19,6 +19,7 @@ import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { IAudience } from '@/Nenichat/Audiences/domain/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
 import { ContactsTable } from "@/components/contacts-table";
+import updateAudienceMembers from "@/Nenichat/Audiences/app/update-audience-members-from-api";
 
 const fetchAudienceDetails = async (id: string) => {
   const response = await fetch(`/api/audiences/${id}`);
@@ -40,7 +41,6 @@ const fetchAudienceMembers = async (audienceId: string) => {
   const data = await response.json();
   return {
     audienceMembers: data.audienceMembers as IContact[],
-    // We don't need allContacts anymore as ContactsTable fetches them
   };
 };
 
@@ -108,18 +108,7 @@ export default function AudienceMembersPage() {
 
   const handleSaveMembers = async () => {
     try {
-      const response = await fetch(`/api/audiences/${audienceId}/members`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ contactIds: Array.from(selectedContactIds) }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save audience members");
-      }
-
+      const response = await updateAudienceMembers(Array.from(selectedContactIds), audienceId);
       toast.success(`Members for "${audience?.name}" saved!`);
       router.push("/audiences");
     } catch (error) {
