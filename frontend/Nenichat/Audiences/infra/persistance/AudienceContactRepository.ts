@@ -90,6 +90,9 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     `, [audienceId, contactId]);
   }
 
+  async addContactToAudience(audienceId: string, contactId: string): Promise<void> {
+  }
+
   async updateAudienceMembers(audienceId: string, contactIds: string[]): Promise<void> {
     const client = await this.pool.connect();
     try {

@@ -19,9 +19,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { audienceUpdates } = await request.json() as { audienceUpdates: IAudienceUpdate[] };
 
     audienceUpdates.forEach((audienceUpdate) => {
-
-        console.log(audienceUpdate);
-
         if (audienceUpdate.action == "add") {
             audienceContactRepository.addContactToAudiences(id, [audienceUpdate.audience_id]);
         }
