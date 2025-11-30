@@ -41,7 +41,6 @@ export function SetContactAsUserDropdown({ contact }: SetContactAsUserDropdownPr
             })
 
             if (response.ok) {
-                console.log("Contact set as user successfully:", contact)
                 router.push("/profile")
                 setShowConfirmDialog(false)
             } else {

@@ -4,6 +4,8 @@ export const metadata = {
 }
 
 import "@/styles/globals.css"
+import Navigation from "@/components/marketing/navigation"
+import { Footer } from "@/components/marketing/landing/sections/footer"
 
 export default function RootLayout({
   children,
@@ -12,7 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Navigation />
+        {children}
+        <Footer />
+      </body>
     </html>
   )
 }

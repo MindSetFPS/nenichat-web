@@ -11,7 +11,7 @@ export function HeroChatAnimation() {
         <div className="relative w-full max-w-[600px] mx-auto lg:mr-0">
             <div className="bg-[#efeae2] dark:bg-[#0b141a] border rounded-2xl shadow-2xl overflow-hidden flex h-auto">
                 {/* Main Chat Column */}
-                <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto relative z-10">
+                <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto relative z-30">
                     {/* Bubble 1: Green, Right */}
                     <div className="self-end max-w-[85%] animate-chat-bubble" style={{ animationDelay: '0.2s' }}>
                         <div className="bg-[#d9fdd3] dark:bg-[#005c4b] text-black dark:text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
@@ -83,7 +83,7 @@ export function HeroChatAnimation() {
 
                 {/* Side Panel - Semitransparent Overlay */}
                 <div className={cn(
-                    "w-3/4 md:w-1/3 lg:w-7/12 border-l bg-background/80 opacity-0 backdrop-blur-md transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 translate-x-full",
+                    "w-3/4 md:w-1/3 lg:w-7/12 border-l bg-background/80 opacity-0 backdrop-blur-md transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-40 translate-x-full",
                     hoveredBubble !== null && "translate-x-0 opacity-100"
                 )}>
                     <div className="h-full p-4 flex flex-col">
