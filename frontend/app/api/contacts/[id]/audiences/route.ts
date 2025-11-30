@@ -6,6 +6,7 @@
 
 import { NextResponse } from "next/server";
 import { audienceContactRepository } from "@/Nenichat/Audiences/infra/persistance/AudienceContactRepository";
+import { IAudienceUpdate } from "@/Nenichat/Audiences/dto/IAudienceUpdate";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -15,7 +16,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const { audiencesIds } = await request.json();
-    await audienceContactRepository.addContactToAudiences(audiencesIds, id);
+    const { audienceUpdates } = await request.json() as { audienceUpdates: IAudienceUpdate[] };
+
+    audienceUpdates.forEach((audienceUpdate) => {
+
+        console.log(audienceUpdate);
+
+        if (audienceUpdate.action == "add") {
+            audienceContactRepository.addContactToAudiences(id, [audienceUpdate.audience_id]);
+        }
+
+        if (audienceUpdate.action == "remove") {
+            audienceContactRepository.removeContactFromAudience(audienceUpdate.audience_id, id);
+        }
+    })
+
     return NextResponse.json({ message: "Audiences added successfully" });
 }

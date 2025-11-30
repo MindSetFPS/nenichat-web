@@ -59,7 +59,7 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     );
   }
 
-  async addContactToAudiences(audiencesIds: string[], contactId: string): Promise<void> {
+  async addContactToAudiences(contactId: string, audiencesIds: string[]): Promise<void> {
     if (audiencesIds.length === 0) {
       return;
     }

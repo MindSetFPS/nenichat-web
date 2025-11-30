@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
@@ -7,6 +9,7 @@ import { getAudiences } from "@/Nenichat/Audiences/app/get-audiences-from-api";
 import { Button } from "@/components/ui/button";
 import { getContactAudiences } from "@/Nenichat/Audiences/app/get-contact-audiences";
 import { updateContactAudiences } from "@/Nenichat/Audiences/app/update-contact-audiences";
+import { IAudienceUpdate } from "@/Nenichat/Audiences/dto/IAudienceUpdate";
 
 interface AssignToAudienceDialogContentProps {
     contact: IContact;
@@ -15,21 +18,10 @@ interface AssignToAudienceDialogContentProps {
     onOpenChange: (open: boolean) => void;
 }
 
-interface AudienceUpdate {
-    contact_id: string;
-    audience_id: string;
-    action: "add" | "remove";
-}
-
 export function AssignToAudienceDialogContent({ contact, onSubmitSuccess, open, onOpenChange }: AssignToAudienceDialogContentProps) {
     const [audiences, setAudiences] = useState<IAudience[]>([])
     const [clientCheckedAudiences, setClientCheckedAudiences] = useState<IAudience[]>([])
     const [serverContactAudiences, setServerContactAudiences] = useState<IAudience[]>([]) // these are the audiences the contact belongs to
-    const [audienceUpdates, setAudienceUpdates] = useState<AudienceUpdate[]>([])
-
-    const onSelectionChange = (audiences: IAudience[]) => {
-        setClientCheckedAudiences(audiences)
-    }
 
     // get all the audiences
     useEffect(() => {
@@ -46,8 +38,8 @@ export function AssignToAudienceDialogContent({ contact, onSubmitSuccess, open, 
         });
     }, []);
 
-    const handleSubmit = () => {
-        let updates: AudienceUpdate[] = [];
+    const handleSubmit = async () => {
+        let updates: IAudienceUpdate[] = [];
 
         // check every audience
         audiences.forEach((audience) => {
@@ -78,7 +70,7 @@ export function AssignToAudienceDialogContent({ contact, onSubmitSuccess, open, 
         })
 
         // finally, update the contact audiences
-        updateContactAudiences(contact.id!.toString(), updates.map((update) => update.audience_id))
+        await updateContactAudiences(contact.id!.toString(), updates)
         onSubmitSuccess()
     }
 
@@ -96,7 +88,7 @@ export function AssignToAudienceDialogContent({ contact, onSubmitSuccess, open, 
                     onDeleteClick={() => { }}
                     showCheckboxes={true}
                     selectedAudiences={clientCheckedAudiences}
-                    onSelectionChange={onSelectionChange}
+                    onSelectionChange={setClientCheckedAudiences}
                     showCreatedAt={false}
                     showActions={false}
                 />

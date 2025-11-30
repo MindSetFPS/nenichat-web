@@ -32,7 +32,6 @@ interface EditContactDialogContentProps {
     onSubmitSuccess: () => void;
 }
 
-
 function EditContactDialogContent({ contact, onSubmitSuccess }: EditContactDialogContentProps) {
     return (
         <DialogContent className="sm:max-w-[425px]">
@@ -54,6 +53,7 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
 
     const onSubmitSuccess = () => {
         setShowNewDialog(false)
+        setShowAssignToAudienceDialog(false)
         router.refresh()
     }
 
