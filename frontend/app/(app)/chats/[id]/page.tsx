@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository"
 import ChatView from "@/components/chat/chat-view"
@@ -6,7 +7,6 @@ import ContactAvatar from "@/components/contact-avatar"
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import ChatHeader from "@/components/chat/chat-header"
-import Link from "next/link"
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import GroupChatView from "@/components/chat/group-chat-view"
@@ -24,7 +24,6 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
 
     const messageData = await messageRepository.findByChatIdWithSender(params.id, 0, 100)
     messages = JSON.parse(JSON.stringify(messageData))
-    console.log(messages)
 
     return (
       <>
@@ -49,7 +48,6 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
     const messagesData = await messageRepository.findByChatId(params.id, 0, 100)
     const contact = JSON.parse(JSON.stringify(contactData))
     messages = JSON.parse(JSON.stringify(messagesData))
-    console.log(messages)
 
     return (
       <>

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { ShoppingBag, Check, Package, MousePointer2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export function HeroChatAnimation() {
@@ -84,15 +83,15 @@ export function HeroChatAnimation() {
 
                 {/* Side Panel - Semitransparent Overlay */}
                 <div className={cn(
-                    "w-1/2 md:w-1/3 border-l bg-background/80 backdrop-blur-md transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 translate-x-full",
-                    hoveredBubble !== null && "translate-x-0"
+                    "w-3/4 md:w-1/3 lg:w-7/12 border-l bg-background/80 opacity-0 backdrop-blur-md transition-all duration-300 ease-in-out absolute right-0 top-0 bottom-0 z-20 translate-x-full",
+                    hoveredBubble !== null && "translate-x-0 opacity-100"
                 )}>
                     <div className="h-full p-4 flex flex-col">
                         {hoveredBubble === 2 && (
                             <div className="animate-in slide-in-from-right fade-in duration-300 space-y-4">
                                 <div className="text-xs font-semibold text-muted-foreground tracking-wider">I have found it. Now i will confirm the user we have stock.</div>
                                 <div className="bg-card rounded-lg border p-3 shadow-sm">
-                                    <div className="aspect-square bg-muted rounded-md mb-3 flex items-center justify-center">
+                                    <div className="aspect-square md:aspect-auto lg:h-32 bg-muted rounded-md mb-3 flex items-center justify-center">
                                         <ShoppingBag className="h-8 w-8 text-muted-foreground/50" />
                                     </div>
                                     <h4 className="font-medium text-sm leading-tight mb-1">Optimus Prime Action Figure</h4>
@@ -106,7 +105,7 @@ export function HeroChatAnimation() {
                         )}
 
                         {hoveredBubble === 4 && (
-                            <div className="animate-in slide-in-from-right fade-in duration-300 space-y-4">
+                            <div className="animate-in slide-in-from-right fade-in duration-300 space-y-2">
                                 <div className="text-xs font-semibold text-muted-foreground tracking-wider">The user has confirmed the order. I will save it in the database and confirm the delivery date</div>
                                 <div className="bg-card rounded-lg border p-4 shadow-sm text-center space-y-3">
                                     <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">

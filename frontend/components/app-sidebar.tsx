@@ -38,7 +38,7 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const menuItems = [
         {
             id: 'home',
-            href: '/',
+            href: '/home',
             icon: HomeIcon,
             label: 'Home'
         },

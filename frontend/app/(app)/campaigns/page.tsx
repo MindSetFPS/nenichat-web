@@ -20,8 +20,6 @@ export const dynamic = 'force-dynamic';
 export default async function CampaignsPage() {
   const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
 
-  console.log(allCampaigns);
-
   const now = new Date();
   now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison
 
