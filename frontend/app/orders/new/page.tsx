@@ -2,6 +2,7 @@ import { CreateOrderForm } from "@/components/forms/CreateOrderForm";
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { ProductRepository } from "@/Nenichat/Products/infra/persistance/ProductRepository";
+import { PageHeader } from "@/components/ui/page-header";
 
 const contactRepository = new ContactRepository(pool);
 const productRepository = new ProductRepository(pool);
@@ -17,9 +18,9 @@ export default async function NewOrderPage() {
     const plainProducts = JSON.parse(JSON.stringify(products));
 
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
-            <h1 className="text-3xl font-bold tracking-tight mb-8">Create New Order</h1>
+        <>
+            <PageHeader content={<h1 className="text-3xl font-bold tracking-tight">Create New Order</h1>} />
             <CreateOrderForm contacts={plainContacts} products={plainProducts} />
-        </div>
+        </>
     );
 }
