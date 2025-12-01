@@ -21,10 +21,10 @@ export default function LandingPage() {
                         <div className="text-center mb-16 max-w-3xl mx-auto">
                             <Badge variant="outline" className="mb-4 border-primary/20 text-primary bg-primary/5">Revenue Engine</Badge>
                             <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
-                                Turn Conversations into <span className="text-primary">Revenue</span>
+                                Convierte tus chats en <span className="text-primary">cash 💰</span>
                             </h2>
                             <p className="text-muted-foreground text-xl">
-                                Stop leaving money on the table. Our AI agents work 24/7 to capture leads, recover carts, and close sales while you sleep.
+                                No más libretas y excel. Nuestros agentes AI trabajan 24/7 para capturar leads, recuperar carritos y cerrar ventas mientras duermes.
                             </p>
                         </div>
 
@@ -39,12 +39,12 @@ export default function LandingPage() {
                                     <div>
                                         <h3 className="text-2xl font-bold mb-2">AI Sales Agent</h3>
                                         <p className="text-muted-foreground text-lg mb-4">
-                                            Your best salesperson, available 24/7. It understands context, handles objections, and guides customers to purchase without human intervention.
+                                            Tu mejor vendedor, disponible 24/7. Entiende el contexto, maneja objeciones y guía a los clientes a la compra sin intervención humana.
                                         </p>
                                         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Instant Responses</li>
-                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Multi-language Support</li>
-                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Catalog Integration</li>
+                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Respuestas Instantáneas</li>
+                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Soporte Multilenguaje</li>
+                                            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Integración de Catálogo</li>
                                             <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Smart Upselling</li>
                                         </ul>
                                     </div>
@@ -59,7 +59,7 @@ export default function LandingPage() {
                                 </div>
                                 <h3 className="text-2xl font-bold mb-2">Smart Campaigns</h3>
                                 <p className="text-muted-foreground mb-6 flex-1">
-                                    Don't just broadcast. Target. Segment your audience based on purchase history and behavior to send offers that actually convert.
+                                    No solo difundes. Segmenta. Segmenta a tu audiencia basada en historial de compras y comportamiento para enviar ofertas que realmente convierten.
                                 </p>
                                 <div className="bg-muted/50 rounded-xl p-4 border border-border/50">
                                     <div className="flex justify-between items-center mb-2">
@@ -80,7 +80,7 @@ export default function LandingPage() {
                                 </div>
                                 <h3 className="text-xl font-bold mb-2">Auto-Detect Sales</h3>
                                 <p className="text-muted-foreground">
-                                    Automatically track orders from chat. No manual entry required. We sync directly with your inventory.
+                                    Automáticamente detecta y registra las ventas desde los chats. No hay necesidad de entrada manual. Sincronizamos directamente con tu inventario.
                                 </p>
                             </div>
 
@@ -92,7 +92,7 @@ export default function LandingPage() {
                                 </div>
                                 <h3 className="text-xl font-bold mb-2">Real-time Analytics</h3>
                                 <p className="text-muted-foreground">
-                                    Know your numbers. Track response times, conversion rates, and total revenue generated per agent.
+                                    Conoce tus números. Monitorea tiempos de respuesta, tasas de conversión y ingresos generados por agente.
                                 </p>
                             </div>
                         </div>

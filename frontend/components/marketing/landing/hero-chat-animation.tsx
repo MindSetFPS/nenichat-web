@@ -77,7 +77,7 @@ export function HeroChatAnimation() {
                     {/* Bubble 3: Green, Right */}
                     <div className="self-end max-w-[85%] animate-chat-bubble" style={{ animationDelay: '6.5s' }}>
                         <div className="bg-[#d9fdd3] dark:bg-[#005c4b] text-black dark:text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
-                            <p className="text-sm">Si, por favor! Envialo.</p>
+                            <p className="text-sm">Si, por favor! Lo quiero! 😍</p>
                             <div className="text-[10px] text-gray-500 dark:text-gray-300 text-right mt-1">10:43 AM</div>
                         </div>
                     </div>
@@ -85,7 +85,7 @@ export function HeroChatAnimation() {
 
                     <div id="bot-thoughts-2" className="text-sm">
                         <div className="animate-chat-bubble" style={{ animationDelay: '8.5s' }}>
-                            <ShimmerText > Obteniendo la ubicacion del cliente.</ShimmerText>
+                            <ShimmerText > Obteniendo la ubicación del cliente.</ShimmerText>
                         </div>
 
                         <div className="animate-chat-bubble" style={{ animationDelay: '9.5s' }}>
@@ -108,7 +108,7 @@ export function HeroChatAnimation() {
                             "bg-white dark:bg-[#202c33] text-black dark:text-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm border transition-colors",
                             hoveredBubble === 4 && "ring-2 ring-primary/50 border-primary"
                         )}>
-                            <p className="text-sm">¡Perfecto! Lo te llegará en 2 dias.</p>
+                            <p className="text-sm">¡Perfecto! Llegará a tu dirección en 2 días.</p>
                             <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right mt-1">10:44 AM</div>
                         </div>
 

@@ -1,9 +1,7 @@
 "use client"
 
-import { Bot, Menu } from "lucide-react";
+import { Bot } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { RainbowButton } from "../ui/rainbow-button";
 import { usePathname } from "next/navigation";
 
@@ -12,12 +10,14 @@ export default function Navigation() {
     return (
         <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="container flex h-16 items-center justify-between px-4 md:px-6 mx-auto">
-                <div className="flex items-center gap-2 font-bold text-xl">
-                    <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-                        <Bot className="h-5 w-5" />
+                <Link href="/">
+                    <div className="flex items-center gap-2 font-bold text-xl">
+                        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
+                            <Bot className="h-5 w-5" />
+                        </div>
+                        <span>Nenichat</span>
                     </div>
-                    <span>Nenichat</span>
-                </div>
+                </Link>
                 <nav className=" md:flex gap-6 text-sm font-medium">
                 </nav>
                 <div className="flex items-center gap-4">

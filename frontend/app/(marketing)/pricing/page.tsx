@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Zap, MessageSquare, Users, BarChart, Shield, Star, Crown, Smartphone } from "lucide-react"
+import { Check, MessageSquare, Users, BarChart, Star, Crown } from "lucide-react"
 import { ShineBorder } from "@/components/ui/shine-border"
-import { Footer } from "@/components/marketing/landing/sections/footer"
 import CtaSection from "@/components/marketing/landing/sections/cta-section"
 
 export default function PricingPage() {
@@ -45,29 +44,29 @@ export default function PricingPage() {
                                         <span className="text-muted-foreground"> / mes</span>
                                     </div>
                                     <p className="text-muted-foreground mb-6 text-sm">
-                                        Ideal para empezar. Adquisición masiva y retención sin costo.
+                                        Ideal para empezar. Trae tu numero y empieza en minutos.
                                     </p>
                                     <ul className="space-y-3">
                                         <li className="flex items-start gap-3 text-sm">
                                             <Check className="h-5 w-5 text-green-500 shrink-0" />
                                             <span>Catálogo Digital <strong>ilimitado</strong></span>
                                         </li>
-                                        <li className="flex items-start gap-3 text-sm">
+                                        {/* <li className="flex items-start gap-3 text-sm">
                                             <Check className="h-5 w-5 text-green-500 shrink-0" />
                                             <span>"Neni Link" para Bio (con carrito)</span>
-                                        </li>
+                                        </li> */}
                                         <li className="flex items-start gap-3 text-sm">
                                             <Check className="h-5 w-5 text-green-500 shrink-0" />
                                             <span>Generador de Pedidos Manual</span>
                                         </li>
-                                        <li className="flex items-start gap-3 text-sm">
+                                        {/* <li className="flex items-start gap-3 text-sm">
                                             <Zap className="h-5 w-5 text-yellow-500 shrink-0" />
                                             <span><strong>Validación de Transferencias (OCR)</strong><br /><span className="text-xs text-muted-foreground">30 al mes (luego pide recarga)</span></span>
-                                        </li>
-                                        <li className="flex items-start gap-3 text-sm text-muted-foreground">
+                                        </li> */}
+                                        {/* <li className="flex items-start gap-3 text-sm text-muted-foreground">
                                             <Shield className="h-5 w-5 shrink-0" />
                                             <span>Recibos con "⚡ Powered by NeniChat"</span>
-                                        </li>
+                                        </li> */}
                                     </ul>
                                 </CardContent>
                                 <CardFooter>
@@ -91,7 +90,10 @@ export default function PricingPage() {
                                         <span className="text-2xl font-bold">Desde $5 USD</span>
                                     </div>
                                     <p className="text-muted-foreground mb-6 text-sm">
-                                        Créditos de IA. Pagas solo lo que usas. Sin rentas forzosas. Tus creditos nunca caducan.
+                                        Créditos de IA.
+                                        Pagas solo lo que usas.
+                                        Sin rentas forzosas.
+                                        Tus creditos nunca caducan.
                                     </p>
 
                                     <div className="space-y-4 mb-6">
@@ -100,32 +102,36 @@ export default function PricingPage() {
                                                 <span className="font-bold">Changarro</span>
                                                 <span className="font-bold text-primary">$99 MXN</span>
                                             </div>
-                                            <div className="text-xs text-muted-foreground">50 Conversaciones Automáticas</div>
+                                            <div className="text-xs text-muted-foreground">50 créditos</div>
                                         </div>
                                         <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer ring-1 ring-primary/20">
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="font-bold flex items-center gap-1">Bazar <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" /></span>
                                                 <span className="font-bold text-primary">$249 MXN</span>
                                             </div>
-                                            <div className="text-xs text-muted-foreground">150 Conversaciones + OCR Ilimitado (30 días)</div>
+                                            <div className="text-xs text-muted-foreground">150 créditos + 25 créditos gratis</div>
                                         </div>
                                         <div className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="font-bold">Patrona</span>
                                                 <span className="font-bold text-primary">$499 MXN</span>
                                             </div>
-                                            <div className="text-xs text-muted-foreground">400 Conversaciones + Sin marca de agua</div>
+                                            <div className="text-xs text-muted-foreground">400 créditos + 100 créditos gratis</div>
                                         </div>
                                     </div>
 
                                     <ul className="space-y-3">
                                         <li className="flex items-start gap-3 text-sm">
                                             <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                            <span>1 Crédito = 1 Conversación atendida por IA</span>
+                                            <span>1 Crédito = 1 Conversación Efectiva (Venta)</span>
                                         </li>
                                         <li className="flex items-start gap-3 text-sm">
                                             <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                            <span>Sin vencimiento de saldo</span>
+                                            <span>0.3 Créditos = Conversación No Efectiva</span>
+                                        </li>
+                                        <li className="flex items-start gap-3 text-sm">
+                                            <Check className="h-5 w-5 text-green-500 shrink-0" />
+                                            <span>Tus creditos nunca caducan.</span>
                                         </li>
                                     </ul>
                                 </CardContent>
@@ -190,8 +196,8 @@ export default function PricingPage() {
                                 <p className="text-muted-foreground">El bot deja de contestar automáticamente, pero tú puedes seguir contestando manualmente. Puedes recargar en cualquier momento y se reactiva al instante.</p>
                             </div>
                             <div className="bg-background p-6 rounded-xl border">
-                                <h3 className="font-bold text-lg mb-2">¿Qué es una "Conversación Automática"?</h3>
-                                <p className="text-muted-foreground">Es cualquier chat donde el bot interviene. Si el cliente escribe y el bot contesta, cuenta como 1 conversación. Si el cliente escribe 50 mensajes en esa misma charla de 24 horas, sigue siendo 1 sola conversación.</p>
+                                <h3 className="font-bold text-lg mb-2">¿Qué es una "Conversación Efectiva"?</h3>
+                                <p className="text-muted-foreground">Es cuando el bot logra concretar una venta. Si el bot habla con el cliente pero no se concreta la venta, solo te cuesta 0.3 créditos (Conversación No Efectiva).</p>
                             </div>
                             <div className="bg-background p-6 rounded-xl border">
                                 <h3 className="font-bold text-lg mb-2">¿Puedo cancelar la suscripción Empresaria?</h3>

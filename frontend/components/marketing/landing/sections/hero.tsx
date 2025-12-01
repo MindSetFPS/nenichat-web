@@ -27,18 +27,18 @@ export function Hero() {
                     {/* Left Column: Text Content */}
                     <div className="text-center lg:text-left">
                         <Badge className="mb-4" variant="secondary">Prelanzamiento</Badge>
-                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight lg:text-7xl mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
-                            Automate Your Chat. <br className="hidden md:block" />
-                            <span className="text-primary">Boost Your Sales.</span>
+                        <h1 className="text-3xl md:text-6xl font-extrabold tracking-tight lg:text-5xl mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
+                            Menos "¿Precio y Detalles?" <br className="hidden md:block" />
+                            <span className="text-primary">Más "¡Lo quiero! 😍"</span>
                         </h1>
                         <p className="mx-auto lg:mx-0 max-w-[700px] text-muted-foreground md:text-xl mb-8">
-                            The all-in-one platform to automate customer interactions, track sales, and launch high-converting marketing campaigns on WhatsApp.
+                            Convierte el caos de tus chats en un sistema ordenado con catálogo, carrito y validación de pagos automática y olvidate del papel y el excel.
                         </p>
 
                         <div className="w-full max-w-lg space-y-2 mx-auto lg:mx-0">
                             <WaitlistForm />
                             <p className="text-xs text-muted-foreground text-center lg:text-left pl-1">
-                                Pre-registrate y obtén un precio preferencial de por vida.
+                                Pre-registrate y obtén $999mxn en créditos.
                             </p>
                         </div>
                         <div className="mt-12 text-sm text-muted-foreground">
