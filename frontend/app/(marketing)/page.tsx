@@ -5,6 +5,7 @@ import EcommerceCapabilities from "@/components/marketing/landing/sections/ecomm
 import PricingSection from "@/components/marketing/landing/sections/pricing-section"
 import FaqSection from "@/components/marketing/landing/sections/fac-section"
 import CtaSection from "@/components/marketing/landing/sections/cta-section"
+import EaseOfUseSection from "@/components/marketing/landing/sections/ease-of-use-section"
 
 export default function LandingPage() {
     return (
@@ -99,27 +100,12 @@ export default function LandingPage() {
                     </div>
                 </section>
 
+                <EaseOfUseSection />
+
                 <EcommerceCapabilities />
 
-                {/* Social Proof / Stats */}
-                <section className="py-20">
-                    <div className="container px-4 md:px-6 mx-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-border">
-                            <div className="p-4">
-                                <div className="text-4xl font-bold text-primary mb-2">98%</div>
-                                <div className="text-muted-foreground">Open Rate</div>
-                            </div>
-                            <div className="p-4">
-                                <div className="text-4xl font-bold text-primary mb-2">24/7</div>
-                                <div className="text-muted-foreground">Automated Support</div>
-                            </div>
-                            <div className="p-4">
-                                <div className="text-4xl font-bold text-primary mb-2">3x</div>
-                                <div className="text-muted-foreground">ROI Increase</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+
+                {/* Todo: Social Proof & testimonials / Stats */}
 
                 <PricingSection />
 
