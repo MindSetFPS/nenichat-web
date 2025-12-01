@@ -3,27 +3,52 @@
 import { useState } from "react"
 import { ShoppingBag, Check, Package, MousePointer2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ShimmerText } from "@/components/ui/shimmer-text"
 
 export function HeroChatAnimation() {
     const [hoveredBubble, setHoveredBubble] = useState<number | null>(null)
 
     return (
         <div className="relative w-full max-w-[600px] mx-auto lg:mr-0">
-            <div className="bg-[#efeae2] dark:bg-[#0b141a] border rounded-2xl shadow-2xl overflow-hidden flex h-auto">
+
+            {/* adding background colors to */}
+
+
+            <div className="h-64 w-64 bg-gradient-to-tr from-violet-500/30 via-fuchsia-500/30 to-transparent blur-[100px] absolute top-0 left-16 z-10 opacity-70"></div>
+            <div className="h-80 w-80 bg-gradient-to-bl from-cyan-400/30 via-blue-500/30 to-transparent blur-[100px] absolute bottom-0 right-16 z-10 opacity-70"></div>
+
+
+            <div className="bg-[#efeae2]/40 dark:bg-[#0b141a] border rounded-2xl  overflow-hidden flex h-auto">
                 {/* Main Chat Column */}
+
+
                 <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto relative z-30">
+
                     {/* Bubble 1: Green, Right */}
                     <div className="self-end max-w-[85%] animate-chat-bubble" style={{ animationDelay: '0.2s' }}>
                         <div className="bg-[#d9fdd3] dark:bg-[#005c4b] text-black dark:text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
-                            <p className="text-sm">Hi! Do you have an Optimus Prime action figure? 🚚</p>
+                            <p className="text-sm">Hola! Tienes un Optimus Prime? 🚚</p>
                             <div className="text-[10px] text-gray-500 dark:text-gray-300 text-right mt-1">10:42 AM</div>
                         </div>
                     </div>
 
+
+
+                    <div id="bot-thoughts-1" className="text-sm">
+                        <div className="animate-chat-bubble" style={{ animationDelay: '1.5s' }}>
+                            <ShimmerText > Buscando el producto "Optimus Prime".</ShimmerText>
+                        </div>
+
+                        <div className="animate-chat-bubble" style={{ animationDelay: '2.5s' }}>
+                            <ShimmerText > Producto encontrado, respondiendo al cliente.</ShimmerText>
+                        </div>
+                    </div>
+
+
                     {/* Bubble 2: White, Left - Hover Trigger */}
                     <div
                         className="self-start max-w-[85%] animate-chat-bubble cursor-pointer transition-transform hover:scale-[1.02] relative group"
-                        style={{ animationDelay: '1.5s' }}
+                        style={{ animationDelay: '4.5s' }}
                         onMouseEnter={() => setHoveredBubble(2)}
                         onMouseLeave={() => setHoveredBubble(null)}
                     >
@@ -31,7 +56,7 @@ export function HeroChatAnimation() {
                             "bg-white dark:bg-[#202c33] text-black dark:text-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm border transition-colors",
                             hoveredBubble === 2 && "ring-2 ring-primary/50 border-primary"
                         )}>
-                            <p className="text-sm">Hey there! Great choice. We have it in stock! 🛍️</p>
+                            <p className="text-sm">Buenos dias! Tenemos uno! 🛍️</p>
                             <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right mt-1">10:42 AM</div>
                         </div>
 
@@ -46,18 +71,36 @@ export function HeroChatAnimation() {
                         </div>
                     </div>
 
+
+
+
                     {/* Bubble 3: Green, Right */}
-                    <div className="self-end max-w-[85%] animate-chat-bubble" style={{ animationDelay: '3s' }}>
+                    <div className="self-end max-w-[85%] animate-chat-bubble" style={{ animationDelay: '6.5s' }}>
                         <div className="bg-[#d9fdd3] dark:bg-[#005c4b] text-black dark:text-white rounded-lg rounded-tr-none px-3 py-2 shadow-sm">
-                            <p className="text-sm">Yes, please! Send it over.</p>
+                            <p className="text-sm">Si, por favor! Envialo.</p>
                             <div className="text-[10px] text-gray-500 dark:text-gray-300 text-right mt-1">10:43 AM</div>
+                        </div>
+                    </div>
+
+
+                    <div id="bot-thoughts-2" className="text-sm">
+                        <div className="animate-chat-bubble" style={{ animationDelay: '8.5s' }}>
+                            <ShimmerText > Obteniendo la ubicacion del cliente.</ShimmerText>
+                        </div>
+
+                        <div className="animate-chat-bubble" style={{ animationDelay: '9.5s' }}>
+                            <ShimmerText > Guardando pedido en la base de datos.</ShimmerText>
+                        </div>
+
+                        <div className="animate-chat-bubble" style={{ animationDelay: '10.5s' }}>
+                            <ShimmerText > Calculando el tiempo de envío..</ShimmerText>
                         </div>
                     </div>
 
                     {/* Bubble 4: White, Left - Hover Trigger */}
                     <div
                         className="self-start max-w-[85%] animate-chat-bubble cursor-pointer transition-transform hover:scale-[1.02] relative group"
-                        style={{ animationDelay: '4.5s' }}
+                        style={{ animationDelay: '11.5s' }}
                         onMouseEnter={() => setHoveredBubble(4)}
                         onMouseLeave={() => setHoveredBubble(null)}
                     >
@@ -65,7 +108,7 @@ export function HeroChatAnimation() {
                             "bg-white dark:bg-[#202c33] text-black dark:text-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm border transition-colors",
                             hoveredBubble === 4 && "ring-2 ring-primary/50 border-primary"
                         )}>
-                            <p className="text-sm">We got your order! We will send it to your address in 2 days.</p>
+                            <p className="text-sm">¡Perfecto! Lo te llegará en 2 dias.</p>
                             <div className="text-[10px] text-gray-500 dark:text-gray-400 text-right mt-1">10:44 AM</div>
                         </div>
 
@@ -79,7 +122,10 @@ export function HeroChatAnimation() {
                             </div>
                         </div>
                     </div>
+
+
                 </div>
+
 
                 {/* Side Panel - Semitransparent Overlay */}
                 <div className={cn(
@@ -89,7 +135,6 @@ export function HeroChatAnimation() {
                     <div className="h-full p-4 flex flex-col">
                         {hoveredBubble === 2 && (
                             <div className="animate-in slide-in-from-right fade-in duration-300 space-y-4">
-                                <div className="text-xs font-semibold text-muted-foreground tracking-wider">I have found it. Now i will confirm the user we have stock.</div>
                                 <div className="bg-card rounded-lg border p-3 shadow-sm">
                                     <div className="aspect-square md:aspect-auto lg:h-32 bg-muted rounded-md mb-3 flex items-center justify-center">
                                         <ShoppingBag className="h-8 w-8 text-muted-foreground/50" />
@@ -106,7 +151,6 @@ export function HeroChatAnimation() {
 
                         {hoveredBubble === 4 && (
                             <div className="animate-in slide-in-from-right fade-in duration-300 space-y-2">
-                                <div className="text-xs font-semibold text-muted-foreground tracking-wider">The user has confirmed the order. I will save it in the database and confirm the delivery date</div>
                                 <div className="bg-card rounded-lg border p-4 shadow-sm text-center space-y-3">
                                     <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
                                         <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -137,10 +181,6 @@ export function HeroChatAnimation() {
                     </div>
                 </div>
             </div>
-
-            {/* Decorative elements behind chat */}
-            <div className="absolute -top-10 -right-10 h-20 w-20 bg-primary/10 rounded-full blur-xl animate-pulse"></div>
-            <div className="absolute -bottom-10 -left-10 h-32 w-32 bg-blue-500/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
     )
 }
