@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export function Hero() {
     return (
-        <section id="hero" className="relative py-20 md:py-32 overflow-hidden">
+        <section id="hero" className="relative py-4 md:py-32 overflow-hidden">
             <DotPattern
                 width={20}
                 height={20}

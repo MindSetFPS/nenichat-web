@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Check, Bot, BarChart3, ShoppingBag, Megaphone, ArrowRight, Zap, Shield, Globe, Package, Truck, CreditCard, Menu } from "lucide-react"
+import { Check, Bot, BarChart3, ShoppingBag, Megaphone } from "lucide-react"
 import { Hero } from "@/components/marketing/landing/sections/hero"
 import EcommerceCapabilities from "@/components/marketing/landing/sections/ecommerce-capabilities"
 import PricingSection from "@/components/marketing/landing/sections/pricing-section"

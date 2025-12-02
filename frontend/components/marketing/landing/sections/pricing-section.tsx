@@ -1,12 +1,30 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { PricingCard } from "../../pricing-card";
 import { BarChart, Check, Crown, MessageSquare, Star, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShineBorder } from "@/components/ui/shine-border";
+import { Badge } from "@/components/ui/badge";
 
 export default function PricingSection() {
     return (
-        <section id="pricing" className="py-20 bg-muted/50">
+        <section id="pricing" className="py-8 bg-muted/50">
+
+            {/* Hero Section */}
+            <section className="relative py-8 md:py-16 overflow-hidden">
+                <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[14px_24px]"></div>
+                <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"></div>
+
+                <div className="container px-4 md:px-6 mx-auto text-center">
+                    <Badge className="mb-4" variant="secondary">Planes Flexibles</Badge>
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight lg:text-7xl mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
+                        Crece tu negocio, <br className="hidden md:block" />
+                        <span className="text-primary">a tu ritmo.</span>
+                    </h1>
+                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-12">
+                        Desde la emprendedora que inicia hasta la PYME consolidada. Tenemos el plan perfecto para ti.
+                    </p>
+                </div>
+            </section>
+
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
 

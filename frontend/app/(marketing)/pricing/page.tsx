@@ -1,8 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, MessageSquare, Users, BarChart, Star, Crown } from "lucide-react"
-import { ShineBorder } from "@/components/ui/shine-border"
 import CtaSection from "@/components/marketing/landing/sections/cta-section"
 import PricingSection from "@/components/marketing/landing/sections/pricing-section"
 
