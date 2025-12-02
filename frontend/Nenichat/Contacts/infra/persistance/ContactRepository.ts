@@ -3,6 +3,9 @@ import { IContact } from '../../domain/IContact';
 import { IContactRepository } from '../../domain/IContactRepository';
 import { Contact } from '../../domain/Contact';
 import { pool } from '../../../Shared/infra/persistance/db';
+import IContactWithLastMessage from '../../app/dtos/IContactWithLastMessage';
+import { IMessage } from '@/Nenichat/Messages/domain/IMessage';
+import { Message } from '@/Nenichat/Messages/domain/Message';
 
 export class ContactRepository implements IContactRepository {
   private pool: Pool;
@@ -512,7 +515,6 @@ export class ContactRepository implements IContactRepository {
     }
   }
 
-
   public async findRecentContacts(limit: number): Promise<IContact[]> {
     const result = await this.pool.query(
       `SELECT c.*
@@ -537,6 +539,70 @@ export class ContactRepository implements IContactRepository {
           row.created_at,
           row.updated_at
         )
+    );
+  }
+
+  public async getContactsWithLastMessage(offset: number, limit: number): Promise<IContactWithLastMessage[]> {
+    const result = await this.pool.query(
+      `SELECT
+        c.id AS contact_id,
+        c.phone_number,
+        c.lid,
+        c.username,
+        c.pushname,
+        c.contact_name,
+        c.is_user,
+        c.created_at AS contact_created_at,
+        c.updated_at AS contact_updated_at,
+        m.id AS message_id,
+        m.chat_id,
+        m.sender_id,
+        m.text_content,
+        m.replied_to_message_id,
+        m.quoted_message_text,
+        m.created_at AS message_created_at
+       FROM contacts c
+       JOIN (
+           SELECT
+               id, chat_id, sender_id, text_content, replied_to_message_id, quoted_message_text, created_at,
+               ROW_NUMBER() OVER (PARTITION BY chat_id ORDER BY created_at DESC) as rn
+           FROM messages
+       ) m ON c.id = m.chat_id
+       WHERE m.rn = 1
+       ORDER BY m.created_at DESC
+       LIMIT $2 OFFSET $1`,
+      [offset, limit]
+    );
+
+    return result.rows.map(
+      (row) => {
+        const contact: IContact = new Contact(
+          row.contact_id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.contact_created_at,
+          row.contact_updated_at
+        );
+
+        const lastMessage = new Message(
+          row.message_id,
+          row.chat_id,
+          row.sender_id,
+          row.text_content,
+          row.replied_to_message_id,
+          row.quoted_message_text,
+          row.message_created_at
+        );
+
+        return {
+          ...contact,
+          last_message: lastMessage,
+        };
+      }
     );
   }
 }

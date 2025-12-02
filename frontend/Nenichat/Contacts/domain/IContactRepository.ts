@@ -1,4 +1,6 @@
-import { IContact } from '../../Chats/domain/IContact';
+import { IContact } from '@/Nenichat/Contacts/domain/IContact';
+import { Message } from '@/Nenichat/Messages/domain/Message';
+import IContactWithLastMessage from '../app/dtos/IContactWithLastMessage';
 
 export interface IContactRepository {
   findById(id: bigint): Promise<IContact | null>;
@@ -74,4 +76,12 @@ export interface IContactRepository {
    * @returns A promise that resolves to an array of contacts ordered by their latest message.
    */
   findRecentContacts(limit: number): Promise<IContact[]>;
+
+  /**
+   * Retrieves a list of contacts with their last message.
+   * @param offset The number of contacts to skip.
+   * @param limit The maximum number of contacts to return.
+   * @returns A promise that resolves to an array of contacts with their last message.
+   */
+  getContactsWithLastMessage(offset: number, limit: number): Promise<IContactWithLastMessage[]>;
 }
