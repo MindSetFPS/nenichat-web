@@ -64,7 +64,6 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
                 <h1 className="text-2xl font-bold ">{contact.pushname || contact.username || contact.phone_number}</h1>
               </Link>
             </div>
-
             <ChatHeader contact={contact!} />
           </div>
         } />
