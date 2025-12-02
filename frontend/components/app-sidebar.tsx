@@ -18,10 +18,10 @@ import {
     SidebarMenuSubButton,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { IContact } from '@/Nenichat/Contacts/domain/IContact'
 import { ModeToggle } from './mode-toggle'
 import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
 import ContactAvatar from './contact-avatar'
+import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 
 interface AppSidebarProps {
     contacts: string
@@ -30,7 +30,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const pathname = usePathname()
-    const contacts: IContact[] = JSON.parse(contactsJson)
+    const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
     const isActive = (path: string) => {
         return pathname === path
     }
@@ -103,7 +103,6 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                 {/* <p>Nenichat</p> */}
             </SidebarHeader>
             <SidebarContent>
-
                 <SidebarGroup>
                     <SidebarMenu>
                         {menuItems.map((item) => {
@@ -159,20 +158,50 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                 <SidebarGroup>
                     <SidebarGroupLabel>Contacts</SidebarGroupLabel>
                     <SidebarMenu>
-                        {contacts.map((contact: IContact) => (
-                            <SidebarMenuItem key={contact.id}>
-                                <SidebarMenuButton asChild isActive={isActive(`/chats/${contact.id}`)}>
-                                    <Link href={`/chats/${contact.id}`} passHref>
-                                        <Avatar className="h-full w-auto">
+                        {contacts.map((contact: IContactWithLastMessage) => (
+                            <SidebarMenuItem key={contact.id} >
+                                <SidebarMenuButton className="py-2 h-16" size={'lg'} asChild isActive={isActive(`/chats/${contact.id}`)}>
+                                    <Link href={`/chats/${contact.id}`} passHref className='w-full truncate overflow-hidden whitespace-nowrap'>
+                                        <Avatar className="h-full">
                                             <ContactAvatar seed={getContactIdentifier(contact!)!} />
-
                                             <AvatarFallback>
                                                 <AvatarImage src="https://github.com/shadcn.png" />
                                             </AvatarFallback>
                                         </Avatar>
-                                        <span>
-                                            {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
-                                        </span>
+                                        <div className="flex flex-col py-2">
+                                            <span className="font-semibold">
+                                                {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
+                                            </span>
+                                            <span className="text-sm text-muted-foreground text-ellipsis">
+                                                {contact.last_message?.text_content}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground w-auto">
+                                                {(() => {
+                                                    const createdAt = contact.last_message?.created_at;
+                                                    if (!createdAt) return '';
+
+                                                    const messageDate = new Date(createdAt);
+                                                    const now = new Date();
+
+                                                    const isSameDay = (d1: Date, d2: Date) =>
+                                                        d1.getDate() === d2.getDate() &&
+                                                        d1.getMonth() === d2.getMonth() &&
+                                                        d1.getFullYear() === d2.getFullYear();
+
+                                                    if (isSameDay(messageDate, now)) {
+                                                        return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                    }
+
+                                                    const yesterday = new Date(now);
+                                                    yesterday.setDate(now.getDate() - 1);
+                                                    if (isSameDay(messageDate, yesterday)) {
+                                                        return 'Yesterday';
+                                                    }
+
+                                                    return messageDate.toLocaleDateString('en-GB'); // dd/mm/yyyy
+                                                })()}
+                                            </span>
+                                        </div>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

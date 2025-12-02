@@ -4,19 +4,21 @@ import { AppSidebar } from "../../components/app-sidebar"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { ToasterProvider } from "@/components/toaster-provider"
+import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
 
 interface RootLayoutProps {
     children: React.ReactNode
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    let contacts: any[] = [];
+    let contacts: IContactWithLastMessage[] = [];
     try {
-        contacts = await contactRepository.findRecentContacts(20);
+        contacts = await contactRepository.getContactsWithLastMessage(0, 20);
     } catch (error) {
         console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
     }
     const contactsJson = JSON.stringify(contacts)
+
     return (
         <>
             <html lang="en" suppressHydrationWarning>
