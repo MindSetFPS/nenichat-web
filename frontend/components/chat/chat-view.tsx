@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { IMessage } from "@/Nenichat/Messages/domain/IMessage"
 import ChatControls from "./chat-controls"
@@ -19,9 +19,7 @@ export default function ChatView({
   const [messages, setMessages] = useState<IMessage[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const [groupedMessages, setGroupedMessages] = useState<IMessage[][]>([])
-
-  useEffect(() => {
+  const groupedMessages = useMemo(() => {
     const grouped = messages.reduce((accumulator, message) => {
       const date = new Date(message.created_at).toLocaleDateString()
       if (!accumulator[date]) {
@@ -30,7 +28,7 @@ export default function ChatView({
       accumulator[date].push(message)
       return accumulator
     }, {} as Record<string, IMessage[]>)
-    setGroupedMessages(Object.values(grouped))
+    return Object.values(grouped)
   }, [messages])
 
   const scrollToBottom = () => {
@@ -40,8 +38,6 @@ export default function ChatView({
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-
-
 
   return (
     <>
