@@ -4,6 +4,7 @@ import { Bot } from "lucide-react";
 import Link from "next/link";
 import { RainbowButton } from "../ui/rainbow-button";
 import { usePathname } from "next/navigation";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function Navigation() {
     const pathname = usePathname();
@@ -34,34 +35,7 @@ export default function Navigation() {
                             </Link>
                         )}
                     </div>
-                    {/* <Sheet >
-                        <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="md:hidden">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Toggle menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right" className="bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-2 border-0 w-full">
-                            <nav className="flex flex-col gap-4 mt-8 font-bold">
-                                <Link href="/" className="text-lg font-medium hover:text-primary transition-colors">
-                                    Home
-                                </Link>
-                                <Link href="/pricing" className="text-lg font-medium hover:text-primary transition-colors">
-                                    Pricing
-                                </Link>
-                                <Link href="/about" className="text-lg font-medium hover:text-primary transition-colors">
-                                    About
-                                </Link>
-                                <hr className="my-4" />
-                                <Link href="/login" className="w-full">
-                                    <Button variant="ghost" className="w-full justify-start">Log in</Button>
-                                </Link>
-                                <Link href="/signup" className="w-full">
-                                    <Button className="w-full">Get Started</Button>
-                                </Link>
-                            </nav>
-                        </SheetContent>
-                    </Sheet> */}
+                    <ModeToggle />
                 </div>
             </div>
         </nav>

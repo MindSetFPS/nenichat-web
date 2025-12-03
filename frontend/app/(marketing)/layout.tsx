@@ -7,6 +7,7 @@ import "@/styles/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navigation from "@/components/marketing/navigation"
 import Footer from "@/components/marketing/landing/sections/footer"
+import { ToasterProvider } from "@/components/toaster-provider"
 
 export default function RootLayout({
   children,
@@ -25,6 +26,7 @@ export default function RootLayout({
           <Navigation />
           {children}
           <Footer />
+          <ToasterProvider />
         </ThemeProvider>
       </body>
     </html>
