@@ -1,3 +1,5 @@
+"use client"
+
 import { Paperclip, Send, Smile } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -14,7 +16,7 @@ export default function ChatControls() {
     }
 
     return (
-        <footer className="p-4 border-t shrink-0">
+        <footer className="p-4 border-t shrink-0 -m-4">
             <form
                 className="flex items-center gap-4"
                 onSubmit={handleSendMessage}
