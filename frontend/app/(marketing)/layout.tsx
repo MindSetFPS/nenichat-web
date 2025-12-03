@@ -4,6 +4,7 @@ export const metadata = {
 }
 
 import "@/styles/globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 import Navigation from "@/components/marketing/navigation"
 import { Footer } from "@/components/marketing/landing/sections/footer"
 
@@ -13,11 +14,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <Navigation />
-        {children}
-        <Footer />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navigation />
+          {children}
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   )
