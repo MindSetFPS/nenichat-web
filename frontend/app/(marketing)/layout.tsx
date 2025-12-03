@@ -6,7 +6,7 @@ export const metadata = {
 import "@/styles/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navigation from "@/components/marketing/navigation"
-import { Footer } from "@/components/marketing/landing/sections/footer"
+import Footer from "@/components/marketing/landing/sections/footer"
 
 export default function RootLayout({
   children,
