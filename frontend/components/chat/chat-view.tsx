@@ -41,7 +41,7 @@ export default function ChatView({
 
   return (
     <>
-      <main className="flex-1 h-full overflow-y-auto p-2 flex-col space-y-2">
+      <main className="flex-1 h-full overflow-y-auto -mx-2 p-2 flex-col space-y-2">
         {groupedMessages.map((messages, index) => (
           <div key={index}>
             <DateSeparator messages={messages} index={index} />
