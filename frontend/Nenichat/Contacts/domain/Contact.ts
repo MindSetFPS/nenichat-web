@@ -1,4 +1,4 @@
-import { IContact } from '../src/Nenichat/Chats/domain/IContact';
+import { IContact } from './IContact';
 
 export class Contact implements IContact {
   id: bigint | null;
