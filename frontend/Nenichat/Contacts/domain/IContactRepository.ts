@@ -1,4 +1,4 @@
-import { IContact } from '../../Chats/domain/IContact';
+import { IContact } from './IContact';
 
 export interface IContactRepository {
   findById(id: bigint): Promise<IContact | null>;
