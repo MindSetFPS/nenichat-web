@@ -9,9 +9,6 @@ import { Mail } from "lucide-react"
 import Link from "next/link";
 import ChatHeader from "@/components/chat/chat-header";
 import { PageHeader } from "@/components/ui/page-header";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import ContactAvatar from "@/components/contact-avatar";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 
 const contactRepository = new ContactRepository(pool);
 const orderRepository = new OrderRepository(pool);
@@ -44,90 +41,76 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
         <div className="container mx-auto space-y-6">
             <PageHeader content={
                 <div className="md:flex items-center gap-2 w-full">
-                    <div className="flex items-center gap-2 w-full max-w-xs">
-                        <Avatar>
-                            <ContactAvatar seed={getContactIdentifier(plainContact)!} />
-                            <AvatarFallback>
-                                {getContactIdentifier(plainContact)?.charAt(0) || "C"}
-                            </AvatarFallback>
-                        </Avatar>
-                        <Link href={`/chats/${plainContact.id}`}>
-                            <h1 className="text-2xl font-bold ">{plainContact.pushname || plainContact.username || plainContact.phone_number}</h1>
-                        </Link>
-                    </div>
-
                     <ChatHeader contact={plainContact!} />
                 </div>
             } />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <div className="flex justify-between align-middle items-center  ">
-                                <CardTitle>Profile</CardTitle>
-                                <Link href={`/chats/${plainContact.id}`}>
-                                    <Button>
-                                        <Mail />
-                                    </Button>
-                                </Link>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 mt-4" >
 
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <div className="text-sm font-medium text-gray-500">Name</div>
-                                <div className="text-lg font-medium">{plainContact.contact_name || plainContact.pushname || 'Unknown'}</div>
-                            </div>
-                            <div>
-                                <div className="text-sm font-medium text-gray-500">Phone</div>
-                                <div>{plainContact.phone_number}</div>
-                            </div>
-                            {plainContact.username && (
-                                <div>
-                                    <div className="text-sm font-medium text-gray-500">Username</div>
-                                    <div>@{plainContact.username}</div>
-                                </div>
-                            )}
-                            {plainContact.lid && (
-                                <div>
-                                    <div className="text-sm font-medium text-gray-500">LID</div>
-                                    <div className="text-xs text-gray-400 break-all">{plainContact.lid}</div>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between align-middle items-center  ">
+                            <CardTitle>Profile</CardTitle>
+                            <Link href={`/chats/${plainContact.id}`}>
+                                <Button>
+                                    <Mail />
+                                </Button>
+                            </Link>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Stats</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                            <div className="text-sm font-medium text-gray-500">Name</div>
+                            <div className="text-lg font-medium">{plainContact.contact_name || plainContact.pushname || 'Unknown'}</div>
+                        </div>
+                        <div>
+                            <div className="text-sm font-medium text-gray-500">Phone</div>
+                            <div>{plainContact.phone_number}</div>
+                        </div>
+                        {plainContact.username && (
                             <div>
-                                <div className="text-sm font-medium text-gray-500">Total Orders</div>
-                                <div className="text-2xl font-bold">{orders.length}</div>
+                                <div className="text-sm font-medium text-gray-500">Username</div>
+                                <div>@{plainContact.username}</div>
                             </div>
+                        )}
+                        {plainContact.lid && (
                             <div>
-                                <div className="text-sm font-medium text-gray-500">Total Spent</div>
-                                <div className="text-2xl font-bold text-green-600">
-                                    ${orders.reduce((sum, order) => sum + Number(order.total_amount), 0).toFixed(2)}
-                                </div>
+                                <div className="text-sm font-medium text-gray-500">LID</div>
+                                <div className="text-xs text-gray-400 break-all">{plainContact.lid}</div>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                        )}
+                    </CardContent>
+                </Card>
 
-                <div className="md:col-span-2 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Order History</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <OrdersTable orders={plainOrders} />
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </div>
+                <Card className="space-y-2 h-full md:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Order History</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <OrdersTable orders={plainOrders} />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Stats</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                            <div className="text-sm font-medium text-gray-500">Total Orders</div>
+                            <div className="text-2xl font-bold">{orders.length}</div>
+                        </div>
+                        <div>
+                            <div className="text-sm font-medium text-gray-500">Total Spent</div>
+                            <div className="text-2xl font-bold">
+                                ${orders.reduce((sum, order) => sum + Number(order.total_amount), 0).toFixed(2)}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+            </div >
+        </div >
     );
 }
