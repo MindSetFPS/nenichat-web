@@ -126,76 +126,74 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Customer & Status */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Customer & Status</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>Customer</Label>
-                            <Select value={contactId} onValueChange={setContactId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a customer" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {contacts.map((contact) => (
-                                        <SelectItem key={contact.id} value={String(contact.id)}>
-                                            {contact.contact_name || contact.pushname || contact.phone_number}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+        <form onSubmit={handleSubmit} className="@container grid grid-cols-1 md:grid-cols-2 gap-2">
+            {/* Customer & Status */}
+            <Card className="col-span-2 @md:col-span-1">
+                <CardHeader>
+                    <CardTitle>Customer & Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label>Customer</Label>
+                        <Select value={contactId} onValueChange={setContactId}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a customer" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {contacts.map((contact) => (
+                                    <SelectItem key={contact.id} value={String(contact.id)}>
+                                        {contact.contact_name || contact.pushname || contact.phone_number}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                        <div className="space-y-2">
-                            <Label>Status</Label>
-                            <Select value={status} onValueChange={setStatus}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="processing">Processing</SelectItem>
-                                    <SelectItem value="shipped">Shipped</SelectItem>
-                                    <SelectItem value="delivered">Delivered</SelectItem>
-                                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </CardContent>
-                </Card>
+                    <div className="space-y-2">
+                        <Label>Status</Label>
+                        <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="processing">Processing</SelectItem>
+                                <SelectItem value="shipped">Shipped</SelectItem>
+                                <SelectItem value="delivered">Delivered</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </CardContent>
+            </Card>
 
-                {/* Shipping Info */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Shipping Details</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label>Shipping Address</Label>
-                            <Input
-                                value={shippingAddress}
-                                onChange={(e) => setShippingAddress(e.target.value)}
-                                placeholder="Enter address"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Shipping Cost</Label>
-                            <Input
-                                type="number"
-                                value={shippingCost}
-                                onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)}
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+            {/* Shipping Info */}
+            <Card className="col-span-2 @md:col-span-1">
+                <CardHeader>
+                    <CardTitle>Shipping Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label>Shipping Address</Label>
+                        <Input
+                            value={shippingAddress}
+                            onChange={(e) => setShippingAddress(e.target.value)}
+                            placeholder="Enter address"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Shipping Cost</Label>
+                        <Input
+                            type="number"
+                            value={shippingCost}
+                            onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Products */}
-            <Card>
+            <Card className="col-span-2 md:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Products</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={addItem}>
@@ -266,12 +264,12 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
             </Card>
 
             {/* Payment */}
-            <Card>
+            <Card className="col-span-2 md:col-span-2">
                 <CardHeader>
                     <CardTitle>Payment</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 @md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <Label>Payment Method</Label>
                             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
@@ -320,7 +318,7 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
                 </CardContent>
             </Card>
 
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-4 md:col-span-2">
                 <Button type="button" variant="outline" onClick={() => router.back()}>
                     Cancel
                 </Button>
