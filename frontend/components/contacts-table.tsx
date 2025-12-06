@@ -141,7 +141,7 @@ export function ContactsTable({
         fetchContacts(page, pageSize);
     }, [page, pageSize, endpoint, refreshTrigger]);
 
-    function headerActionsComponent() {
+    function HeaderActionsComponent() {
         return (
             <div className="md:flex items-center w-full justify-between mb-0 space-y-2 space-x-2">
                 <div className="flex gap-2 w-full">
@@ -234,7 +234,7 @@ export function ContactsTable({
 
     return (
         <>
-            {headerActionsComponent()}
+            <HeaderActionsComponent />
             <div className="flex-1 border rounded-lg overflow-hidden relative">
                 <div className="absolute inset-0 overflow-auto">
                     <Table>
