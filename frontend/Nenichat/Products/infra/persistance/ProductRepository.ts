@@ -3,7 +3,6 @@ import { IProduct } from '../../domain/IProduct';
 import { IProductRepository } from '../../domain/IProductRepository';
 import { Product } from '../../domain/Product';
 import { pool } from '../../../Shared/infra/persistance/db';
-import { IImage } from '../../../../dto/IImage';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -81,6 +80,47 @@ export class ProductRepository implements IProductRepository {
       ORDER BY p.created_at DESC;
     `;
     const result = await this.pool.query(query);
+    return result.rows.map(
+      (row) =>
+        new Product(
+          row.id,
+          row.name,
+          row.description,
+          parseFloat(row.price),
+          row.stock,
+          row.images,
+          row.whatsapp_product_id,
+          row.created_at,
+          row.updated_at
+        )
+    );
+  }
+
+  /**
+   * Retrieves a list of products with pagination.
+   * @param {number} limit - The maximum number of products to return.
+   * @param {number} offset - The number of products to skip.
+   * @returns {Promise<IProduct[]>} A promise that resolves to an array of products.
+   */
+  async list(limit: number, offset: number): Promise<IProduct[]> {
+    const query = `
+      SELECT
+        p.*,
+        COALESCE(
+          (
+            SELECT json_agg(i.* ORDER BY pi.display_order)
+            FROM product_images pi
+            JOIN images i ON pi.image_id = i.id
+            WHERE pi.product_id = p.id
+          ),
+          '[]'
+        ) as images
+      FROM products p
+      GROUP BY p.id
+      ORDER BY p.created_at DESC
+      LIMIT $1 OFFSET $2;
+    `;
+    const result = await this.pool.query(query, [limit, offset]);
     return result.rows.map(
       (row) =>
         new Product(
@@ -298,3 +338,4 @@ export class ProductRepository implements IProductRepository {
   }
 }
 
+export const productRepository = new ProductRepository(pool)

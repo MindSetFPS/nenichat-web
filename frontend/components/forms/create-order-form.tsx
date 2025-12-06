@@ -1,7 +1,9 @@
 "use client";
+import { toast } from "sonner";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,13 +16,15 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { IProduct } from "@/Nenichat/Products/domain/IProduct";
-import { Trash2, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { useProductStore } from "@/stores/product-store";
+import { cn } from "@/lib/utils";
 
 interface CreateOrderFormProps {
-    contacts: IContact[];
-    products: IProduct[];
+    contacts?: IContact[];
+    contactId?: string;
+    contact?: IContact;
+    className?: string;
 }
 
 interface OrderItemRow {
@@ -29,13 +33,18 @@ interface OrderItemRow {
     unitPrice: number;
 }
 
-export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
+export function CreateOrderForm({ contacts, contactId: initialContactId, contact: initialContact, className }: CreateOrderFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const { products, fetchProducts } = useProductStore();
 
     // Order Details
-    const [contactId, setContactId] = useState<string>("");
+    const [contactId, setContactId] = useState<string>(initialContactId || (initialContact ? String(initialContact.id) : ""));
     const [status, setStatus] = useState("pending");
+
+    // Contact Data State
+    const [fetchedContact, setFetchedContact] = useState<IContact | null>(initialContact || null);
+    const [isFetchingContact, setIsFetchingContact] = useState(false);
 
     // Items
     const [items, setItems] = useState<OrderItemRow[]>([]);
@@ -49,6 +58,33 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
     const [amountPaid, setAmountPaid] = useState(0);
     const [paymentStatus, setPaymentStatus] = useState("unpaid");
     const [notes, setNotes] = useState("");
+
+    // Fetch contact if only ID is provided
+    useEffect(() => {
+        const fetchContact = async () => {
+            if (initialContactId && !initialContact && !contacts?.find(c => String(c.id) === initialContactId)) {
+                setIsFetchingContact(true);
+                try {
+                    const response = await fetch(`/api/contacts/${initialContactId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        setFetchedContact(data);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch contact", error);
+                    toast.error("Failed to load contact details");
+                } finally {
+                    setIsFetchingContact(false);
+                }
+            }
+        };
+
+        fetchContact();
+    }, [initialContactId, initialContact, contacts]);
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
     // Helper to add a new item row
     const addItem = () => {
@@ -125,8 +161,12 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
         }
     };
 
+    // Determine display contact
+    const displayContact = fetchedContact || (contacts ? contacts.find(c => String(c.id) === contactId) : null);
+    const showContactSelect = contacts && contacts.length > 0 && !initialContactId && !initialContact;
+
     return (
-        <form onSubmit={handleSubmit} className="@container grid grid-cols-1 md:grid-cols-2 gap-2">
+        <form onSubmit={handleSubmit} className={cn("@container grid grid-cols-1 md:grid-cols-2 gap-2", className)}>
             {/* Customer & Status */}
             <Card className="col-span-2 @md:col-span-1">
                 <CardHeader>
@@ -135,18 +175,33 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label>Customer</Label>
-                        <Select value={contactId} onValueChange={setContactId}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a customer" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {contacts.map((contact) => (
-                                    <SelectItem key={contact.id} value={String(contact.id)}>
-                                        {contact.contact_name || contact.pushname || contact.phone_number}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {showContactSelect ? (
+                            <Select value={contactId} onValueChange={setContactId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a customer" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {contacts.map((contact) => (
+                                        <SelectItem key={contact.id} value={String(contact.id)}>
+                                            {contact.contact_name || contact.pushname || contact.phone_number}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <div className="p-3 border rounded-md bg-muted/50">
+                                {isFetchingContact ? (
+                                    <span className="text-sm text-muted-foreground">Loading contact...</span>
+                                ) : displayContact ? (
+                                    <div className="flex flex-col">
+                                        <span className="font-medium">{getContactIdentifier(displayContact)}</span>
+                                        <span className="text-sm text-muted-foreground">{displayContact.phone_number}</span>
+                                    </div>
+                                ) : (
+                                    <span className="text-sm text-muted-foreground">No contact selected</span>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-2">
@@ -203,14 +258,15 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {items.map((item, index) => (
-                        <div key={index} className="flex gap-4 items-end border-b pb-4 last:border-0">
-                            <div className="flex-1 space-y-2">
+                        <div key={index}
+                            className="grid grid-cols-3 md:flex md:items-center gap-4 items-end border-b pb-4 last:border-0">
+                            <div className="col-span-2 md:w-full space-y-2">
                                 <Label>Product</Label>
                                 <Select
                                     value={item.productId}
                                     onValueChange={(val) => updateItem(index, "productId", val)}
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select product" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -222,7 +278,8 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="w-24 space-y-2">
+
+                            <div className="col-span-1 md:w-full space-y-2">
                                 <Label>Qty</Label>
                                 <Input
                                     type="number"
@@ -231,7 +288,8 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
                                     onChange={(e) => updateItem(index, "quantity", e.target.value)}
                                 />
                             </div>
-                            <div className="w-32 space-y-2">
+
+                            <div className="col-span-1 space-y-2">
                                 <Label>Unit Price</Label>
                                 <Input
                                     type="number"
@@ -239,17 +297,19 @@ export function CreateOrderForm({ contacts, products }: CreateOrderFormProps) {
                                     onChange={(e) => updateItem(index, "unitPrice", e.target.value)}
                                 />
                             </div>
-                            <div className="w-32 space-y-2">
+
+                            <div className="col-span-1 space-y-2">
                                 <Label>Total</Label>
                                 <div className="h-10 flex items-center font-medium">
                                     ${(item.quantity * item.unitPrice).toFixed(2)}
                                 </div>
                             </div>
+
                             <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="text-red-500"
+                                className="text-red-500 order-first md:order-last"
                                 onClick={() => removeItem(index)}
                             >
                                 <Trash2 className="w-4 h-4" />
