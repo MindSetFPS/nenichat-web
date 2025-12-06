@@ -143,15 +143,14 @@ export function ContactsTable({
 
     function HeaderActionsComponent() {
         return (
-            <div className="md:flex items-center w-full justify-between mb-0 space-y-2 space-x-2">
+            <div className="flex items-center w-full justify-between mb-0 space-y-2 space-x-2">
                 <div className="flex gap-2 w-full">
                     <Input className="w-full min-w-40" type="text" placeholder="Search contacts" />
-                    <Button className="w-auto">Seleccionar columna</Button>
                 </div>
                 {headerActions}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button className="p-2 mb-2 mr-2" variant="outline">
+                        <Button className="p-2 mb-2" variant="outline">
                             Columns
                         </Button>
                     </DropdownMenuTrigger>

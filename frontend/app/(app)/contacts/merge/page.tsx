@@ -114,8 +114,7 @@ export default function MergeContactsPage() {
       <div className="flex-none">
         <PageHeader content={<h1 className="text-2xl font-bold">Merge Contacts</h1>} />
         <p className="mb-4 text-muted-foreground">Select contacts to merge. Choose one as the primary contact, and the others will be merged into it.</p>
-
-        <div className="mb-4">
+        <div className="">
           <Button
             onClick={handleMerge}
             disabled={!primaryContactId || selectedContacts.length < 2}

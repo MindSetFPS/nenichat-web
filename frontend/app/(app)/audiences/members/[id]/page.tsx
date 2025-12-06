@@ -20,6 +20,7 @@ import { IAudience } from '@/Nenichat/Audiences/domain/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
 import { ContactsTable } from "@/components/contacts-table";
 import updateAudienceMembers from "@/Nenichat/Audiences/app/update-audience-members-from-api";
+import { PageHeader } from "@/components/ui/page-header";
 
 const fetchAudienceDetails = async (id: string) => {
   const response = await fetch(`/api/audiences/${id}`);
@@ -125,24 +126,18 @@ export default function AudienceMembersPage() {
 
   return (
     <>
-      <div className="flex-col md:flex-row items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Manage Members for: {audience?.name || 'Loading...'}
-        </h2>
-        <div className="flex justify-end md:justify-start mt-4 space-x-1">
-          <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
-          <Button onClick={() => setIsEditDialogOpen(true)}>
-            Edit Audience
-          </Button>
-        </div>
-      </div>
-
       {
         isLoading ? (
           <Spinner className="h-5 w-5" />
         ) : (
           <>
-
+            <PageHeader content={<h1 className="text-2xl font-bold">Manage Members for: {audience?.name || 'Loading...'}</h1>} />
+            <div className="flex justify-end md:justify-start my-2 space-x-1">
+              <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
+              <Button onClick={() => setIsEditDialogOpen(true)}>
+                Edit Audience
+              </Button>
+            </div>
             <ContactsTable
               endpoint="/api/contacts"
               enableSelection={true}
