@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { format } from "date-fns";
 import {
     Table,
     TableBody,
@@ -10,14 +12,14 @@ import {
 } from "@/components/ui/table";
 import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface OrdersTableProps {
     orders: IOrder[];
+    className?: string;
 }
 
-export function OrdersTable({ orders }: OrdersTableProps) {
+export function OrdersTable({ orders, className }: OrdersTableProps) {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'delivered': return 'bg-green-100 text-green-800 hover:bg-green-100';
@@ -38,7 +40,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
     };
 
     return (
-        <div className="border rounded-lg overflow-hidden">
+        <div className={cn("border rounded-lg overflow-hidden", className)}>
             <Table>
                 <TableHeader>
                     <TableRow>

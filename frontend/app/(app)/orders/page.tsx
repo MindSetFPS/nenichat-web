@@ -51,7 +51,7 @@ export default async function OrdersPage() {
                         icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
                     />
                     :
-                    <OrdersTable orders={plainOrders} />
+                    <OrdersTable orders={plainOrders} className="mt-4" />
             }
         </>
     );
