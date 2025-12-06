@@ -166,13 +166,13 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
     const showContactSelect = contacts && contacts.length > 0 && !initialContactId && !initialContact;
 
     return (
-        <form onSubmit={handleSubmit} className={cn("@container grid grid-cols-1 md:grid-cols-2 gap-2", className)}>
+        <form onSubmit={handleSubmit} className={cn("@container grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 p-0 pb-2", className)}>
             {/* Customer & Status */}
-            <Card className="col-span-2 @md:col-span-1">
-                <CardHeader>
+            <Card className="col-span-2 @md:col-span-1 pt-3 pb-1">
+                <CardHeader className="px-2">
                     <CardTitle>Customer & Status</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 px-2">
                     <div className="space-y-2">
                         <Label>Customer</Label>
                         {showContactSelect ? (
@@ -223,11 +223,11 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
             </Card>
 
             {/* Shipping Info */}
-            <Card className="col-span-2 @md:col-span-1">
-                <CardHeader>
+            <Card className="col-span-2 @md:col-span-1 pt-3 pb-2">
+                <CardHeader className="px-2">
                     <CardTitle>Shipping Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 px-2">
                     <div className="space-y-2">
                         <Label>Shipping Address</Label>
                         <Input
@@ -248,25 +248,25 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
             </Card>
 
             {/* Products */}
-            <Card className="col-span-2 md:col-span-2">
-                <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="col-span-2 md:col-span-2 pt-3 pb-2">
+                <CardHeader className="flex flex-row items-center justify-between px-2">
                     <CardTitle>Products</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={addItem}>
                         <Plus className="w-4 h-4 mr-2" />
                         Add Item
                     </Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 px-2">
                     {items.map((item, index) => (
                         <div key={index}
-                            className="grid grid-cols-3 md:flex md:items-center gap-4 items-end border-b pb-4 last:border-0">
-                            <div className="col-span-2 md:w-full space-y-2">
+                            className="flex items-end place-items-start border-b gap-x-2 gap-y-2 pb-4 last:border-0">
+                            <div className="w-full space-y-2">
                                 <Label>Product</Label>
                                 <Select
                                     value={item.productId}
                                     onValueChange={(val) => updateItem(index, "productId", val)}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full my-0.5">
                                         <SelectValue placeholder="Select product" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -279,7 +279,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                                 </Select>
                             </div>
 
-                            <div className="col-span-1 md:w-full space-y-2">
+                            <div className="space-y-2 max-w-14 mb-0.5">
                                 <Label>Qty</Label>
                                 <Input
                                     type="number"
@@ -289,7 +289,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                                 />
                             </div>
 
-                            <div className="col-span-1 space-y-2">
+                            <div className="space-y-2 justify-end hidden @md:block">
                                 <Label>Unit Price</Label>
                                 <Input
                                     type="number"
@@ -298,7 +298,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                                 />
                             </div>
 
-                            <div className="col-span-1 space-y-2">
+                            <div className="space-y-2 min-w-20 hidden @md:block">
                                 <Label>Total</Label>
                                 <div className="h-10 flex items-center font-medium">
                                     ${(item.quantity * item.unitPrice).toFixed(2)}
@@ -307,9 +307,9 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
 
                             <Button
                                 type="button"
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
-                                className="text-red-500 order-first md:order-last"
+                                className="text-red-500 mb-0.5"
                                 onClick={() => removeItem(index)}
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -317,23 +317,23 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                         </div>
                     ))}
 
-                    <div className="flex justify-end pt-4 text-lg font-bold">
+                    <div className="flex justify-end text-lg font-bold">
                         Total: ${totalAmount.toFixed(2)}
                     </div>
                 </CardContent>
             </Card>
 
             {/* Payment */}
-            <Card className="col-span-2 md:col-span-2">
-                <CardHeader>
+            <Card className="col-span-2 md:col-span-2 pt-3 pb-2">
+                <CardHeader className="px-2">
                     <CardTitle>Payment</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 @md:grid-cols-3 gap-4">
+                <CardContent className="space-y-4 px-2">
+                    <div className="grid grid-cols-2 @md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <Label>Payment Method</Label>
                             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select method" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -344,18 +344,11 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Amount Paid</Label>
-                            <Input
-                                type="number"
-                                value={amountPaid}
-                                onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
-                            />
-                        </div>
-                        <div className="space-y-2">
+
+                        <div className="space-y-2 w-full">
                             <Label>Payment Status</Label>
                             <Select value={paymentStatus} onValueChange={setPaymentStatus}>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -366,6 +359,16 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                                 </SelectContent>
                             </Select>
                         </div>
+
+                        <div className="space-y-2 w-full">
+                            <Label>Amount Paid</Label>
+                            <Input
+                                type="number"
+                                value={amountPaid}
+                                onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
+                            />
+                        </div>
+
                     </div>
                     <div className="space-y-2">
                         <Label>Notes</Label>
