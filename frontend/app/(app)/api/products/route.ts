@@ -13,6 +13,26 @@ const productRepository = new ProductRepository(pool);
 const uploadDir = path.join(process.cwd(), 'public', 'images', 'products');
 
 /**
+ * @function GET
+ * @description Handles GET requests to retrieve a list of products with pagination.
+ * @param {NextRequest} request - The incoming Next.js request.
+ * @returns {NextResponse} The response containing the list of products or an error.
+ */
+export async function GET(request: NextRequest) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const limit = parseInt(searchParams.get('limit') || '10', 10);
+        const offset = parseInt(searchParams.get('offset') || '0', 10);
+
+        const products = await productRepository.list(limit, offset);
+        return NextResponse.json(products, { status: 200 });
+    } catch (error) {
+        console.error('Error listing products:', error);
+        return NextResponse.json({ error: 'Failed to retrieve products' }, { status: 500 });
+    }
+}
+
+/**
  * @function POST
  * @description Handles POST requests to create a new product with images.
  * @param {NextRequest} request - The incoming Next.js request.
