@@ -34,7 +34,17 @@ export default async function ProductsPage() {
 
   return (
     <>
-      <PageHeader content={<h1 className="text-2xl font-bold">Products</h1>} />
+      <PageHeader content={
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">
+            Products
+          </h1>
+          {products.length !== 0 &&
+            <ProductActions />
+          }
+        </div>
+      } />
+
       {products.length === 0 ?
         <EmptyList
           title="No Products"
@@ -44,9 +54,6 @@ export default async function ProductsPage() {
         />
         :
         <div className="container mx-auto p-4">
-          <div className="flex justify-between items-center mb-6">
-            <ProductActions />
-          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {products.map((product) => (
               <div key={product.id} className="border rounded-lg shadow-lg overflow-hidden">
