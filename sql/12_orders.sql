@@ -47,7 +47,7 @@ COMMENT ON TABLE orders IS 'Stores orders transactions including payment and shi
 -- =================================================================
 CREATE TABLE order_items (
     id BIGSERIAL PRIMARY KEY,
-    sale_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id TEXT REFERENCES products(id) ON DELETE SET NULL, -- Preserve history if product is deleted
     
     quantity INTEGER NOT NULL DEFAULT 1,
