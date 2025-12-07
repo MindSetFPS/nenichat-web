@@ -19,3 +19,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params;
+        const contact = await contactRepository.findById(BigInt(id));
+        return NextResponse.json(contact);
+    } catch (e) {
+        const error = e as Error;
+        return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+}

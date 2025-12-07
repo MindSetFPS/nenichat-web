@@ -569,6 +569,11 @@ export class ContactRepository implements IContactRepository {
            FROM messages
        ) m ON c.id = m.chat_id
        WHERE m.rn = 1
+       AND NOT EXISTS (
+           SELECT 1 FROM hidden_contacts hc
+           WHERE hc.hidden_contact_id = c.id
+           AND hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE LIMIT 1)
+       )
        ORDER BY m.created_at DESC
        LIMIT $2 OFFSET $1`,
       [offset, limit]
@@ -603,6 +608,66 @@ export class ContactRepository implements IContactRepository {
           last_message: lastMessage,
         };
       }
+    );
+  }
+
+  public async hideContact(contactIdToHide: bigint): Promise<void> {
+    const me = await this.findMe();
+    if (!me) {
+      throw new Error('Current user not found');
+    }
+    await this.pool.query(
+      'INSERT INTO hidden_contacts (user_contact_id, hidden_contact_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [me.id, contactIdToHide]
+    );
+  }
+
+  public async getHiddenContacts(offset: number, limit: number): Promise<IContact[]> {
+    const result = await this.pool.query(
+      `SELECT c.*
+       FROM contacts c
+       JOIN hidden_contacts hc ON c.id = hc.hidden_contact_id
+       WHERE hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE LIMIT 1)
+       LIMIT $2 OFFSET $1`,
+      [offset, limit]
+    );
+
+    return result.rows.map(
+      (row) =>
+        new Contact(
+          row.id,
+          row.phone_number,
+          row.lid,
+          row.username,
+          row.pushname,
+          row.contact_name,
+          row.is_user,
+          row.created_at,
+          row.updated_at
+        )
+    );
+  }
+
+  public async isContactHidden(contactId: bigint): Promise<boolean> {
+    const me = await this.findMe();
+    if (!me) {
+      throw new Error('Current user not found');
+    }
+    const result = await this.pool.query(
+      'SELECT * FROM hidden_contacts WHERE hidden_contact_id = $1 AND user_contact_id = $2',
+      [contactId, me.id]
+    );
+    return result.rows.length > 0;
+  }
+
+  public async unhideContact(contactIdToUnhide: bigint): Promise<void> {
+    const me = await this.findMe();
+    if (!me) {
+      throw new Error('Current user not found');
+    }
+    await this.pool.query(
+      'DELETE FROM hidden_contacts WHERE hidden_contact_id = $1 AND user_contact_id = $2',
+      [contactIdToUnhide, me.id]
     );
   }
 }

@@ -22,6 +22,7 @@ import { EditContactForm } from "../forms/EditContactForm"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { useRouter } from "next/navigation"
 import { AssignToAudienceDialogContent } from "../assign-to-audience-dialog-content"
+import { HideContactDialogContent } from "./hide-contact-diaog"
 
 interface ChatDropDownDialogProps {
     contact: IContact;
@@ -49,11 +50,13 @@ function EditContactDialogContent({ contact, onSubmitSuccess }: EditContactDialo
 export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
     const [showNewDialog, setShowNewDialog] = useState(false)
     const [showAssignToAudienceDialog, setShowAssignToAudienceDialog] = useState(false)
+    const [showIgnoreDialog, setShowIgnoreDialog] = useState(false)
     const router = useRouter()
 
     const onSubmitSuccess = () => {
         setShowNewDialog(false)
         setShowAssignToAudienceDialog(false)
+        setShowIgnoreDialog(false)
         router.refresh()
     }
 
@@ -73,6 +76,9 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                         <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
                             Asignar a audiencia
                         </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setShowIgnoreDialog(true)}>
+                            Ignorar contacto
+                        </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -84,6 +90,12 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                 onSubmitSuccess={onSubmitSuccess}
                 open={showAssignToAudienceDialog}
                 onOpenChange={setShowAssignToAudienceDialog}
+            />
+            <HideContactDialogContent
+                contact={contact}
+                onSubmitSuccess={onSubmitSuccess}
+                open={showIgnoreDialog}
+                onOpenChange={setShowIgnoreDialog}
             />
         </>
     )

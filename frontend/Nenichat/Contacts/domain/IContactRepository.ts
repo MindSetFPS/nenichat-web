@@ -84,4 +84,32 @@ export interface IContactRepository {
    * @returns A promise that resolves to an array of contacts with their last message.
    */
   getContactsWithLastMessage(offset: number, limit: number): Promise<IContactWithLastMessage[]>;
+
+
+  /**
+   * updates a row in hidden_contacts table
+   * @param contactIdToHide The ID of the contact to hide.
+   */
+  hideContact(contactIdToHide: bigint): Promise<void>;
+
+  /**
+   * Retrieves a list of hidden contacts.
+   * @param offset The number of contacts to skip.
+   * @param limit The maximum number of contacts to return.
+   * @returns A promise that resolves to an array of hidden contacts.
+   */
+  getHiddenContacts(offset: number, limit: number): Promise<IContact[]>;
+
+  /**
+   * Retrieves a hidden contact by ID.
+   * @param contactId The ID of the contact to retrieve.
+   * @returns A promise that resolves to the hidden contact.
+   */
+  isContactHidden(contactId: bigint): Promise<boolean>;
+
+  /**
+   * unhide a contact
+   * @param contactId The ID of the contact to unhide.
+   */
+  unhideContact(contactId: bigint): Promise<void>;
 }

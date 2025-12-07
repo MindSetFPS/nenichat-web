@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -90,10 +90,10 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             label: 'Messages'
         },
         {
-            id: 'profile',
-            href: '/profile',
-            icon: UserIcon,
-            label: 'My Profile'
+            id: 'settings',
+            href: '/settings',
+            icon: SettingsIcon,
+            label: 'Settings'
         }
     ]
 
