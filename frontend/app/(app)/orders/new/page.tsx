@@ -16,7 +16,9 @@ export default async function NewOrderPage() {
     return (
         <>
             <PageHeader content={<h1 className="text-3xl font-bold tracking-tight">Create New Order</h1>} />
-            <CreateOrderForm contacts={plainContacts} className="mt-4" />
+            <div className="overflow-scroll ">
+                <CreateOrderForm contacts={plainContacts} className="mt-4" />
+            </div>
         </>
     );
 }
