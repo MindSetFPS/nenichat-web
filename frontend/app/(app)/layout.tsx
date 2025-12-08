@@ -1,9 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider"
 import "@/styles/globals.css"
-import { AppSidebar } from "../../components/app-sidebar"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { AppLayout } from "@/components/layout/app-layout"
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
-import { ToasterProvider } from "@/components/toaster-provider"
 import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
 
 interface RootLayoutProps {
@@ -19,6 +17,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     }
     const contactsJson = JSON.stringify(contacts)
 
+
     return (
         <>
             <html lang="en" suppressHydrationWarning>
@@ -30,21 +29,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <SidebarProvider>
-                            <AppSidebar contacts={contactsJson} />
-                            <div className="flex flex-col md:flex-row w-full">
-                                <SidebarInset className="justify-center">
-                                    <div className="flex flex-col box-border 
-                                    w-full h-dvh md:h-[calc(100vh-1rem)] md:w-4xl 
-                                    my-0 py-0 md:my-2 md:py-2 mx-auto p-2 md:p-4 space-y-4
-                                    bg-background 
-                                    md:border rounded-r-lg md:rounded-lg overflow-hidden">
-                                        {children}
-                                    </div>
-                                    <ToasterProvider />
-                                </SidebarInset>
-                            </div>
-                        </SidebarProvider>
+                        <AppLayout contactsJson={contactsJson}>
+                            {children}
+                        </AppLayout>
                     </ThemeProvider>
                 </body>
             </html>

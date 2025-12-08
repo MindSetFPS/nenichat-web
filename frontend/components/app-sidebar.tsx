@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, UserIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -10,7 +10,6 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenuSub,
@@ -18,16 +17,16 @@ import {
     SidebarMenuSubButton,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ModeToggle } from './mode-toggle'
 import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
 import ContactAvatar from './contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useEffect } from "react"
 
 interface AppSidebarProps {
     contacts: string
 }
-
 
 export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const pathname = usePathname()
@@ -41,7 +40,7 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             id: 'home',
             href: '/home',
             icon: HomeIcon,
-            label: 'Home'
+            label: 'Inicio'
         },
         {
             id: 'campaigns',
@@ -76,27 +75,39 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             id: 'products',
             href: '/products',
             icon: PackageIcon,
-            label: 'Products'
+            label: 'Productos'
         },
         {
             id: 'sales',
             href: '/orders',
             icon: ShoppingBag,
-            label: 'Orders'
+            label: 'Ventas'
         },
         {
             id: 'messages',
             href: '/messages',
             icon: MailIcon,
-            label: 'Messages'
+            label: 'Mensajes'
         },
         {
             id: 'settings',
             href: '/settings',
             icon: SettingsIcon,
-            label: 'Settings'
+            label: 'Ajustes'
         }
     ]
+
+    const isMobile = useIsMobile()
+
+    useEffect(() => {
+        if (isMobile) {
+            // Mobile specific logic
+            console.log("Mobile detected")
+        } else {
+            // Desktop specific logic
+            console.log("Desktop detected")
+        }
+    }, [isMobile])
 
     return (
         <Sidebar variant="floating" collapsible="icon">
@@ -116,8 +127,8 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                         <SidebarMenuItem>
                                             <CollapsibleTrigger asChild>
                                                 <SidebarMenuButton>
-                                                    <Icon className="w-4 h-4" />
-                                                    <span>{item.label}</span>
+                                                    <Icon className="w-5! h-5! md:w-4! md:h-4!" />
+                                                    <span className="text-lg md:text-sm">{item.label}</span>
                                                     <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                                                 </SidebarMenuButton>
                                             </CollapsibleTrigger>
@@ -144,8 +155,8 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                 <SidebarMenuItem key={item.id}>
                                     <SidebarMenuButton asChild isActive={isActive(item.href!)}>
                                         <Link href={item.href!} passHref>
-                                            <Icon className="w-4 h-4" />
-                                            <span>
+                                            <Icon className='w-5! h-5! md:h-4! md:w-4!' />
+                                            <span className='text-lg md:text-sm'>
                                                 {item.label}
                                             </span>
                                         </Link>
@@ -162,7 +173,10 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                         {contacts.map((contact: IContactWithLastMessage) => (
                             <SidebarMenuItem key={contact.id} >
                                 <SidebarMenuButton className="py-2 h-16" size={'lg'} asChild isActive={isActive(`/chats/${contact.id}`)}>
-                                    <Link href={`/chats/${contact.id}`} passHref className='w-full truncate overflow-hidden whitespace-nowrap'>
+                                    <Link
+                                        href={`/chats/${contact.id}`}
+                                        passHref
+                                        className='w-full truncate overflow-hidden whitespace-nowrap'>
                                         <Avatar className="h-full">
                                             <ContactAvatar seed={getContactIdentifier(contact!)!} />
                                             <AvatarFallback>
