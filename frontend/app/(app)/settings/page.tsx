@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { User, Shield, EyeOff, Bell, Palette, Search, ChevronRight, Lock, Moon, Globe, HelpCircle } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header"
+import { ModeToggle } from "@/components/mode-toggle"
 
 export default function SettingsPage() {
     const content = [
@@ -42,7 +43,12 @@ export default function SettingsPage() {
         //     title: "Appearance",
         //     description: "Customize the look and feel of the app.",
         //     items: [
-        //         { label: "Theme", href: "/settings/appearance", icon: Moon, description: "Switch between light and dark mode" },
+        //         {
+        //             label: "Theme",
+        //             href: "/settings/appearance",
+        //             icon: Moon,
+        //             description: "Switch between light and dark mode"
+        //         },
         //     ]
         // },
         // {
@@ -58,36 +64,40 @@ export default function SettingsPage() {
         <>
             <PageHeader content={<h1 className="text-2xl font-bold">Settings</h1>} />
             <main className="flex-1 overflow-y-auto bg-background mt-2">
-                {
-                    content.map((item, index) => (
-                        <div className="mb-6" key={index}>
-                            <h2 className="text-2xl pl-2 font-semibold tracking-tight">{item.title}</h2>
-                            <p className="text-muted-foreground pl-1 mt-1 mb-4">
-                                {item.description}
-                            </p>
 
-                            <div className="space-y-4">
-                                {item.items.map((item, index) => (
-                                    <div key={index}>
-                                        <Link href={item.href} className="block">
-                                            <div className="flex pl-1 py-1 items-center hover:bg-muted/50 rounded-lg transition-colors group cursor-pointer">
-                                                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mr-4 group-hover:bg-background transition-colors border">
-                                                    <item.icon className="h-4 w-4 text-foreground" />
+                <>
+                    {
+                        content.map((item, index) => (
+                            <div className="mb-6" key={index}>
+                                <h2 className="text-2xl pl-2 font-semibold tracking-tight">{item.title}</h2>
+                                <p className="text-muted-foreground pl-1 mt-1 mb-4">
+                                    {item.description}
+                                </p>
+                                <div className="space-y-4">
+                                    {item.items.map((item, index) => (
+                                        <div key={index}>
+                                            <Link href={item.href} className="block">
+                                                <div className="flex pl-1 py-1 items-center hover:bg-muted/50 rounded-lg transition-colors group cursor-pointer">
+                                                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mr-4 group-hover:bg-background transition-colors border">
+                                                        <item.icon className="h-4 w-4 text-foreground" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h3 className="font-medium">{item.label}</h3>
+                                                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                                                    </div>
+                                                    <ChevronRight className="h-5 w-5 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
                                                 </div>
-                                                <div className="flex-1">
-                                                    <h3 className="font-medium">{item.label}</h3>
-                                                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                                                </div>
-                                                <ChevronRight className="h-5 w-5 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
-                                            </div>
-                                        </Link>
-                                    </div>
-                                ))}
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    ))
-                }
-            </main>
+                        ))}
+                    <h2 className="text-2xl pl-2 font-semibold tracking-tight">Apariencia</h2>
+                    <p className="text-muted-foreground pl-1 mt-1 mb-4">Cambia entre modo oscuro y claro</p>
+                    <ModeToggle />
+                </>
+            </main >
         </>
     )
 }

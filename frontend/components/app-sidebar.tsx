@@ -190,10 +190,10 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
+            {/* <SidebarFooter>
                 <p>Footer</p>
                 <ModeToggle />
-            </SidebarFooter>
+            </SidebarFooter> */}
         </Sidebar>
     )
 }
