@@ -1,10 +1,12 @@
 "use client"
 
+import Link from "next/link";
+import { ArrowUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
 import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
 
 const getPaymentStatusColor = (status: string) => {
     switch (status) {
@@ -19,10 +21,19 @@ const getPaymentStatusColor = (status: string) => {
 export const columns: ColumnDef<IOrder>[] = [
     {
         accessorKey: "id",
-        header: "ID",
+        header: ({ column }) => (
+            <Button
+                className="w-min p-0"
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                ID
+                {/* <ArrowUpDown className="ml-1 h-4 w-4 shrink opacity-50" /> */}
+            </Button>
+        ),
         cell: ({ row }) => {
             return (
-                <Link className="hover:underline text-blue-400" href={`/orders/${row.original.id}`}>
+                <Link className="hover:underline text-blue-400 w-min" href={`/orders/${row.original.id}`}>
                     #{row.original.id}
                 </Link>
             );
@@ -91,10 +102,19 @@ export const columns: ColumnDef<IOrder>[] = [
     },
     {
         accessorKey: "created_at",
-        header: "Fecha de creación",
+        header: ({ column }) => (
+            <Button
+                className="w-min p-0 m-0 gap-0"
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Fecha de creación
+                <ArrowUpDown className="ml-1 h-4 w-4 shrink opacity-50" />
+            </Button>
+        ),
         cell: ({ row }) => {
             return (
-                <div className="text-right">
+                <div className="w-min text-right">
                     {dateToHuman(String(row.original.created_at))}
                 </div>
             );
