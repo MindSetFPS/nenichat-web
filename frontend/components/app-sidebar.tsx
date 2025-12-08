@@ -22,6 +22,7 @@ import { ModeToggle } from './mode-toggle'
 import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
 import ContactAvatar from './contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
+import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 
 interface AppSidebarProps {
     contacts: string
@@ -178,27 +179,7 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                             <span className="text-xs text-muted-foreground w-auto">
                                                 {(() => {
                                                     const createdAt = contact.last_message?.created_at;
-                                                    if (!createdAt) return '';
-
-                                                    const messageDate = new Date(createdAt);
-                                                    const now = new Date();
-
-                                                    const isSameDay = (d1: Date, d2: Date) =>
-                                                        d1.getDate() === d2.getDate() &&
-                                                        d1.getMonth() === d2.getMonth() &&
-                                                        d1.getFullYear() === d2.getFullYear();
-
-                                                    if (isSameDay(messageDate, now)) {
-                                                        return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                                    }
-
-                                                    const yesterday = new Date(now);
-                                                    yesterday.setDate(now.getDate() - 1);
-                                                    if (isSameDay(messageDate, yesterday)) {
-                                                        return 'Yesterday';
-                                                    }
-
-                                                    return messageDate.toLocaleDateString('en-GB'); // dd/mm/yyyy
+                                                    return dateToHuman(String(createdAt));
                                                 })()}
                                             </span>
                                         </div>

@@ -1,12 +1,13 @@
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import { OrdersTable } from "@/components/orders-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
 import { Package } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { DataTable } from "@/components/orders/table/data-table";
+import { columns } from "@/components/orders/table/columns";
 
 const orderRepository = new OrderRepository(pool);
 
@@ -51,7 +52,10 @@ export default async function OrdersPage() {
                         icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
                     />
                     :
-                    <OrdersTable orders={plainOrders} className="mt-4" />
+                    <DataTable
+                        columns={columns}
+                        data={plainOrders}
+                    />
             }
         </>
     );
