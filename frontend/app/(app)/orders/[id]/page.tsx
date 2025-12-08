@@ -87,7 +87,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 ">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 ">
                 <Card className="md:col-span-2">
                     <CardHeader>
                         <CardTitle>Items</CardTitle>
@@ -132,7 +132,27 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="">
+                    <CardHeader>
+                        <CardTitle>Customer</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {contact ? (
+                            <>
+                                <div className="font-medium text-lg">{contact.contact_name || contact.pushname || 'Unknown Name'}</div>
+                                <div className="text-sm text-gray-500">{contact.phone_number}</div>
+                                {contact.username && <div className="text-sm text-gray-500">@{contact.username}</div>}
+                                <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline text-sm block mt-2">
+                                    View Profile
+                                </Link>
+                            </>
+                        ) : (
+                            <div className="text-gray-500 italic">No customer attached</div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card className="md:col-start-3">
                     <CardHeader>
                         <CardTitle>Payment Details</CardTitle>
                     </CardHeader>
@@ -167,27 +187,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     </Card>
                 )}
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Customer</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {contact ? (
-                            <>
-                                <div className="font-medium text-lg">{contact.contact_name || contact.pushname || 'Unknown Name'}</div>
-                                <div className="text-sm text-gray-500">{contact.phone_number}</div>
-                                {contact.username && <div className="text-sm text-gray-500">@{contact.username}</div>}
-                                <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline text-sm block mt-2">
-                                    View Profile
-                                </Link>
-                            </>
-                        ) : (
-                            <div className="text-gray-500 italic">No customer attached</div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                <Card>
+                <Card className="md:col-span-1 md:col-start-3">
                     <CardHeader>
                         <CardTitle>Shipping Address</CardTitle>
                     </CardHeader>
@@ -200,7 +200,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="md:col-span-1 md:col-start-3">
                     <CardHeader>
                         <CardTitle>Timeline</CardTitle>
                     </CardHeader>
