@@ -1,7 +1,7 @@
 'use client'
-import Link from 'next/link'
+
 import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Sidebar,
@@ -30,6 +30,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const pathname = usePathname()
+    const router = useRouter()
     const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
     const isActive = (path: string) => {
         return pathname === path
@@ -99,6 +100,10 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
 
     const isMobile = useIsMobile()
 
+    function changeRoute(route: string) {
+        router.push(route)
+    }
+
     useEffect(() => {
         if (isMobile) {
             // Mobile specific logic
@@ -136,10 +141,11 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                                 <SidebarMenuSub>
                                                     {item.submenu.map((subItem) => (
                                                         <SidebarMenuSubItem key={subItem.id}>
-                                                            <SidebarMenuSubButton asChild isActive={isActive(subItem.href)}>
-                                                                <Link href={subItem.href} passHref>
-                                                                    <span>{subItem.label}</span>
-                                                                </Link>
+                                                            <SidebarMenuSubButton
+                                                                className='cursor-pointer'
+                                                                isActive={isActive(subItem.href)}
+                                                                onClick={() => changeRoute(subItem.href)}>
+                                                                <span>{subItem.label}</span>
                                                             </SidebarMenuSubButton>
                                                         </SidebarMenuSubItem>
                                                     ))}
@@ -153,13 +159,14 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                             // Regular menu item without submenu
                             return (
                                 <SidebarMenuItem key={item.id}>
-                                    <SidebarMenuButton asChild isActive={isActive(item.href!)}>
-                                        <Link href={item.href!} passHref>
-                                            <Icon className='w-5! h-5! md:h-4! md:w-4!' />
-                                            <span className='text-lg md:text-sm'>
-                                                {item.label}
-                                            </span>
-                                        </Link>
+                                    <SidebarMenuButton
+                                        className='cursor-pointer'
+                                        isActive={isActive(item.href!)}
+                                        onClick={() => changeRoute(item.href!)}>
+                                        <Icon className='w-5! h-5! md:h-4! md:w-4!' />
+                                        <span className='text-lg md:text-sm'>
+                                            {item.label}
+                                        </span>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             )
@@ -172,18 +179,19 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                     <SidebarMenu>
                         {contacts.map((contact: IContactWithLastMessage) => (
                             <SidebarMenuItem key={contact.id} >
-                                <SidebarMenuButton className="py-2 h-16" size={'lg'} asChild isActive={isActive(`/chats/${contact.id}`)}>
-                                    <Link
-                                        href={`/chats/${contact.id}`}
-                                        passHref
-                                        className='w-full truncate overflow-hidden whitespace-nowrap'>
+                                <SidebarMenuButton
+                                    className="py-2 h-16 w-full truncate overflow-hidden whitespace-nowrap cursor-pointer"
+                                    size={'lg'}
+                                    isActive={isActive(`/chats/${contact.id}`)}
+                                    onClick={() => changeRoute(`/chats/${contact.id}`)}>
+                                    <div className="flex w-full items-center gap-2">
                                         <Avatar className="h-full">
                                             <ContactAvatar seed={getContactIdentifier(contact!)!} />
                                             <AvatarFallback>
                                                 <AvatarImage src="https://github.com/shadcn.png" />
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div className="flex flex-col py-2">
+                                        <div className="flex flex-col py-2 text-left">
                                             <span className="font-semibold">
                                                 {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
                                             </span>
@@ -197,7 +205,7 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                                 })()}
                                             </span>
                                         </div>
-                                    </Link>
+                                    </div>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         ))}
