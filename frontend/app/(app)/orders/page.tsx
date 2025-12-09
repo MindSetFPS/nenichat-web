@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
 import { Package } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { DataTable } from "@/components/orders/table/data-table";
+import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/orders/table/columns";
 
 const orderRepository = new OrderRepository(pool);
@@ -54,6 +54,12 @@ export default async function OrdersPage() {
                     :
                     <DataTable
                         columns={columns}
+                        visibleColumns={{
+                            "updated_at": false,
+                            "payment_method": false,
+                            "refunded_amount": false,
+                            "notes": false,
+                        }}
                         data={plainOrders}
                     />
             }
