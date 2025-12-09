@@ -1,7 +1,8 @@
 'use client'
 
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
+import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Sidebar,
@@ -15,20 +16,20 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
     SidebarMenuSubButton,
+    useSidebar,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
 import ContactAvatar from './contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
-import { useIsMobile } from "@/hooks/use-mobile"
-import { useEffect } from "react"
 
 interface AppSidebarProps {
     contacts: string
 }
 
 export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
+    const sidebar = useSidebar()
     const pathname = usePathname()
     const router = useRouter()
     const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
@@ -98,21 +99,13 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
         }
     ]
 
-    const isMobile = useIsMobile()
-
     function changeRoute(route: string) {
         router.push(route)
     }
 
     useEffect(() => {
-        if (isMobile) {
-            // Mobile specific logic
-            console.log("Mobile detected")
-        } else {
-            // Desktop specific logic
-            console.log("Desktop detected")
-        }
-    }, [isMobile])
+        sidebar.setOpenMobile(false)
+    }, [pathname]);
 
     return (
         <Sidebar variant="floating" collapsible="icon">
