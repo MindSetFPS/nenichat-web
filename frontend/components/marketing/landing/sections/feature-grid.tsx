@@ -141,7 +141,7 @@ function FeatureCard({ icon, title, desc, align = "left", delay }: { icon: React
             viewport={{ once: true }}
             transition={{ delay, duration: 0.5 }}
             className={cn(
-                "relative group flex flex-col justify-center justify-self-center items-center self-center p-4 rounded-3xl bg-background border border-primary/20 transition-all duration-300",
+                "relative group flex flex-col justify-center justify-self-center items-center self-center p-4 rounded-3xl bg-background border border-primary/20",
                 align === "right" ? "items-end text-right" : "items-start text-left"
             )}
         >
