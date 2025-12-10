@@ -57,7 +57,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
     const [shippingCost, setShippingCost] = useState(0);
 
     // Payment
-    const [paymentMethod, setPaymentMethod] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState("cash");
     const [amountPaid, setAmountPaid] = useState(0);
     const [paymentStatus, setPaymentStatus] = useState("unpaid");
     const [notes, setNotes] = useState("");
