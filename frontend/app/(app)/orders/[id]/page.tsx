@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
+
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
@@ -12,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { DeleteOrderButton } from "@/components/orders/delete-order-button";
 import { EditOrderButton } from "@/components/orders/edit-order-button";
+import { getPaymentStatusColor, getStatusColor } from "@/lib/utils";
 
 const orderRepository = new OrderRepository(pool);
 const orderItemRepository = new OrderItemRepository(pool);
@@ -44,25 +46,6 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         // We need to cast it.
         contact = await contactRepository.findById(BigInt(order.contact_id));
     }
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'delivered': return 'bg-green-100 text-green-800 hover:bg-green-100';
-            case 'shipped': return 'bg-blue-100 text-blue-800 hover:bg-blue-100';
-            case 'processing': return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
-            case 'cancelled': return 'bg-red-100 text-red-800 hover:bg-red-100';
-            default: return 'bg-gray-100 text-gray-800 hover:bg-gray-100';
-        }
-    };
-
-    const getPaymentStatusColor = (status: string) => {
-        switch (status) {
-            case 'paid': return 'bg-green-100 text-green-800 hover:bg-green-100';
-            case 'partial': return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
-            case 'refunded': return 'bg-purple-100 text-purple-800 hover:bg-purple-100';
-            default: return 'bg-red-100 text-red-800 hover:bg-red-100';
-        }
-    };
 
     return (
         <div className="container w-full h-full space-y-6 scroll-auto overflow-scroll">
