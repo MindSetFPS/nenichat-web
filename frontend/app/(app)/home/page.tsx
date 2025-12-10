@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { MessagesChart } from "@/components/messages-chart";
+import { OrdersTotalChart } from "@/components/orders-total-chart";
 import { PageHeader } from "@/components/ui/page-header";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
@@ -24,13 +25,14 @@ export default async function Page() {
   const messagesPerDay = await messageRepository.getMessageCountPerDay();
   const orders = await orderRepository.getAll();
   const plainOrders = JSON.parse(JSON.stringify(orders));
+  const orderTotalsPerDay = await orderRepository.getOrderTotalPerDay();
 
   const totalRevenue = plainOrders.reduce((acc: number, order: any) => {
     return acc + (order.payment_status === 'paid' ? Number(order.total_amount) : 0);
   }, 0);
 
   const totalOrders = plainOrders.length;
-  const activeOrders = plainOrders.filter((order: any) => order.status === 'processing' || order.status === 'shipped').length;
+  const activeOrders = plainOrders.filter((order: any) => order.status === 'pending' || order.status === 'shipped').length;
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
 
@@ -103,6 +105,13 @@ export default async function Page() {
         <h2 className="text-2xl font-bold">Mensajes recibidos</h2>
         <MessagesChart data={messagesPerDay} />
       </div>
+
+      {orderTotalsPerDay.length > 0 && (
+        <div className={`${geistSans.className} ${geistMono.className} flex flex-col items-center justify-center font-sans mt-8`}>
+          <h2 className="text-2xl font-bold">Valor de ventas diario</h2>
+          <OrdersTotalChart data={orderTotalsPerDay} />
+        </div>
+      )}
 
     </>
   );

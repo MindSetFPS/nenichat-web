@@ -2,6 +2,7 @@ import { Pool } from 'pg';
 import { IOrder } from '../../domain/IOrder';
 import { IOrderRepository } from '../../domain/IOrderRepository';
 import { Order } from '../../domain/Order';
+import { IOrdersReport } from '../../domain/IOrdersReport';
 
 export class OrderRepository implements IOrderRepository {
     private pool: Pool;
@@ -121,6 +122,22 @@ export class OrderRepository implements IOrderRepository {
             return null;
         }
         return this.mapRowToOrder(result.rows[0]);
+    }
+
+    async getOrderTotalPerDay(): Promise<IOrdersReport[]> {
+        const query = `
+            SELECT 
+                DATE(created_at) as date,
+                SUM(total_amount) as total
+            FROM orders
+            GROUP BY DATE(created_at)
+            ORDER BY date ASC
+        `;
+        const result = await this.pool.query(query);
+        return result.rows.map(row => ({
+            date: row.date,
+            total: parseFloat(row.total)
+        }));
     }
 
     async delete(id: number): Promise<boolean> {
