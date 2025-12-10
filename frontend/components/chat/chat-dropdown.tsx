@@ -26,6 +26,7 @@ import { HideContactDialogContent } from "./hide-contact-diaog"
 
 interface ChatDropDownDialogProps {
     contact: IContact;
+    showEditDialog?: boolean;
 }
 
 interface EditContactDialogContentProps {
@@ -47,7 +48,7 @@ function EditContactDialogContent({ contact, onSubmitSuccess }: EditContactDialo
     )
 }
 
-export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
+export function ChatDropDownDialog({ contact, showEditDialog = true }: ChatDropDownDialogProps) {
     const [showNewDialog, setShowNewDialog] = useState(false)
     const [showAssignToAudienceDialog, setShowAssignToAudienceDialog] = useState(false)
     const [showIgnoreDialog, setShowIgnoreDialog] = useState(false)
@@ -70,9 +71,13 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-40" align="end">
                     <DropdownMenuGroup>
-                        <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
-                            Editar contacto
-                        </DropdownMenuItem>
+                        {
+                            showEditDialog && (
+                                <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
+                                    Editar contacto
+                                </DropdownMenuItem>
+                            )
+                        }
                         <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
                             Asignar a audiencia
                         </DropdownMenuItem>
