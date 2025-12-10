@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpDown } from "lucide-react";
 import {
     ColumnDef,
@@ -10,6 +10,7 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    PaginationState,
     SortingState,
     useReactTable,
     VisibilityState,
@@ -27,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -42,6 +44,18 @@ export function DataTable<TData, TValue>({
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(visibleColumns ?? {});
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10
+    })
+    const isMobile = useIsMobile()
+
+    useEffect(() => {
+        setPagination({
+            pageIndex: 0,
+            pageSize: isMobile ? 10 : 50
+        })
+    }, [isMobile])
 
     const table = useReactTable({
         data,
@@ -57,11 +71,9 @@ export function DataTable<TData, TValue>({
             sorting,
             columnFilters,
             columnVisibility,
-            pagination: {
-                pageIndex: 0,
-                pageSize: 30
-            }
+            pagination,
         },
+        onPaginationChange: setPagination,
     })
 
     return (
@@ -144,7 +156,7 @@ export function DataTable<TData, TValue>({
                     }
                 </TableBody>
             </Table>
-            <div className="flex items-center justify-end space-x-2 pt-2 sticky bottom-0">
+            <div className="flex items-center justify-center md:justify-end space-x-2 pt-2 sticky bottom-0">
                 <Button
                     variant="outline"
                     size="sm"
@@ -153,6 +165,12 @@ export function DataTable<TData, TValue>({
                 >
                     Previous
                 </Button>
+                <span className="flex items-center gap-1">
+                    <div>Pagina{' '}
+                        {table.getState().pagination.pageIndex + 1} de {' '}
+                        {table.getPageCount().toLocaleString()}
+                    </div>
+                </span>
                 <Button
                     variant="outline"
                     size="sm"
