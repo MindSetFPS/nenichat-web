@@ -1,12 +1,13 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Mail } from "lucide-react"
+
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "@/components/orders/table/data-table";
+import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { Mail } from "lucide-react"
-import Link from "next/link";
 import ChatHeader from "@/components/chat/chat-header";
 import { PageHeader } from "@/components/ui/page-header";
 import { columns } from "@/components/orders/table/columns";
@@ -122,8 +123,6 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                         </CardContent>
                     </Card>
                 </div>
-
-
             </div >
         </ >
     );
