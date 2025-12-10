@@ -5,31 +5,56 @@ import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { IMessage } from "@/Nenichat/Messages/domain/IMessage"
 import ChatControls from "./chat-controls"
 import Message from "./message"
+import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
+import { Order } from "@/Nenichat/Orders/domain/Order"
+
+// Union type for timeline items
+type TimelineItem =
+  | { type: 'message'; data: IMessage }
+  | { type: 'order'; data: Order }
 
 interface ChatViewProps {
   initialMessages: IMessage[]
-  me: IContact | null
+  me: IContact | null,
+  orders: Order[]
 }
 
 export default function ChatView({
   initialMessages,
   me,
+  orders,
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessage[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const groupedMessages = useMemo(() => {
-    const grouped = messages.reduce((accumulator, message) => {
-      const date = new Date(message.created_at).toLocaleDateString()
+  // Merge messages and orders, then sort by created_at
+  const timelineItems = useMemo(() => {
+    const items: TimelineItem[] = [
+      ...messages.map(msg => ({ type: 'message' as const, data: msg })),
+      ...orders.map(order => ({ type: 'order' as const, data: order }))
+    ]
+
+    // Sort by created_at timestamp
+    return items.sort((a, b) => {
+      const dateA = new Date(a.data.created_at).getTime()
+      const dateB = new Date(b.data.created_at).getTime()
+      return dateA - dateB
+    })
+  }, [messages, orders])
+
+  // Group timeline items by date
+  const groupedTimeline = useMemo(() => {
+    const grouped = timelineItems.reduce((accumulator, item) => {
+      const date = new Date(item.data.created_at).toLocaleDateString()
       if (!accumulator[date]) {
         accumulator[date] = []
       }
-      accumulator[date].push(message)
+      accumulator[date].push(item)
       return accumulator
-    }, {} as Record<string, IMessage[]>)
-    return Object.values(grouped)
-  }, [messages])
+    }, {} as Record<string, TimelineItem[]>)
+    return Object.entries(grouped).map(([date, items]) => ({ date, items }))
+  }, [timelineItems])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -37,23 +62,39 @@ export default function ChatView({
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [messages, orders])
 
   return (
     <>
       <main className="flex-1 h-full overflow-y-auto -mx-2 p-2 flex-col space-y-2">
-        {groupedMessages.map((messages, index) => (
-          <div key={index}>
-            <DateSeparator messages={messages} index={index} />
+        {groupedTimeline.map((group, groupIndex) => (
+          <div key={groupIndex}>
+            <DateSeparator
+              messages={group.items
+                .filter(item => item.type === 'message')
+                .map(item => item.data as IMessage)}
+              index={groupIndex}
+            />
             <div className="space-y-2">
-              {messages.map((message, index) => (
-                <Message message={message} me={me} key={index} />
+              {group.items.map((item, itemIndex) => (
+                item.type === 'message' ? (
+                  <Message
+                    message={item.data as IMessage}
+                    me={me}
+                    key={`message-${itemIndex}`}
+                  />
+                ) : (
+                  <OrderMessage
+                    order={item.data as Order}
+                    key={`order-${itemIndex}`}
+                  />
+                )
               ))}
-            </div >
+            </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
-      </main >
+      </main>
       <ChatControls />
     </>
   )

@@ -65,7 +65,7 @@ export default function Message({ message, me }: MessageProps) {
                                             <span className="text-primary">"{message.text_content}"</span>
                                             <span className="text-muted-foreground text-sm block">{new Date(message.created_at).toLocaleString()}</span>
                                         </div>
-                                        <CreateOrderForm contactId={String(message.sender_id)} />
+                                        <CreateOrderForm contactId={String(message.sender_id)} createdAt={message.created_at} />
                                     </SheetContent>
                                 </Sheet>
                             </div>
