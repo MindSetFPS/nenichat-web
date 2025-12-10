@@ -10,6 +10,8 @@ export interface IOrder {
     refunded_amount: number;
     payment_status: 'unpaid' | 'partial' | 'paid' | 'refunded';
     notes: string | null;
+    completed_at: Date | null;
+    cancelled_at: Date | null;
     created_at: Date;
     updated_at: Date;
 }

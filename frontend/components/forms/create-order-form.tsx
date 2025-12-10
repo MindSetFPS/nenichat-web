@@ -24,6 +24,7 @@ interface CreateOrderFormProps {
     contacts?: IContact[];
     contactId?: string;
     contact?: IContact;
+    createdAt?: Date;
     className?: string;
 }
 
@@ -33,7 +34,7 @@ interface OrderItemRow {
     unitPrice: number;
 }
 
-export function CreateOrderForm({ contacts, contactId: initialContactId, contact: initialContact, className }: CreateOrderFormProps) {
+export function CreateOrderForm({ contacts, contactId: initialContactId, contact: initialContact, createdAt, className }: CreateOrderFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const { products, fetchProducts } = useProductStore();
@@ -137,8 +138,11 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                 amount_paid: amountPaid,
                 payment_status: paymentStatus,
                 notes,
-                total_amount: totalAmount
+                total_amount: totalAmount,
+                created_at: createdAt,
             };
+
+            console.log(payload);
 
             const response = await fetch("/api/orders/create", {
                 method: "POST",

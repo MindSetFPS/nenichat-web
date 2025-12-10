@@ -23,6 +23,8 @@ export class OrderRepository implements IOrderRepository {
             parseFloat(row.refunded_amount),
             row.payment_status,
             row.notes,
+            row.completed_at,
+            row.cancelled_at,
             row.created_at,
             row.updated_at
         );
@@ -46,28 +48,60 @@ export class OrderRepository implements IOrderRepository {
         return result.rows.map(this.mapRowToOrder);
     }
 
-    async create(order: Omit<IOrder, 'id' | 'created_at' | 'updated_at'>): Promise<IOrder> {
-        const query = `
-      INSERT INTO orders (
-        contact_id, total_amount, shipping_cost, shipping_address, status,
-        payment_method, amount_paid, refunded_amount, payment_status, notes
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *
-    `;
-        const values = [
-            order.contact_id,
-            order.total_amount,
-            order.shipping_cost,
-            order.shipping_address,
-            order.status,
-            order.payment_method,
-            order.amount_paid,
-            order.refunded_amount,
-            order.payment_status,
-            order.notes
-        ];
-        const result = await this.pool.query(query, values);
-        return this.mapRowToOrder(result.rows[0]);
+    async create(orderData: Omit<IOrder, 'id' | 'created_at' | 'updated_at'> & { created_at?: Date }, items: Array<{ productId: string; quantity: number; unitPrice: number }>): Promise<IOrder> {
+        const client = await this.pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const orderQuery = `
+              INSERT INTO orders (
+                contact_id, total_amount, shipping_cost, shipping_address, status,
+                payment_method, amount_paid, refunded_amount, payment_status, notes,
+                completed_at, cancelled_at, created_at
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, COALESCE($13, NOW()))
+              RETURNING *
+            `;
+            const orderValues = [
+                orderData.contact_id,
+                orderData.total_amount,
+                orderData.shipping_cost,
+                orderData.shipping_address,
+                orderData.status,
+                orderData.payment_method,
+                orderData.amount_paid,
+                orderData.refunded_amount,
+                orderData.payment_status,
+                orderData.notes,
+                orderData.completed_at,
+                orderData.cancelled_at,
+                orderData.created_at
+            ];
+            const orderResult = await client.query(orderQuery, orderValues);
+            const newOrder = orderResult.rows[0];
+
+            for (const item of items) {
+                const itemQuery = `
+                  INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price)
+                  VALUES ($1, $2, $3, $4, $5)
+                `;
+                const itemValues = [
+                    newOrder.id,
+                    item.productId,
+                    item.quantity,
+                    item.unitPrice,
+                    item.quantity * item.unitPrice
+                ];
+                await client.query(itemQuery, itemValues);
+            }
+
+            await client.query('COMMIT');
+            return this.mapRowToOrder(newOrder);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     async update(id: number, updates: Partial<IOrder>): Promise<IOrder | null> {

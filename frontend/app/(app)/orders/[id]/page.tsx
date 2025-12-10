@@ -213,6 +213,18 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                             <div className="text-sm font-medium text-gray-500">Last Updated</div>
                             <div>{format(new Date(order.updated_at), "PPpp")}</div>
                         </div>
+                        {order.completed_at && (
+                            <div>
+                                <div className="text-sm font-medium text-gray-500">Completed</div>
+                                <div>{format(new Date(order.completed_at), "PPpp")}</div>
+                            </div>
+                        )}
+                        {order.cancelled_at && (
+                            <div>
+                                <div className="text-sm font-medium text-gray-500">Cancelled</div>
+                                <div>{format(new Date(order.cancelled_at), "PPpp")}</div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

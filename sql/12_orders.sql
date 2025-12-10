@@ -36,6 +36,9 @@ CREATE TABLE orders (
     
     notes TEXT,
 
+    completed_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

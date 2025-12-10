@@ -12,6 +12,8 @@ export class Order implements IOrder {
     refunded_amount: number;
     payment_status: 'unpaid' | 'partial' | 'paid' | 'refunded';
     notes: string | null;
+    completed_at: Date | null;
+    cancelled_at: Date | null;
     created_at: Date;
     updated_at: Date;
 
@@ -27,6 +29,8 @@ export class Order implements IOrder {
         refunded_amount: number,
         payment_status: 'unpaid' | 'partial' | 'paid' | 'refunded',
         notes: string | null,
+        completed_at: Date | null,
+        cancelled_at: Date | null,
         created_at: Date,
         updated_at: Date
     ) {
@@ -41,6 +45,8 @@ export class Order implements IOrder {
         this.refunded_amount = refunded_amount;
         this.payment_status = payment_status;
         this.notes = notes;
+        this.completed_at = completed_at;
+        this.cancelled_at = cancelled_at;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
