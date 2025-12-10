@@ -19,6 +19,7 @@ import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { useProductStore } from "@/stores/product-store";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "../ui/checkbox";
 
 interface CreateOrderFormProps {
     contacts?: IContact[];
@@ -51,6 +52,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
     const [items, setItems] = useState<OrderItemRow[]>([]);
 
     // Shipping
+    const [isShippingEnabled, setIsShippingEnabled] = useState(false);
     const [shippingAddress, setShippingAddress] = useState("");
     const [shippingCost, setShippingCost] = useState(0);
 
@@ -171,10 +173,9 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
 
     return (
         <form onSubmit={handleSubmit} className={cn("@container grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 p-0 pb-2", className)}>
-            {/* Customer & Status */}
             <Card className="col-span-2 @md:col-span-1 pt-3 pb-1">
                 <CardHeader className="px-2">
-                    <CardTitle>Customer & Status</CardTitle>
+                    <CardTitle>Cliente y estado</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 px-2">
                     <div className="space-y-2">
@@ -226,35 +227,41 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                 </CardContent>
             </Card>
 
-            {/* Shipping Info */}
             <Card className="col-span-2 @md:col-span-1 pt-3 pb-2">
                 <CardHeader className="px-2">
-                    <CardTitle>Shipping Details</CardTitle>
+                    <CardTitle>Detalles de envío
+                        <Checkbox checked={isShippingEnabled} onCheckedChange={() => setIsShippingEnabled(!isShippingEnabled)} className="ml-2" />
+                    </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 px-2">
-                    <div className="space-y-2">
-                        <Label>Shipping Address</Label>
-                        <Input
-                            value={shippingAddress}
-                            onChange={(e) => setShippingAddress(e.target.value)}
-                            placeholder="Enter address"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Shipping Cost</Label>
-                        <Input
-                            type="number"
-                            value={shippingCost}
-                            onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)}
-                        />
-                    </div>
-                </CardContent>
+                {
+                    isShippingEnabled && (
+                        <CardContent className="space-y-4 px-2">
+                            <>
+                                <div className="space-y-2">
+                                    <Label>Dirección de envío</Label>
+                                    <Input
+                                        value={shippingAddress}
+                                        onChange={(e) => setShippingAddress(e.target.value)}
+                                        placeholder="Enter address"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Costo de envío</Label>
+                                    <Input
+                                        type="number"
+                                        value={shippingCost}
+                                        onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)}
+                                    />
+                                </div>
+                            </>
+                        </CardContent>
+                    )
+                }
             </Card>
 
-            {/* Products */}
             <Card className="col-span-2 md:col-span-2 pt-3 pb-2">
                 <CardHeader className="flex flex-row items-center justify-between px-2">
-                    <CardTitle>Products</CardTitle>
+                    <CardTitle>Productos</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={addItem}>
                         <Plus className="w-4 h-4 mr-2" />
                         Add Item
@@ -265,7 +272,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                         <div key={index}
                             className="flex items-end place-items-start border-b gap-x-2 gap-y-2 pb-4 last:border-0">
                             <div className="w-full space-y-2">
-                                <Label>Product</Label>
+                                <Label>Producto</Label>
                                 <Select
                                     value={item.productId}
                                     onValueChange={(val) => updateItem(index, "productId", val)}
@@ -284,7 +291,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                             </div>
 
                             <div className="space-y-2 max-w-14 mb-0.5">
-                                <Label>Qty</Label>
+                                <Label>Cantidad</Label>
                                 <Input
                                     type="number"
                                     min="1"
@@ -294,7 +301,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                             </div>
 
                             <div className="space-y-2 justify-end hidden @md:block">
-                                <Label>Unit Price</Label>
+                                <Label>Precio unitario</Label>
                                 <Input
                                     type="number"
                                     value={item.unitPrice}
@@ -327,16 +334,15 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                 </CardContent>
             </Card>
 
-            {/* Payment */}
             <Card className="col-span-2 md:col-span-2 pt-3 pb-2">
                 <CardHeader className="px-2">
-                    <CardTitle>Payment</CardTitle>
+                    <CardTitle>Pago</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 px-2">
                     <div className="grid grid-cols-2 @md:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                            <Label>Payment Method</Label>
-                            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                            <Label>Método de pago</Label>
+                            <Select value={paymentMethod} defaultValue="cash" onValueChange={setPaymentMethod}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select method" />
                                 </SelectTrigger>
@@ -350,7 +356,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                         </div>
 
                         <div className="space-y-2 w-full">
-                            <Label>Payment Status</Label>
+                            <Label>Estado de pago</Label>
                             <Select value={paymentStatus} onValueChange={setPaymentStatus}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue />
@@ -364,22 +370,26 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                             </Select>
                         </div>
 
-                        <div className="space-y-2 w-full">
-                            <Label>Amount Paid</Label>
-                            <Input
-                                type="number"
-                                value={amountPaid}
-                                onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
-                            />
-                        </div>
+                        {
+                            paymentStatus === "partial" && (
+                                <div className="space-y-2 w-full">
+                                    <Label>Importe pagado</Label>
+                                    <Input
+                                        type="number"
+                                        value={amountPaid}
+                                        onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
+                                    />
+                                </div>
+                            )
+                        }
 
                     </div>
                     <div className="space-y-2">
-                        <Label>Notes</Label>
+                        <Label>Notas</Label>
                         <Input
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            placeholder="Additional notes..."
+                            placeholder="Notas adicionales..."
                         />
                     </div>
                 </CardContent>
