@@ -2,16 +2,16 @@
 
 ## TODO
 
-- [ ] Fix landing page
+- [x] Fix landing page
 - [ ] Fix most recents messages (chats)
-- [ ] Add a day separator to the chat
+- [x] Add a day separator to the chat
 - [ ] Set when a message is a sale
 - [ ] Send messages
 
 # Bugs:
 
 - [ ] Do not save empty messages (stickers, voice notes, images)
-- [ ] Width is fixed and looks weird in medium sized screens
+- [x] Width is fixed and looks weird in medium sized screens
 
 # KPI:
 
@@ -20,6 +20,7 @@
 
 # Features:
 
+- TTS Read messages
 - Hide contacts
 - Groups support
 - Actually automate sending messages
@@ -29,3 +30,11 @@
 - See sales statistics
 - See sales per product
 - Send messages from the app
+
+# What do customers actually do when messaging?
+
+for now we only want to know about this cases:
+
+- greeting
+- asking if its open
+- buying
