@@ -7,6 +7,7 @@
 - [x] Add a day separator to the chat
 - [ ] Set when a message is a sale
 - [ ] Send messages
+- [ ] Limited time products
 
 # Bugs:
 
