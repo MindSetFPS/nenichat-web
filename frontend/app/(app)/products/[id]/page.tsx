@@ -3,6 +3,7 @@ import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/ProductForm'; // Import the new edit form
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
+import { PageHeader } from '@/components/ui/page-header';
 
 const productRepository = new ProductRepository(pool);
 
@@ -34,10 +35,10 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Edit Product: {product.name}</h1>
+    <>
+      <PageHeader content={<h1 className='font-bold'>Edit product</h1>} />
       <ProductForm product={plainProduct} />
-    </div>
+    </>
   );
 }
 

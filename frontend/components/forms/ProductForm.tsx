@@ -203,7 +203,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 overflow-scroll py-2">
       <div className="space-y-6">
         <div>
           <Card>
