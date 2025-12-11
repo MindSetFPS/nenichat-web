@@ -3,6 +3,7 @@ import { IOrder } from '../../domain/IOrder';
 import { IOrderRepository } from '../../domain/IOrderRepository';
 import { Order } from '../../domain/Order';
 import { IOrdersReport } from '../../domain/IOrdersReport';
+import { IOrderWithProducts } from '../../domain/IOrderWithProducts';
 
 export class OrderRepository implements IOrderRepository {
     private pool: Pool;
@@ -144,4 +145,36 @@ export class OrderRepository implements IOrderRepository {
         const result = await this.pool.query('DELETE FROM orders WHERE id = $1', [id]);
         return (result.rowCount || 0) > 0;
     }
+
+    async getOrdersCountByDate(date: Date): Promise<{ product_name: string; count: number }[]> {
+        //  A method that takes a date, for example, july 1st, and returns the count of orders of each product on that day
+        // to get the product name, we also need to join the products table
+        const query = `
+            SELECT 
+                oi.product_id,
+                p.name as product_name,
+                COUNT(*) as count
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            WHERE DATE(o.created_at) = $1
+            GROUP BY oi.product_id, p.name
+            ORDER BY count DESC
+        `;
+
+        // Format date in local timezone (YYYY-MM-DD) instead of UTC
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const localDateString = `${year}-${month}-${day}`;
+
+        console.log(localDateString);
+        const result = await this.pool.query(query, [localDateString]);
+        console.log(result.rows)
+        return result.rows.map(row => ({
+            product_name: row.product_name,
+            count: row.count
+        }));
+    }
 }
+

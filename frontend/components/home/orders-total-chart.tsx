@@ -38,7 +38,7 @@ export function OrdersTotalChart({ data }: OrdersTotalChartProps) {
                         className="fill-foreground"
                         fontSize={12}
                         formatter={(value: number | string | Array<number | string>) => `$${value}`}
-                    />
+                    />L
                 </Bar>
                 <ChartTooltip
                     cursor={false}
