@@ -8,6 +8,9 @@
 - [ ] Set when a message is a sale
 - [ ] Send messages
 - [ ] Limited time products
+- [ ] From message counting graph in home, do not count messags from groups
+- [ ] Sync chat
+- [ ] A contact can have unlimited lids, returns all the messages that belong to a lid
 
 # Bugs:
 
