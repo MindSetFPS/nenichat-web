@@ -8,4 +8,5 @@ export interface IOrderItemRepository {
     create(item: Omit<IOrderItem, 'id'>): Promise<IOrderItem>;
     update(id: number, updates: Partial<IOrderItem>): Promise<IOrderItem | null>;
     delete(id: number): Promise<boolean>;
+    findOne(order_id: number, product_id: string): Promise<IOrderItem | null>;
 }

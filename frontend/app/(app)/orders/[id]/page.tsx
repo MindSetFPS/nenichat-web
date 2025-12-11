@@ -51,7 +51,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
     return (
         <div className="container w-full h-full space-y-2 scroll-auto overflow-scroll">
-            <div className="md:flex items-center justify-between">
+            <div className="flex items-center justify-between">
 
                 <div className="flex items-center gap-2">
                     <Link href="/orders">
