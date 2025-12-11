@@ -15,6 +15,8 @@ import { DeleteOrderButton } from "@/components/orders/delete-order-button";
 import { EditOrderButton } from "@/components/orders/edit-order-button";
 import { getPaymentStatusColor, getStatusColor } from "@/lib/utils";
 
+import { DropdownMenuDialog } from "@/components/orders/dropdown";
+
 const orderRepository = new OrderRepository(pool);
 const orderItemRepository = new OrderItemRepository(pool);
 const contactRepository = new ContactRepository(pool);
@@ -48,26 +50,33 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     }
 
     return (
-        <div className="container w-full h-full space-y-6 scroll-auto overflow-scroll">
+        <div className="container w-full h-full space-y-2 scroll-auto overflow-scroll">
             <div className="md:flex items-center justify-between">
-                <div className="flex items-center gap-4">
+
+                <div className="flex items-center gap-2">
                     <Link href="/orders">
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                     </Link>
-                    <h1 className="text-3xl font-bold tracking-tight">Order #{order.id}</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Orden #{order.id}</h1>
                     <Badge className={getStatusColor(order.status)} variant="outline">
                         {order.status}
                     </Badge>
                     <Badge className={getPaymentStatusColor(order.payment_status)} variant="outline">
                         {order.payment_status}
                     </Badge>
+
+                    <div className="md:hidden ml-16">
+                        <DropdownMenuDialog orderId={orderId} />
+                    </div>
                 </div>
-                <div className="flex items-center justify-end gap-2">
+                <div className="hidden md:flex items-center justify-end gap-2">
                     <EditOrderButton orderId={order.id} />
                     <DeleteOrderButton orderId={order.id} />
                 </div>
+
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 ">
