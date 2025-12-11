@@ -42,13 +42,20 @@ export const columns: ColumnDef<IOrder>[] = [
     {
         accessorKey: "contact_id",
         header: "Contacto",
+        cell: ({ row }) => {
+            return (
+                <Link href={`/chats/${row.original.contact_id}`} className="w-min">
+                    {row.original.contact_id || `#${row.original.contact_id}`}
+                </Link>
+            );
+        }
     },
     {
         accessorKey: "total_amount",
         header: "Total",
         cell: ({ row }) => {
             return (
-                <div className="text-right">
+                <div className="text-right w-min">
                     ${Number(row.original.total_amount).toFixed(2)}
                 </div>
             );
@@ -67,7 +74,7 @@ export const columns: ColumnDef<IOrder>[] = [
         header: "Pagado",
         cell: ({ row }) => {
             return (
-                <div className="text-right">
+                <div className="text-right w-min">
                     ${Number(row.original.amount_paid).toFixed(2)}
                 </div>
             );
@@ -104,12 +111,12 @@ export const columns: ColumnDef<IOrder>[] = [
         accessorKey: "created_at",
         header: ({ column }) => (
             <Button
-                className="w-min p-0 m-0 gap-0"
+                className="w-min p-0 m-0 gap-0 ml-0 pl-0"
                 variant="ghost"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
-                Fecha de creación
-                <ArrowUpDown className="ml-1 h-4 w-4 shrink opacity-50" />
+                Se creó
+                {/* <ArrowUpDown className="ml-1 h-4 w-4 shrink opacity-50" /> */}
             </Button>
         ),
         cell: ({ row }) => {
@@ -122,7 +129,7 @@ export const columns: ColumnDef<IOrder>[] = [
     },
     {
         accessorKey: "updated_at",
-        header: "Fecha de actualización",
+        header: "Ultima actualización",
         cell: ({ row }) => {
             return (
                 <div className="text-right">

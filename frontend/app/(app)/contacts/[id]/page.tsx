@@ -47,13 +47,25 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                 </div>
             } />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 mt-4 overflow-y-auto" >
-                <Card className="space-y-2 md:col-span-2">
-                    <CardHeader>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 pt-4 overflow-y-auto" >
+                <Card className="space-y-2 md:col-span-2 h-full gap-0">
+                    <CardHeader className="px-2 py-0">
                         <CardTitle>Order History</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <DataTable columns={columns} data={plainOrders} />
+                    <CardContent className="h-full px-2 py-0">
+                        <DataTable
+                            columns={columns}
+                            data={plainOrders}
+                            showSearchInput={false}
+                            showColumnsVisibilityDropdown={false}
+                            visibleColumns={{
+                                contact_id: false,
+                                status: false,
+                                payment_method: false,
+                                refunded_amount: false,
+                                notes: false,
+                                updated_at: false,
+                            }} />
                     </CardContent>
                 </Card>
 

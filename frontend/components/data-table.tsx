@@ -33,13 +33,17 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
+    showSearchInput?: boolean,
+    showColumnsVisibilityDropdown?: boolean,
     visibleColumns?: VisibilityState
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
-    visibleColumns
+    visibleColumns,
+    showSearchInput = true,
+    showColumnsVisibilityDropdown = true,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -53,7 +57,7 @@ export function DataTable<TData, TValue>({
     useEffect(() => {
         setPagination({
             pageIndex: 0,
-            pageSize: isMobile ? 10 : 50
+            pageSize: isMobile ? 15 : 50
         })
     }, [isMobile])
 
@@ -78,42 +82,46 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className="flex items-center mb-0 py-2 space-x-2 ">
-                <Input
-                    placeholder="Filtrar"
-                    value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("id")?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columnas
-                            <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter(
-                                (column) => column.getCanHide()
-                            )
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) => column.toggleVisibility(value as boolean)}
-                                    >
-                                        {(column.id).replace("_", " ").charAt(0).toUpperCase() + (column.id).replace("_", " ").slice(1)}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })
+            <div className={`flex items-center mb-0 ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
+                {showSearchInput &&
+                    <Input
+                        placeholder="Filtrar"
+                        value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("id")?.setFilterValue(event.target.value)
                         }
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        className="max-w-sm"
+                    />
+                }
+                {showColumnsVisibilityDropdown &&
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="ml-auto">
+                                Columnas
+                                <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter(
+                                    (column) => column.getCanHide()
+                                )
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) => column.toggleVisibility(value as boolean)}
+                                        >
+                                            {(column.id).replace("_", " ").charAt(0).toUpperCase() + (column.id).replace("_", " ").slice(1)}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })
+                            }
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                }
             </div>
             <Table className="mb-0">
                 <TableHeader className="sticky top-0 z-10 bg-background">
