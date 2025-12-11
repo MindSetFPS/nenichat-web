@@ -1,17 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { MoreVerticalIcon } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
 } from "@/components/ui/dialog"
 import {
     DropdownMenu,
@@ -21,8 +15,6 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import { DeleteOrderDialogContent } from "./delete-order-dialog-content"
 
 interface DropdownMenuDialogProps {
@@ -45,8 +37,10 @@ export function DropdownMenuDialog({ orderId }: DropdownMenuDialogProps) {
                 <DropdownMenuContent className="w-40" align="end">
                     <DropdownMenuLabel>Opciones de orden</DropdownMenuLabel>
                     <DropdownMenuGroup>
-                        <DropdownMenuItem >
-                            Editar orden
+                        <DropdownMenuItem>
+                            <Link href={`/orders/${orderId}/edit`} className="w-full">
+                                Editar orden
+                            </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onSelect={() => setShowNewDialog(true)}

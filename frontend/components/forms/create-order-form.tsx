@@ -27,6 +27,19 @@ interface CreateOrderFormProps {
     contact?: IContact;
     createdAt?: Date;
     className?: string;
+    orderId?: number;
+    initialStatus?: string;
+    initialPaymentMethod?: string;
+    initialAmountPaid?: number;
+    initialPaymentStatus?: string;
+    initialNotes?: string;
+    initialShippingAddress?: string;
+    initialShippingCost?: number;
+    initialItems?: Array<{
+        product_id: string | null;
+        quantity: number;
+        unit_price: number;
+    }>;
 }
 
 interface OrderItemRow {
@@ -35,32 +48,52 @@ interface OrderItemRow {
     unitPrice: number;
 }
 
-export function CreateOrderForm({ contacts, contactId: initialContactId, contact: initialContact, createdAt, className }: CreateOrderFormProps) {
+export function CreateOrderForm({
+    contacts,
+    contactId: initialContactId,
+    contact: initialContact,
+    createdAt,
+    className,
+    orderId,
+    initialStatus,
+    initialPaymentMethod,
+    initialAmountPaid,
+    initialPaymentStatus,
+    initialNotes,
+    initialShippingAddress,
+    initialShippingCost,
+    initialItems,
+}: CreateOrderFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const { products, fetchProducts } = useProductStore();
 
     // Order Details
     const [contactId, setContactId] = useState<string>(initialContactId || (initialContact ? String(initialContact.id) : ""));
-    const [status, setStatus] = useState("pending");
+    const [status, setStatus] = useState(initialStatus || "pending");
 
     // Contact Data State
     const [fetchedContact, setFetchedContact] = useState<IContact | null>(initialContact || null);
     const [isFetchingContact, setIsFetchingContact] = useState(false);
 
     // Items
-    const [items, setItems] = useState<OrderItemRow[]>([]);
+    const [items, setItems] = useState<OrderItemRow[]>(initialItems ? initialItems.map(item => ({
+        productId: item.product_id || "",
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        totalPrice: item.quantity * item.unit_price,
+    })) : []);
 
     // Shipping
-    const [isShippingEnabled, setIsShippingEnabled] = useState(false);
-    const [shippingAddress, setShippingAddress] = useState("");
-    const [shippingCost, setShippingCost] = useState(0);
+    const [isShippingEnabled, setIsShippingEnabled] = useState(!!initialShippingAddress || !!initialShippingCost);
+    const [shippingAddress, setShippingAddress] = useState(initialShippingAddress || "");
+    const [shippingCost, setShippingCost] = useState(initialShippingCost || 0);
 
     // Payment
-    const [paymentMethod, setPaymentMethod] = useState("cash");
-    const [amountPaid, setAmountPaid] = useState(0);
-    const [paymentStatus, setPaymentStatus] = useState("unpaid");
-    const [notes, setNotes] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod || "cash");
+    const [amountPaid, setAmountPaid] = useState(initialAmountPaid || 0);
+    const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus || "unpaid");
+    const [notes, setNotes] = useState(initialNotes || "");
 
     // Fetch contact if only ID is provided
     useEffect(() => {
@@ -146,22 +179,27 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
 
             console.log(payload);
 
-            const response = await fetch("/api/orders/create", {
-                method: "POST",
+            const endpoint = orderId ? `/api/orders/${orderId}` : "/api/orders/create";
+            const method = orderId ? "PUT" : "POST";
+
+            const response = await fetch(endpoint, {
+                method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
-                throw new Error("Failed to create order");
+                throw new Error(orderId ? "Failed to update order" : "Failed to create order");
             }
 
-            toast.success("Order created successfully");
+            const successMessage = orderId ? "Order updated successfully" : "Order created successfully";
+            toast.success(successMessage);
             router.push("/orders");
             router.refresh();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to create order");
+            const errorMessage = orderId ? "Failed to update order" : "Failed to create order";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -400,7 +438,7 @@ export function CreateOrderForm({ contacts, contactId: initialContactId, contact
                     Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
-                    {loading ? "Creating..." : "Create Order"}
+                    {loading ? (orderId ? "Updating..." : "Creating...") : (orderId ? "Update Order" : "Create Order")}
                 </Button>
             </div>
         </form>
