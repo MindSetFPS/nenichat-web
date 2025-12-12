@@ -4,6 +4,7 @@ CREATE TABLE campaigns (
     name TEXT NOT NULL,
     run_at TIMESTAMPTZ NULL,
     executed_at TIMESTAMPTZ NULL,
+    status TEXT NULL,
     description TEXT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
