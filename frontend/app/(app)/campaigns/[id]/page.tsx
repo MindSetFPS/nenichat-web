@@ -1,6 +1,5 @@
 import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
 import { EditCampaignForm } from '@/components/EditCampaignForm';
-import { CardDescription } from '@/components/ui/card';
 import { PageHeader } from '@/components/ui/page-header';
 
 export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
@@ -25,12 +24,7 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
 
   return (
     <>
-      <PageHeader content={
-        <>
-          <h2 className="text-3xl font-bold tracking-tight">Edit Campaign</h2>
-          <CardDescription>Make changes to your campaign here. Click save when you're done.</CardDescription>
-        </>
-      } />
+      <PageHeader content={<h2 className="text-3xl font-bold tracking-tight">Editar campaña</h2>} />
       <EditCampaignForm campaign={plainCampaign} />
     </>
   );

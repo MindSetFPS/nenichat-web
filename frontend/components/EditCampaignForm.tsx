@@ -87,7 +87,7 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
         onSubmit={handleSubmit}
         initialData={campaign}
         isLoading={isLoading}
-        submitButtonText="Save Changes"
+        submitButtonText="Guardar"
       />
       <Button
         onClick={handleExecuteCampaign}
@@ -95,7 +95,7 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
         className="w-full"
       >
         {isExecuting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Execute Campaign Now
+        Ejecutar campaña ahora
       </Button>
     </div>
   );
