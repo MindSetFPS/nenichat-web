@@ -20,6 +20,8 @@ import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identi
 import { useProductStore } from "@/stores/product-store";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { set } from "date-fns";
 
 interface CreateOrderFormProps {
     contacts?: IContact[];
@@ -65,6 +67,12 @@ export function CreateOrderForm({
     initialItems,
 }: CreateOrderFormProps) {
     const router = useRouter();
+    const isMobile = useIsMobile();
+
+    useEffect(() => {
+        setIsShippingEnabled(!isMobile);
+    }, [isMobile]);
+
     const [loading, setLoading] = useState(false);
     const { products, fetchProducts } = useProductStore();
 
@@ -85,7 +93,7 @@ export function CreateOrderForm({
     })) : []);
 
     // Shipping
-    const [isShippingEnabled, setIsShippingEnabled] = useState(!!initialShippingAddress || !!initialShippingCost);
+    const [isShippingEnabled, setIsShippingEnabled] = useState(isMobile);
     const [shippingAddress, setShippingAddress] = useState(initialShippingAddress || "");
     const [shippingCost, setShippingCost] = useState(initialShippingCost || 0);
 
@@ -210,7 +218,7 @@ export function CreateOrderForm({
     const showContactSelect = contacts && contacts.length > 0 && !initialContactId && !initialContact;
 
     return (
-        <form onSubmit={handleSubmit} className={cn("@container grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 p-0 pb-2", className)}>
+        <form onSubmit={handleSubmit} className={cn("@container md:grid grid-cols-1 md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4 p-0 pb-2", className)}>
             <Card className="col-span-2 @md:col-span-1 pt-3 pb-1">
                 <CardHeader className="px-2">
                     <CardTitle>Cliente y estado</CardTitle>
