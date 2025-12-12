@@ -106,7 +106,7 @@ export default async function CampaignsPage() {
       <PageHeader content={
         <div className="w-full flex justify-between items-center">
           <h1 className="text-2xl font-bold">Campaigns</h1>
-          <CreateCampaignDialog />
+          { allCampaigns.length > 0 && <CreateCampaignDialog /> }
         </div>
       } />
       <div className="overflow-y-auto h-full">
