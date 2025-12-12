@@ -8,14 +8,15 @@ import Message from "./message"
 import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
 import { Order } from "@/Nenichat/Orders/domain/Order"
+import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 
 // Union type for timeline items
 type TimelineItem =
-  | { type: 'message'; data: IMessage }
+  | { type: 'message'; data: IMessageWithSender }
   | { type: 'order'; data: Order }
 
 interface ChatViewProps {
-  initialMessages: IMessage[]
+  initialMessages: IMessageWithSender[]
   me: IContact | null,
   orders: Order[]
 }
@@ -25,7 +26,7 @@ export default function ChatView({
   me,
   orders,
 }: ChatViewProps) {
-  const [messages, setMessages] = useState<IMessage[]>(initialMessages)
+  const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Merge messages and orders, then sort by created_at
@@ -72,14 +73,14 @@ export default function ChatView({
             <DateSeparator
               messages={group.items
                 .filter(item => item.type === 'message')
-                .map(item => item.data as IMessage)}
+                .map(item => item.data as IMessageWithSender)}
               index={groupIndex}
             />
             <div className="space-y-2">
               {group.items.map((item, itemIndex) => (
                 item.type === 'message' ? (
                   <Message
-                    message={item.data as IMessage}
+                    message={item.data as IMessageWithSender}
                     me={me}
                     key={`message-${itemIndex}`}
                   />

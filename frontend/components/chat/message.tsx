@@ -20,9 +20,15 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
+import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import ContactAvatar from "../contact-avatar"
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import Link from "next/link"
+
 
 interface MessageProps {
-    message: IMessage
+    message: IMessageWithSender
     me: IContact | null
 }
 
@@ -30,7 +36,15 @@ export default function Message({ message, me }: MessageProps) {
     const [open, setOpen] = useState(false)
 
     return (
-        <>
+        <div className="flex items-end gap-2">
+            {
+                message.sender && message.sender_id !== me?.id ?
+                    <Avatar className="h-8 w-8">
+                        <ContactAvatar seed={getContactIdentifier(message.sender!)!} />
+                        <AvatarFallback>{getContactIdentifier(message.sender!)!.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    : <></>
+            }
             <div
                 key={message.id}
                 className={cn(
@@ -42,6 +56,15 @@ export default function Message({ message, me }: MessageProps) {
             >
                 <Accordion type="single" collapsible className="p-0">
                     <AccordionItem value="item-1" className="p-0">
+                        {
+                            message.sender ?
+                                <Link href={`/chats/${message.sender_id}`}>
+                                    <span className="text-xs font-bold">
+                                        {getContactIdentifier(message.sender!)}
+                                    </span>
+                                </Link>
+                                : <></>
+                        }
                         <AccordionTrigger className="items-center p-0">
                             <p className="text-sm py-2">
                                 {message.text_content}
@@ -87,6 +110,6 @@ export default function Message({ message, me }: MessageProps) {
                     })}
                 </span>
             </div>
-        </>
+        </div>
     )
 }

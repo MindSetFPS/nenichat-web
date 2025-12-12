@@ -5,7 +5,6 @@ import { PageHeader } from "@/components/ui/page-header"
 import ChatHeader from "@/components/chat/chat-header"
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
-import GroupChatView from "@/components/chat/group-chat-view"
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository"
 import { pool } from "@/Nenichat/Shared/infra/persistance/db"
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown"
@@ -24,6 +23,7 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
     // A group chat is still a contact that we can name
     const contactData = await contactRepository.findById(chatData.id)
     const contact = JSON.parse(JSON.stringify(contactData))
+
     const messageData = await messageRepository.findByChatIdWithSender(params.id, 0, 100)
     messages = JSON.parse(JSON.stringify(messageData))
 
@@ -38,7 +38,7 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
           </div>
         }
         />
-        <GroupChatView initialMessages={messages.reverse()} me={me} />
+        <ChatView initialMessages={messages.reverse()} me={me} orders={[]} />
       </>
     )
   } else {
