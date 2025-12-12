@@ -109,28 +109,29 @@ export default async function CampaignsPage() {
           <CreateCampaignDialog />
         </div>
       } />
-      <p>To make it work correctly we need to:
-        1. Randomize the message to avoid spam filters.
-        2. Only send message to currently engaged users (they have talked in previous 24 hours.
-        3. Time limits and randomization to avoid being marked as spam.
-      </p>
-
-      {allCampaigns.length === 0 ? (
-        <EmptyList
-          title="No Campaigns"
-          description="It looks like you haven't created any campaigns. Start by creating one!"
-          action={<CreateCampaignDialog />}
-          icon={<CalendarDays className="w-12 h-12 text-primary" />}
-        />
-      ) : (
-        <>
-          {renderCampaignSection("Upcoming Campaigns", futureCampaigns)}
-          {renderCampaignSection("Today's Campaigns", todayCampaigns)}
-          {renderCampaignSection("This Week's Campaigns", thisWeekCampaigns)}
-          {renderCampaignSection("This Month's Campaigns", thisMonthCampaigns)}
-          {renderCampaignSection("Older Campaigns", olderCampaigns)}
-        </>
-      )}
+      <div className="overflow-y-auto">
+        {allCampaigns.length === 0 ? (
+          <EmptyList
+            title="No Campaigns"
+            description="It looks like you haven't created any campaigns. Start by creating one!"
+            action={<CreateCampaignDialog />}
+            icon={<CalendarDays className="w-12 h-12 text-primary" />}
+          />
+        ) : (
+          <>
+            <p>To make it work correctly we need to:
+              1. Randomize the message to avoid spam filters.
+              2. Only send message to currently engaged users (they have talked in previous 24 hours.
+              3. Time limits and randomization to avoid being marked as spam.
+            </p>
+            {renderCampaignSection("Upcoming Campaigns", futureCampaigns)}
+            {renderCampaignSection("Today's Campaigns", todayCampaigns)}
+            {renderCampaignSection("This Week's Campaigns", thisWeekCampaigns)}
+            {renderCampaignSection("This Month's Campaigns", thisMonthCampaigns)}
+            {renderCampaignSection("Older Campaigns", olderCampaigns)}
+          </>
+        )}
+      </div>
     </>
   );
 }
