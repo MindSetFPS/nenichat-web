@@ -22,7 +22,7 @@ export default function ChatHeader({ contact }: ChatHeaderProps) {
                         </AvatarFallback>
                     </Avatar>
                     <Link href={`/contacts/${contact.id}`}>
-                        <h1 className="text-2xl font-bold ">{contact.pushname || contact.username || contact.phone_number || contact.lid}</h1>
+                        <h1 className="text-2xl font-bold ">{contactName}</h1>
                     </Link>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 w-full text-xs text-muted-foreground">
