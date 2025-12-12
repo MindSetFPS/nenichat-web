@@ -54,6 +54,7 @@ export default async function OrdersPage() {
                     :
                     <DataTable
                         columns={columns}
+                        searchInputColumnId="id"
                         visibleColumns={{
                             "updated_at": false,
                             "payment_method": false,

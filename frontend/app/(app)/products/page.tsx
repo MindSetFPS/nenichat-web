@@ -57,6 +57,7 @@ export default async function ProductsPage() {
           <DataTable
             columns={columns}
             data={products}
+            searchInputColumnId={"name"}
             visibleColumns={{
               id: false,
               description: false,

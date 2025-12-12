@@ -15,6 +15,7 @@ export default async function Messages() {
       <PageHeader content={<h1 className="text-2xl font-bold">Messages</h1>} />
       <DataTable
         columns={columns}
+        searchInputColumnId="text_content"
         visibleColumns={{
           "id": false,
           "sender": true,

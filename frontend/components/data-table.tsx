@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
     showSearchInput?: boolean,
+    searchInputColumnId?: string,
     showColumnsVisibilityDropdown?: boolean,
     visibleColumns?: VisibilityState
 }
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
     data,
     visibleColumns,
     showSearchInput = true,
+    searchInputColumnId = "id",
     showColumnsVisibilityDropdown = true,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -86,9 +88,9 @@ export function DataTable<TData, TValue>({
                 {showSearchInput &&
                     <Input
                         placeholder="Filtrar"
-                        value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
+                        value={(table.getColumn(searchInputColumnId)?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("id")?.setFilterValue(event.target.value)
+                            table.getColumn(searchInputColumnId)?.setFilterValue(event.target.value)
                         }
                         className="max-w-sm"
                     />
