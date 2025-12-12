@@ -2,7 +2,6 @@ import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/Contact
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository"
 import ChatView from "@/components/chat/chat-view"
 import { PageHeader } from "@/components/ui/page-header"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import ChatHeader from "@/components/chat/chat-header"
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
@@ -10,6 +9,7 @@ import GroupChatView from "@/components/chat/group-chat-view"
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository"
 import { pool } from "@/Nenichat/Shared/infra/persistance/db"
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown"
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 
 export default async function ChatPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
   const params = await paramsPromise
@@ -21,7 +21,9 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
   let messages: IMessageWithSender[] = []
 
   if (chatData?.is_group) {
-
+    // A group chat is still a contact that we can name
+    const contactData = await contactRepository.findById(chatData.id)
+    const contact = JSON.parse(JSON.stringify(contactData))
     const messageData = await messageRepository.findByChatIdWithSender(params.id, 0, 100)
     messages = JSON.parse(JSON.stringify(messageData))
 
@@ -30,13 +32,8 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
         <PageHeader content={
           <div className="md:flex items-center gap-2 w-full">
             <div className="flex items-center gap-2 w-full">
-              <Avatar>
-                <AvatarFallback>
-                  GR
-                </AvatarFallback>
-              </Avatar>
-              <h1 className="text-lg md:text-2xl font-bold w-full">Este chat es un grupo</h1>
-              <ChatDropDownDialog contact={JSON.parse(JSON.stringify(chatData))!} showEditDialog={false} />
+              <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contact)}</h1>
+              <ChatDropDownDialog contact={JSON.parse(JSON.stringify(chatData))!} />
             </div>
           </div>
         }

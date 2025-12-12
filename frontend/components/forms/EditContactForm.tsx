@@ -49,7 +49,7 @@ export function EditContactForm({ contact, onSubmitSuccess }: EditContactFormPro
             onSubmit={handleSubmit}
             initialData={contact}
             isLoading={isLoading}
-            submitButtonText="Save Changes"
+            submitButtonText="Guardar cambios"
         />
     );
 }

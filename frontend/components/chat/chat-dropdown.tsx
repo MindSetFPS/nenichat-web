@@ -1,16 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { MoreHorizontalIcon } from "lucide-react"
+import { MoreVerticalIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -18,44 +11,23 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { EditContactForm } from "../forms/EditContactForm"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { useRouter } from "next/navigation"
 import { AssignToAudienceDialogContent } from "../assign-to-audience-dialog-content"
 import { HideContactDialogContent } from "./hide-contact-diaog"
+import { EditContactDialog } from "./edit-contact-dialog"
 
 interface ChatDropDownDialogProps {
     contact: IContact;
-    showEditDialog?: boolean;
 }
 
-interface EditContactDialogContentProps {
-    contact: IContact;
-    onSubmitSuccess: () => void;
-}
-
-function EditContactDialogContent({ contact, onSubmitSuccess }: EditContactDialogContentProps) {
-    return (
-        <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-                <DialogTitle>Editar contacto</DialogTitle>
-                <DialogDescription>
-                    Actualiza la informacion del contacto.
-                </DialogDescription>
-            </DialogHeader>
-            <EditContactForm contact={contact} onSubmitSuccess={onSubmitSuccess} />
-        </DialogContent>
-    )
-}
-
-export function ChatDropDownDialog({ contact, showEditDialog = true }: ChatDropDownDialogProps) {
-    const [showNewDialog, setShowNewDialog] = useState(false)
+export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
+    const [showEditDialog, setShowEditDialog] = useState(false)
     const [showAssignToAudienceDialog, setShowAssignToAudienceDialog] = useState(false)
     const [showIgnoreDialog, setShowIgnoreDialog] = useState(false)
     const router = useRouter()
 
     const onSubmitSuccess = () => {
-        setShowNewDialog(false)
         setShowAssignToAudienceDialog(false)
         setShowIgnoreDialog(false)
         router.refresh()
@@ -66,18 +38,14 @@ export function ChatDropDownDialog({ contact, showEditDialog = true }: ChatDropD
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" aria-label="Open menu" size="icon-sm">
-                        <MoreHorizontalIcon />
+                        <MoreVerticalIcon />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-40" align="end">
                     <DropdownMenuGroup>
-                        {
-                            showEditDialog && (
-                                <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
-                                    Editar contacto
-                                </DropdownMenuItem>
-                            )
-                        }
+                        <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
+                            Editar contacto
+                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
                             Asignar a audiencia
                         </DropdownMenuItem>
@@ -87,9 +55,13 @@ export function ChatDropDownDialog({ contact, showEditDialog = true }: ChatDropD
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-                <EditContactDialogContent contact={contact} onSubmitSuccess={onSubmitSuccess} />
-            </Dialog>
+
+            <EditContactDialog
+                contact={contact}
+                onSubmitSuccess={onSubmitSuccess}
+                open={showEditDialog}
+                onOpenChange={setShowEditDialog}
+            />
             <AssignToAudienceDialogContent
                 contact={contact}
                 onSubmitSuccess={onSubmitSuccess}
