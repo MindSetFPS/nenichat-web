@@ -109,7 +109,7 @@ export default async function CampaignsPage() {
           <CreateCampaignDialog />
         </div>
       } />
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto h-full">
         {allCampaigns.length === 0 ? (
           <EmptyList
             title="No Campaigns"
