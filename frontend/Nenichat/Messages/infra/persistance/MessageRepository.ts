@@ -235,6 +235,19 @@ export class MessageRepository implements IMessageRepository {
       count: parseInt(row.count, 10),
     }));
   }
+
+  /**
+   * A function that searches for the last message sent by the contact
+   * @param chat_id 
+   * @returns IMessage
+   */
+  async getLastContactMessage(chat_id: BigInt): Promise<IMessage | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC, id DESC LIMIT 1',
+      [chat_id]
+    );
+    return result.rows.length > 0 ? this.toMessage(result.rows[0]) : null;
+  }
 }
 
 export const messageRepository = new MessageRepository(pool);
