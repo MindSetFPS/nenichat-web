@@ -27,6 +27,22 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
     const messageData = await messageRepository.findByChatIdWithSender(params.id, 0, 100)
     messages = JSON.parse(JSON.stringify(messageData))
 
+    // In an individual chat we would query any order that belongs to that individual.
+    // For a group chat, we will query every order that belongs to every user in the chat.
+
+    // 1. Create a list of unique users that have sent a message
+    const userIdSet = new Set(messageData.map((message) => message.sender_id))
+    const userIdList = Array.from(userIdSet)
+
+    // 2. Loop through the list of users and query every order that belongs to that user
+    const orderRepository = new OrderRepository(pool)
+    const orders = await Promise.all(userIdList.map((user) => orderRepository.getByContactId(Number(user))))
+
+    // 3. Combine the orders into a single array
+    const combinedOrders = orders.flat()
+
+    // 4. Convert to json parse to avoid nextjs errors
+    const ordersJson = JSON.parse(JSON.stringify(combinedOrders))
     return (
       <>
         <PageHeader content={
@@ -38,7 +54,7 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
           </div>
         }
         />
-        <ChatView initialMessages={messages.reverse()} me={me} orders={[]} />
+        <ChatView initialMessages={messages.reverse()} me={me} orders={ordersJson} />
       </>
     )
   } else {

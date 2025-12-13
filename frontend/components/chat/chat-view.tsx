@@ -44,18 +44,29 @@ export default function ChatView({
     })
   }, [messages, orders])
 
-  // Group timeline items by date
+  // Group timeline items (messages/orders) by their date
   const groupedTimeline = useMemo(() => {
+    // reduce() iterates over our array to build a single outcome (our grouped object)
     const grouped = timelineItems.reduce((accumulator, item) => {
+      // Get the readable date string (e.g., "12/12/2025") from the item's creation time
       const date = new Date(item.data.created_at).toLocaleDateString()
+
+      // If this date isn't in our accumulator yet, initialize it with an empty array
       if (!accumulator[date]) {
         accumulator[date] = []
       }
+
+      // Add the current item to the list for this specific date
       accumulator[date].push(item)
+
+      // Return the updated accumulator for the next iteration
       return accumulator
-    }, {} as Record<string, TimelineItem[]>)
+    }, {} as Record<string, TimelineItem[]>) // The initial value is an empty object
+
+    // Convert the grouped object { "date": [items] } into an array [{ date, items }]
+    // This format is easier to map over when rendering the UI
     return Object.entries(grouped).map(([date, items]) => ({ date, items }))
-  }, [timelineItems])
+  }, [timelineItems]) // Re-run this logic only when timelineItems changes
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -72,7 +83,6 @@ export default function ChatView({
           <div key={groupIndex}>
             <DateSeparator
               messages={group.items
-                .filter(item => item.type === 'message')
                 .map(item => item.data as IMessageWithSender)}
               index={groupIndex}
             />
