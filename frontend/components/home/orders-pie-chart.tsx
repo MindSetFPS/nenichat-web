@@ -1,6 +1,7 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { useState, useEffect } from "react"
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts"
 
 import {
     Card,
@@ -16,74 +17,99 @@ import {
     ChartTooltipContent,
 } from "@/components/ui/chart"
 
-let chartConfig = {
-    visitors: {
-        label: "Visitors",
+const COLORS = [
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+    "var(--chart-4)",
+    "var(--chart-5)",
+]
+
+const chartConfig: ChartConfig = {
+    value: {
+        label: "Value",
     },
-    "Potaje de Lentejas": {
-        label: "Chrome",
-        color: "var(--chart-1)",
-    },
-    product_name: {
-        label: "Safari",
-        color: "var(--chart-2)",
-    },
-    firefox: {
-        label: "Firefox",
-        color: "var(--chart-3)",
-    },
-    edge: {
-        label: "Edge",
-        color: "var(--chart-4)",
-    },
-    other: {
-        label: "Other",
-        color: "var(--chart-5)",
-    },
-    product: {
-        label: "Product",
-        color: "var(--color-amber)",
-    },
-} satisfies ChartConfig
+}
 
 interface OrdersPieChartProps {
     data: { product_name: string; count: number }[];
 }
 
 export function OrdersPieChart({ data }: OrdersPieChartProps) {
+    const [date, setDate] = useState("")
 
-    console.log(data)
+    useEffect(() => {
+        setDate(new Date().toLocaleDateString())
+    }, [])
 
-    const chartData = data.map((order) => ({
-        product_name: order.product_name,
-        quantity: order.count,
+    const chartData = data.map((order, index) => ({
+        name: order.product_name,
+        value: Number(order.count),
+        fill: COLORS[index % COLORS.length],
     }))
+
+    chartData.forEach((item, index) => {
+        chartConfig[item.name] = {
+            label: item.name,
+            color: item.fill,
+        }
+    })
 
     return (
         <Card className="flex flex-col">
             <CardHeader className="items-center pb-0">
                 <CardTitle>Ventas del día</CardTitle>
-                <CardDescription>{new Date().toLocaleDateString()}</CardDescription>
+                <CardDescription>{date}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
                 <ChartContainer
                     config={chartConfig}
-                    className="[&_.recharts-text]:fill-background mx-auto aspect-square max-h-[250px]"
+                    className=" mx-auto aspect-square max-h-[350px]"
                 >
-                    <BarChart accessibilityLayer data={chartData}>
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="product_name"
+                    <BarChart
+                        accessibilityLayer
+                        data={chartData}
+                        layout="vertical"
+                        margin={{
+                            right: 16,
+                        }}
+                    >
+                        <CartesianGrid horizontal={false} />
+                        <YAxis
+                            dataKey="name"
+                            type="category"
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
                             tickFormatter={(value) => value.slice(0, 3)}
+                            hide
                         />
+                        <XAxis dataKey="value" type="number" hide />
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                            content={<ChartTooltipContent indicator="line" />}
                         />
-                        <Bar dataKey="quantity" fill="var(--color-desktop)" radius={8} />
+                        <Bar
+                            dataKey="value"
+                            layout="vertical"
+                            fill="var(--color-desktop)"
+                            radius={4}
+                        >
+                            <LabelList
+                                dataKey="name"
+                                position="insideLeft"
+                                offset={8}
+                                className="fill-(--color-label)"
+                                fontSize={18}
+                            />
+                            <LabelList
+                                dataKey="value"
+                                position="right"
+                                offset={8}
+                                className="fill-foreground"
+                                fontSize={28}
+                            />
+                        </Bar>
                     </BarChart>
                 </ChartContainer>
             </CardContent>

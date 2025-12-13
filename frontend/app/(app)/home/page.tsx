@@ -34,17 +34,17 @@ export default async function Page() {
 
   const totalOrders = plainOrders.length;
   const activeOrders = plainOrders.filter((order: any) => order.status === 'pending' || order.status === 'shipped').length;
-  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+  const totalOrdersValue = plainOrders.reduce((acc: number, order: any) => {
+    return acc + Number(order.total_amount);
+  }, 0);
 
   const today = new Date();
   const ordersToday = await orderRepository.getOrdersCountByDate(today);
 
   return (
     <>
-      <PageHeader content={<h1 className="text-2xl font-bold">Welcome</h1>} />
-
+      <PageHeader content={<h1 className="text-2xl font-bold">Buenos días</h1>} />
       <div className="flex flex-col overflow-y-auto gap-4">
-
 
         {plainOrders.length > 0 && (
           <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mb-0 mt-4">
@@ -93,12 +93,12 @@ export default async function Page() {
             <Card className="py-2 gap-2">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xs font-medium">
-                  Average Order Value
+                  Valor total de las ventas
                 </CardTitle>
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-bold">${avgOrderValue.toFixed(2)}</div>
+                <div className="text-lg font-bold">${totalOrdersValue.toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">
                   +201 since last hour
                 </p>
