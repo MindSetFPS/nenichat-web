@@ -21,9 +21,9 @@ import { useProductStore } from "@/stores/product-store";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { set } from "date-fns";
 
 interface CreateOrderFormProps {
+    onSubmit: () => void;
     contacts?: IContact[];
     contactId?: string;
     contact?: IContact;
@@ -51,6 +51,7 @@ interface OrderItemRow {
 }
 
 export function CreateOrderForm({
+    onSubmit,
     contacts,
     contactId: initialContactId,
     contact: initialContact,
@@ -185,8 +186,6 @@ export function CreateOrderForm({
                 created_at: createdAt,
             };
 
-            console.log(payload);
-
             const endpoint = orderId ? `/api/orders/${orderId}` : "/api/orders/create";
             const method = orderId ? "PUT" : "POST";
 
@@ -202,7 +201,7 @@ export function CreateOrderForm({
 
             const successMessage = orderId ? "Order updated successfully" : "Order created successfully";
             toast.success(successMessage);
-            router.push("/orders");
+            onSubmit();
             router.refresh();
         } catch (error) {
             console.error(error);
