@@ -44,7 +44,7 @@ export const useProductStore = create<ProductState>((set) => ({
                 throw new Error('Failed to fetch products');
             }
             const data = await response.json();
-            set({ products: data, isLoading: false });
+            set({ products: data.sort((a: IProduct, b: IProduct) => a.name.localeCompare(b.name)), isLoading: false });
         } catch (error: any) {
             set({ error: error.message, isLoading: false });
         }
