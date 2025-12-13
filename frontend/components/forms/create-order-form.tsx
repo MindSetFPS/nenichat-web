@@ -23,7 +23,7 @@ import { Checkbox } from "../ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CreateOrderFormProps {
-    onSubmit: () => void;
+    onSubmit?: () => void;
     contacts?: IContact[];
     contactId?: string;
     contact?: IContact;
@@ -201,7 +201,7 @@ export function CreateOrderForm({
 
             const successMessage = orderId ? "Order updated successfully" : "Order created successfully";
             toast.success(successMessage);
-            onSubmit();
+            onSubmit?.();
             router.refresh();
         } catch (error) {
             console.error(error);
