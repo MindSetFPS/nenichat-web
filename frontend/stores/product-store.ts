@@ -39,7 +39,7 @@ export const useProductStore = create<ProductState>((set) => ({
     fetchProducts: async () => {
         set({ isLoading: true, error: null });
         try {
-            const response = await fetch('/api/products');
+            const response = await fetch('/api/products?active_only=true');
             if (!response.ok) {
                 throw new Error('Failed to fetch products');
             }

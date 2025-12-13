@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { ProductForm } from '@/components/forms/ProductForm';
+import { ProductForm } from '@/components/forms/product-form';
 import { PlusCircle } from 'lucide-react';
 
 /**

@@ -23,8 +23,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const active_only = searchParams.get('active_only') === 'true';
 
-    const products = await productRepository.list(100, offset);
+    const products = await productRepository.list(limit, offset, active_only);
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
     console.error('Error listing products:', error);
@@ -50,6 +51,8 @@ export async function POST(request: NextRequest) {
     const price = parseFloat(formData.get('price')?.toString() || '0');
     const stock = parseInt(formData.get('stock')?.toString() || '0', 10);
     const whatsapp_product_id = formData.get('whatsapp_product_id')?.toString() || null;
+    const is_active_raw = formData.get('is_active');
+    const is_active = is_active_raw !== null ? is_active_raw === 'true' : true;
 
     if (!name || isNaN(price) || isNaN(stock)) {
       return NextResponse.json({ error: 'Missing or invalid product data' }, { status: 400 });
@@ -94,6 +97,7 @@ export async function POST(request: NextRequest) {
         stock,
         images: [], // Images are handled separately
         whatsapp_product_id,
+        is_active,
         created_at: new Date(),
         updated_at: new Date(),
       };

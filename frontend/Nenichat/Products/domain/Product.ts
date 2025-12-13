@@ -9,6 +9,7 @@ export class Product implements IProduct {
   stock: number;
   images: IImage[];
   whatsapp_product_id: string | null;
+  is_active: boolean;
   created_at: Date;
   updated_at: Date;
 
@@ -20,6 +21,7 @@ export class Product implements IProduct {
     stock: number,
     images: IImage[],
     whatsapp_product_id: string | null,
+    is_active: boolean,
     created_at: Date,
     updated_at: Date
   ) {
@@ -30,6 +32,7 @@ export class Product implements IProduct {
     this.stock = stock;
     this.images = images;
     this.whatsapp_product_id = whatsapp_product_id;
+    this.is_active = is_active;
     this.created_at = created_at;
     this.updated_at = updated_at;
   }

@@ -12,6 +12,7 @@ import { getProductImageUrl } from '@/lib/utils';
 import Image from 'next/image';
 import { XCircle, PlusCircle, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
+  const [isActive, setIsActive] = useState<boolean>(true);
   const [whatsappProductId, setWhatsappProductId] = useState('');
   const [existingImages, setExistingImages] = useState<IImage[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -55,6 +57,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       setDescription(product.description || '');
       setPrice(product.price.toString());
       setStock(product.stock.toString());
+      setIsActive(product.is_active);
       setWhatsappProductId(product.whatsapp_product_id || '');
       setExistingImages(product.images || []);
       setNewImages([]);
@@ -63,6 +66,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       setDescription('');
       setPrice('');
       setStock('');
+      setIsActive(true);
       setWhatsappProductId('');
       setExistingImages([]);
       setNewImages([]);
@@ -147,6 +151,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     formData.append('description', description);
     formData.append('price', price);
     formData.append('stock', stock);
+    formData.append('is_active', isActive.toString());
     formData.append('whatsapp_product_id', whatsappProductId);
 
     if (isEditMode) {
@@ -203,93 +208,93 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 overflow-scroll py-2">
-      <div className="space-y-6">
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Details</CardTitle>
-              <CardDescription>Enter the main details for your product.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-2 overflow-scroll py-2">
+      <div className="space-y-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Details</CardTitle>
+            <CardDescription>Enter the main details for your product.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="name">Product Name</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="description">Description</Label>
+              <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label htmlFor="name">Product Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="price">Price</Label>
-                  <Input id="price" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="stock">Stock</Label>
-                  <Input id="stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
-                </div>
+                <Label htmlFor="price">Price</Label>
+                <Input id="price" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="whatsappProductId">WhatsApp Product ID (Optional)</Label>
-                <Input id="whatsappProductId" value={whatsappProductId} onChange={(e) => setWhatsappProductId(e.target.value)} />
+                <Label htmlFor="stock">Stock</Label>
+                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="whatsappProductId">WhatsApp Product ID (Optional)</Label>
+              <Input id="whatsappProductId" value={whatsappProductId} onChange={(e) => setWhatsappProductId(e.target.value)} />
+            </div>
+            <div className="flex items-center space-x-2 pt-2">
+              <Switch id="is-active" checked={isActive} onCheckedChange={setIsActive} />
+              <Label htmlFor="is-active">Active</Label>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Images</CardTitle>
-              <CardDescription>Upload images for your product.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-2">
-                {isEditMode &&
-                  existingImages.map((image) => (
-                    <div key={image.id} className="relative w-full h-24 border rounded-md overflow-hidden group">
-                      <Image src={getProductImageUrl(image.path)} alt={image.alt_text || 'Product image'} fill style={{ objectFit: 'cover' }} />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => setImageToDelete(image)}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                {newImagePreviews.map((previewUrl, index) => (
-                  <div key={index} className="relative w-full h-24 border rounded-md overflow-hidden group">
-                    <Image src={previewUrl} alt={`New image ${index + 1}`} fill style={{ objectFit: 'cover' }} onLoad={() => URL.revokeObjectURL(previewUrl)} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Product Images</CardTitle>
+            <CardDescription>Upload images for your product.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              {isEditMode &&
+                existingImages.map((image) => (
+                  <div key={image.id} className="relative w-full h-24 border rounded-md overflow-hidden group">
+                    <Image src={getProductImageUrl(image.path)} alt={image.alt_text || 'Product image'} fill style={{ objectFit: 'cover' }} />
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removeNewImage(index)}
+                      onClick={() => setImageToDelete(image)}
                     >
                       <XCircle className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
-                <Label
-                  htmlFor="newImages"
-                  className="relative w-full h-24 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors"
-                >
-                  <PlusCircle className="h-6 w-6 mb-1" />
-                  <span>Add Images</span>
-                  <Input id="newImages" type="file" multiple accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleNewImageChange} />
-                </Label>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              {newImagePreviews.map((previewUrl, index) => (
+                <div key={index} className="relative w-full h-24 border rounded-md overflow-hidden group">
+                  <Image src={previewUrl} alt={`New image ${index + 1}`} fill style={{ objectFit: 'cover' }} onLoad={() => URL.revokeObjectURL(previewUrl)} />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removeNewImage(index)}
+                  >
+                    <XCircle className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Label
+                htmlFor="newImages"
+                className="relative w-full h-24 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors"
+              >
+                <PlusCircle className="h-6 w-6 mb-1" />
+                <span>Add Images</span>
+                <Input id="newImages" type="file" multiple accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleNewImageChange} />
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="flex justify-between items-center pt-4 mt-6">
+      <div className="flex justify-between items-center">
         {isEditMode ? (
           <Button
             type="button"

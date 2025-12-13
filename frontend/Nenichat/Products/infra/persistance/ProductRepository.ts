@@ -53,6 +53,7 @@ export class ProductRepository implements IProductRepository {
       row.stock,
       row.images,
       row.whatsapp_product_id,
+      row.is_active,
       row.created_at,
       row.updated_at
     );
@@ -90,6 +91,7 @@ export class ProductRepository implements IProductRepository {
           row.stock,
           row.images,
           row.whatsapp_product_id,
+          row.is_active,
           row.created_at,
           row.updated_at
         )
@@ -100,9 +102,10 @@ export class ProductRepository implements IProductRepository {
    * Retrieves a list of products with pagination.
    * @param {number} limit - The maximum number of products to return.
    * @param {number} offset - The number of products to skip.
+   * @param {boolean} active_only - Whether to only return active products or all products.
    * @returns {Promise<IProduct[]>} A promise that resolves to an array of products.
    */
-  async list(limit: number, offset: number): Promise<IProduct[]> {
+  async list(limit: number, offset: number, active_only?: boolean): Promise<IProduct[]> {
     const query = `
       SELECT
         p.*,
@@ -116,6 +119,7 @@ export class ProductRepository implements IProductRepository {
           '[]'
         ) as images
       FROM products p
+      ${active_only ? 'WHERE p.is_active = true' : ''}
       GROUP BY p.id
       ORDER BY p.created_at DESC
       LIMIT $1 OFFSET $2;
@@ -131,6 +135,7 @@ export class ProductRepository implements IProductRepository {
           row.stock,
           row.images,
           row.whatsapp_product_id,
+          row.is_active,
           row.created_at,
           row.updated_at
         )
@@ -146,7 +151,7 @@ export class ProductRepository implements IProductRepository {
    */
   async create(product: IProduct): Promise<IProduct> {
     const result = await this.pool.query(
-      'INSERT INTO products (id, name, description, price, stock, whatsapp_product_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      'INSERT INTO products (id, name, description, price, stock, whatsapp_product_id, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [
         product.id,
         product.name,
@@ -154,6 +159,7 @@ export class ProductRepository implements IProductRepository {
         product.price,
         product.stock,
         product.whatsapp_product_id,
+        product.is_active,
       ]
     );
     const row = result.rows[0];
@@ -165,6 +171,7 @@ export class ProductRepository implements IProductRepository {
       row.stock,
       [], // Images are not handled here
       row.whatsapp_product_id,
+      row.is_active,
       row.created_at,
       row.updated_at
     );

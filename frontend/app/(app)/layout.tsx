@@ -11,7 +11,7 @@ interface RootLayoutProps {
 export default async function RootLayout({ children }: RootLayoutProps) {
     let contacts: IContactWithLastMessage[] = [];
     try {
-        contacts = await contactRepository.getContactsWithLastMessage(0, 20);
+        contacts = await contactRepository.getContactsWithLastMessage(0, 1000);
     } catch (error) {
         console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
     }

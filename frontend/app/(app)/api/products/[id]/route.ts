@@ -22,6 +22,7 @@ const uploadDir = path.join(process.cwd(), 'public', 'images', 'products');
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    console.log(request.body);
     const { id } = await params;
 
     // Ensure the upload directory exists
@@ -34,6 +35,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const price = parseFloat(formData.get('price')?.toString() || '0');
     const stock = parseInt(formData.get('stock')?.toString() || '0', 10);
     const whatsapp_product_id = formData.get('whatsapp_product_id')?.toString() || null;
+    const is_active_raw = formData.get('is_active');
     const existingImageIds = formData.getAll('existingImageIds') as string[]; // IDs of images that should remain
 
     if (!name || isNaN(price) || isNaN(stock)) {
@@ -46,6 +48,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       price,
       stock,
       whatsapp_product_id,
+      ...(is_active_raw !== null ? { is_active: is_active_raw === 'true' } : {}),
     };
 
     const newImagesToProcess: IImage[] = [];

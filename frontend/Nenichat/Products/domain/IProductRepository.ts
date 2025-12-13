@@ -22,9 +22,10 @@ export interface IProductRepository {
    * Retrieves a list of products with pagination.
    * @param {number} limit - The maximum number of products to return.
    * @param {number} offset - The number of products to skip.
+   * @param {boolean} active_only - Whether to only return active products or all products.
    * @returns {Promise<IProduct[]>} A promise that resolves to an array of products.
    */
-  list(limit: number, offset: number): Promise<IProduct[]>;
+  list(limit: number, offset: number, active_only?: boolean): Promise<IProduct[]>;
 
   /**
    * Creates a new product.

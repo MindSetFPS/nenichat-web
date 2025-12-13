@@ -53,7 +53,7 @@ export default async function ProductsPage() {
           icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
         />
         :
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto">
           <DataTable
             columns={columns}
             data={products}

@@ -12,6 +12,7 @@ export interface IProduct {
   stock: number;
   images: IImage[];
   whatsapp_product_id: string | null;
+  is_active: boolean;
   created_at: Date;
   updated_at: Date;
 }

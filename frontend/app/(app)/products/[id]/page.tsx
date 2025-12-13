@@ -1,7 +1,7 @@
 import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { notFound } from 'next/navigation';
-import { ProductForm } from '@/components/forms/ProductForm'; // Import the new edit form
+import { ProductForm } from '@/components/forms/product-form'; // Import the new edit form
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 import { PageHeader } from '@/components/ui/page-header';
 
@@ -28,6 +28,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     description: product.description,
     price: product.price,
     stock: product.stock,
+    is_active: product.is_active,
     whatsapp_product_id: product.whatsapp_product_id,
     created_at: product.created_at,
     updated_at: product.updated_at,
