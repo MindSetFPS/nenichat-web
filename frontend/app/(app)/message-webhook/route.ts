@@ -44,7 +44,11 @@ export async function POST(request: Request) {
         new Date()
     );
 
-    await messageRepository.save(message);
+    try {
+        await messageRepository.save(message);
+    } catch (error) {
+        console.error({ "Error saving message:": error, "messageData": messageData });
+    }
 
     return new Response(null, { status: 200 });
 }
