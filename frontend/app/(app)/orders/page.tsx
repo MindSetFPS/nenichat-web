@@ -8,15 +8,23 @@ import { Package } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/orders/table/columns";
+import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
 
 const orderRepository = new OrderRepository(pool);
 
 export const dynamic = 'force-dynamic';
 
 export default async function OrdersPage() {
-    const orders = await orderRepository.getAll();
+    let orders: OrderWithContactName[] = await orderRepository.getAll();
 
-    // Serialize for client component
+    orders = await Promise.all(orders.map(async order => {
+        const contact = await contactRepository.findById(BigInt(order.contact_id!));
+        order.contact_name = getContactIdentifier(contact!)!;
+        return order;
+    }));
+
     const plainOrders = JSON.parse(JSON.stringify(orders));
 
     function CreateOrderButton() {

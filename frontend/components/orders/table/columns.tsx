@@ -1,24 +1,14 @@
 "use client"
 
 import Link from "next/link";
-import { ArrowUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
 import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
+import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
+import { getPaymentStatusColor } from "@/lib//utils";
 
-const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-        case 'paid': return 'bg-green-100 text-green-800 hover:bg-green-100';
-        case 'partial': return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100';
-        case 'refunded': return 'bg-purple-100 text-purple-800 hover:bg-purple-100';
-        default: return 'bg-red-100 text-red-800 hover:bg-red-100';
-    }
-};
-
-// implement every attribute of IOrder
-export const columns: ColumnDef<IOrder>[] = [
+export const columns: ColumnDef<OrderWithContactName>[] = [
     {
         accessorKey: "id",
         header: ({ column }) => (
@@ -28,7 +18,6 @@ export const columns: ColumnDef<IOrder>[] = [
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
                 ID
-                {/* <ArrowUpDown className="ml-1 h-4 w-4 shrink opacity-50" /> */}
             </Button>
         ),
         cell: ({ row }) => {
@@ -44,8 +33,8 @@ export const columns: ColumnDef<IOrder>[] = [
         header: "Contacto",
         cell: ({ row }) => {
             return (
-                <Link href={`/chats/${row.original.contact_id}`} className="w-min">
-                    {row.original.contact_id || `#${row.original.contact_id}`}
+                <Link href={`/contacts/${row.original.contact_id}`} className="hover:underline text-blue-400 w-min">
+                    {row.original.contact_name || `#${row.original.contact_id}`}
                 </Link>
             );
         }
@@ -116,7 +105,6 @@ export const columns: ColumnDef<IOrder>[] = [
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
                 Se creó
-                {/* <ArrowUpDown className="ml-1 h-4 w-4 shrink opacity-50" /> */}
             </Button>
         ),
         cell: ({ row }) => {
