@@ -167,6 +167,16 @@ export function CreateOrderForm({
     const itemsTotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
     const totalAmount = itemsTotal + shippingCost;
 
+    useEffect(() => {
+        if (paymentStatus === "paid") {
+            setAmountPaid(totalAmount);
+        }
+
+        if (totalAmount == amountPaid && totalAmount > 0) {
+            setPaymentStatus("paid");
+        }
+    }, [paymentStatus, totalAmount]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -442,10 +452,10 @@ export function CreateOrderForm({
 
             <div className="flex justify-end gap-4 md:col-span-2">
                 <Button type="button" variant="outline" onClick={() => router.back()}>
-                    Cancel
+                    Cancelar
                 </Button>
-                <Button type="submit" disabled={loading}>
-                    {loading ? (orderId ? "Updating..." : "Creating...") : (orderId ? "Update Order" : "Create Order")}
+                <Button type="submit" disabled={loading || totalAmount === 0} >
+                    {loading ? (orderId ? "Actualizando..." : "Creando...") : (orderId ? "Actualizar Order" : "Crear Order")}
                 </Button>
             </div>
         </form>
