@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/product-form'; // Import the new edit form
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 import { PageHeader } from '@/components/ui/page-header';
+import { ChartBarLabel } from '@/components/products/chart';
+import { ProductOrdersByDate } from '@/Nenichat/Products/app/dto/product-orders-by-date';
 
 const productRepository = new ProductRepository(pool);
 
@@ -17,6 +19,32 @@ const productRepository = new ProductRepository(pool);
 export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const product = await productRepository.getById(id);
+
+  // get sales by date include order table with join table in order_id column
+  const order_items = await pool.query(
+    `SELECT quantity, order_id, o.created_at FROM order_items oi
+    JOIN orders o ON oi.order_id = o.id 
+    WHERE product_id = $1`,
+    [id]
+  );
+
+  const sales: ProductOrdersByDate[] = [];
+  for (const item of order_items.rows) {
+    // format date to "lunes 23 de diciembre"
+    const date = item.created_at.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      weekday: 'long',
+    });
+    const quantity = item.quantity;
+
+    const existingSale = sales.find((sale) => sale.date === date);
+    if (existingSale) {
+      existingSale.quantity += quantity;
+    } else {
+      sales.push({ date, quantity });
+    }
+  }
 
   if (!product) {
     notFound(); // Render Next.js 404 page if product not found
@@ -38,7 +66,10 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   return (
     <>
       <PageHeader content={<h1 className='font-bold'>Edit product</h1>} />
-      <ProductForm product={plainProduct} />
+      <div className="overflow-y-auto mt-2">
+        <ChartBarLabel data={sales} />
+        <ProductForm product={plainProduct} />
+      </div>
     </>
   );
 }

@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { IProduct } from "@/Nenichat/Products/domain/IProduct";
 import Link from "next/link";
-import { Switch } from "@/components/ui/switch";
 import { AvailableCheckbot } from "./available-checkbot";
 
 export const columns: ColumnDef<IProduct>[] = [
@@ -11,7 +10,9 @@ export const columns: ColumnDef<IProduct>[] = [
         accessorKey: "name",
         header: "Nombre",
         cell: ({ row }) => (
-            <Link className="text-left w-auto wrap-words text-wrap hover:underline text-blue-400" href={`/products/${row.original.id}`}>
+            <Link
+                className="text-left w-auto wrap-words text-wrap hover:underline text-blue-400"
+                href={`/products/${row.original.id}`}>
                 {row.original.name}
             </Link>
         ),
