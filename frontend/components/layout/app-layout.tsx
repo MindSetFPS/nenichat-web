@@ -25,7 +25,7 @@ export function AppLayout({ children, contactsJson }: AppLayoutProps) {
                     my-0 py-0 md:my-2 md:py-2 mx-auto p-2 md:p-4 space-y-4
                     bg-background 
                     md:border rounded-r-lg md:rounded-lg overflow-hidden    
-                    bg-linear-to-br from-neutral-800 to-neutral-950
+                    bg-linear-to-br dark:from-neutral-800 dark:to-neutral-950
                     ">
                         {children}
                     </div>
