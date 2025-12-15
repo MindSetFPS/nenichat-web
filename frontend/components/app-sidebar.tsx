@@ -45,6 +45,18 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             label: 'Inicio'
         },
         {
+            id: 'sales',
+            href: '/orders',
+            icon: ShoppingBag,
+            label: 'Ventas'
+        },
+        {
+            id: 'products',
+            href: '/products',
+            icon: PackageIcon,
+            label: 'Productos'
+        },
+        {
             id: 'campaigns',
             href: '/campaigns',
             icon: SendIcon,
@@ -59,32 +71,22 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
         {
             id: 'contacts',
             icon: UsersIcon,
-            label: 'Contacts',
+            label: 'Contactos',
             submenu: [
                 {
                     id: 'contacts-list',
                     href: '/contacts',
-                    label: 'All Contacts'
+                    label: 'Todos los contactos'
                 },
                 {
                     id: 'merge-contacts',
                     href: '/contacts/merge',
-                    label: 'Merge Contacts'
+                    label: 'Unir contactos'
                 }
             ]
         },
-        {
-            id: 'products',
-            href: '/products',
-            icon: PackageIcon,
-            label: 'Productos'
-        },
-        {
-            id: 'sales',
-            href: '/orders',
-            icon: ShoppingBag,
-            label: 'Ventas'
-        },
+
+
         {
             id: 'messages',
             href: '/messages',
