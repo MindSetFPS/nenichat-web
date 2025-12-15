@@ -16,13 +16,17 @@ export function AppLayout({ children, contactsJson }: AppLayoutProps) {
     return (
         <SidebarProvider open={isOpen} onOpenChange={setIsOpen}>
             <AppSidebar contacts={contactsJson} />
-            <div className="flex flex-col md:flex-row w-full">
+            <div className="flex flex-col md:flex-row w-full
+            ">
                 <SidebarInset className="justify-center">
+                    {/* add a very subtle backgroun gradient */}
                     <div className="flex flex-col box-border 
                     w-full h-dvh md:h-[calc(100vh-1rem)] md:w-4xl 
                     my-0 py-0 md:my-2 md:py-2 mx-auto p-2 md:p-4 space-y-4
                     bg-background 
-                    md:border rounded-r-lg md:rounded-lg overflow-hidden">
+                    md:border rounded-r-lg md:rounded-lg overflow-hidden    
+                    bg-linear-to-br from-neutral-800 to-neutral-950
+                    ">
                         {children}
                     </div>
                     <ToasterProvider />

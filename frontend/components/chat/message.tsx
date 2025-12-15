@@ -36,7 +36,7 @@ export default function Message({ message, me }: MessageProps) {
     const [open, setOpen] = useState(false)
 
     return (
-        <div className="flex items-end gap-2">
+        <div className="flex gap-2">
             {
                 message.sender && message.sender_id !== me?.id ?
                     <Avatar className="h-8 w-8">
@@ -48,7 +48,7 @@ export default function Message({ message, me }: MessageProps) {
             <div
                 key={message.id}
                 className={cn(
-                    "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity",
+                    "flex w-max max-w-[75%] border flex-col gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity",
                     message.sender_id === me?.id
                         ? "ml-auto bg-primary text-primary-foreground rounded-tr-none"
                         : "bg-muted rounded-tl-none"
@@ -57,7 +57,7 @@ export default function Message({ message, me }: MessageProps) {
                 <Accordion type="single" collapsible className="p-0">
                     <AccordionItem value="item-1" className="p-0">
                         {
-                            message.sender ?
+                            message.sender && message.sender_id !== me?.id ?
                                 <Link href={`/chats/${message.sender_id}`}>
                                     <span className="text-xs font-bold">
                                         {getContactIdentifier(message.sender!)}
@@ -65,11 +65,19 @@ export default function Message({ message, me }: MessageProps) {
                                 </Link>
                                 : <></>
                         }
-                        <AccordionTrigger className="items-center p-0">
+
+                        {message.sender_id !== me?.id ? (
+                            <AccordionTrigger className="items-center p-0">
+                                <p className="text-sm py-2">
+                                    {message.text_content}
+                                </p>
+                            </AccordionTrigger>
+                        ) : (
                             <p className="text-sm py-2">
                                 {message.text_content}
                             </p>
-                        </AccordionTrigger>
+                        )}
+
                         <AccordionContent>
                             <div className="">
                                 <Sheet open={open} onOpenChange={setOpen}>

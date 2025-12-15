@@ -13,7 +13,7 @@ interface OrderMessageProps {
 
 export default function OrderMessage({ order }: OrderMessageProps) {
     return (
-        <Card className="bg-foreground/5 relative">
+        <Card className="bg-foreground/5 relative mx-10">
             <ShineBorder className="absolute inset-0" shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
 
             <CardHeader className="pb-3">

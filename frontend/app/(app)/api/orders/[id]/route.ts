@@ -61,7 +61,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
             // Recreate all items
             for (const item of clientOrderProducts) {
-                console.log(item)
                 await orderItemRepository.create({
                     order_id: orderId,
                     product_id: item.productId,

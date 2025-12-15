@@ -63,7 +63,7 @@ export default function SettingsPage() {
     return (
         <>
             <PageHeader content={<h1 className="text-2xl font-bold">Settings</h1>} />
-            <main className="flex-1 overflow-y-auto bg-background mt-2">
+            <main className="flex-1 overflow-y-auto mt-2">
 
                 <>
                     {

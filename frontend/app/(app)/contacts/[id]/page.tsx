@@ -135,7 +135,11 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                         </CardContent>
                     </Card>
                 </div>
-            </div >
+
+
+
+
+            </div>
         </ >
     );
 }
