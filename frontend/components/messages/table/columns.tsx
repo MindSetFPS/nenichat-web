@@ -4,6 +4,7 @@ import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identi
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import dateToHuman from "@/Nenichat/Shared/app/date-to-human"
 import { ColumnDef } from "@tanstack/react-table"
+import Link from "next/link"
 
 export const columns: ColumnDef<IMessageWithSender>[] = [
     {
@@ -14,9 +15,10 @@ export const columns: ColumnDef<IMessageWithSender>[] = [
     {
         accessorKey: "sender",
         header: "Envíado por",
-        cell: ({ row }) => <span className="text-primary w-min">
+        cell: ({ row }) => <Link href={`/chats/${row.original.sender!.id}`}
+            className="text-blue-400 w-min hover:underline">
             {getContactIdentifier(row.original.sender!)}
-        </span>,
+        </Link>,
     },
     {
         accessorKey: "text_content",
