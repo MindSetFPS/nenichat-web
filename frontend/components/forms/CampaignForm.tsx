@@ -15,13 +15,15 @@ import {
 import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
+import { Switch } from "../ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Frequency } from "./campaign-form/frequency";
 
 interface CampaignFormProps {
   onSubmit: (data: {
     name: string;
     description: string;
     message: string;
-    run_at?: Date;
     audienceIds?: number[];
   }) => Promise<void>;
   initialData?: Partial<ICampaign>;
@@ -42,6 +44,8 @@ export function CampaignForm({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [audiences, setAudiences] = useState<IAudience[]>([]);
   const [selectedAudienceIds, setSelectedAudienceIds] = useState<number[]>([]);
+
+  const [isRecurring, setIsRecurring] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -74,7 +78,6 @@ export function CampaignForm({
       name,
       description,
       message,
-      run_at: runAt,
       audienceIds: selectedAudienceIds,
     });
   };
@@ -153,74 +156,9 @@ export function CampaignForm({
           </PopoverContent>
         </Popover>
       </div>
-      <Label htmlFor="run_at" className="text-right font-bold">
-        Run At (HH:MM)
-      </Label>
-      <div className="grid grid-cols-2 items-center gap-4">
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="date-picker" className="">
-            Date
-          </Label>
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date-picker"
-                className="w-32 justify-between font-normal"
-              >
-                {runAt ? runAt.toLocaleDateString() : "Select date"}
-                <ChevronDownIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={runAt}
-                captionLayout="dropdown"
-                onSelect={(selectedDate) => {
-                  if (!selectedDate) {
-                    setRunAt(undefined);
-                    setPopoverOpen(false);
-                    return;
-                  }
-                  const newDate = new Date(runAt || new Date());
-                  newDate.setFullYear(selectedDate.getFullYear());
-                  newDate.setMonth(selectedDate.getMonth());
-                  newDate.setDate(selectedDate.getDate());
-                  setRunAt(newDate);
-                  setPopoverOpen(false);
-                }}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
 
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="time-picker" className="">
-            Time
-          </Label>
-          <Input
-            type="time"
-            id="time-picker"
-            step="1"
-            value={runAt ? runAt.toTimeString().slice(0, 8) : ""}
-            onChange={(e) => {
-              const newDate = runAt ? new Date(runAt) : new Date();
-              const [hours, minutes, seconds] = e.target.value.split(":");
-              newDate.setHours(parseInt(hours, 10));
-              newDate.setMinutes(parseInt(minutes, 10));
-              if (seconds) {
-                newDate.setSeconds(parseInt(seconds, 10));
-              }
-              setRunAt(newDate);
-            }}
-            className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-          />
-        </div>
-      </div>
+      <Frequency />
+
       <Button type="submit" disabled={isLoading}>
         {submitButtonText}
       </Button>

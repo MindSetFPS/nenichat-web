@@ -13,6 +13,12 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
+import { ScheduledTask } from "@/Nenichat/Shared/domain/scheduled-task";
+
+interface CreateCampaignProps extends ScheduledTask {
+  // a message can be predefined or generated on the fly
+  // in code, we repres
+}
 
 export function CreateCampaignDialog() {
   const router = useRouter();
