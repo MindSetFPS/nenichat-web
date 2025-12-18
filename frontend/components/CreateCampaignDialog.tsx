@@ -13,25 +13,19 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
-import { ScheduledTask } from "@/Nenichat/Shared/domain/scheduled-task";
-
-interface CreateCampaignProps extends ScheduledTask {
-  // a message can be predefined or generated on the fly
-  // in code, we repres
-}
+import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 
 export function CreateCampaignDialog() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = async (data: {
-    name: string;
-    description: string;
-    message: string;
-    run_at?: Date;
-    audienceIds?: number[];
-  }) => {
+  async function handleSubmit({
+    name,
+    description,
+    message,
+    audienceIds,
+  }: Partial<ICampaign>) {
     setIsLoading(true);
 
     try {
@@ -41,11 +35,10 @@ export function CreateCampaignDialog() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: data.name,
-          description: data.description,
-          message: data.message,
-          run_at: data.run_at,
-          audienceIds: data.audienceIds,
+          name,
+          description,
+          message,
+          audienceIds,
         }),
       });
 

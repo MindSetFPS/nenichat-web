@@ -9,26 +9,53 @@ import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 
 export function Frequency() {
+    const [popoverOpen, setPopoverOpen] = useState(false);
     const [isRecurring, setIsRecurring] = useState(false);
 
-    const [runAt, setRunAt] = useState<Date | undefined>(undefined);
-    const [popoverOpen, setPopoverOpen] = useState(false);
-    const [day, setDay] = useState("monday");
+    // We always need to know time of execution
+    const [time, setTime] = useState<Date | undefined>(undefined);
 
-    // recurring inputs
+    // if its single run, we need the date
     const [interval, setInterval] = useState("daily");
+    const [dayOfMonth, setDayOfMonth] = useState<string | undefined>(undefined);
     const [dayOfWeek, setDayOfWeek] = useState("monday");
-    const [time, setTime] = useState("00:00");
-    // a select for the day of the week
-    // a select for the time, by now i should be able to set it as
-    // daily, an to chose an hour. it should be compatible with linux cron expressions
+
+    const weekDays = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ];
+
+    function finalData(e: React.FormEvent) {
+        e.preventDefault();
+        if (!time) {
+            console.log("Please select a time");
+            return;
+        }
+        if (isRecurring) {
+            console.log({
+                interval,
+                dayOfMonth,
+                dayOfWeek,
+                time,
+            })
+        } else {
+            console.log({
+                time,
+            })
+        }
+    }
+
     return (
         <>
             <div className="grid grid-cols-2 items-center gap-2">
                 <Label htmlFor="frequency_type" className="text-right font-bold">
                     {isRecurring ? "Repetir" : "Una vez"}
                 </Label>
-
                 <Switch
                     id="frequency_type"
                     checked={isRecurring}
@@ -47,7 +74,7 @@ export function Frequency() {
                                     id="date-picker"
                                     className="w-32 justify-between font-normal"
                                 >
-                                    {runAt ? runAt.toLocaleDateString() : "Select date"}
+                                    {time ? time.toLocaleDateString() : "Select date"}
                                     <ChevronDownIcon />
                                 </Button>
                             </PopoverTrigger>
@@ -57,19 +84,19 @@ export function Frequency() {
                             >
                                 <Calendar
                                     mode="single"
-                                    selected={runAt}
+                                    selected={time}
                                     captionLayout="dropdown"
                                     onSelect={(selectedDate) => {
                                         if (!selectedDate) {
-                                            setRunAt(undefined);
+                                            setTime(undefined);
                                             setPopoverOpen(false);
                                             return;
                                         }
-                                        const newDate = new Date(runAt || new Date());
+                                        const newDate = new Date(time || new Date());
                                         newDate.setFullYear(selectedDate.getFullYear());
                                         newDate.setMonth(selectedDate.getMonth());
                                         newDate.setDate(selectedDate.getDate());
-                                        setRunAt(newDate);
+                                        setTime(newDate);
                                         setPopoverOpen(false);
                                     }}
                                 />
@@ -101,18 +128,20 @@ export function Frequency() {
                         <Label htmlFor="day" className="text-right">
                             Dia
                         </Label>
-                        <Select value={day} onValueChange={setDay}>
+                        <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
                             <SelectTrigger className="mb-0">
                                 <SelectValue placeholder="Select day" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="monday">Lunes</SelectItem>
-                                <SelectItem value="tuesday">Martes</SelectItem>
-                                <SelectItem value="wednesday">Miercoles</SelectItem>
-                                <SelectItem value="thursday">Jueves</SelectItem>
-                                <SelectItem value="friday">Viernes</SelectItem>
-                                <SelectItem value="saturday">Sabado</SelectItem>
-                                <SelectItem value="sunday">Domingo</SelectItem>
+                                {weekDays.map((day, index) => {
+                                    // Create a date object for the weekday (using a reference Sunday + day index)
+                                    const date = new Date(2024, 0, 1 + index); // Jan 1, 2024 is a Monday
+                                    return (
+                                        <SelectItem key={day} value={day}>
+                                            {date.toLocaleDateString("es-ES", { weekday: "long" })}
+                                        </SelectItem>
+                                    );
+                                })}
                             </SelectContent>
                         </Select>
                     </div>
@@ -123,64 +152,38 @@ export function Frequency() {
                         <Label htmlFor="day" className="text-right">
                             Dia
                         </Label>
-                        <Select value={day} onValueChange={setDay}>
+                        <Select value={dayOfMonth} onValueChange={setDayOfMonth}>
                             <SelectTrigger className="mb-0 w-full">
                                 <SelectValue placeholder="Select day" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="1">1</SelectItem>
-                                <SelectItem value="2">2</SelectItem>
-                                <SelectItem value="3">3</SelectItem>
-                                <SelectItem value="4">4</SelectItem>
-                                <SelectItem value="5">5</SelectItem>
-                                <SelectItem value="6">6</SelectItem>
-                                <SelectItem value="7">7</SelectItem>
-                                <SelectItem value="8">8</SelectItem>
-                                <SelectItem value="9">9</SelectItem>
-                                <SelectItem value="10">10</SelectItem>
-                                <SelectItem value="11">11</SelectItem>
-                                <SelectItem value="12">12</SelectItem>
-                                <SelectItem value="13">13</SelectItem>
-                                <SelectItem value="14">14</SelectItem>
-                                <SelectItem value="15">15</SelectItem>
-                                <SelectItem value="16">16</SelectItem>
-                                <SelectItem value="17">17</SelectItem>
-                                <SelectItem value="18">18</SelectItem>
-                                <SelectItem value="19">19</SelectItem>
-                                <SelectItem value="20">20</SelectItem>
-                                <SelectItem value="21">21</SelectItem>
-                                <SelectItem value="22">22</SelectItem>
-                                <SelectItem value="23">23</SelectItem>
-                                <SelectItem value="24">24</SelectItem>
-                                <SelectItem value="25">25</SelectItem>
-                                <SelectItem value="26">26</SelectItem>
-                                <SelectItem value="27">27</SelectItem>
-                                <SelectItem value="28">28</SelectItem>
+                                {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                                    <SelectItem key={day} value={day.toString()}>
+                                        {day}
+                                    </SelectItem>
+                                ))}
                                 <SelectItem value="L">Last day of month</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 )}
 
-
                 <div className="col-span-2 space-y-2">
-                    <Label htmlFor="time-picker" className="">
-                        Hora
-                    </Label>
+                    <Label htmlFor="time-picker" className="">Hora</Label>
                     <Input
                         type="time"
                         id="time-picker"
                         step="1"
-                        value={runAt ? runAt.toTimeString().slice(0, 8) : ""}
+                        value={time ? time.toTimeString().slice(0, 8) : ""}
                         onChange={(e) => {
-                            const newDate = runAt ? new Date(runAt) : new Date();
+                            const newDate = time ? new Date(time) : new Date();
                             const [hours, minutes, seconds] = e.target.value.split(":");
                             newDate.setHours(parseInt(hours, 10));
                             newDate.setMinutes(parseInt(minutes, 10));
                             if (seconds) {
                                 newDate.setSeconds(parseInt(seconds, 10));
                             }
-                            setRunAt(newDate);
+                            setTime(newDate);
                         }}
                         className="bg-background 
                         appearance-none [&::-webkit-calendar-picker-indicator]:hidden 
@@ -188,6 +191,10 @@ export function Frequency() {
                     />
                 </div>
             </div>
+
+            <Button onClick={finalData}>
+                check
+            </Button>
         </>
     )
 }

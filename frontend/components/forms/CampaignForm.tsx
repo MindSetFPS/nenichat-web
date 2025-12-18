@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronDownIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -15,17 +13,10 @@ import {
 import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
-import { Switch } from "../ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Frequency } from "./campaign-form/frequency";
 
 interface CampaignFormProps {
-  onSubmit: (data: {
-    name: string;
-    description: string;
-    message: string;
-    audienceIds?: number[];
-  }) => Promise<void>;
+  onSubmit: (submitData: Partial<ICampaign>) => Promise<void>;
   initialData?: Partial<ICampaign>;
   isLoading: boolean;
   submitButtonText: string;
@@ -41,11 +32,8 @@ export function CampaignForm({
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
   const [runAt, setRunAt] = useState<Date | undefined>(new Date());
-  const [popoverOpen, setPopoverOpen] = useState(false);
   const [audiences, setAudiences] = useState<IAudience[]>([]);
   const [selectedAudienceIds, setSelectedAudienceIds] = useState<number[]>([]);
-
-  const [isRecurring, setIsRecurring] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -93,9 +81,7 @@ export function CampaignForm({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4 mb-2 pb-0">
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="name" className="text-right">
-          Name
-        </Label>
+        <Label htmlFor="name" className="text-right">Name</Label>
         <Input
           id="name"
           value={name}
@@ -105,9 +91,7 @@ export function CampaignForm({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="description" className="text-right">
-          Description
-        </Label>
+        <Label htmlFor="description" className="text-right">Description</Label>
         <Textarea
           id="description"
           value={description}
@@ -117,9 +101,7 @@ export function CampaignForm({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="message" className="text-right">
-          Message
-        </Label>
+        <Label htmlFor="message" className="text-right">Message</Label>
         <Textarea
           id="message"
           value={message}
@@ -129,9 +111,7 @@ export function CampaignForm({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="audiences" className="text-right">
-          Audiences
-        </Label>
+        <Label htmlFor="audiences" className="text-right">Audiences</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="col-span-3">
@@ -147,9 +127,7 @@ export function CampaignForm({
                     checked={selectedAudienceIds.includes(Number(audience.id))}
                     onCheckedChange={() => handleAudienceSelection(Number(audience.id))}
                   />
-                  <Label htmlFor={`audience-${audience.id.toString()}`}>
-                    {audience.name}
-                  </Label>
+                  <Label htmlFor={`audience-${audience.id.toString()}`}>{audience.name}</Label>
                 </div>
               ))}
             </div>
