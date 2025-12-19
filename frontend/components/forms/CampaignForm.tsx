@@ -14,9 +14,10 @@ import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
 import { Frequency } from "./campaign-form/frequency";
+import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
 
 interface CampaignFormProps {
-  onSubmit: (submitData: Partial<ICampaign>) => Promise<void>;
+  onSubmit: (submitData: NewCampaignData) => Promise<void>;
   initialData?: Partial<ICampaign>;
   isLoading: boolean;
   submitButtonText: string;
@@ -28,10 +29,20 @@ export function CampaignForm({
   isLoading,
   submitButtonText,
 }: CampaignFormProps) {
+
+  // task data
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+
+  // schedule data
   const [runAt, setRunAt] = useState<Date | undefined>(new Date());
+  const [interval, setInterval] = useState("daily");
+  const [dayOfMonth, setDayOfMonth] = useState<string | undefined>(undefined);
+  const [dayOfWeek, setDayOfWeek] = useState("monday");
+  const [frequency_type, setFrequencyType] = useState<'once' | 'recurring'>('once');
+
+  // audience data
   const [audiences, setAudiences] = useState<IAudience[]>([]);
   const [selectedAudienceIds, setSelectedAudienceIds] = useState<number[]>([]);
 
@@ -67,6 +78,11 @@ export function CampaignForm({
       description,
       message,
       audienceIds: selectedAudienceIds,
+      runAt,
+      interval,
+      dayOfMonth,
+      frequency_type,
+      dayOfWeek,
     });
   };
 
@@ -135,7 +151,18 @@ export function CampaignForm({
         </Popover>
       </div>
 
-      <Frequency />
+      <Frequency
+        time={runAt}
+        setTime={setRunAt}
+        interval={interval}
+        setInterval={setInterval}
+        dayOfMonth={dayOfMonth}
+        setDayOfMonth={setDayOfMonth}
+        dayOfWeek={dayOfWeek}
+        setDayOfWeek={setDayOfWeek}
+        frequencyType={frequency_type}
+        setFrequencyType={setFrequencyType}
+      />
 
       <Button type="submit" disabled={isLoading}>
         {submitButtonText}

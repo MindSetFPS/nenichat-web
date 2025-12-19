@@ -8,17 +8,30 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 
-export function Frequency() {
+export function Frequency({
+    time,
+    setTime,
+    interval,
+    setInterval,
+    dayOfMonth,
+    setDayOfMonth,
+    dayOfWeek,
+    setDayOfWeek,
+    frequencyType,
+    setFrequencyType,
+}: {
+    time: Date | undefined;
+    setTime: (time: Date | undefined) => void;
+    interval: string;
+    setInterval: (interval: string) => void;
+    frequencyType: 'once' | 'recurring';
+    setFrequencyType: (frequencyType: 'once' | 'recurring') => void;
+    dayOfMonth: string | undefined;
+    setDayOfMonth: (dayOfMonth: string | undefined) => void;
+    dayOfWeek: string;
+    setDayOfWeek: (dayOfWeek: string) => void;
+}) {
     const [popoverOpen, setPopoverOpen] = useState(false);
-    const [isRecurring, setIsRecurring] = useState(false);
-
-    // We always need to know time of execution
-    const [time, setTime] = useState<Date | undefined>(undefined);
-
-    // if its single run, we need the date
-    const [interval, setInterval] = useState("daily");
-    const [dayOfMonth, setDayOfMonth] = useState<string | undefined>(undefined);
-    const [dayOfWeek, setDayOfWeek] = useState("monday");
 
     const weekDays = [
         "monday",
@@ -30,41 +43,21 @@ export function Frequency() {
         "sunday",
     ];
 
-    function finalData(e: React.FormEvent) {
-        e.preventDefault();
-        if (!time) {
-            console.log("Please select a time");
-            return;
-        }
-        if (isRecurring) {
-            console.log({
-                interval,
-                dayOfMonth,
-                dayOfWeek,
-                time,
-            })
-        } else {
-            console.log({
-                time,
-            })
-        }
-    }
-
     return (
         <>
             <div className="grid grid-cols-2 items-center gap-2">
                 <Label htmlFor="frequency_type" className="text-right font-bold">
-                    {isRecurring ? "Repetir" : "Una vez"}
+                    {frequencyType === 'recurring' ? "Repetir" : "Una vez"}
                 </Label>
                 <Switch
                     id="frequency_type"
-                    checked={isRecurring}
-                    onCheckedChange={setIsRecurring}
+                    checked={frequencyType === 'recurring'}
+                    onCheckedChange={(checked) => setFrequencyType(checked ? 'recurring' : 'once')}
                 />
             </div>
 
             <div className="grid grid-cols-6 items-center gap-4">
-                {!isRecurring && (
+                {frequencyType === 'once' && (
                     <div className="col-span-3 space-y-2">
                         <Label htmlFor="date-picker" className="">Fecha</Label>
                         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -105,7 +98,7 @@ export function Frequency() {
                     </div>
                 )}
 
-                {isRecurring && (
+                {frequencyType === 'recurring' && (
                     <div className="col-span-2 space-y-2">
                         <Label htmlFor="interval" className="">
                             Intervalo
@@ -123,7 +116,7 @@ export function Frequency() {
                     </div>
                 )}
 
-                {isRecurring && interval === "weekly" && (
+                {frequencyType === 'recurring' && interval === "weekly" && (
                     <div className="col-span-2 space-y-2">
                         <Label htmlFor="day" className="text-right">
                             Dia
@@ -147,7 +140,7 @@ export function Frequency() {
                     </div>
                 )}
 
-                {isRecurring && interval === "monthly" && (
+                {frequencyType === 'recurring' && interval === "monthly" && (
                     <div className="col-span-2 space-y-2">
                         <Label htmlFor="day" className="text-right">
                             Dia
@@ -191,10 +184,6 @@ export function Frequency() {
                     />
                 </div>
             </div>
-
-            <Button onClick={finalData}>
-                check
-            </Button>
         </>
     )
 }

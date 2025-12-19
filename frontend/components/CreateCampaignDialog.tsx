@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
 import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
+import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
 
 export function CreateCampaignDialog() {
   const router = useRouter();
@@ -24,9 +25,26 @@ export function CreateCampaignDialog() {
     name,
     description,
     message,
+    runAt,
+    interval,
+    dayOfMonth,
+    frequency_type,
+    dayOfWeek,
     audienceIds,
-  }: Partial<ICampaign>) {
+  }: NewCampaignData) {
     setIsLoading(true);
+
+    console.log({
+      name,
+      description,
+      message,
+      runAt,
+      interval,
+      dayOfMonth,
+      frequency_type,
+      dayOfWeek,
+      audienceIds,
+    });
 
     try {
       const response = await fetch("/api/campaigns", {
@@ -38,6 +56,11 @@ export function CreateCampaignDialog() {
           name,
           description,
           message,
+          runAt,
+          interval,
+          dayOfMonth,
+          frequency_type,
+          dayOfWeek,
           audienceIds,
         }),
       });
