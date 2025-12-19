@@ -3,9 +3,9 @@ export interface NewCampaignData {
     description: string;
     message: string;
     runAt: Date | undefined;
-    interval: string;
+    interval: string | undefined;
     frequency_type: 'once' | 'recurring';
     dayOfMonth: string | undefined;
-    dayOfWeek: string;
+    dayOfWeek: string | undefined;
     audienceIds: number[];
 }

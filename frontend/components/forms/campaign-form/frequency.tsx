@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -5,8 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDownIcon } from "lucide-react";
-import { useState } from "react";
 
 export function Frequency({
     time,
@@ -22,14 +22,14 @@ export function Frequency({
 }: {
     time: Date | undefined;
     setTime: (time: Date | undefined) => void;
-    interval: string;
-    setInterval: (interval: string) => void;
+    interval: string | undefined;
+    setInterval: (interval: string | undefined) => void;
     frequencyType: 'once' | 'recurring';
     setFrequencyType: (frequencyType: 'once' | 'recurring') => void;
     dayOfMonth: string | undefined;
     setDayOfMonth: (dayOfMonth: string | undefined) => void;
-    dayOfWeek: string;
-    setDayOfWeek: (dayOfWeek: string) => void;
+    dayOfWeek: string | undefined;
+    setDayOfWeek: (dayOfWeek: string | undefined) => void;
 }) {
     const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -43,20 +43,28 @@ export function Frequency({
         "sunday",
     ];
 
+    function onCheckChange(checked: boolean) {
+        setFrequencyType(checked ? 'recurring' : 'once');
+        if (frequencyType == 'once') {
+            setDayOfMonth(undefined);
+            setDayOfWeek(undefined);
+        }
+    }
+
     return (
         <>
-            <div className="grid grid-cols-2 items-center gap-2">
+            <div className="grid grid-cols-4 items-center gap-2">
                 <Label htmlFor="frequency_type" className="text-right font-bold">
                     {frequencyType === 'recurring' ? "Repetir" : "Una vez"}
                 </Label>
                 <Switch
                     id="frequency_type"
                     checked={frequencyType === 'recurring'}
-                    onCheckedChange={(checked) => setFrequencyType(checked ? 'recurring' : 'once')}
+                    onCheckedChange={onCheckChange}
                 />
             </div>
 
-            <div className="grid grid-cols-6 items-center gap-4">
+            <div className="grid grid-cols-6 space-x-1 items-center">
                 {frequencyType === 'once' && (
                     <div className="col-span-3 space-y-2">
                         <Label htmlFor="date-picker" className="">Fecha</Label>
@@ -99,13 +107,13 @@ export function Frequency({
                 )}
 
                 {frequencyType === 'recurring' && (
-                    <div className="col-span-2 space-y-2">
+                    <div className={`space-y-2 ${interval === 'daily' ? 'col-span-3' : 'col-span-2'}`}>
                         <Label htmlFor="interval" className="">
                             Intervalo
                         </Label>
                         <Select value={interval} onValueChange={setInterval}>
-                            <SelectTrigger className="mb-0">
-                                <SelectValue placeholder="Select interval" />
+                            <SelectTrigger className="mb-0 w-full" >
+                                <SelectValue placeholder="Intervalo" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="daily">A diario</SelectItem>
@@ -122,15 +130,15 @@ export function Frequency({
                             Dia
                         </Label>
                         <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
-                            <SelectTrigger className="mb-0">
-                                <SelectValue placeholder="Select day" />
+                            <SelectTrigger className="mb-0 w-full">
+                                <SelectValue placeholder="Día" />
                             </SelectTrigger>
                             <SelectContent>
                                 {weekDays.map((day, index) => {
                                     // Create a date object for the weekday (using a reference Sunday + day index)
                                     const date = new Date(2024, 0, 1 + index); // Jan 1, 2024 is a Monday
                                     return (
-                                        <SelectItem key={day} value={day}>
+                                        <SelectItem key={day} value={(index + 1).toString()}>
                                             {date.toLocaleDateString("es-ES", { weekday: "long" })}
                                         </SelectItem>
                                     );
@@ -161,7 +169,7 @@ export function Frequency({
                     </div>
                 )}
 
-                <div className="col-span-2 space-y-2">
+                <div className={`col-span-2 space-y-2 ${frequencyType === 'once' || interval === 'daily' ? 'col-span-3' : ''}`}>
                     <Label htmlFor="time-picker" className="">Hora</Label>
                     <Input
                         type="time"

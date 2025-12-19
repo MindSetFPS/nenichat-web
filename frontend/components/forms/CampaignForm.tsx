@@ -37,9 +37,9 @@ export function CampaignForm({
 
   // schedule data
   const [runAt, setRunAt] = useState<Date | undefined>(new Date());
-  const [interval, setInterval] = useState("daily");
+  const [interval, setInterval] = useState<string | undefined>(undefined);
   const [dayOfMonth, setDayOfMonth] = useState<string | undefined>(undefined);
-  const [dayOfWeek, setDayOfWeek] = useState("monday");
+  const [dayOfWeek, setDayOfWeek] = useState<string | undefined>(undefined);
   const [frequency_type, setFrequencyType] = useState<'once' | 'recurring'>('once');
 
   // audience data
@@ -93,6 +93,14 @@ export function CampaignForm({
         : [...prev, audienceId]
     );
   };
+
+  // button disabled conditions
+  // 1. at least one audience selected
+  // 2. name, description, message, runAt are not empty
+  // 3. if frequency_type is 'recurring', interval is not empty
+  // 4/ if requency_type is recurring, and interval is weekly, dayOfWeek is not empty
+  // 5. if frequency_type is recurring, and interval is monthly, dayOfMonth is not empty
+  const isButtonDisabled = isLoading || selectedAudienceIds.length === 0 || !name || !description || !message || !runAt || (frequency_type === 'recurring' && (!interval || (interval === 'weekly' && !dayOfWeek) || (interval === 'monthly' && !dayOfMonth)));
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4 mb-2 pb-0">
@@ -164,7 +172,7 @@ export function CampaignForm({
         setFrequencyType={setFrequencyType}
       />
 
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" disabled={isButtonDisabled}>
         {submitButtonText}
       </Button>
     </form>

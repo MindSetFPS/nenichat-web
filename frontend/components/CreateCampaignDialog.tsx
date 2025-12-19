@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
-import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
 
 export function CreateCampaignDialog() {
@@ -83,19 +82,19 @@ export function CreateCampaignDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Create Campaign</Button>
+        <Button>Crear campaña</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Campaign</DialogTitle>
+          <DialogTitle>Crear nueva campaña</DialogTitle>
           <DialogDescription>
-            Fill in the details for your new campaign.
+            Programa mensajes para envíar una vez o repetidamente a tus contactos.
           </DialogDescription>
         </DialogHeader>
         <CampaignForm
           onSubmit={handleSubmit}
           isLoading={isLoading}
-          submitButtonText="Create Campaign"
+          submitButtonText="Crear campaña"
         />
       </DialogContent>
     </Dialog>

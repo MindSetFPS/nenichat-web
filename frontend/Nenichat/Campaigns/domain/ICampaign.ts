@@ -1,10 +1,8 @@
-export interface ICampaign {
-  id: string;
-  name: string;
-  run_at?: string;
-  executed_at?: string;
-  description?: string;
+// A campaign is a scheduled task that sends a message to a list of audiences
+
+import { ScheduledTask } from "@/Nenichat/Shared/domain/scheduled-task";
+
+export interface ICampaign extends ScheduledTask {
   message?: string;
-  created_at: string;
   audienceIds?: number[];
 }
