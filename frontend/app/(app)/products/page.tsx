@@ -22,6 +22,8 @@ export default async function ProductsPage() {
 
   try {
     products = await productRepository.getAll();
+    // sort by is_active true first, is_active false second
+    products.sort((a, b) => (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0));
     products = JSON.parse(JSON.stringify(products));
   } catch (err: any) {
     console.error('Error fetching products in server component:', err);
