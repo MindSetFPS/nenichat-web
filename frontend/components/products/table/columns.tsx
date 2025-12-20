@@ -1,11 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { IProduct } from "@/Nenichat/Products/domain/IProduct";
+import { IProduct, IProductWithUnitsSold } from "@/Nenichat/Products/domain/IProduct";
 import Link from "next/link";
 import { AvailableCheckbot } from "./available-checkbot";
 
-export const columns: ColumnDef<IProduct>[] = [
+export const columns: ColumnDef<IProductWithUnitsSold>[] = [
     {
         accessorKey: "name",
         header: "Nombre",
@@ -15,6 +15,15 @@ export const columns: ColumnDef<IProduct>[] = [
                 href={`/products/${row.original.id}`}>
                 {row.original.name}
             </Link>
+        ),
+    },
+    {
+        accessorKey: "units_sold",
+        header: "Ventas",
+        cell: ({ row }) => (
+            <div className="w-min">
+                {row.original.units_sold}
+            </div>
         ),
     },
     {

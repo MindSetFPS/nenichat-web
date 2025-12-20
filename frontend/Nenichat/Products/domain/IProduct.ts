@@ -16,3 +16,11 @@ export interface IProduct {
   created_at: Date;
   updated_at: Date;
 }
+
+/**
+ * @interface IProductWithUnitsSold
+ * @description Extends IProduct with units sold information for analytics.
+ */
+export interface IProductWithUnitsSold extends IProduct {
+  units_sold: number;
+}
