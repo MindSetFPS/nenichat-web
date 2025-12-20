@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Sidebar,
@@ -23,6 +23,7 @@ import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identi
 import ContactAvatar from './contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
+import { Badge } from "./ui/badge"
 
 interface AppSidebarProps {
     contacts: string
@@ -51,6 +52,29 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             label: 'Ventas'
         },
         {
+            id: 'expenses',
+            icon: Receipt,
+            label: 'Gastos',
+            submenu: [
+                {
+                    id: 'expenses-list',
+                    href: '/expenses',
+                    label: 'Todos los gastos'
+                },
+                {
+                    id: 'expense-categories',
+                    href: '/expense-categories',
+                    label: 'Categorías'
+                }
+            ]
+        },
+        {
+            id: 'profitability',
+            href: '/profitability',
+            icon: TrendingUp,
+            label: 'Rentabilidad'
+        },
+        {
             id: 'products',
             href: '/products',
             icon: PackageIcon,
@@ -67,6 +91,12 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             href: '/audiences',
             icon: MailIcon,
             label: 'Audiencias'
+        },
+        {
+            id: 'shipments',
+            href: '/shipments',
+            icon: Truck,
+            label: 'Envíos'
         },
         {
             id: 'contacts',
@@ -155,12 +185,14 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                             return (
                                 <SidebarMenuItem key={item.id}>
                                     <SidebarMenuButton
+                                        disabled={item.href === '/shipments'}
                                         className='cursor-pointer'
                                         isActive={isActive(item.href!)}
                                         onClick={() => changeRoute(item.href!)}>
                                         <Icon className='w-5! h-5! md:h-4! md:w-4!' />
                                         <span className='text-lg md:text-sm'>
                                             {item.label}
+                                            {item.href === '/shipments' && <Badge className="text-xs ml-2">Pronto</Badge>}
                                         </span>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -173,7 +205,7 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                     <SidebarGroupLabel>Contacts</SidebarGroupLabel>
                     <SidebarMenu>
                         {contacts.map((contact: IContactWithLastMessage) => (
-                            <SidebarMenuItem key={contact.id} >
+                            <SidebarMenuItem key={contact.id}>
                                 <SidebarMenuButton
                                     className="py-2 h-16 w-full truncate overflow-hidden whitespace-nowrap cursor-pointer"
                                     size={'lg'}
