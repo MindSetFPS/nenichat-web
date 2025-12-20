@@ -5,7 +5,7 @@ import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderIt
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { ProductRepository } from "@/Nenichat/Products/infra/persistance/ProductRepository";
 import { CreateOrderForm } from "@/components/forms/create-order-form";
-import { PageHeader } from "@/components/ui/page-header";
+import { HeaderAction } from "@/components/header-action";
 
 const orderRepository = new OrderRepository(pool);
 const orderItemRepository = new OrderItemRepository(pool);
@@ -63,9 +63,9 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
 
     return (
         <>
-            <PageHeader
-                content={<h1 className="text-3xl font-bold tracking-tight">Edit Order #{orderId}</h1>}
-            />
+            <HeaderAction>
+                <h1 className="text-3xl font-bold tracking-tight">Edit Order #{orderId}</h1>
+            </HeaderAction>
             <div className="overflow-scroll">
                 <CreateOrderForm
                     contacts={plainContacts}

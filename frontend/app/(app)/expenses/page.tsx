@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus, Receipt } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
-import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/expenses/table/columns";
+import { HeaderAction } from "@/components/header-action";
 
 const expenseRepository = new ExpenseRepository(pool);
 
@@ -29,17 +29,15 @@ export default async function ExpensesPage() {
 
     return (
         <>
-            <PageHeader content={
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Gastos</h1>
-                    {
-                        plainExpenses.length !== 0 ?
-                            <CreateExpenseButton />
-                            :
-                            null
-                    }
-                </div>
-            } />
+            <HeaderAction>
+                <h1 className="text-2xl font-bold">Gastos</h1>
+                {
+                    plainExpenses.length !== 0 ?
+                        <CreateExpenseButton />
+                        :
+                        null
+                }
+            </HeaderAction>
 
             <div className="overflow-y-auto h-full">
                 {

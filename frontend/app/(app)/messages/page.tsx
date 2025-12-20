@@ -1,8 +1,8 @@
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { columns } from "@/components/messages/table/columns";
+import { HeaderAction } from "@/components/header-action";
 
 export default async function Messages() {
   let me = await contactRepository.findMe()
@@ -12,7 +12,9 @@ export default async function Messages() {
 
   return (
     <>
-      <PageHeader content={<h1 className="text-2xl font-bold">Messages</h1>} />
+      <HeaderAction>
+        <h1 className="text-2xl font-bold">Messages</h1>
+      </HeaderAction>
       <DataTable
         columns={columns}
         searchInputColumnId="text_content"

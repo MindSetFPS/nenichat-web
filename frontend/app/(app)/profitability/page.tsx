@@ -9,7 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IProfitabilityReport } from "@/Nenichat/Expenses/app/dto/IProfitabilityReport";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { HeaderAction } from "@/components/header-action";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function ProfitabilityPage() {
     const [loading, setLoading] = useState(true);
@@ -44,11 +47,15 @@ export default function ProfitabilityPage() {
 
     return (
         <>
-            <PageHeader content={
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Rentabilidad</h1>
-                </div>
-            } />
+            <HeaderAction>
+                <h1 className="text-2xl font-bold">Rentabilidad</h1>
+                <Link href="/expenses/new">
+                    <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Registrar gasto
+                    </Button>
+                </Link>
+            </HeaderAction>
 
             <div className="overflow-y-auto space-y-2">
                 {/* Date Range Selector */}

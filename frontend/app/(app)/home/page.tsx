@@ -2,12 +2,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { MessagesChart } from "@/components/home/messages-chart";
 import { OrdersTotalChart } from "@/components/home/orders-total-chart";
-import { PageHeader } from "@/components/ui/page-header";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, CreditCard, DollarSign, ShoppingBag } from "lucide-react";
 import { OrdersPieChart } from "@/components/home/orders-pie-chart";
+import { HeaderAction } from "@/components/header-action";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,9 +43,10 @@ export default async function Page() {
 
   return (
     <>
-      <PageHeader content={<h1 className="text-2xl font-bold">Buenos días</h1>} />
+      <HeaderAction>
+        <h1 className="text-2xl font-bold">Buenos días</h1>
+      </HeaderAction>
       <div className="flex flex-col overflow-y-auto gap-4">
-
         {plainOrders.length > 0 && (
           <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mb-0 mt-4">
             <Card className="py-2 gap-2">

@@ -21,6 +21,7 @@ import { AudienceForm } from "@/components/forms/AudienceForm";
 import { ContactsTable } from "@/components/contacts-table";
 import updateAudienceMembers from "@/Nenichat/Audiences/app/update-audience-members-from-api";
 import { PageHeader } from "@/components/ui/page-header";
+import { HeaderAction } from "@/components/header-action";
 
 const fetchAudienceDetails = async (id: string) => {
   const response = await fetch(`/api/audiences/${id}`);
@@ -131,7 +132,9 @@ export default function AudienceMembersPage() {
           <Spinner className="h-5 w-5" />
         ) : (
           <>
-            <PageHeader content={<h1 className="text-2xl font-bold">Manage Members for: {audience?.name || 'Loading...'}</h1>} />
+            <HeaderAction>
+              <h1 className="text-2xl font-bold">Manage Members for: {audience?.name || 'Loading...'}</h1>
+            </HeaderAction>
             <div className="flex justify-end md:justify-start my-2 space-x-1">
               <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
               <Button onClick={() => setIsEditDialogOpen(true)}>

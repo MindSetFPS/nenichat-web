@@ -77,36 +77,33 @@ export default function ChatView({
   }, [messages, orders])
 
   return (
-    <>
-      <main className="flex-1 h-full overflow-y-auto -mx-2 p-2 flex-col space-y-2">
-        {groupedTimeline.map((group, groupIndex) => (
-          <div key={groupIndex}>
-            <DateSeparator
-              messages={group.items
-                .map(item => item.data as IMessageWithSender)}
-              index={groupIndex}
-            />
-            <div className="space-y-2">
-              {group.items.map((item, itemIndex) => (
-                item.type === 'message' ? (
-                  <Message
-                    message={item.data as IMessageWithSender}
-                    me={me}
-                    key={`message-${itemIndex}`}
-                  />
-                ) : (
-                  <OrderMessage
-                    order={item.data as Order}
-                    key={`order-${itemIndex}`}
-                  />
-                )
-              ))}
-            </div>
+    <main className="h-full overflow-y-auto flex-col space-y-2">
+      {groupedTimeline.map((group, groupIndex) => (
+        <div key={groupIndex}>
+          <DateSeparator
+            messages={group.items
+              .map(item => item.data as IMessageWithSender)}
+            index={groupIndex}
+          />
+          <div className="space-y-2">
+            {group.items.map((item, itemIndex) => (
+              item.type === 'message' ? (
+                <Message
+                  message={item.data as IMessageWithSender}
+                  me={me}
+                  key={`message-${itemIndex}`}
+                />
+              ) : (
+                <OrderMessage
+                  order={item.data as Order}
+                  key={`order-${itemIndex}`}
+                />
+              )
+            ))}
           </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </main>
-      <ChatControls />
-    </>
+        </div>
+      ))}
+      <div ref={messagesEndRef} />
+    </main>
   )
 }

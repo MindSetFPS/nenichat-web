@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from "react"
 import Link from "next/link"
 import { User, Shield, EyeOff, Bell, Palette, Search, ChevronRight, Lock, Moon, Globe, HelpCircle } from "lucide-react"
-import { PageHeader } from "@/components/ui/page-header"
+import { HeaderAction } from "@/components/header-action"
 import { ModeToggle } from "@/components/mode-toggle"
 
 export default function SettingsPage() {
@@ -62,7 +61,9 @@ export default function SettingsPage() {
 
     return (
         <>
-            <PageHeader content={<h1 className="text-2xl font-bold">Settings</h1>} />
+            <HeaderAction>
+                <h1 className="text-2xl font-bold">Settings</h1>
+            </HeaderAction>
             <main className="flex-1 overflow-y-auto mt-2">
 
                 <>

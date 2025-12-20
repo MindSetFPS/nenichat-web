@@ -1,6 +1,7 @@
 import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
 import { EditCampaignForm } from '@/components/EditCampaignForm';
 import { PageHeader } from '@/components/ui/page-header';
+import { HeaderAction } from '@/components/header-action';
 
 export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,7 +25,9 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
 
   return (
     <>
-      <PageHeader content={<h2 className="text-3xl font-bold tracking-tight">Editar campaña</h2>} />
+      <HeaderAction>
+        <h2 className="text-3xl font-bold tracking-tight">Editar campaña</h2>
+      </HeaderAction>
       <EditCampaignForm campaign={plainCampaign} />
     </>
   );

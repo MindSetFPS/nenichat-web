@@ -1,7 +1,7 @@
 import { CreateOrderForm } from "@/components/forms/create-order-form";
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { PageHeader } from "@/components/ui/page-header";
+import { HeaderAction } from "@/components/header-action";
 
 const contactRepository = new ContactRepository(pool);
 
@@ -15,10 +15,10 @@ export default async function NewOrderPage() {
 
     return (
         <>
-            <PageHeader content={<h1 className="text-3xl font-bold tracking-tight">Create New Order</h1>} />
-            <div className="overflow-scroll ">
-                <CreateOrderForm contacts={plainContacts} className="mt-4" />
-            </div>
+            <HeaderAction>
+                <h1 className="text-2xl font-bold">Create New Order</h1>
+            </HeaderAction>
+            <CreateOrderForm contacts={plainContacts} className="mt-4" />
         </>
     );
 }

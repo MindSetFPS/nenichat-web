@@ -14,7 +14,6 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Pagination } from '@/components/ui/pagination';
-import { PageHeader } from '@/components/ui/page-header';
 
 interface ContactCandidate extends Omit<IContact, 'id'> {
   id: string;

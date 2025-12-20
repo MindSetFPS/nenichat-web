@@ -11,6 +11,7 @@ import { columns } from "@/components/orders/table/columns";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
+import { HeaderAction } from "@/components/header-action";
 
 const orderRepository = new OrderRepository(pool);
 
@@ -38,19 +39,13 @@ export default async function OrdersPage() {
         )
     }
 
+
     return (
         <>
-            <PageHeader content={
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Orders</h1>
-                    {
-                        plainOrders.length != 0 ?
-                            <CreateOrderButton />
-                            :
-                            null
-                    }
-                </div>
-            } />
+            <HeaderAction>
+                <h1 className="text-2xl font-bold">Orders</h1>
+                <CreateOrderButton />
+            </HeaderAction>
             {
                 plainOrders.length === 0 ?
                     <EmptyList

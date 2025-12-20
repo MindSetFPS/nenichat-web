@@ -14,6 +14,7 @@ import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 import { EmptyList } from "@/components/empty-list";
 import { PageHeader } from "@/components/ui/page-header";
+import { HeaderAction } from "@/components/header-action";
 
 export const dynamic = 'force-dynamic';
 
@@ -103,12 +104,10 @@ export default async function CampaignsPage() {
 
   return (
     <>
-      <PageHeader content={
-        <div className="w-full flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Campaigns</h1>
-          { allCampaigns.length > 0 && <CreateCampaignDialog /> }
-        </div>
-      } />
+      <HeaderAction>
+        <h1 className="text-2xl font-bold">Campaigns</h1>
+        {allCampaigns.length > 0 && <CreateCampaignDialog />}
+      </HeaderAction>
       <div className="overflow-y-auto h-full">
         {allCampaigns.length === 0 ? (
           <EmptyList

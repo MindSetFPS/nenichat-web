@@ -1,12 +1,12 @@
 import { Package } from 'lucide-react';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
-import { IProduct, IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
+import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { ProductActions } from './ProductActions';
 import { EmptyList } from '@/components/empty-list';
-import { PageHeader } from '@/components/ui/page-header';
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/components/products/table/columns';
+import { HeaderAction } from '@/components/header-action';
 
 
 const productRepository = new ProductRepository(pool);
@@ -55,16 +55,14 @@ export default async function ProductsPage() {
 
   return (
     <>
-      <PageHeader content={
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">
-            Products
-          </h1>
-          {products.length !== 0 &&
-            <ProductActions />
-          }
-        </div>
-      } />
+      <HeaderAction>
+        <h1 className="text-2xl font-bold">
+          Products
+        </h1>
+        {products.length !== 0 &&
+          <ProductActions />
+        }
+      </HeaderAction>
 
       {products.length === 0 ?
         <EmptyList

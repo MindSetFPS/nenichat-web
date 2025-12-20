@@ -1,6 +1,5 @@
 import { Contact } from "@/Nenichat/Contacts/domain/Contact";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
-import { ChatDropDownDialog } from "./chat-dropdown";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import ContactAvatar from "../contact-avatar";
 import Link from "next/link";
@@ -52,7 +51,6 @@ export default function ChatHeader({ contact }: ChatHeaderProps) {
                     </span>
                 </div>
             </div>
-            <ChatDropDownDialog contact={contact!} />
         </div>
     )
 }

@@ -9,8 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import ChatHeader from "@/components/chat/chat-header";
-import { PageHeader } from "@/components/ui/page-header";
 import { columns } from "@/components/orders/table/columns";
+import { HeaderAction } from "@/components/header-action";
+import { ChatDropDownDialog } from "@/components/chat/chat-dropdown";
 
 const contactRepository = new ContactRepository(pool);
 const orderRepository = new OrderRepository(pool);
@@ -41,11 +42,10 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
 
     return (
         <>
-            <PageHeader content={
-                <div className="md:flex items-center gap-2 w-full">
-                    <ChatHeader contact={plainContact!} />
-                </div>
-            } />
+            <HeaderAction>
+                <ChatHeader contact={plainContact!} />
+                <ChatDropDownDialog contact={plainContact!} />
+            </HeaderAction>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 pt-4 overflow-y-auto" >
                 <Card className="space-y-2 md:col-span-2 h-full gap-0">
@@ -135,10 +135,6 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                         </CardContent>
                     </Card>
                 </div>
-
-
-
-
             </div>
         </ >
     );

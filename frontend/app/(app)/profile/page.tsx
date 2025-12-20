@@ -7,8 +7,7 @@ import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { ComboboxDemo } from './combobox';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
-import { PageHeader } from '@/components/ui/page-header';
+import { HeaderAction } from '@/components/header-action';
 
 const MyProfilePage = () => {
   const [user, setUser] = useState<IContact | null>(null);
@@ -52,7 +51,11 @@ const MyProfilePage = () => {
 
   return (
     <>
-      <PageHeader content={<h1 className="text-2xl font-bold">Profile</h1>} />
+      <HeaderAction>
+        <h1 className="text-2xl font-bold">
+          Profile
+        </h1>
+      </HeaderAction>
       <div className="container mx-auto p-4">
         <Card>
           <CardHeader>

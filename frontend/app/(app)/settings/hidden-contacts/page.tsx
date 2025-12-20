@@ -1,6 +1,6 @@
 import ContactAvatar from "@/components/contact-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PageHeader } from "@/components/ui/page-header";
+import { HeaderAction } from "@/components/header-action";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import Link from "next/link";
@@ -10,15 +10,14 @@ export default async function HiddenContactsPage() {
     console.log(hiddenContacts);
     return (
         <>
-            <PageHeader content={<h1 className="text-2xl font-bold">Hidden Contacts</h1>} />
-            <main className="flex-1 overflow-y-auto bg-background mt-2 w-full">
-                <div className="p-6 max-w-3xl w-full">
-                    <div className="ml-2">
-                        <h2 className="text-2xl font-semibold tracking-tight">Hidden Contacts</h2>
-                        <p className="text-muted-foreground mt-1 mb-4">
-                            Manage contacts you have hidden from your list.
-                        </p>
-                    </div>
+            <HeaderAction>
+                <h2 className="text-2xl font-semibold tracking-tight">Hidden Contacts</h2>
+            </HeaderAction>
+            <main className="flex-1 overflow-y-auto w-full">
+                <div className="p-2 max-w-3xl w-full">
+                    <p className="text-muted-foreground mt-1 mb-4">
+                        Manage contacts you have hidden from your list.
+                    </p>
                     <ul className="w-full">
                         {hiddenContacts.map((contact) => (
                             <Link

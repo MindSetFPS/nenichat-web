@@ -1,7 +1,7 @@
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/ExpenseRepository";
 import { ExpenseForm } from "@/components/forms/expense-form";
-import { PageHeader } from "@/components/ui/page-header";
+import { HeaderAction } from "@/components/header-action";
 import { notFound } from "next/navigation";
 
 const expenseRepository = new ExpenseRepository(pool);
@@ -21,21 +21,21 @@ export default async function EditExpensePage({ params }: { params: Promise<{ id
 
     return (
         <>
-            <PageHeader content={<h1 className="text-3xl font-bold tracking-tight">Editar Gasto</h1>} />
-            <div className="overflow-scroll p-4">
-                <ExpenseForm
-                    initialData={{
-                        id: plainExpense.id,
-                        category_id: plainExpense.category_id,
-                        amount: plainExpense.amount,
-                        description: plainExpense.description,
-                        vendor: plainExpense.vendor,
-                        payment_method: plainExpense.payment_method,
-                        notes: plainExpense.notes,
-                        expense_date: new Date(plainExpense.expense_date).toISOString().split('T')[0]
-                    }}
-                />
-            </div>
+            <HeaderAction>
+                <h1 className="text-2xl font-bold tracking-tight">Editar Gasto</h1>
+            </HeaderAction>
+            <ExpenseForm
+                initialData={{
+                    id: plainExpense.id,
+                    category_id: plainExpense.category_id,
+                    amount: plainExpense.amount,
+                    description: plainExpense.description,
+                    vendor: plainExpense.vendor,
+                    payment_method: plainExpense.payment_method,
+                    notes: plainExpense.notes,
+                    expense_date: new Date(plainExpense.expense_date).toISOString().split('T')[0]
+                }}
+            />
         </>
     );
 }

@@ -9,6 +9,8 @@ import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderReposi
 import { pool } from "@/Nenichat/Shared/infra/persistance/db"
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown"
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { HeaderAction } from "@/components/header-action"
+import ChatControls from "@/components/chat/chat-controls"
 
 export default async function ChatPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
   const params = await paramsPromise
@@ -44,18 +46,14 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
     // 4. Convert to json parse to avoid nextjs errors
     const ordersJson = JSON.parse(JSON.stringify(combinedOrders))
     return (
-      <>
-        <PageHeader content={
-          <div className="md:flex items-center gap-2 w-full">
-            <div className="flex items-center gap-2 w-full">
-              <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contact)}</h1>
-              <ChatDropDownDialog contact={JSON.parse(JSON.stringify(chatData))!} />
-            </div>
-          </div>
-        }
-        />
+      <div className="h-full grid grid-rows-[auto_1fr_auto]">
+        <HeaderAction>
+          <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contact)}</h1>
+          <ChatDropDownDialog contact={JSON.parse(JSON.stringify(chatData))!} />
+        </HeaderAction>
         <ChatView initialMessages={messages.reverse()} me={me} orders={ordersJson} />
-      </>
+        <ChatControls />
+      </div>
     )
   } else {
     const contactData = await contactRepository.findById(BigInt(params.id))
@@ -68,14 +66,14 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
 
     const orders = JSON.parse(JSON.stringify(contactOrders))
     return (
-      <>
-        <PageHeader content={
-          <div className="md:flex items-center gap-2 w-full">
-            <ChatHeader contact={contact!} />
-          </div>
-        } />
+      <div className="h-full grid grid-rows-[auto_1fr_auto]">
+        <HeaderAction>
+          <ChatHeader contact={contact!} />
+          <ChatDropDownDialog contact={contact!} />
+        </HeaderAction>
         <ChatView initialMessages={messages.reverse()} me={me} orders={orders} />
-      </>
+        <ChatControls />
+      </div>
     )
   }
 }

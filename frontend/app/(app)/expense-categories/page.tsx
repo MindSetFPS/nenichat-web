@@ -4,9 +4,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus, Tag } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
-import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/expense-categories/table/columns";
+import { HeaderAction } from "@/components/header-action";
 
 const categoryRepository = new ExpenseCategoryRepository(pool);
 
@@ -29,17 +29,15 @@ export default async function ExpenseCategoriesPage() {
 
     return (
         <>
-            <PageHeader content={
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">Categorías de Gastos</h1>
-                    {
-                        plainCategories.length !== 0 ?
-                            <CreateCategoryButton />
-                            :
-                            null
-                    }
-                </div>
-            } />
+            <HeaderAction>
+                <h1 className="text-2xl font-bold">Categorías de Gastos</h1>
+                {
+                    plainCategories.length !== 0 ?
+                        <CreateCategoryButton />
+                        :
+                        null
+                }
+            </HeaderAction>
 
             <div className="overflow-y-auto h-full">
                 {
