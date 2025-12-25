@@ -11,6 +11,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     PaginationState,
+    RowSelectionState,
     SortingState,
     useReactTable,
     VisibilityState,
@@ -20,6 +21,7 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -36,7 +38,11 @@ interface DataTableProps<TData, TValue> {
     showSearchInput?: boolean,
     searchInputColumnId?: string,
     showColumnsVisibilityDropdown?: boolean,
-    visibleColumns?: VisibilityState
+    visibleColumns?: VisibilityState,
+    rowSelection?: RowSelectionState,
+    showSelectColumn?: boolean,
+    getRowId?: (row: TData) => string,
+    onRowSelectionChange?: (selection: RowSelectionState) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -46,6 +52,10 @@ export function DataTable<TData, TValue>({
     showSearchInput = true,
     searchInputColumnId = "id",
     showColumnsVisibilityDropdown = true,
+    rowSelection: externalRowSelection,
+    showSelectColumn: showSelectColumn,
+    getRowId: getRowId,
+    onRowSelectionChange: setExternalRowSelection,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -54,7 +64,18 @@ export function DataTable<TData, TValue>({
         pageIndex: 0,
         pageSize: 10
     })
+    const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
     const isMobile = useIsMobile()
+
+    const rowSelection = externalRowSelection ?? internalRowSelection;
+    const onRowSelectionChange = (updaterOrValue: any) => {
+        const newValue = typeof updaterOrValue === 'function' ? updaterOrValue(rowSelection) : updaterOrValue;
+        if (setExternalRowSelection) {
+            setExternalRowSelection(newValue);
+        } else {
+            setInternalRowSelection(newValue);
+        }
+    };
 
     useEffect(() => {
         setPagination({
@@ -73,14 +94,21 @@ export function DataTable<TData, TValue>({
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: onRowSelectionChange,
+        getRowId: getRowId,
         state: {
             sorting,
             columnFilters,
             columnVisibility,
             pagination,
+            rowSelection,
         },
         onPaginationChange: setPagination,
     })
+
+    useEffect(() => {
+        table.getColumn("select")?.toggleVisibility(showSelectColumn);
+    }, [showSelectColumn])
 
     return (
         <>
@@ -126,11 +154,11 @@ export function DataTable<TData, TValue>({
                 }
             </div>
             <Table className="mb-0">
-                <TableHeader className="sticky top-0 z-10 bg-background">
+                <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} className="text-left w-min">
+                                <TableHead key={header.id} className="sticky top-0 z-10 bg-neutral-900 text-left w-min">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -142,7 +170,7 @@ export function DataTable<TData, TValue>({
                         </TableRow>
                     ))}
                 </TableHeader>
-                <TableBody className="overflow-y-scroll h-full">
+                <TableBody>
                     {
                         table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
