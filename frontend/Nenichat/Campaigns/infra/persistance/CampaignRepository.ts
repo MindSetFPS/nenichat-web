@@ -7,94 +7,113 @@ import { pool } from "../../../Shared/infra/persistance/db";
 export class CampaignRepository implements ICampaignRepository {
   constructor(private pool: Pool) { }
 
-  private async toCampaign(data: any, includeMessage: boolean): Promise<ICampaign> {
+  private async toCampaign(data: any): Promise<ICampaign> {
     if (!data) return data;
+    const payload = data.payload || {};
+
+    // Extract campaign specific fields from payload
+    const {
+      message,
+      audienceIds,
+      interval,
+      day_of_month,
+      day_of_week
+    } = payload;
+
     const campaign = new Campaign(
       data.id,
       data.name,
       data.created_at,
+      data.updated_at,
+      data.frequency_type,
+      payload,
+      data.enabled,
+      interval,
+      day_of_month,
+      day_of_week,
       data.run_at,
-      data.executed_at,
-      data.description
+      undefined, // executed_at removed from usage
+      data.description,
+      message,
+      audienceIds ? audienceIds.map(Number) : undefined
     );
-    if (data.audience_ids) {
-      campaign.audienceIds = (data.audience_ids[0] === null ? [] : data.audience_ids).map(Number);
-    }
 
-    if (includeMessage) {
-      const messageResult = await this.pool.query('SELECT * FROM campaign_messages WHERE campaign_id = $1', [campaign.id]);
-      if (messageResult.rows.length > 0) {
-        campaign.message = messageResult.rows[0].content;
-      }
-    }
     return campaign;
   }
 
   async findById(
     id: string,
-    includeAudiences = false,
-    includeMessage = false
+    _includeAudiences = false,
+    _includeMessage = false
   ): Promise<ICampaign | null> {
-    let query = "SELECT * FROM campaigns WHERE id = $1";
-    if (includeAudiences) {
-      query = `
-        SELECT c.*, array_agg(ca.audience_id) as audience_ids
-        FROM campaigns c
-        LEFT JOIN campaign_audiences ca ON c.id = ca.campaign_id
-        WHERE c.id = $1
-        GROUP BY c.id
-      `;
-    }
+    const query = "SELECT * FROM scheduled_tasks WHERE id = $1 AND task_type = 'message-campaign'";
     const result = await this.pool.query(query, [id]);
 
     if (result.rows.length === 0) {
       return null;
     }
-    return await this.toCampaign(result.rows[0], includeMessage);
+    return await this.toCampaign(result.rows[0]);
   }
 
   async create(campaign: Partial<ICampaign>): Promise<ICampaign> {
-    const { name, run_at, executed_at, description, audienceIds, message } = campaign;
+    const {
+      name,
+      run_at,
+      description,
+      audienceIds,
+      message,
+      frequency_type,
+      payload,
+      enabled,
+      interval,
+      day_of_month,
+      day_of_week
+    } = campaign;
 
     if (!name) {
       throw new Error("Campaign name is required to create a campaign.");
     }
+    if (!frequency_type) {
+      throw new Error("Campaign frequency_type is required to create a campaign.");
+    }
+
+    // Merge campaign fields into payload
+    const finalPayload = {
+      ...(payload || {}),
+      message,
+      audienceIds,
+      interval,
+      day_of_month,
+      day_of_week
+    };
 
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
       const result = await client.query(
-        "INSERT INTO campaigns (name, run_at, executed_at, description) VALUES ($1, $2, $3, $4) RETURNING *",
+        `INSERT INTO scheduled_tasks (
+          name, 
+          run_at, 
+          description, 
+          frequency_type, 
+          payload, 
+          enabled,
+          task_type
+        ) VALUES ($1, $2, $3, $4, $5, $6, 'campaign') RETURNING *`,
         [
           name,
           run_at || null,
-          executed_at || null,
           description || null,
+          frequency_type,
+          finalPayload,
+          enabled ?? true
         ]
       );
 
       const newCampaign = result.rows[0];
-
-      if (audienceIds && audienceIds.length > 0) {
-        const values = audienceIds
-          .map((_, i) => `($1, $${i + 2})`)
-          .join(", ");
-        await client.query(
-          `INSERT INTO campaign_audiences (campaign_id, audience_id) VALUES ${values}`,
-          [newCampaign.id, ...audienceIds]
-        );
-      }
-
-      if (message) {
-        await client.query(
-          'INSERT INTO campaign_messages (campaign_id, content) VALUES ($1, $2)',
-          [newCampaign.id, message]
-        );
-      }
-
       await client.query("COMMIT");
-      const createdCampaign = await this.findById(newCampaign.id, true, true);
-      return createdCampaign!;
+
+      return await this.toCampaign(newCampaign);
     } catch (e) {
       await client.query("ROLLBACK");
       throw e;
@@ -104,7 +123,20 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async update(campaign: Partial<ICampaign>): Promise<ICampaign> {
-    const { id, name, run_at, executed_at, description, audienceIds, message } = campaign;
+    const {
+      id,
+      name,
+      run_at,
+      description,
+      audienceIds,
+      message,
+      frequency_type,
+      payload,
+      enabled,
+      interval,
+      day_of_month,
+      day_of_week
+    } = campaign;
 
     if (!id) {
       throw new Error("Campaign ID is required to update a campaign.");
@@ -114,45 +146,50 @@ export class CampaignRepository implements ICampaignRepository {
     try {
       await client.query("BEGIN");
 
-      await client.query(
-        `UPDATE campaigns
+      const existingResult = await client.query("SELECT * FROM scheduled_tasks WHERE id = $1 FOR UPDATE", [id]);
+      if (existingResult.rows.length === 0) {
+        throw new Error(`Campaign with id ${id} not found`);
+      }
+      const existing = existingResult.rows[0];
+      const existingPayload = existing.payload || {};
+
+      const newPayload = {
+        ...existingPayload,
+        ...(payload || {}), // Overwrite with any explicit payload passed
+      };
+
+      // Update specific fields in payload if they are provided in campaign
+      if (message !== undefined) newPayload.message = message;
+      if (audienceIds !== undefined) newPayload.audienceIds = audienceIds;
+      if (interval !== undefined) newPayload.interval = interval;
+      if (day_of_month !== undefined) newPayload.day_of_month = day_of_month;
+      if (day_of_week !== undefined) newPayload.day_of_week = day_of_week;
+
+      const result = await client.query(
+        `UPDATE scheduled_tasks
         SET
-          name = $1,
-          run_at = $2,
-          executed_at = $3,
-          description = $4
-        WHERE id = $5
+          name = COALESCE($1, name),
+          run_at = COALESCE($2, run_at),
+          description = COALESCE($3, description),
+          frequency_type = COALESCE($4, frequency_type),
+          payload = $5,
+          enabled = COALESCE($6, enabled),
+          updated_at = NOW()
+        WHERE id = $7
         RETURNING *`,
-        [name, run_at, executed_at, description, id]
+        [
+          name,
+          run_at,
+          description,
+          frequency_type,
+          newPayload,
+          enabled,
+          id
+        ]
       );
 
-      if (audienceIds) {
-        await client.query(
-          "DELETE FROM campaign_audiences WHERE campaign_id = $1",
-          [id]
-        );
-        if (audienceIds.length > 0) {
-          const values = audienceIds
-            .map((_, i) => `($1, $${i + 2})`)
-            .join(", ");
-          await client.query(
-            `INSERT INTO campaign_audiences (campaign_id, audience_id) VALUES ${values}`,
-            [id, ...audienceIds]
-          );
-        }
-      }
-
-      if (message) {
-        await client.query('DELETE FROM campaign_messages WHERE campaign_id = $1', [id]);
-        await client.query(
-          'INSERT INTO campaign_messages (campaign_id, content) VALUES ($1, $2)',
-          [id, message]
-        );
-      }
-
       await client.query("COMMIT");
-      const updatedCampaign = await this.findById(id, true, true);
-      return updatedCampaign!;
+      return await this.toCampaign(result.rows[0]);
     } catch (e) {
       await client.query("ROLLBACK");
       throw e;
@@ -164,24 +201,15 @@ export class CampaignRepository implements ICampaignRepository {
   async list(
     offset: number,
     limit: number,
-    includeAudiences = false,
-    includeMessage = false
+    _includeAudiences = false,
+    _includeMessage = false
   ): Promise<ICampaign[]> {
-    let query =
-      "SELECT * FROM campaigns ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2";
-    if (includeAudiences) {
-      query = `
-        SELECT c.*, array_agg(ca.audience_id) as audience_ids
-        FROM campaigns c
-        LEFT JOIN campaign_audiences ca ON c.id = ca.campaign_id
-        GROUP BY c.id
-        ORDER BY c.created_at DESC, c.id DESC
-        LIMIT $1 OFFSET $2
-      `;
-    }
-    const result = await this.pool.query(query, [limit, offset]);
+    const query =
+      "SELECT * FROM scheduled_tasks WHERE task_type = 'message-campaign' ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2";
 
-    const campaigns = await Promise.all(result.rows.map((d) => this.toCampaign(d, includeMessage)));
+    const result = await this.pool.query(query, [limit, offset]);
+    const campaigns = await Promise.all(result.rows.map((d) => this.toCampaign(d)));
+    console.log(campaigns)
     return campaigns;
   }
 }

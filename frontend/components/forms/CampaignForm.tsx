@@ -100,7 +100,8 @@ export function CampaignForm({
   // 3. if frequency_type is 'recurring', interval is not empty
   // 4/ if requency_type is recurring, and interval is weekly, dayOfWeek is not empty
   // 5. if frequency_type is recurring, and interval is monthly, dayOfMonth is not empty
-  const isButtonDisabled = isLoading || selectedAudienceIds.length === 0 || !name || !description || !message || !runAt || (frequency_type === 'recurring' && (!interval || (interval === 'weekly' && !dayOfWeek) || (interval === 'monthly' && !dayOfMonth)));
+  const isEditingDisabled = isLoading || initialData?.enabled === false;
+  const isButtonDisabled = isEditingDisabled || selectedAudienceIds.length === 0 || !name || !description || !message || !runAt || (frequency_type === 'recurring' && (!interval || (interval === 'weekly' && !dayOfWeek) || (interval === 'monthly' && !dayOfMonth)));
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4 mb-2 pb-0">
@@ -111,7 +112,7 @@ export function CampaignForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="col-span-3"
-          disabled={isLoading}
+          disabled={isEditingDisabled}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -121,7 +122,7 @@ export function CampaignForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="col-span-3"
-          disabled={isLoading}
+          disabled={isEditingDisabled}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
@@ -131,14 +132,14 @@ export function CampaignForm({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           className="col-span-3"
-          disabled={isLoading}
+          disabled={isEditingDisabled}
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="audiences" className="text-right">Audiences</Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="col-span-3">
+            <Button variant="outline" className="col-span-3" disabled={isEditingDisabled}>
               Select Audiences ({selectedAudienceIds.length})
             </Button>
           </PopoverTrigger>
@@ -150,6 +151,7 @@ export function CampaignForm({
                     id={`audience-${audience.id.toString()}`}
                     checked={selectedAudienceIds.includes(Number(audience.id))}
                     onCheckedChange={() => handleAudienceSelection(Number(audience.id))}
+                    disabled={isEditingDisabled}
                   />
                   <Label htmlFor={`audience-${audience.id.toString()}`}>{audience.name}</Label>
                 </div>
@@ -170,6 +172,7 @@ export function CampaignForm({
         setDayOfWeek={setDayOfWeek}
         frequencyType={frequency_type}
         setFrequencyType={setFrequencyType}
+        disabled={isEditingDisabled}
       />
 
       <Button type="submit" disabled={isButtonDisabled}>

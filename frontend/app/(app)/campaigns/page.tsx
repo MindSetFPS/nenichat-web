@@ -13,7 +13,6 @@ import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 import { EmptyList } from "@/components/empty-list";
-import { PageHeader } from "@/components/ui/page-header";
 import { HeaderAction } from "@/components/header-action";
 
 export const dynamic = 'force-dynamic';
@@ -91,7 +90,7 @@ export default async function CampaignsPage() {
                     Edit Campaign
                   </Button>
                 </Link>
-                <Button variant="default" className="w-full" disabled={typeof campaign.executed_at !== 'undefined'}>
+                <Button variant="default" className="w-full" disabled={campaign.next_run_at !== null}>
                   Send Campaign
                 </Button>
               </CardFooter>

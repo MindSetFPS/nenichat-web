@@ -19,6 +19,7 @@ export function Frequency({
     setDayOfWeek,
     frequencyType,
     setFrequencyType,
+    disabled = false,
 }: {
     time: Date | undefined;
     setTime: (time: Date | undefined) => void;
@@ -30,6 +31,7 @@ export function Frequency({
     setDayOfMonth: (dayOfMonth: string | undefined) => void;
     dayOfWeek: string | undefined;
     setDayOfWeek: (dayOfWeek: string | undefined) => void;
+    disabled?: boolean;
 }) {
     const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -61,6 +63,7 @@ export function Frequency({
                     id="frequency_type"
                     checked={frequencyType === 'recurring'}
                     onCheckedChange={onCheckChange}
+                    disabled={disabled}
                 />
             </div>
 
@@ -74,6 +77,7 @@ export function Frequency({
                                     variant="outline"
                                     id="date-picker"
                                     className="w-32 justify-between font-normal"
+                                    disabled={disabled}
                                 >
                                     {time ? time.toLocaleDateString() : "Select date"}
                                     <ChevronDownIcon />
@@ -111,7 +115,7 @@ export function Frequency({
                         <Label htmlFor="interval" className="">
                             Intervalo
                         </Label>
-                        <Select value={interval} onValueChange={setInterval}>
+                        <Select value={interval} onValueChange={setInterval} disabled={disabled}>
                             <SelectTrigger className="mb-0 w-full" >
                                 <SelectValue placeholder="Intervalo" />
                             </SelectTrigger>
@@ -129,7 +133,7 @@ export function Frequency({
                         <Label htmlFor="day" className="text-right">
                             Dia
                         </Label>
-                        <Select value={dayOfWeek} onValueChange={setDayOfWeek}>
+                        <Select value={dayOfWeek} onValueChange={setDayOfWeek} disabled={disabled}>
                             <SelectTrigger className="mb-0 w-full">
                                 <SelectValue placeholder="Día" />
                             </SelectTrigger>
@@ -153,7 +157,7 @@ export function Frequency({
                         <Label htmlFor="day" className="text-right">
                             Dia
                         </Label>
-                        <Select value={dayOfMonth} onValueChange={setDayOfMonth}>
+                        <Select value={dayOfMonth} onValueChange={setDayOfMonth} disabled={disabled}>
                             <SelectTrigger className="mb-0 w-full">
                                 <SelectValue placeholder="Select day" />
                             </SelectTrigger>
@@ -186,6 +190,7 @@ export function Frequency({
                             }
                             setTime(newDate);
                         }}
+                        disabled={disabled}
                         className="bg-background 
                         appearance-none [&::-webkit-calendar-picker-indicator]:hidden 
                         [&::-webkit-calendar-picker-indicator]:appearance-none"

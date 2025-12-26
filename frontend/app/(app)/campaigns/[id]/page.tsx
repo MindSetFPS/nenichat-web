@@ -1,6 +1,6 @@
+import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
-import { EditCampaignForm } from '@/components/EditCampaignForm';
-import { PageHeader } from '@/components/ui/page-header';
+import { EditCampaignForm } from '@/components/edit-campaign-form';
 import { HeaderAction } from '@/components/header-action';
 
 export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
@@ -12,15 +12,18 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
   }
 
   // Convert to plain object to avoid issues with Server->Client component passing
-  const plainCampaign = {
+  const plainCampaign: ICampaign = {
     id: campaign.id,
     name: campaign.name,
     run_at: campaign.run_at,
     description: campaign.description,
     created_at: campaign.created_at,
-    executed_at: campaign.executed_at,
     audienceIds: campaign.audienceIds,
     message: campaign.message,
+    frequency_type: campaign.frequency_type,
+    payload: campaign.payload,
+    enabled: campaign.enabled,
+    updated_at: campaign.updated_at,
   };
 
   return (

@@ -18,8 +18,6 @@ export async function POST(request: Request) {
       frequency_type,
     } = body;
 
-    console.log(body);
-
     if (!name) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
@@ -38,8 +36,7 @@ export async function POST(request: Request) {
     let lastRunAt = null; // null because we are creating it
     let nextRunAt = null;
 
-    if (frequency_type === 'once') {
-      // set run_at to runAt
+    if (frequency_type === 'once') { // set run_at to runAt
       runAtDate.setHours(hour);
       runAtDate.setMinutes(minute);
     }
@@ -55,25 +52,19 @@ export async function POST(request: Request) {
         cronExpression = `${minute} ${hour} ${dayOfMonth} * *`;
       }
       // calculate next run from cron expression 
-      console.log(cronExpression);
       const cronInterval = CronExpressionParser.parse(cronExpression);
 
       const nextRunAtDate = cronInterval.next().toDate();
       nextRunAt = nextRunAtDate;
     }
 
-    console.log(body);
-    console.log(runAtDate);
-    console.log(nextRunAt);
-    console.log(lastRunAt);
+    let res = await pool.query(
+      `INSERT INTO scheduled_tasks 
+      (name, description,  task_type, frequency_type, cron_expression, run_at,   payload,                 enabled, last_run_at, next_run_at, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+      [name, description, 'message-campaign', frequency_type, cronExpression, runAtDate, { message, audienceIds }, true, lastRunAt, nextRunAt, new Date(), new Date()]
+    );
 
-    // pool.query(
-    //   `INSERT INTO scheduled_tasks 
-    //   (name, description, task_type, frequency_type, cron_expression, run_at, payload, enabled, last_run_at, next_run_at, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-    //   [name, description, 'campaign', interval, cronExpression, runAtDate, { message, audienceIds }, true, lastRunAt, nextRunAt, new Date(), new Date()]
-    // );
-
-    return NextResponse.json("it works", { status: 201 });
+    return NextResponse.json("Campaign created successfully", { status: 201 });
   } catch (error) {
     console.error('Failed to create campaign:', error);
     return NextResponse.json({ error: 'Failed to create campaign' }, { status: 500 });

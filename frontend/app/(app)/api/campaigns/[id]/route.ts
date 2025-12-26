@@ -27,7 +27,7 @@ export async function PUT(
     const body: Partial<ICampaign> = await request.json();
 
     const campaignToUpdate: Partial<ICampaign> = {
-      id: id,
+      id: Number(id),
       ...body
     };
 
