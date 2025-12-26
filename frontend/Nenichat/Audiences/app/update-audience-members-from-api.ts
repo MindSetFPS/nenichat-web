@@ -4,13 +4,13 @@
  * @param audienceId audience id
  * @returns json response
  */
-export default async function updateAudienceMembers(contactIds: string[], audienceId: string) {
+export default async function updateAudienceMembers(contactIds: { [key: string]: boolean }, audienceId: string) {
     const response = await fetch(`/api/audiences/${audienceId}/members`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ contactIds: contactIds }),
+        body: JSON.stringify({ contactIds }),
     });
 
     if (!response.ok) {

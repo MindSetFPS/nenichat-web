@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -18,57 +18,67 @@ import {
 import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { IAudience } from '@/Nenichat/Audiences/domain/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
-import { ContactsTable } from "@/components/contacts-table";
 import updateAudienceMembers from "@/Nenichat/Audiences/app/update-audience-members-from-api";
-import { PageHeader } from "@/components/ui/page-header";
 import { HeaderAction } from "@/components/header-action";
-
-const fetchAudienceDetails = async (id: string) => {
-  const response = await fetch(`/api/audiences/${id}`);
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
-    }
-    throw new Error("Failed to fetch audience details");
-  }
-  const data = await response.json();
-  return data as IAudience;
-};
-
-const fetchAudienceMembers = async (audienceId: string) => {
-  const response = await fetch(`/api/audiences/${audienceId}/members`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch audience members");
-  }
-  const data = await response.json();
-  return {
-    audienceMembers: data.audienceMembers as IContact[],
-  };
-};
+import { DataTable } from "@/components/data-table";
+import { columns } from "../../../../../components/audiences/columns";
+import { Toggle } from "@/components/ui/toggle";
+import { getAudienceDetails } from "@/Nenichat/Audiences/app/get-audience-details-from-api";
+import { getAudienceMembers } from "@/Nenichat/Audiences/app/get-audience-members-from-api";
+import { getAudienceUnselectedContacts } from "@/Nenichat/Audiences/app/get-audience-unselected-contacts";
+import updateAudienceDetailsFromApi from "@/Nenichat/Audiences/app/update-audience-details-from-api";
 
 export default function AudienceMembersPage() {
   const params = useParams();
   const audienceId = params.id as string;
   const router = useRouter();
 
-  const [audience, setAudience] = useState<IAudience | null>(null);
-  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
-  const [initialSelectedContactIds, setInitialSelectedContactIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [audienceDetails, setAudienceDetails] = useState<IAudience | null>(null);
+  // const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
 
+  const [audienceMembers, setAudienceMembers] = useState<IContact[]>([]);
+
+  const [showSelectColumn, setShowSelectColumn] = useState(false);
+  const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>({});
+  const [allContactsFetched, setAllContactsFetched] = useState(false); // to prevent fetching the contacts multiple times
+
+  const [initialMembersIds, setInitialMembersIds] = useState<{ [key: string]: boolean }>({});
+  const selectionInitialized = useRef(false);
+
+  // const hasChanges = selectedContactIds.size !== initialSelectedContactIds.size || ![...selectedContactIds].every((id) => initialSelectedContactIds.has(id));
+
+  // fetch audience and members on mount
+  useEffect(() => {
+    selectionInitialized.current = false;
+    setInitialMembersIds({});
+    fetchMembersAndAudience();
+  }, [audienceId]);
+
+  // takes a list of contacts and returns an object with the contact ids as keys and true as values
+  function createInitialRowSelection(contactList: IContact[]) {
+    return contactList.reduce((acc, member) => {
+      if (member.id) {
+        acc[String(member.id)] = true;
+      }
+      return acc;
+    }, {} as { [key: string]: boolean });
+  }
+
+  // here im setting the wrong variable everytime i update the audience members
   const fetchMembersAndAudience = async () => {
     setIsLoading(true);
     try {
-      const audienceData = await fetchAudienceDetails(audienceId);
-      if (audienceData) {
-        setAudience(audienceData);
-      }
+      const audienceDetails = await getAudienceDetails(audienceId);
+      if (audienceDetails) setAudienceDetails(audienceDetails);
+      let initialMembers = await getAudienceMembers(audienceId);
+      setAudienceMembers(initialMembers);
 
-      const { audienceMembers } = await fetchAudienceMembers(audienceId);
-      const initialIds = new Set(audienceMembers.map(c => c.id?.toString() || ''));
-      setSelectedContactIds(initialIds);
-      setInitialSelectedContactIds(new Set(initialIds));
+      if (!selectionInitialized.current) {
+        setInitialMembersIds(createInitialRowSelection(initialMembers));
+        selectionInitialized.current = true;
+      }
     } catch (error) {
       console.error("Failed to fetch audience details or members:", error);
       toast.error("Failed to load audience details or members.");
@@ -77,21 +87,11 @@ export default function AudienceMembersPage() {
     }
   };
 
-  useEffect(() => {
-    fetchMembersAndAudience();
-  }, [audienceId]);
-
-  const handleEditAudience = async (name: string, description: string) => {
-    if (!audience) return;
+  const handleEditAudienceDetails = async (name: string, description: string) => {
+    if (!audienceDetails) return;
 
     try {
-      const response = await fetch(`/api/audiences/${audience.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, description }),
-      });
+      let response = await updateAudienceDetailsFromApi(audienceId, name, description);
       if (!response.ok) {
         throw new Error("Failed to update audience");
       }
@@ -104,14 +104,10 @@ export default function AudienceMembersPage() {
     }
   };
 
-  const hasChanges =
-    selectedContactIds.size !== initialSelectedContactIds.size ||
-    ![...selectedContactIds].every((id) => initialSelectedContactIds.has(id));
-
   const handleSaveMembers = async () => {
     try {
-      const response = await updateAudienceMembers(Array.from(selectedContactIds), audienceId);
-      toast.success(`Members for "${audience?.name}" saved!`);
+      const response = await updateAudienceMembers(rowSelection, audienceId);
+      toast.success(`Members for "${audienceDetails?.name}" saved!`);
       router.push("/audiences");
     } catch (error) {
       console.error("Error saving audience members:", error);
@@ -119,11 +115,20 @@ export default function AudienceMembersPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Spinner className="h-5 w-5" />
-    )
+  async function onToggleChangeMembers() {
+    setShowSelectColumn(!showSelectColumn);
+    if (!allContactsFetched) {
+      const contactsNotInAudience = await getAudienceUnselectedContacts(audienceId);
+      setAllContactsFetched(true);
+      setAudienceMembers([...audienceMembers, ...contactsNotInAudience]);
+    }
+    // if some rows are selected, but we hide the select column, the selected rows are still highlighted
+    showSelectColumn ? setRowSelection({}) : setRowSelection(initialMembersIds);
   }
+
+  useEffect(() => {
+    console.log("new audience members")
+  }, [audienceMembers])
 
   return (
     <>
@@ -133,21 +138,28 @@ export default function AudienceMembersPage() {
         ) : (
           <>
             <HeaderAction>
-              <h1 className="text-2xl font-bold">Manage Members for: {audience?.name || 'Loading...'}</h1>
+              <h1 className="text-2xl font-bold">Miembros de: {audienceDetails?.name || 'Loading...'}</h1>
             </HeaderAction>
-            <div className="flex justify-end md:justify-start my-2 space-x-1">
-              <Button onClick={handleSaveMembers} disabled={!hasChanges}>Save Members</Button>
-              <Button onClick={() => setIsEditDialogOpen(true)}>
-                Edit Audience
+
+            <div className="md:flex justify-end md:justify-start my-2 space-x-1">
+              <Button onClick={handleSaveMembers} variant="secondary">Guardar cambios</Button>
+              <Toggle variant="outline" onClick={onToggleChangeMembers}>
+                Cambiar miembros
+              </Toggle>
+              <Button onClick={() => setIsEditDialogOpen(true)} variant="outline">
+                Editar audiencia
               </Button>
             </div>
-            <ContactsTable
-              endpoint="/api/contacts"
-              enableSelection={true}
-              selectedIds={Array.from(selectedContactIds)}
-              onSelectionChange={(ids) => setSelectedContactIds(new Set(ids))}
-            />
 
+            <DataTable
+              searchInputColumnId="phone_number"
+              rowSelection={rowSelection}
+              onRowSelectionChange={setRowSelection}
+              columns={columns}
+              getRowId={(row) => String(row.id)}
+              showSelectColumn={showSelectColumn}
+              data={audienceMembers}
+            />
           </>
         )
       }
@@ -160,18 +172,25 @@ export default function AudienceMembersPage() {
               Make changes to your audience here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
-          {audience && (
+          {audienceDetails && (
             <AudienceForm
               initialData={{
-                name: audience.name,
-                description: audience.description || '',
+                name: audienceDetails.name,
+                description: audienceDetails.description || '',
               }}
-              onSubmit={handleEditAudience}
+              onSubmit={handleEditAudienceDetails}
               onCancel={() => setIsEditDialogOpen(false)}
             />
           )}
         </DialogContent>
       </Dialog>
+      {/* 
+      <AddMemberModal
+        audienceId={audienceId}
+        open={isAddMemberDialogOpen}
+        onOpenChange={setIsAddMemberDialogOpen}
+        onSuccess={fetchMembersAndAudience}
+      /> */}
     </>
   );
 }

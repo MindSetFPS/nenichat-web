@@ -35,9 +35,20 @@ export class AudienceContactRepository implements IAudienceContactRepository {
   }
 
   /*
-  * Get audiences by contact id
+  * Get contacts that are not in the audience
+  * @param audienceId: number | BigInt
+  * @returns Promise<IContact[]>
   */
-
+  async findAvailableContacts(audienceId: number | BigInt): Promise<IContact[]> {
+    const result = await this.pool.query(`
+      SELECT c.*
+      FROM contacts c
+      LEFT JOIN audience_contacts ac ON c.id = ac.contact_id AND ac.audience_id = $1
+      WHERE ac.contact_id IS NULL
+      ORDER BY c.created_at DESC
+    `, [audienceId]);
+    return result.rows.map(this.toContact);
+  }
 
   async findByContactId(contactId: number | BigInt): Promise<IAudience[]> {
     const result = await this.pool.query(`
