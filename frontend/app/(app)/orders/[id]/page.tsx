@@ -80,50 +80,49 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 ">
-                    <Card className="md:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Items</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Product</TableHead>
-                                        <TableHead className="text-right">Qty</TableHead>
-                                        <TableHead className="text-right">Unit Price</TableHead>
-                                        <TableHead className="text-right">Total</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {items.map((item) => (
-                                        <TableRow key={item.id}>
-                                            <TableCell className="font-medium">
-                                                {item.product_name || <span className="text-gray-400 italic">Unknown Product</span>}
-                                            </TableCell>
-                                            <TableCell className="text-right">{item.quantity}</TableCell>
-                                            <TableCell className="text-right">${Number(item.unit_price).toFixed(2)}</TableCell>
-                                            <TableCell className="text-right">${Number(item.total_price).toFixed(2)}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="text-right font-medium">Subtotal</TableCell>
-                                        <TableCell className="text-right font-medium">
-                                            ${items.reduce((sum, item) => sum + Number(item.total_price), 0).toFixed(2)}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-2">
+                    <div className="md:col-span-2 py-0 gap-2">
+                        <Table className="bg-card">
+                            <TableHeader>
+                                <TableRow className="border-none border-0">
+                                    <TableHead>Producto</TableHead>
+                                    <TableHead className="text-right">Cant.</TableHead>
+                                    <TableHead className="text-right">Precio Unitario</TableHead>
+                                    <TableHead className="text-right">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody className="border-none border-0">
+                                {items.map((item) => (
+                                    <TableRow key={item.id} className="border-none border-0">
+                                        <TableCell className="font-medium">
+                                            {item.product_name || <span className="text-gray-400 italic">Unknown Product</span>}
                                         </TableCell>
+                                        <TableCell className="text-right">{item.quantity}</TableCell>
+                                        <TableCell className="text-right">${Number(item.unit_price).toFixed(2)}</TableCell>
+                                        <TableCell className="text-right">${Number(item.total_price).toFixed(2)}</TableCell>
                                     </TableRow>
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="text-right font-medium">Shipping</TableCell>
-                                        <TableCell className="text-right font-medium">${Number(order.shipping_cost).toFixed(2)}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell colSpan={3} className="text-right font-bold text-lg">Total</TableCell>
-                                        <TableCell className="text-right font-bold text-lg">${Number(order.total_amount).toFixed(2)}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                                ))}
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-right font-medium">Subtotal</TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        ${items.reduce((sum, item) => sum + Number(item.total_price), 0).toFixed(2)}
+                                    </TableCell>
+                                </TableRow>
+                                {
+                                    order.shipping_cost > 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="text-right font-medium">Shipping</TableCell>
+                                            <TableCell className="text-right font-medium">${Number(order.shipping_cost).toFixed(2)}</TableCell>
+                                        </TableRow>
+                                    )
+                                }
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-right font-bold text-lg">Total</TableCell>
+                                    <TableCell className="text-right font-bold text-lg">${Number(order.total_amount).toFixed(2)}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
 
                     <Card className="">
                         <CardHeader>
