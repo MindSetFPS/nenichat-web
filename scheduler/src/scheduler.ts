@@ -1,7 +1,8 @@
-import { CronExpressionParser } from 'cron-parser';
+import { parseExpression } from 'cron-parser';
 import { db } from './db';
 import { executeTask } from './executor';
 import { ScheduledTask } from './types';
+
 
 export class Scheduler {
     private isRunning = false;
@@ -59,7 +60,7 @@ export class Scheduler {
 
         try {
             if (task.frequency_type === 'recurring' && task.cron_expression) {
-                const interval = CronExpressionParser.parse(task.cron_expression);
+                const interval = parseExpression(task.cron_expression);
                 nextRun = interval.next().toDate();
             } else if (task.frequency_type === 'once') {
                 // Run once, so no next run. We might want to disable it after.
