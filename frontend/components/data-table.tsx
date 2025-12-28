@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Selector } from "./orders/selector";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -41,6 +42,7 @@ interface DataTableProps<TData, TValue> {
     visibleColumns?: VisibilityState,
     rowSelection?: RowSelectionState,
     showSelectColumn?: boolean,
+    showDateSelector?: boolean,
     getRowId?: (row: TData) => string,
     onRowSelectionChange?: (selection: RowSelectionState) => void
 }
@@ -54,6 +56,7 @@ export function DataTable<TData, TValue>({
     showColumnsVisibilityDropdown = true,
     rowSelection: externalRowSelection,
     showSelectColumn: showSelectColumn,
+    showDateSelector: showDateSelector,
     getRowId: getRowId,
     onRowSelectionChange: setExternalRowSelection,
 }: DataTableProps<TData, TValue>) {
@@ -65,6 +68,8 @@ export function DataTable<TData, TValue>({
         pageSize: 10
     })
     const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
+    const [selectedDate, setSelectedDate] = useState<string>("")
+
     const isMobile = useIsMobile()
 
     const rowSelection = externalRowSelection ?? internalRowSelection;
@@ -113,6 +118,15 @@ export function DataTable<TData, TValue>({
     return (
         <>
             <div className={`flex items-center mb-0 ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
+
+                {
+                    showDateSelector &&
+                    <Selector
+                        value={selectedDate}
+                        onValueChange={setSelectedDate}
+                    />
+                }
+
                 {showSearchInput &&
                     <Input
                         placeholder="Filtrar"

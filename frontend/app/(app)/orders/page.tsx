@@ -1,17 +1,14 @@
+import { Package } from "lucide-react";
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
-import { Package } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
-import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/orders/table/columns";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
 import { HeaderAction } from "@/components/header-action";
+import { CreateOrderButton } from "@/components/orders/create-order-button";
+import { DataTable } from "@/components/data-table";
+import { columns } from "@/components/orders/table/columns";
 
 const orderRepository = new OrderRepository(pool);
 
@@ -28,22 +25,10 @@ export default async function OrdersPage() {
 
     const plainOrders = JSON.parse(JSON.stringify(orders));
 
-    function CreateOrderButton() {
-        return (
-            <Link href="/orders/new">
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Order
-                </Button>
-            </Link>
-        )
-    }
-
-
     return (
         <>
             <HeaderAction>
-                <h1 className="text-2xl font-bold">Orders</h1>
+                <h1 className="text-2xl font-bold">Ventas</h1>
                 <CreateOrderButton />
             </HeaderAction>
             {
@@ -57,14 +42,16 @@ export default async function OrdersPage() {
                     :
                     <DataTable
                         columns={columns}
+                        data={plainOrders}
                         searchInputColumnId="id"
+                        showDateSelector={true}
                         visibleColumns={{
                             "updated_at": false,
                             "payment_method": false,
                             "refunded_amount": false,
                             "notes": false,
+                            "amount_paid": false,
                         }}
-                        data={plainOrders}
                     />
             }
         </>
