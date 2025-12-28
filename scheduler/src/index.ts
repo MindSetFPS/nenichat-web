@@ -1,4 +1,6 @@
 import { Scheduler } from './scheduler';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const scheduler = new Scheduler();
 

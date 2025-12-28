@@ -5,7 +5,7 @@ interface ITaskHandler {
     handle(task: ScheduledTask, executionId: number): Promise<any>;
 }
 
-async function generateMessage(task: ScheduledTask) {
+async function generateMessage() {
     // 1. Query currently available active products
     const products = await db.getActiveProducts();
 
@@ -21,15 +21,18 @@ async function generateMessage(task: ScheduledTask) {
  */
 async function sendWhatsAppMessage(member: any, text: string) {
     const payload = {
-        phone: member.phone,
+        phone: member.phone_number,
         message: text,
         reply_message_id: null,
         is_forwarded: false,
         duration: null
     }
 
+    let sendMessageUrl = process.env.WHATSAPP_API_ENDPOINT + "/send/message";
+    console.log(sendMessageUrl)
+    console.log(payload)
     // use endpoint from env
-    const response = await fetch(process.env.WHATSAPP_API_ENDPOINT + "/send/message", {
+    const response = await fetch(sendMessageUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -37,6 +40,8 @@ async function sendWhatsAppMessage(member: any, text: string) {
         },
         body: JSON.stringify(payload)
     });
+
+    console.log(response)
 
     if (!response.ok) {
         return {
@@ -59,28 +64,39 @@ export const TasksRegistry: Record<string, ITaskHandler> = {
     },
 }
 
-async function messageCampaignTask(task: ScheduledTask, executionId: number) {
+type MessageCampaignTask = Omit<ScheduledTask, "payload"> & {
+    payload: {
+        audienceIds: number[];
+    }
+}
+
+async function messageCampaignTask(task: MessageCampaignTask, executionId: number) {
     // 1. Generate message
-    const text = await generateMessage(task);
+    const text = await generateMessage();
+    console.log("text: ", text);
 
     // 2. Fetch audiences from campaign_audiences table 
-    const audiences = await db.getAudiences(task);
+    const audienceIds = task.payload.audienceIds;
+    console.log("audienceIds: ", audienceIds);
 
     let failureCount = 0;
     // Check if audiences.rows exists (in case of empty result)
-    const audienceRows = audiences.rows || [];
-    const requests = audienceRows.map((audience: any) => audience.members.length);
+    let requestsCounter = 0;
     const results: any[] = [];
 
     // 4. Loop through audiences
-    for (const audience of audienceRows) {
-        // 5. Wait a random interval of time
+    for (const audienceId of audienceIds) {
+        // 5. Get members of audience
+        const members = await db.getAudienceMembers(audienceId);
+
+        // 6. Wait a random interval of time
         const randomInterval = Math.floor(Math.random() * 10000);
         await new Promise(resolve => setTimeout(resolve, randomInterval));
 
-        // 6. Loop through members of audience
-        for (const member of audience.members) {
-            // 7. Post request to send message
+        // 7. Loop through members of audience
+        for (const member of members) {
+            // 8. Post request to send message
+            console.log("member: ", member);
             const outcome = await sendWhatsAppMessage(member, text);
 
             if (!outcome.success) {
@@ -89,13 +105,14 @@ async function messageCampaignTask(task: ScheduledTask, executionId: number) {
             }
 
             const randomInterval = Math.floor(Math.random() * 10000);
+            requestsCounter++;
             await new Promise(resolve => setTimeout(resolve, randomInterval));
         }
     }
 
     return JSON.stringify({
-        total: requests.length,
-        success: requests.length - failureCount, // this should be "succeeded" 
+        total: requestsCounter,
+        success: requestsCounter - failureCount, // this should be "succeeded" 
         failed: failureCount,
         details: results
     });

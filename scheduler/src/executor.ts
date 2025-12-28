@@ -2,7 +2,8 @@ import { db } from './db';
 import { TasksRegistry } from './tasks';
 import { ScheduledTask } from './types';
 
-export async function executeTask(task: ScheduledTask, executionId: number) {
+export async function executeTask(task: ScheduledTask) {
+    const executionId = await db.createExecutionRecord(task);
     await db.setExecutionRunning(executionId);
 
     try {

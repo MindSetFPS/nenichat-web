@@ -44,6 +44,7 @@ export class Scheduler {
             console.log(`Found ${tasks.length} tasks to run.`);
 
             for (const task of tasks) {
+                console.log(task)
                 await this.processTask(task);
             }
         } catch (error) {
@@ -54,7 +55,7 @@ export class Scheduler {
     private async processTask(task: ScheduledTask) {
         // 1. Calculate next run time
         let nextRun: Date | null = null;
-        let shouldDisable = false;
+        let isEnabled = true;
 
         try {
             if (task.frequency_type === 'recurring' && task.cron_expression) {
@@ -62,18 +63,15 @@ export class Scheduler {
                 nextRun = interval.next().toDate();
             } else if (task.frequency_type === 'once') {
                 // Run once, so no next run. We might want to disable it after.
-                shouldDisable = true;
+                isEnabled = false;
             }
 
             // 2. Update the task record immediately to prevent double-execution by next poll
             // For 'once' tasks, we might disable them or set next_run_at to NULL/far future
-            await db.updateTask(task, nextRun, shouldDisable);
+            await db.updateTask(task, nextRun, isEnabled);
 
-            // 3. Create execution record
-            const executionId = await db.createExecutionRecord(task);
-
-            // 4. Trigger execution (fire and forget from scheduler's perspective, but executor handles DB updates)
-            executeTask(task, executionId);
+            // 3. Trigger execution (fire and forget from scheduler's perspective, but executor handles DB updates)
+            executeTask(task);
 
         } catch (err) {
             console.error(`Failed to process task scheduling logic for task ${task.id}`, err);

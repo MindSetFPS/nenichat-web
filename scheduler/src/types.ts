@@ -25,7 +25,7 @@ export interface ScheduledTask {
     run_at?: Date; // TIMESTAMP WITH TIME ZONE returns Date in node-postgres
 
     // Execution State
-    payload: TaskPayload;
+    payload?: any;
     enabled: boolean;
     last_run_at?: Date;
     next_run_at?: Date;
