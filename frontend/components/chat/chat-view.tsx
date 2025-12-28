@@ -16,12 +16,14 @@ type TimelineItem =
 interface ChatViewProps {
   initialMessages: IMessageWithSender[]
   me: IContact | null,
+  isGroup: boolean,
   orders: Order[]
 }
 
 export default function ChatView({
   initialMessages,
   me,
+  isGroup,
   orders,
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
@@ -95,6 +97,7 @@ export default function ChatView({
                 <OrderMessage
                   order={item.data as Order}
                   key={`order-${itemIndex}`}
+                  isGroup={isGroup}
                 />
               )
             ))}

@@ -52,7 +52,7 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
         )}
         <ChatDropDownDialog contact={contactJson} />
       </HeaderAction>
-      <ChatView initialMessages={messagesJson.reverse()} me={me} orders={ordersJson} />
+      <ChatView initialMessages={messagesJson.reverse()} me={me} orders={ordersJson} isGroup={chatData ? chatData.is_group : false} />
       <ChatControls />
     </div>
   )

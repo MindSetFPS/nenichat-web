@@ -8,12 +8,13 @@ import { formatCurrency, getPaymentStatusColor, getStatusColor } from "@/lib/uti
 import { ShineBorder } from "../ui/shine-border"
 
 interface OrderMessageProps {
-    order: Order
+    order: Order,
+    isGroup: boolean
 }
 
-export default function OrderMessage({ order }: OrderMessageProps) {
+export default function OrderMessage({ order, isGroup }: OrderMessageProps) {
     return (
-        <Card className="bg-foreground/5 relative mx-10">
+        <Card className={isGroup ? "bg-foreground/5 relative mx-10" : "bg-foreground/5 relative"}>
             <ShineBorder className="absolute inset-0" shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
 
             <CardHeader className="pb-3">
