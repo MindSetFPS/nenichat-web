@@ -2,8 +2,6 @@
 
 import { useState, useRef, useEffect, useMemo } from "react"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
-import { IMessage } from "@/Nenichat/Messages/domain/IMessage"
-import ChatControls from "./chat-controls"
 import Message from "./message"
 import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"

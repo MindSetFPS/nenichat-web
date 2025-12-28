@@ -1,7 +1,6 @@
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository"
 import ChatView from "@/components/chat/chat-view"
-import { PageHeader } from "@/components/ui/page-header"
 import ChatHeader from "@/components/chat/chat-header"
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
@@ -13,67 +12,48 @@ import { HeaderAction } from "@/components/header-action"
 import ChatControls from "@/components/chat/chat-controls"
 
 export default async function ChatPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const orderRepository = new OrderRepository(pool)
   const params = await paramsPromise
   const chatData = await chatRepository.findById(BigInt(params.id))
-
   const meData = await contactRepository.findMe()
-  const me = JSON.parse(JSON.stringify(meData))
+  const contact = await contactRepository.findById(BigInt(params.id))
 
   let messages: IMessageWithSender[] = []
+  let orders: any[] = []
 
   if (chatData?.is_group) {
     // A group chat is still a contact that we can name
-    const contactData = await contactRepository.findById(chatData.id)
-    const contact = JSON.parse(JSON.stringify(contactData))
-
-    const messageData = await messageRepository.findByChatIdWithSender(params.id, 0, 100)
-    messages = JSON.parse(JSON.stringify(messageData))
-
-    // In an individual chat we would query any order that belongs to that individual.
-    // For a group chat, we will query every order that belongs to every user in the chat.
+    messages = await messageRepository.findByChatIdWithSender(params.id, 0, 100)
 
     // 1. Create a list of unique users that have sent a message
-    const userIdSet = new Set(messageData.map((message) => message.sender_id))
+    const userIdSet = new Set(messages.map((message) => message.sender_id))
     const userIdList = Array.from(userIdSet)
 
     // 2. Loop through the list of users and query every order that belongs to that user
-    const orderRepository = new OrderRepository(pool)
-    const orders = await Promise.all(userIdList.map((user) => orderRepository.getByContactId(Number(user))))
-
-    // 3. Combine the orders into a single array
-    const combinedOrders = orders.flat()
-
-    // 4. Convert to json parse to avoid nextjs errors
-    const ordersJson = JSON.parse(JSON.stringify(combinedOrders))
-    return (
-      <div className="h-full grid grid-rows-[auto_1fr_auto]">
-        <HeaderAction>
-          <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contact)}</h1>
-          <ChatDropDownDialog contact={JSON.parse(JSON.stringify(chatData))!} />
-        </HeaderAction>
-        <ChatView initialMessages={messages.reverse()} me={me} orders={ordersJson} />
-        <ChatControls />
-      </div>
-    )
+    const ordersList = await Promise.all(userIdList.map((user) => orderRepository.getByContactId(Number(user))))
+    orders = ordersList.flat()
   } else {
-    const contactData = await contactRepository.findById(BigInt(params.id))
-    const messagesData = await messageRepository.findByChatId(params.id, 0, 100)
-    const contact = JSON.parse(JSON.stringify(contactData))
-
-    const orderRepository = new OrderRepository(pool)
-    const contactOrders = await orderRepository.getByContactId(Number(params.id))
-    messages = JSON.parse(JSON.stringify(messagesData))
-
-    const orders = JSON.parse(JSON.stringify(contactOrders))
-    return (
-      <div className="h-full grid grid-rows-[auto_1fr_auto]">
-        <HeaderAction>
-          <ChatHeader contact={contact!} />
-          <ChatDropDownDialog contact={contact!} />
-        </HeaderAction>
-        <ChatView initialMessages={messages.reverse()} me={me} orders={orders} />
-        <ChatControls />
-      </div>
-    )
+    messages = await messageRepository.findByChatId(params.id, 0, 100)
+    orders = await orderRepository.getByContactId(Number(params.id))
   }
+
+  const contactJson = JSON.parse(JSON.stringify(contact))
+  const messagesJson = JSON.parse(JSON.stringify(messages))
+  const ordersJson = JSON.parse(JSON.stringify(orders))
+  const me = JSON.parse(JSON.stringify(meData))
+
+  return (
+    <div className="h-full grid grid-rows-[auto_1fr_auto]">
+      <HeaderAction>
+        {chatData?.is_group ? (
+          <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contactJson)}</h1>
+        ) : (
+          <ChatHeader contact={contactJson!} />
+        )}
+        <ChatDropDownDialog contact={contactJson} />
+      </HeaderAction>
+      <ChatView initialMessages={messagesJson.reverse()} me={me} orders={ordersJson} />
+      <ChatControls />
+    </div>
+  )
 }
