@@ -45,6 +45,7 @@ export default async function OrdersPage() {
                         data={plainOrders}
                         searchInputColumnId="id"
                         showDateSelector={true}
+                        showSearchInput={false}
                         visibleColumns={{
                             "updated_at": false,
                             "payment_method": false,

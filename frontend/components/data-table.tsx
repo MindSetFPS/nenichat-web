@@ -11,6 +11,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     PaginationState,
+    Row,
     RowSelectionState,
     SortingState,
     useReactTable,
@@ -43,6 +44,7 @@ interface DataTableProps<TData, TValue> {
     rowSelection?: RowSelectionState,
     showSelectColumn?: boolean,
     showDateSelector?: boolean,
+    dateFilterColumnId?: string,
     getRowId?: (row: TData) => string,
     onRowSelectionChange?: (selection: RowSelectionState) => void
 }
@@ -57,6 +59,7 @@ export function DataTable<TData, TValue>({
     rowSelection: externalRowSelection,
     showSelectColumn: showSelectColumn,
     showDateSelector: showDateSelector,
+    dateFilterColumnId = "created_at",
     getRowId: getRowId,
     onRowSelectionChange: setExternalRowSelection,
 }: DataTableProps<TData, TValue>) {
@@ -115,18 +118,19 @@ export function DataTable<TData, TValue>({
         table.getColumn("select")?.toggleVisibility(showSelectColumn);
     }, [showSelectColumn])
 
+    useEffect(() => {
+        table.getColumn(dateFilterColumnId)?.setFilterValue(selectedDate)
+    }, [selectedDate])
+
     return (
         <>
             <div className={`flex items-center mb-0 ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
-
-                {
-                    showDateSelector &&
+                {showDateSelector &&
                     <Selector
                         value={selectedDate}
                         onValueChange={setSelectedDate}
                     />
                 }
-
                 {showSearchInput &&
                     <Input
                         placeholder="Filtrar"
