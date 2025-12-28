@@ -11,7 +11,14 @@ interface ProductState {
     addProduct: (product: IProduct) => void;
     updateProduct: (product: IProduct) => void;
     deleteProduct: (productId: string) => void;
-    fetchProducts: () => Promise<void>;
+
+    /**
+     * Fetches products from the API and sets them in the store.
+     * @param active_only - If true, only active products are fetched.
+     * @param limit - The maximum number of products to fetch.
+     * @returns A promise that resolves when the products are fetched.
+     */
+    fetchProducts: (active_only?: boolean, limit?: number) => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -36,10 +43,10 @@ export const useProductStore = create<ProductState>((set) => ({
             products: state.products.filter((p) => p.id !== productId),
         })),
 
-    fetchProducts: async () => {
+    fetchProducts: async (active_only: boolean = false, limit: number = 100) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await fetch('/api/products?active_only=true');
+            const response = await fetch(`/api/products?active_only=${active_only}&limit=${limit}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch products');
             }
