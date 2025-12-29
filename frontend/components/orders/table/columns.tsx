@@ -7,6 +7,7 @@ import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
 import { getPaymentStatusColor } from "@/lib//utils";
+import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
 
 export const columns: ColumnDef<OrderWithContactName>[] = [
     {
@@ -22,7 +23,8 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         ),
         cell: ({ row }) => {
             return (
-                <Link className="hover:underline text-blue-400 w-min" href={`/orders/${row.original.id}`}>
+                <Link
+                    className="hover:underline w-1 text-blue-400 text-xs" href={`/orders/${row.original.id}`}>
                     #{row.original.id}
                 </Link>
             );
@@ -32,10 +34,29 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         accessorKey: "contact_id",
         header: "Contacto",
         cell: ({ row }) => {
+            const items = row.original.items || [];
+            const displayItems = items.slice(0, 3);
+            const remaining = items.length - displayItems.length;
+
             return (
-                <Link href={`/contacts/${row.original.contact_id}`} className="hover:underline text-blue-400 w-min">
-                    {row.original.contact_name || `#${row.original.contact_id}`}
-                </Link>
+                <div className="flex flex-col gap-1">
+                    <Link href={`/contacts/${row.original.contact_id}`}
+                        className="hover:underline text-blue-400 w-min text-xs md:text-sm font-medium">
+                        {row.original.contact_name || `#${row.original.contact_id}`}
+                    </Link>
+                    <div className="flex flex-col text-xs text-muted-foreground whitespace-nowrap">
+                        {displayItems.map((item, index) => (
+                            <span key={index}>
+                                {item.quantity} x {item.product_name}
+                            </span>
+                        ))}
+                        {remaining > 0 && (
+                            <span>
+                                + {remaining} más
+                            </span>
+                        )}
+                    </div>
+                </div>
             );
         }
     },
@@ -44,7 +65,7 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         header: "Total",
         cell: ({ row }) => {
             return (
-                <div className="text-right w-min">
+                <div className="text-right w-min text-xs">
                     ${Number(row.original.total_amount).toFixed(2)}
                 </div>
             );
@@ -63,7 +84,7 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         header: "Pagado",
         cell: ({ row }) => {
             return (
-                <div className="text-right w-min">
+                <div className="text-right w-min text-xs">
                     ${Number(row.original.amount_paid).toFixed(2)}
                 </div>
             );
@@ -74,7 +95,7 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         header: "Reembolsado",
         cell: ({ row }) => {
             return (
-                <div className="text-right">
+                <div className="text-right text-xs">
                     ${Number(row.original.refunded_amount).toFixed(2)}
                 </div>
             );
@@ -98,6 +119,7 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
     },
     {
         accessorKey: "created_at",
+        filterFn: dateIntervalFilter,
         header: ({ column }) => (
             <Button
                 className="w-min p-0 m-0 gap-0 ml-0 pl-0"
@@ -109,7 +131,7 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         ),
         cell: ({ row }) => {
             return (
-                <div className="w-min text-right">
+                <div className="w-min text-right text-xs">
                     {dateToHuman(String(row.original.created_at))}
                 </div>
             );

@@ -18,8 +18,11 @@ export default async function OrdersPage() {
     let orders: OrderWithContactName[] = await orderRepository.getAll();
 
     orders = await Promise.all(orders.map(async order => {
-        const contact = await contactRepository.findById(BigInt(order.contact_id!));
-        order.contact_name = getContactIdentifier(contact!)!;
+        if (order.contact_id) {
+            const contact = await contactRepository.findById(BigInt(order.contact_id));
+            order.contact_name = getContactIdentifier(contact!)!;
+        }
+        order.items = await orderRepository.getItems(order.id);
         return order;
     }));
 
@@ -48,6 +51,7 @@ export default async function OrdersPage() {
                         showSearchInput={false}
                         visibleColumns={{
                             "updated_at": false,
+                            "status": false,
                             "payment_method": false,
                             "refunded_amount": false,
                             "notes": false,

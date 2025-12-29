@@ -32,21 +32,16 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     const { id } = await params;
     const orderId = parseInt(id);
 
-    if (isNaN(orderId)) {
-        notFound();
-    }
+    if (isNaN(orderId)) notFound()
 
     const order = await orderRepository.getById(orderId);
-    if (!order) {
-        notFound();
-    }
+    if (!order) notFound()
 
     const items = await orderItemRepository.getByOrderIdWithProduct(orderId);
 
     let contact = null;
     if (order.contact_id) {
-        // Note: ContactRepository.findById takes a bigint, but our order.contact_id is number.
-        // We need to cast it.
+        // ContactRepository.findById takes a bigint, but our order.contact_id is number.
         contact = await contactRepository.findById(BigInt(order.contact_id));
     }
 

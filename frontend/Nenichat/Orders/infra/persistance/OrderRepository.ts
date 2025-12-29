@@ -4,6 +4,7 @@ import { IOrderRepository } from '../../domain/IOrderRepository';
 import { Order } from '../../domain/Order';
 import { IOrdersReport } from '../../domain/IOrdersReport';
 import { IOrderWithProducts } from '../../domain/IOrderWithProducts';
+import { IOrderItemWithProduct } from '../../domain/IOrderItemWithProduct';
 
 export class OrderRepository implements IOrderRepository {
     private pool: Pool;
@@ -174,6 +175,33 @@ export class OrderRepository implements IOrderRepository {
         return result.rows.map(row => ({
             product_name: row.product_name,
             count: row.count
+        }));
+    }
+
+    // this seems to be a duplicate of OrderItemRepository.getByOrderIdWithProduct
+    async getItems(orderId: number): Promise<IOrderItemWithProduct[]> {
+        const query = `
+            SELECT 
+                oi.id,
+                oi.order_id,
+                oi.product_id,
+                oi.quantity,
+                oi.unit_price,
+                oi.total_price,
+                p.name as product_name
+            FROM order_items oi
+            LEFT JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = $1
+        `;
+        const result = await this.pool.query(query, [orderId]);
+        return result.rows.map(row => ({
+            id: parseInt(row.id),
+            order_id: parseInt(row.order_id),
+            product_id: row.product_id,
+            quantity: parseFloat(row.quantity),
+            unit_price: parseFloat(row.unit_price),
+            total_price: parseFloat(row.total_price),
+            product_name: row.product_name
         }));
     }
 }

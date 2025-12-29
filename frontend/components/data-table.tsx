@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>({
     useEffect(() => {
         setPagination({
             pageIndex: 0,
-            pageSize: isMobile ? 15 : 50
+            pageSize: isMobile ? 10 : 50
         })
     }, [isMobile])
 
@@ -176,7 +176,7 @@ export function DataTable<TData, TValue>({
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} className="sticky top-0 z-10 bg-neutral-900 text-left w-min">
+                                <TableHead key={header.id} className="sticky top-0 z-10 bg-background text-left w-min">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
