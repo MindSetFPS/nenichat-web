@@ -14,31 +14,33 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     try {
         const body = await request.json();
-        const {
-            contact_id,
-            items,
-            shipping_address,
-            shipping_cost,
-            status,
-            payment_method,
-            amount_paid,
-            payment_status,
-            notes,
-            total_amount,
-        } = body;
+
+        // Extract items separately as it's handled differently
+        const { items } = body;
+
+        // Define allowed fields for order update
+        const allowedFields = [
+            'contact_id',
+            'shipping_address',
+            'shipping_cost',
+            'status',
+            'payment_method',
+            'amount_paid',
+            'payment_status',
+            'notes',
+            'total_amount',
+        ];
+
+        // Construct updates object with only defined fields
+        const updates: any = {};
+        for (const field of allowedFields) {
+            if (body[field] !== undefined) {
+                updates[field] = body[field];
+            }
+        }
 
         // Update order details
-        const updatedOrder = await orderRepository.update(orderId, {
-            contact_id,
-            shipping_address,
-            shipping_cost,
-            status,
-            payment_method,
-            amount_paid,
-            payment_status,
-            notes,
-            total_amount,
-        } as any);
+        const updatedOrder = await orderRepository.update(orderId, updates);
 
         if (!updatedOrder) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
