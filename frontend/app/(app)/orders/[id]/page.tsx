@@ -17,6 +17,8 @@ import { getPaymentStatusColor, getStatusColor } from "@/lib/utils";
 
 import { DropdownMenuDialog } from "@/components/orders/dropdown";
 import { HeaderAction } from "@/components/header-action";
+import PaymentStatusDropdown from "@/components/orders/payment-status-dropdown";
+import OrderStatusDropdown from "@/components/orders/order-status-dropdown";
 
 const orderRepository = new OrderRepository(pool);
 const orderItemRepository = new OrderItemRepository(pool);
@@ -65,12 +67,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                                 <ArrowLeft className="h-4 w-4" />
                             </Button>
                         </Link>
-                        <Badge className={getStatusColor(order.status)} variant="outline">
-                            {order.status}
-                        </Badge>
-                        <Badge className={getPaymentStatusColor(order.payment_status)} variant="outline">
-                            {order.payment_status}
-                        </Badge>
+                        <PaymentStatusDropdown order={JSON.parse(JSON.stringify(order))} />
+                        <OrderStatusDropdown order={JSON.parse(JSON.stringify(order))} />
                     </div>
 
                 </div>
