@@ -220,12 +220,13 @@ export class MessageRepository implements IMessageRepository {
     return Number(result.rows[0].count);
   }
 
-  async getMessageCountPerDay(): Promise<IMessagesReport[]> {
+  async getMessageCountPerDay(interval: number): Promise<IMessagesReport[]> {
     const result = await this.pool.query(
       `SELECT
         created_at::date as date,
         COUNT(id) as count
       FROM messages
+      WHERE created_at >= NOW() - INTERVAL '${interval} days'
       GROUP BY created_at::date
       ORDER BY date ASC`
     );
