@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { OrderRepository } from '@/Nenichat/Orders/infra/persistance/OrderRepository';
-import { OrderItemRepository } from '@/Nenichat/Orders/infra/persistance/OrderItemRepository';
 
 const orderRepository = new OrderRepository(pool);
-const orderItemRepository = new OrderItemRepository(pool);
 
 export async function POST(request: Request) {
     try {

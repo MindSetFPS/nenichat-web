@@ -3,7 +3,7 @@ import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { CreateOrderForm } from "@/components/forms/create-order-form";
+import { EditOrderForm } from "@/components/forms/edit-order-form";
 import { HeaderAction } from "@/components/header-action";
 
 const orderRepository = new OrderRepository(pool);
@@ -20,15 +20,11 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
     const { id } = await params;
     const orderId = parseInt(id);
 
-    if (isNaN(orderId)) {
-        notFound();
-    }
+    if (isNaN(orderId)) notFound();
 
     // Fetch order
     const order = await orderRepository.getById(orderId);
-    if (!order) {
-        notFound();
-    }
+    if (!order) notFound();
 
     // Fetch order items with product info
     const items = await orderItemRepository.getByOrderIdWithProduct(orderId);
@@ -50,9 +46,9 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
 
     // Transform items to match CreateOrderForm's expected format
     const transformedItems = plainItems.map((item: any) => ({
-        product_id: item.product_id?.toString() || null,
+        productId: item.product_id?.toString() || null,
         quantity: item.quantity,
-        unit_price: item.unit_price,
+        unitPrice: item.unit_price,
     }));
 
     return (
@@ -61,19 +57,21 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
                 <h1 className="text-2xl font-bold tracking-tight">Edit Order #{orderId}</h1>
             </HeaderAction>
             <div className="overflow-scroll">
-                <CreateOrderForm
+                <EditOrderForm
                     contacts={plainContacts}
-                    contactId={order.contact_id ? String(order.contact_id) : undefined}
                     contact={plainContact}
                     orderId={orderId}
-                    initialStatus={plainOrder.status}
-                    initialPaymentMethod={plainOrder.payment_method}
-                    initialAmountPaid={plainOrder.amount_paid}
-                    initialPaymentStatus={plainOrder.payment_status}
-                    initialNotes={plainOrder.notes}
-                    initialShippingAddress={plainOrder.shipping_address}
-                    initialShippingCost={plainOrder.shipping_cost}
-                    initialItems={transformedItems}
+                    initialData={{
+                        status: plainOrder.status,
+                        paymentMethod: plainOrder.payment_method,
+                        amountPaid: plainOrder.amount_paid,
+                        paymentStatus: plainOrder.payment_status,
+                        notes: plainOrder.notes,
+                        shippingAddress: plainOrder.shipping_address,
+                        shippingCost: plainOrder.shipping_cost,
+                        items: transformedItems,
+                        contactId: order.contact_id ? String(order.contact_id) : "",
+                    }}
                     className="mt-4"
                 />
             </div>
