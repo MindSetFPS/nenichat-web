@@ -226,7 +226,7 @@ export class MessageRepository implements IMessageRepository {
         created_at::date as date,
         COUNT(id) as count
       FROM messages
-      WHERE created_at >= NOW() - INTERVAL '${interval} days'
+      WHERE created_at >= NOW() - INTERVAL '${interval} days' AND messages.sender_id NOT IN (SELECT hidden_contact_id FROM hidden_contacts)
       GROUP BY created_at::date
       ORDER BY date ASC`
     );
