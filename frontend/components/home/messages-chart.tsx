@@ -21,22 +21,26 @@ export function MessagesChart({ data }: MessagesChartProps) {
   };
 
   return (
-    <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-      <BarChart accessibilityLayer data={data}>
-        <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="date"
-          tickLine={false}
-          tickMargin={10}
-          axisLine={false}
-          tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        />
-        <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent indicator="dot" />}
-        />
-        <Bar dataKey="count" fill="var(--color-messages)" radius={4} />
-      </BarChart>
-    </ChartContainer>
+    <div className="w-full">
+      <h2 className="text-2xl font-bold">Mensajes recibidos</h2>
+      <h2>Promedio: {Math.floor(data.reduce((acc, item) => acc + item.count, 0) / data.length)} mensajes por dia</h2>
+      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+        <BarChart accessibilityLayer data={data}>
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+            tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          />
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent indicator="dot" />}
+          />
+          <Bar dataKey="count" fill="var(--color-messages)" radius={4} />
+        </BarChart>
+      </ChartContainer>
+    </div>
   );
 }

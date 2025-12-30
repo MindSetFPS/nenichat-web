@@ -35,7 +35,7 @@ interface OrdersPieChartProps {
     data: { product_name: string; count: number }[];
 }
 
-export function OrdersPieChart({ data }: OrdersPieChartProps) {
+export function DailyOrdersChart({ data }: OrdersPieChartProps) {
     const [date, setDate] = useState("")
 
     useEffect(() => {
