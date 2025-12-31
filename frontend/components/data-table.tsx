@@ -37,6 +37,7 @@ import { Selector } from "./orders/selector";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
+    filterMode?: "column" | "global",
     showSearchInput?: boolean,
     searchInputColumnId?: string,
     showColumnsVisibilityDropdown?: boolean,
@@ -52,6 +53,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
     columns,
     data,
+    filterMode = "column",
     visibleColumns,
     showSearchInput = true,
     searchInputColumnId = "id",
@@ -65,6 +67,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [globalFilter, setGlobalFilter] = useState<string>("");
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(visibleColumns ?? {});
     const [pagination, setPagination] = useState<PaginationState>({
         pageIndex: 0,
@@ -95,23 +98,47 @@ export function DataTable<TData, TValue>({
     const table = useReactTable({
         data,
         columns,
+        enableColumnFilters: filterMode === "column",
+        enableGlobalFilter: filterMode === "global",
+        globalFilterFn: (row, columnId, filterValue) => {
+            const search = filterValue.toLowerCase();
+
+            // Get all cell values from the row
+            const cellValues = row.getAllCells().map(cell => {
+                const value = cell.getValue();
+
+                // Handle null/undefined
+                if (value === null || value === undefined) return '';
+
+                // Handle bigint
+                if (typeof value === 'bigint') return value.toString();
+
+                // Handle other types
+                return String(value);
+            });
+
+            // Check if any cell value includes the search term
+            return cellValues.some(cellValue => cellValue.toLowerCase().includes(search));
+        },
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
-        onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
-        onRowSelectionChange: onRowSelectionChange,
         getRowId: getRowId,
+        onColumnVisibilityChange: setColumnVisibility,
+        onColumnFiltersChange: setColumnFilters,
+        onGlobalFilterChange: setGlobalFilter,
+        onRowSelectionChange: onRowSelectionChange,
+        onSortingChange: setSorting,
+        onPaginationChange: setPagination,
         state: {
             sorting,
             columnFilters,
+            globalFilter,
             columnVisibility,
             pagination,
             rowSelection,
         },
-        onPaginationChange: setPagination,
     })
 
     useEffect(() => {
@@ -134,10 +161,18 @@ export function DataTable<TData, TValue>({
                 {showSearchInput &&
                     <Input
                         placeholder="Filtrar"
-                        value={(table.getColumn(searchInputColumnId)?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn(searchInputColumnId)?.setFilterValue(event.target.value)
+                        value={
+                            filterMode === "global"
+                                ? (globalFilter ?? "")
+                                : (table.getColumn(searchInputColumnId)?.getFilterValue() as string) ?? ""
                         }
+                        onChange={(event) => {
+                            if (filterMode === "global") {
+                                setGlobalFilter(event.target.value);
+                            } else {
+                                table.getColumn(searchInputColumnId)?.setFilterValue(event.target.value);
+                            }
+                        }}
                         className="max-w-sm"
                     />
                 }

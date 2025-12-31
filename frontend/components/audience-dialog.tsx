@@ -24,8 +24,6 @@ export function CreateAudienceDialog({ isCreateDialogOpen, setIsCreateDialogOpen
                 />
             </DialogContent>
         </Dialog>
-
-
     )
 }
 

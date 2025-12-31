@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { audienceContactRepository } from '@/Nenichat/Audiences/infra/persistance/AudienceContactRepository';
-import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
 
 export async function GET(
   request: Request,
@@ -9,8 +8,6 @@ export async function GET(
   try {
     const id = parseInt((await params).id, 10);
     const audienceMembers = await audienceContactRepository.findByAudienceId(id);
-    // const allContacts = await contactRepository.list(0, 1000);
-    console.log('Audience members: ', audienceMembers);
     return NextResponse.json(audienceMembers);
   } catch (error) {
     console.error('Error fetching audience members:', error);

@@ -29,14 +29,31 @@ export const columns: ColumnDef<IContact>[] = [
     {
         accessorKey: "id",
         header: "ID",
+        filterFn: "includesString",
+    },
+    {
+        accessorKey: "lid",
+        header: "Lid",
+        filterFn: "includesString",
     },
     {
         accessorKey: "phone_number",
         header: "Telefono",
+        filterFn: "includesString",
     },
     {
-        id: "identifier",
-        header: "Identifier",
-        cell: ({ row }) => getContactIdentifier(row.original),
+        accessorKey: "contact_name",
+        header: "Nombre",
+        filterFn: "includesString",
+    },
+    {
+        accessorKey: "pushname",
+        header: "Pushname",
+        filterFn: "includesString",
+    },
+    {
+        accessorKey: "username",
+        header: "Username",
+        filterFn: "includesString",
     }
 ];

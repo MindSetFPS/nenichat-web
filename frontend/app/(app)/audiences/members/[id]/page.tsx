@@ -36,7 +36,6 @@ export default function AudienceMembersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [audienceDetails, setAudienceDetails] = useState<IAudience | null>(null);
-  // const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
 
   const [audienceMembers, setAudienceMembers] = useState<IContact[]>([]);
 
@@ -126,10 +125,6 @@ export default function AudienceMembersPage() {
     showSelectColumn ? setRowSelection({}) : setRowSelection(initialMembersIds);
   }
 
-  useEffect(() => {
-    console.log("new audience members")
-  }, [audienceMembers])
-
   return (
     <>
       {
@@ -152,8 +147,8 @@ export default function AudienceMembersPage() {
             </div>
 
             <DataTable
-              searchInputColumnId="phone_number"
               rowSelection={rowSelection}
+              filterMode="global"
               onRowSelectionChange={setRowSelection}
               columns={columns}
               getRowId={(row) => String(row.id)}
@@ -184,13 +179,6 @@ export default function AudienceMembersPage() {
           )}
         </DialogContent>
       </Dialog>
-      {/* 
-      <AddMemberModal
-        audienceId={audienceId}
-        open={isAddMemberDialogOpen}
-        onOpenChange={setIsAddMemberDialogOpen}
-        onSuccess={fetchMembersAndAudience}
-      /> */}
     </>
   );
 }
