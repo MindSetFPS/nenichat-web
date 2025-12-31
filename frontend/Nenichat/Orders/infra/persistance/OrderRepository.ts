@@ -126,12 +126,13 @@ export class OrderRepository implements IOrderRepository {
         return this.mapRowToOrder(result.rows[0]);
     }
 
-    async getOrderTotalPerDay(): Promise<IOrdersReport[]> {
+    async getOrderTotalPerDay(interval: number): Promise<IOrdersReport[]> {
         const query = `
             SELECT 
                 DATE(created_at) as date,
                 SUM(total_amount) as total
             FROM orders
+            WHERE created_at >= NOW() - INTERVAL '${interval} days'
             GROUP BY DATE(created_at)
             ORDER BY date ASC
         `;
