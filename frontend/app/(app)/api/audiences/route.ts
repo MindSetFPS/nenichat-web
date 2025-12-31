@@ -18,9 +18,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { name, description } = await request.json();
-    if (!name || !description) {
+    if (!name) {
       return NextResponse.json(
-        { message: "Name and description are required" },
+        { message: "Name is required" }, // also, this error was never sent
         { status: 400 }
       );
     }
