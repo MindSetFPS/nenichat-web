@@ -101,6 +101,13 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     `, [audienceId, contactId]);
   }
 
+  async delete(audienceId: string): Promise<void> {
+    await this.pool.query(`
+      DELETE FROM audience_contacts
+      WHERE audience_id = $1
+    `, [audienceId]);
+  }
+
   async addContactToAudience(audienceId: string, contactId: string): Promise<void> {
   }
 

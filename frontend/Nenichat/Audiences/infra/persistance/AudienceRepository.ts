@@ -35,6 +35,10 @@ export class AudienceRepository implements IAudienceRepository {
     return result.rows.map(this.toAudience);
   }
 
+  async delete(id: number): Promise<void> {
+    await this.pool.query('DELETE FROM audiences WHERE id = $1', [id]);
+  }
+
   async create(audience: Omit<IAudience, 'id' | 'created_at'>): Promise<IAudience> {
     const result = await this.pool.query(
       `

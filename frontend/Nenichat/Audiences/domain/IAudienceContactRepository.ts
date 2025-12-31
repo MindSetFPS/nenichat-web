@@ -5,5 +5,7 @@ export interface IAudienceContactRepository {
   findAvailableContacts(audienceId: number | BigInt): Promise<IContact[]>;
   addContactToAudience(audienceId: string, contactId: string): Promise<void>;
   removeContactFromAudience(audienceId: string, contactId: string): Promise<void>;
+  // cascade delete? 
+  delete(audienceId: string): Promise<void>;
   updateAudienceMembers(audienceId: string, contactIds: string[]): Promise<void>;
 }
