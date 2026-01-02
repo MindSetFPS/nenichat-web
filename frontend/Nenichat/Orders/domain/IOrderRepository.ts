@@ -14,5 +14,11 @@ export interface IOrderRepository {
      */
     getOrdersCountByDate(date: Date): Promise<{ product_name: string; count: number }[]>;
 
+    /**
+     * A method that takes the number of days, an returns the number of product units ordered in each day of the interval
+     * @param interval number of days
+     */
+    getProductOrdersByDateInterval(interval: number): Promise<{ date: string; quantity: number }[]>;
+
     getItems(orderId: number): Promise<IOrderItemWithProduct[]>;
 }

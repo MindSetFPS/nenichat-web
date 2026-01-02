@@ -179,6 +179,24 @@ export class OrderRepository implements IOrderRepository {
         }));
     }
 
+    async getProductOrdersByDateInterval(interval: number): Promise<{ date: string; quantity: number }[]> {
+        const query = `
+            SELECT 
+                DATE(o.created_at) as date,
+                SUM(oi.quantity) as quantity
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.created_at >= NOW() - INTERVAL '${interval} days'
+            GROUP BY DATE(o.created_at)
+            ORDER BY date ASC
+        `;
+        const result = await this.pool.query(query);
+        return result.rows.map(row => ({
+            date: row.date,
+            quantity: Number(row.quantity)
+        }));
+    }
+
     // this seems to be a duplicate of OrderItemRepository.getByOrderIdWithProduct
     async getItems(orderId: number): Promise<IOrderItemWithProduct[]> {
         const query = `

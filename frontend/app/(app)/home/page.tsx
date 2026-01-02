@@ -4,6 +4,7 @@ import { OrdersTotalValueChart } from "@/components/home/orders-total-chart";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
+import { OrderProductChart } from "@/components/home/product-orders-chart";
 import { HeaderAction } from "@/components/header-action";
 import BusinessSummary from "@/components/home/business-summary";
 
@@ -25,7 +26,9 @@ export default async function Page() {
     return acc + Number(order.total_amount);
   }, 0);
 
+  const ordersCountByDateInterval = await orderRepository.getProductOrdersByDateInterval(28);
   const ordersToday = await orderRepository.getOrdersCountByDate(new Date());
+
   return (
     <>
       <HeaderAction>
@@ -41,6 +44,7 @@ export default async function Page() {
         <DailyOrdersChart data={ordersToday} />
         <MessagesChart data={messagesPerDay} />
         <OrdersTotalValueChart data={orderTotalsPerDay} />
+        <OrderProductChart data={ordersCountByDateInterval} />
       </div>
     </>
   );
