@@ -22,8 +22,7 @@ export default async function ProductsPage() {
   let error: string | null = null;
 
   try {
-    products = await productRepository.getAll();
-
+    products = await productRepository.getAll() as IProductWithUnitsSold[];
 
     // get montly sales
     const query = `
