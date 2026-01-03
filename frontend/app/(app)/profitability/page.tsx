@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PageHeader } from "@/components/ui/page-header";
 import { ProfitMetricsCards } from "@/components/profitability/profit-metrics-cards";
 import { ProfitabilityChart } from "@/components/profitability/profitability-chart";
 import { ExpenseBreakdownChart } from "@/components/profitability/expense-breakdown-chart";

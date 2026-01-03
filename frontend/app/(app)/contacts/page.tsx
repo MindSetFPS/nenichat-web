@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { columns } from "@/components/contacts/table/columns";
