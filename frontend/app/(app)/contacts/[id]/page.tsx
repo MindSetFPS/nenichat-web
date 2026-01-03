@@ -12,6 +12,7 @@ import ChatHeader from "@/components/chat/chat-header";
 import { columns } from "@/components/orders/table/columns";
 import { HeaderAction } from "@/components/header-action";
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown";
+import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 
 const contactRepository = new ContactRepository(pool);
 const orderRepository = new OrderRepository(pool);
@@ -34,7 +35,9 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
     // Fetch orders for this contact
     // Note: OrderRepository expects number for contactId currently, but DB is bigint.
     // We cast to number for now as per existing pattern, but this should be fixed in repository.
+    // We cast to number for now as per existing pattern, but this should be fixed in repository.
     const orders = await orderRepository.getByContactId(Number(contactId));
+    const ordersByDay = await orderRepository.getOrdersCountByDayOfWeek(Number(contactId));
 
     // Serialize for client component
     const plainOrders = JSON.parse(JSON.stringify(orders));
@@ -131,6 +134,9 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                                 <div className="text-2xl font-bold text-red-400">
                                     ${orders.reduce((sum, order) => sum + Number(order.total_amount - order.amount_paid), 0).toFixed(2)}
                                 </div>
+                            </div>
+                            <div>
+                                <OrdersByDayChart data={ordersByDay} />
                             </div>
                         </CardContent>
                     </Card>
