@@ -64,7 +64,7 @@ export async function POST(
       }
     });
 
-    campaign.executed_at = new Date().toISOString();
+    campaign.next_run_at = new Date()
     await campaignRepository.update(campaign);
 
     return NextResponse.json({ message: "Campaign executed successfully" });
