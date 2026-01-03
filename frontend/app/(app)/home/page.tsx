@@ -7,15 +7,16 @@ import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
 import { OrderProductChart } from "@/components/home/product-orders-chart";
 import { HeaderAction } from "@/components/header-action";
 import BusinessSummary from "@/components/home/business-summary";
+import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 
 export const dynamic = 'force-dynamic';
 const orderRepository = new OrderRepository(pool);
 
 export default async function Page() {
-  const messagesPerDay = await messageRepository.getMessageCountPerDay(28);
+  const messagesPerDay = await messageRepository.getMessageCountPerDay(14);
   const orders = await orderRepository.getAll();
   const plainOrders = JSON.parse(JSON.stringify(orders));
-  const orderTotalsPerDay = await orderRepository.getOrderTotalPerDay(28);
+  const orderTotalsPerDay = await orderRepository.getOrderTotalPerDay(14);
 
   const totalRevenue = plainOrders.reduce((acc: number, order: any) => {
     return acc + (order.payment_status === 'paid' ? Number(order.total_amount) : 0);
@@ -26,7 +27,8 @@ export default async function Page() {
     return acc + Number(order.total_amount);
   }, 0);
 
-  const ordersCountByDateInterval = await orderRepository.getProductOrdersByDateInterval(28);
+  const ordersCountByDateInterval = await orderRepository.getProductOrdersByDateInterval(14);
+  const ordersCountByDayOfWeek = await orderRepository.getOrdersCountByDayOfWeek();
   const ordersToday = await orderRepository.getOrdersCountByDate(new Date());
 
   return (
@@ -42,6 +44,7 @@ export default async function Page() {
           totalOrdersValue={totalOrdersValue}
         />
         <DailyOrdersChart data={ordersToday} />
+        <OrdersByDayChart data={ordersCountByDayOfWeek} />
         <MessagesChart data={messagesPerDay} />
         <OrdersTotalValueChart data={orderTotalsPerDay} />
         <OrderProductChart data={ordersCountByDateInterval} />

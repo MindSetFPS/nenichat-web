@@ -20,5 +20,11 @@ export interface IOrderRepository {
      */
     getProductOrdersByDateInterval(interval: number): Promise<{ date: string; quantity: number }[]>;
 
+    /**
+     * Returns the count of orders for each day of the week (1=Monday, 7=Sunday)
+     * If contactId is provided, filters by contact. Otherwise returns for all orders.
+     */
+    getOrdersCountByDayOfWeek(contactId?: number): Promise<{ day_index: number; count: number }[]>;
+
     getItems(orderId: number): Promise<IOrderItemWithProduct[]>;
 }

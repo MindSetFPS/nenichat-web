@@ -197,6 +197,33 @@ export class OrderRepository implements IOrderRepository {
         }));
     }
 
+    async getOrdersCountByDayOfWeek(contactId?: number): Promise<{ day_index: number; count: number }[]> {
+        let query = `
+            SELECT 
+                EXTRACT(ISODOW FROM created_at) as day_index,
+                COUNT(*) as count
+            FROM orders 
+        `;
+
+        const params: any[] = [];
+
+        if (contactId) {
+            query += ` WHERE contact_id = $1 `;
+            params.push(contactId);
+        }
+
+        query += `
+            GROUP BY day_index 
+            ORDER BY day_index
+        `;
+
+        const result = await this.pool.query(query, params);
+        return result.rows.map(row => ({
+            day_index: parseInt(row.day_index),
+            count: parseInt(row.count)
+        }));
+    }
+
     // this seems to be a duplicate of OrderItemRepository.getByOrderIdWithProduct
     async getItems(orderId: number): Promise<IOrderItemWithProduct[]> {
         const query = `
