@@ -32,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Selector } from "./orders/selector";
+import { DayIntervalSelector } from "./day-inverval-selector";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -74,7 +74,7 @@ export function DataTable<TData, TValue>({
         pageSize: 10
     })
     const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
-    const [selectedDate, setSelectedDate] = useState<string>("")
+    const [selectedDate, setSelectedDate] = useState<string>("today")
 
     const isMobile = useIsMobile()
 
@@ -153,9 +153,14 @@ export function DataTable<TData, TValue>({
         <>
             <div className={`flex items-center mb-0 ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
                 {showDateSelector &&
-                    <Selector
-                        value={selectedDate}
-                        onValueChange={setSelectedDate}
+                    // <Selector
+                    //     value={selectedDate}
+                    //     onValueChange={setSelectedDate}
+                    // />
+
+                    <DayIntervalSelector
+                        selectedInterval={selectedDate}
+                        onIntervalChange={setSelectedDate}
                     />
                 }
                 {showSearchInput &&
