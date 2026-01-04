@@ -58,8 +58,10 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                     <CardContent className="h-full px-2 py-0">
                         <DataTable
                             columns={columns}
+                            showDateSelector={true}
                             data={plainOrders}
                             showSearchInput={false}
+                            selectedDateDefault={"this-month"}
                             showColumnsVisibilityDropdown={false}
                             visibleColumns={{
                                 contact_id: false,

@@ -46,6 +46,7 @@ interface DataTableProps<TData, TValue> {
     showSelectColumn?: boolean,
     showDateSelector?: boolean,
     dateFilterColumnId?: string,
+    selectedDateDefault?: "today" | "this-week" | "this-month" | "this-year" | "all-time" | null,
     getRowId?: (row: TData) => string,
     onRowSelectionChange?: (selection: RowSelectionState) => void
 }
@@ -62,6 +63,7 @@ export function DataTable<TData, TValue>({
     showSelectColumn: showSelectColumn,
     showDateSelector: showDateSelector,
     dateFilterColumnId = "created_at",
+    selectedDateDefault = "today",
     getRowId: getRowId,
     onRowSelectionChange: setExternalRowSelection,
 }: DataTableProps<TData, TValue>) {
@@ -74,7 +76,7 @@ export function DataTable<TData, TValue>({
         pageSize: 10
     })
     const [internalRowSelection, setInternalRowSelection] = useState<RowSelectionState>({});
-    const [selectedDate, setSelectedDate] = useState<string>("today")
+    const [selectedDate, setSelectedDate] = useState<string>(selectedDateDefault ?? "today")
 
     const isMobile = useIsMobile()
 
@@ -153,11 +155,6 @@ export function DataTable<TData, TValue>({
         <>
             <div className={`flex items-center mb-0 ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
                 {showDateSelector &&
-                    // <Selector
-                    //     value={selectedDate}
-                    //     onValueChange={setSelectedDate}
-                    // />
-
                     <DayIntervalSelector
                         selectedInterval={selectedDate}
                         onIntervalChange={setSelectedDate}
