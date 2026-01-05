@@ -23,6 +23,10 @@
     - 4. Show a buton to cancel and to proceed.
     - 5. I can easily switch to the next contact, which puls recent messages and replaces previous messages.
     - 6. When i click proceed, it queries '/api/contacts/merge' with the primary contact id and the secondary contact ids.
+- [ ] Editing a product is not reflected in order creation until i refresh the page. A fix would be to use the product store in products pages and basically everywhere else.
+
+- [ ] Daily scheduler
+- [ ] Publish marketing site
 
 - [x] From message counting graph in home, do not count messags from groups
 - [x] Fix landing page
@@ -33,7 +37,7 @@
 
 - [ ] Do not save empty messages (stickers, voice notes, images, reactions)
 - Audience:
-    - [ ] Delete audience does not work
+- [ ] Delete audience does not work
 - [x] Width is fixed and looks weird in medium sized screens
 - [ ] Product stock does not decrease when selling
 

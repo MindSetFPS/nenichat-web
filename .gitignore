@@ -1,1 +1,5 @@
 dist/
+.VSCodeCounter/*
+/frontend/public/images
+.VSCodeCounter/2025-12-10_13-54-17/results.txt
+frontend/package-lock.json

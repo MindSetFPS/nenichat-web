@@ -4,19 +4,21 @@ import { AppLayout } from "@/components/layout/app-layout"
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
 
+import { requireAuth } from "@/lib/auth"
+
 interface RootLayoutProps {
     children: React.ReactNode
 }
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-    let contacts: IContactWithLastMessage[] = [];
+    await requireAuth()
+    let contactsWithLastMessage: IContactWithLastMessage[] = [];
     try {
-        contacts = await contactRepository.getContactsWithLastMessage(0, 1000);
+        contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
     } catch (error) {
         console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
     }
-    const contactsJson = JSON.stringify(contacts)
-
+    const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)
 
     return (
         <>
@@ -29,7 +31,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <AppLayout contactsJson={contactsJson}>
+                        <AppLayout contactsJson={contactsWithLastMessageJSON}>
                             {children}
                         </AppLayout>
                     </ThemeProvider>

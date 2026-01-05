@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp, LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     Sidebar,
@@ -16,6 +16,7 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
     SidebarMenuSubButton,
+    SidebarFooter,
     useSidebar,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -24,6 +25,7 @@ import ContactAvatar from './contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { Badge } from "./ui/badge"
+import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 
 interface AppSidebarProps {
     contacts: string
@@ -33,6 +35,7 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
     const sidebar = useSidebar()
     const pathname = usePathname()
     const router = useRouter()
+    const supabase = createBrowserSupabaseClient()
     const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
     const isActive = (path: string) => {
         return pathname === path
@@ -139,6 +142,12 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
         sidebar.setOpenMobile(false)
     }, [pathname]);
 
+    async function handleLogout() {
+        await supabase.auth.signOut()
+        router.push('/login')
+        router.refresh()
+    }
+
     return (
         <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
@@ -239,10 +248,16 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
-            {/* <SidebarFooter>
-                <p>Footer</p>
-                <ModeToggle />
-            </SidebarFooter> */}
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={handleLogout} className="cursor-pointer">
+                            <LogOut className="w-5! h-5! md:h-4! md:w-4!" />
+                            <span className="text-lg md:text-sm">Cerrar sesión</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
     )
 }
