@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   Dialog,
@@ -10,7 +11,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
 import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
@@ -32,18 +32,6 @@ export function CreateCampaignDialog() {
     audienceIds,
   }: NewCampaignData) {
     setIsLoading(true);
-
-    console.log({
-      name,
-      description,
-      message,
-      runAt,
-      interval,
-      dayOfMonth,
-      frequency_type,
-      dayOfWeek,
-      audienceIds,
-    });
 
     try {
       const response = await fetch("/api/campaigns", {
@@ -68,7 +56,6 @@ export function CreateCampaignDialog() {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to create campaign");
       }
-
       toast.success("Campaign created successfully!");
       setOpen(false);
       router.refresh();

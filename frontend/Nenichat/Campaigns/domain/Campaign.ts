@@ -9,6 +9,7 @@ export class Campaign implements ICampaign {
   interval?: string;
   day_of_month?: string;
   day_of_week?: string;
+  cron_expression?: string | undefined;
 
   run_at?: Date;
   executed_at?: Date;
@@ -31,7 +32,7 @@ export class Campaign implements ICampaign {
     interval?: string,
     day_of_month?: string,
     day_of_week?: string,
-
+    cron_expression?: string | undefined,
     run_at?: Date,
     executed_at?: Date,
     description?: string,
@@ -45,6 +46,7 @@ export class Campaign implements ICampaign {
     this.interval = interval;
     this.day_of_month = day_of_month;
     this.day_of_week = day_of_week;
+    this.cron_expression = cron_expression;
     this.run_at = run_at;
     this.executed_at = executed_at;
     this.description = description;

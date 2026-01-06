@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/CampaignForm";
 import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
+import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
 import { Button } from "@/components/ui/button"; // Import Button component
 import { Loader2 } from "lucide-react"; // Import Loader2 for loading spinner
 
@@ -17,12 +18,7 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false); // New state for execute button
 
-  const handleSubmit = async (data: {
-    name: string;
-    description: string;
-    run_at?: Date;
-    audienceIds?: number[];
-  }) => {
+  const handleSubmit = async (data: NewCampaignData) => {
     setIsLoading(true);
 
     try {
@@ -34,8 +30,13 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
         body: JSON.stringify({
           name: data.name,
           description: data.description,
-          run_at: data.run_at,
+          message: data.message,
+          run_at: data.runAt,
           audienceIds: data.audienceIds,
+          interval: data.interval,
+          day_of_month: data.dayOfMonth,
+          day_of_week: data.dayOfWeek,
+          frequency_type: data.frequency_type,
         }),
       });
 

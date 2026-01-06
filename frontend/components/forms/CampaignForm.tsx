@@ -15,6 +15,7 @@ import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
 import { Frequency } from "./campaign-form/frequency";
 import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
+import { Switch } from "../ui/switch";
 
 interface CampaignFormProps {
   onSubmit: (submitData: NewCampaignData) => Promise<void>;
@@ -34,13 +35,14 @@ export function CampaignForm({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+  const [enabled, setEnabled] = useState(initialData?.enabled || false);
 
   // schedule data
-  const [runAt, setRunAt] = useState<Date | undefined>(new Date());
-  const [interval, setInterval] = useState<string | undefined>(undefined);
-  const [dayOfMonth, setDayOfMonth] = useState<string | undefined>(undefined);
-  const [dayOfWeek, setDayOfWeek] = useState<string | undefined>(undefined);
-  const [frequency_type, setFrequencyType] = useState<'once' | 'recurring'>('once');
+  const [runAt, setRunAt] = useState<Date | undefined>(initialData?.run_at ? new Date(initialData.run_at) : new Date());
+  const [interval, setInterval] = useState<string | undefined>(initialData?.interval);
+  const [dayOfMonth, setDayOfMonth] = useState<string | undefined>(initialData?.day_of_month);
+  const [dayOfWeek, setDayOfWeek] = useState<string | undefined>(initialData?.day_of_week);
+  const [frequency_type, setFrequencyType] = useState<'once' | 'recurring'>(initialData?.frequency_type || 'once');
 
   // audience data
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -53,6 +55,11 @@ export function CampaignForm({
       setMessage(initialData.message || "");
       setRunAt(initialData.run_at ? new Date(initialData.run_at) : new Date());
       setSelectedAudienceIds(initialData.audienceIds || []);
+      setInterval(initialData.interval);
+      setDayOfMonth(initialData.day_of_month);
+      setDayOfWeek(initialData.day_of_week);
+      setFrequencyType(initialData.frequency_type || 'once');
+      setEnabled(initialData.enabled || false);
     } else {
       setName("");
       setDescription("");
@@ -159,6 +166,16 @@ export function CampaignForm({
             </div>
           </PopoverContent>
         </Popover>
+      </div>
+
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label htmlFor="enabled" className="text-right">Enabled</Label>
+        <Switch
+          id="enabled"
+          checked={enabled}
+          onCheckedChange={(e: boolean) => setEnabled(e)}
+          disabled={isEditingDisabled}
+        />
       </div>
 
       <Frequency

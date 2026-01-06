@@ -3,6 +3,7 @@ import { ICampaign } from "../../domain/ICampaign";
 import { ICampaignRepository } from "../../domain/ICampaignRepository";
 import { Campaign } from "../../domain/Campaign";
 import { pool } from "../../../Shared/infra/persistance/db";
+import { CronExpressionParser } from 'cron-parser';
 
 export class CampaignRepository implements ICampaignRepository {
   constructor(private pool: Pool) { }
@@ -31,6 +32,7 @@ export class CampaignRepository implements ICampaignRepository {
       interval,
       day_of_month,
       day_of_week,
+      data.cron_expression,
       data.run_at,
       undefined, // executed_at removed from usage
       data.description,
@@ -165,6 +167,39 @@ export class CampaignRepository implements ICampaignRepository {
       if (day_of_month !== undefined) newPayload.day_of_month = day_of_month;
       if (day_of_week !== undefined) newPayload.day_of_week = day_of_week;
 
+      // Recalculate cron_expression and next_run_at if scheduling data changed
+      const currentFrequencyType = frequency_type || existing.frequency_type;
+      const currentRunAt = run_at || (existing.run_at ? new Date(existing.run_at) : new Date());
+      const currentInterval = interval !== undefined ? interval : newPayload.interval;
+      const currentDayOfMonth = day_of_month !== undefined ? day_of_month : newPayload.day_of_month;
+      const currentDayOfWeek = day_of_week !== undefined ? day_of_week : newPayload.day_of_week;
+
+      let cronExpression = existing.cron_expression;
+      let nextRunAt = existing.next_run_at;
+
+      if (currentFrequencyType === 'recurring') {
+        const hour = currentRunAt.getHours();
+        const minute = currentRunAt.getMinutes();
+
+        if (currentInterval === 'daily') {
+          cronExpression = `${minute} ${hour} * * *`;
+        } else if (currentInterval === 'weekly') {
+          cronExpression = `${minute} ${hour} * * ${currentDayOfWeek}`;
+        } else if (currentInterval === 'monthly') {
+          cronExpression = `${minute} ${hour} ${currentDayOfMonth} * *`;
+        }
+
+        try {
+          const cronInterval = CronExpressionParser.parse(cronExpression);
+          nextRunAt = cronInterval.next().toDate();
+        } catch (e) {
+          console.error('Failed to parse cron expression:', cronExpression, e);
+        }
+      } else if (currentFrequencyType === 'once') {
+        cronExpression = null;
+        nextRunAt = currentRunAt;
+      }
+
       const result = await client.query(
         `UPDATE scheduled_tasks
         SET
@@ -174,8 +209,10 @@ export class CampaignRepository implements ICampaignRepository {
           frequency_type = COALESCE($4, frequency_type),
           payload = $5,
           enabled = COALESCE($6, enabled),
+          cron_expression = $7,
+          next_run_at = $8,
           updated_at = NOW()
-        WHERE id = $7
+        WHERE id = $9
         RETURNING *`,
         [
           name,
@@ -184,6 +221,8 @@ export class CampaignRepository implements ICampaignRepository {
           frequency_type,
           newPayload,
           enabled,
+          cronExpression,
+          nextRunAt,
           id
         ]
       );

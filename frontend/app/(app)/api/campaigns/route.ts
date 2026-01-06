@@ -2,16 +2,17 @@
 import { NextResponse } from 'next/server'
 import { pool } from '@/Nenichat/Shared/infra/persistance/db'
 import { CronExpressionParser } from 'cron-parser'
+import { ICampaignRequest } from '@/Nenichat/Campaigns/dto/ICampaignRequest';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json() as ICampaignRequest;
     const {
       name,
       description,
       audienceIds,
       message,
-      runAt,
+      run_at,
       interval,
       dayOfMonth,
       dayOfWeek,
@@ -22,8 +23,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    // runAt is a timestamp
-    const runAtDate = new Date(runAt);
+    // run_at is a timestamp
+    const runAtDate = new Date(run_at);
 
     // get only hour and minute
     const hour = runAtDate.getHours();
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     let lastRunAt = null; // null because we are creating it
     let nextRunAt = null;
 
-    if (frequency_type === 'once') { // set run_at to runAt
+    if (frequency_type === 'once') { // set run_at to run_at
       runAtDate.setHours(hour);
       runAtDate.setMinutes(minute);
     }
