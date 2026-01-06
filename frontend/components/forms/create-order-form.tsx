@@ -74,7 +74,7 @@ export function CreateOrderForm({
 
             toast.success("Order created successfully");
             onSubmit?.();
-            router.refresh();
+            router.push("/orders");
         } catch (error) {
             console.error(error);
             toast.error("Failed to create order");
