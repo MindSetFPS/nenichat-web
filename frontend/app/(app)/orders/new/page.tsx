@@ -8,7 +8,7 @@ const contactRepository = new ContactRepository(pool);
 export const dynamic = 'force-dynamic';
 
 export default async function NewOrderPage() {
-    const contacts = await contactRepository.list(0, 100);
+    const contacts = await contactRepository.findRecentContacts(100);
 
     // Serialize for client component
     const plainContacts = JSON.parse(JSON.stringify(contacts));
