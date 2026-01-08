@@ -1,6 +1,5 @@
 "use client"
 
-import { Globe, Shield, Zap } from "lucide-react";
 import { HeroChatAnimation } from "../hero-chat-animation";
 import { WaitlistForm } from "../../waitlist-form";
 import { Badge } from "../../../ui/badge";

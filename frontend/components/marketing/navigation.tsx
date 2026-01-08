@@ -2,7 +2,6 @@
 
 import { Bot } from "lucide-react";
 import Link from "next/link";
-import { RainbowButton } from "../ui/rainbow-button";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/mode-toggle";
 
@@ -24,16 +23,7 @@ export default function Navigation() {
                 <div className="flex items-center gap-4">
                     <div className=" md:flex items-center gap-4">
                         <Link href="/#features" className="hover:text-primary transition-colors hidden md:block">Features</Link>
-                        {
-                            pathname !== "/pricing" && (
-                                <Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
-                            )
-                        }
-                        {pathname !== "/" && (
-                            <Link href="/#hero">
-                                <RainbowButton>Pre-registrarme</RainbowButton>
-                            </Link>
-                        )}
+                        <Link href="/#pricing" className="hover:text-primary transition-colors">Pricing</Link>
                     </div>
                     <ModeToggle />
                 </div>
