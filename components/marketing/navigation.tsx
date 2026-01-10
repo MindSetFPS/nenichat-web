@@ -1,9 +1,9 @@
 "use client"
 
-import { Bot } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/mode-toggle";
+import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname();
@@ -12,9 +12,7 @@ export default function Navigation() {
             <div className="container flex h-16 items-center justify-between px-4 md:px-6 mx-auto">
                 <Link href="/">
                     <div className="flex items-center gap-2 font-bold text-xl">
-                        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-                            <Bot className="h-5 w-5" />
-                        </div>
+                        <Image src="/icon.svg" alt="Logo" width={24} height={24} />
                         <span>Nenichat</span>
                     </div>
                 </Link>
