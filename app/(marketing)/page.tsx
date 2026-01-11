@@ -15,11 +15,18 @@ export const metadata: Metadata = {
     },
 }
 
+// get env variable for phone number
+const phoneNumber = process.env.NEXT_PUBLIC_PHONE_NUMBER;
+
+if (!phoneNumber) {
+    throw new Error("NEXT_PUBLIC_PHONE_NUMBER is not defined");
+}
+
 export default function LandingPage() {
     return (
         <div className="flex flex-col min-h-screen bg-background text-foreground">
             <main className="flex-1">
-                <Hero />
+                <Hero phoneNumber={phoneNumber!} />
 
                 <EcommerceCapabilities />
 

@@ -6,7 +6,7 @@ import { Badge } from "../../../ui/badge";
 import { DotPattern } from "../../../ui/dot-pattern";
 import { cn } from "@/lib/utils";
 
-export function Hero() {
+export function Hero({ phoneNumber }: { phoneNumber: string }) {
     return (
         <section id="hero" className="relative py-4 md:py-32 overflow-hidden">
             <DotPattern
@@ -54,7 +54,7 @@ export function Hero() {
                         </p>
 
                         <div className="w-full max-w-lg space-y-2 mx-auto lg:mx-0">
-                            <WaitlistForm />
+                            <WaitlistForm phoneNumber={phoneNumber!} />
                             <p className="text-xs text-primary text-center lg:text-left pl-1">
                                 Pre-registrate y obtén $999mxn en créditos.
                             </p>
