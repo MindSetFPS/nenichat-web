@@ -3,7 +3,7 @@ import { Check, CreditCard, Package, ShoppingBag, Truck } from "lucide-react";
 
 export default function EcommerceCapabilities() {
     return (
-        <section className="py-24 bg-background relative overflow-hidden">
+        <section id="ecommerce-capabilities" className="py-24 bg-background relative overflow-hidden">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div>
