@@ -11,19 +11,21 @@ export default function CtaSection() {
     };
 
     return (
-        <section className="py-20">
+        <section className="py-12">
             <div className="container px-4 md:px-6 mx-auto text-center space-y-4">
-                <h2 className="text-3xl font-bold">¿Lista para llevar tu negocio al siguiente nivel?</h2>
-                <p className="text-md text-muted-foreground">
-                    Unete a la lista de espera para obtener $999mxn en créditos y precio preferencial de por vida.
-                </p>
+                <h2 className="text-3xl font-bold">Tu yo del futuro te agradecerá este click.</h2>
+                <p className="text-lg max-w-2xl mx-auto text-muted-foreground">
+                    Deja de vivir pegada al celular contestando lo mismo a cada cliente. Automatiza tu negocio hoy y empieza con $999 MXN de regalo por ser fundadora.                </p>
                 <RainbowButton
                     onClick={scrollToHero}
                     variant={"default"}
                     className="h-12 rounded-lg font-bold"
                     size={"lg"} >
-                    Unirme a la lista de espera
+                    Apartar mi lugar hoy
                 </RainbowButton>
+                <p className="text-xs text-muted-foreground mt-4">
+                    ⚡ Cupos limitados para el acceso anticipado.
+                </p>
             </div>
         </section>
     )

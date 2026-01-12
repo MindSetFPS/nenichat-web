@@ -25,7 +25,7 @@ export function WaitlistForm({ phoneNumber }: { phoneNumber: string }) {
             <WhatsAppButton
                 phone={phoneNumber!}
                 message={`Hola, me interesa unirme a la lista de espera de NeniChat, me llamo ${contact}`}
-                label="Unirme a la lista de espera"
+                label="Apartar mi lugar"
                 showIcon={true}
                 variant="default"
                 className="h-12 rounded-lg font-bold"

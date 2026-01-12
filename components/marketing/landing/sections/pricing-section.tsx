@@ -3,6 +3,7 @@ import { BarChart, Check, Crown, MessageSquare, Star, Users } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 export default function PricingSection() {
     return (
@@ -16,12 +17,11 @@ export default function PricingSection() {
                 <div className="container px-4 md:px-6 mx-auto text-center">
                     <Badge className="mb-4" variant="secondary">Planes Flexibles</Badge>
                     <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight lg:text-7xl mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
-                        Crece tu negocio, <br className="hidden md:block" />
-                        <span className="text-primary">a tu ritmo.</span>
+                        Empieza con $0, <br className="hidden md:block" />
+                        <span className="text-primary">y crece con Nenichat.</span>
                     </h1>
                     <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-12">
-                        Desde la emprendedora que inicia hasta la PYME consolidada. Tenemos el plan perfecto para ti.
-                    </p>
+                        Usa nuestras herramientas de organización gratis siempre, y automatiza tus ventas solo cuando tú quieras, con recargas desde $99 pesos.                    </p>
                 </div>
             </section>
 
@@ -41,7 +41,7 @@ export default function PricingSection() {
                                 <span className="text-muted-foreground"> / mes</span>
                             </div>
                             <p className="text-muted-foreground mb-6 text-sm">
-                                Ideal para empezar. Trae tu numero y empieza en minutos.
+                                Ideal para organizar el caos, dejar la libreta y verte profesional ante tus clientes.<br /> Tú contestas, nosotros organizamos.
                             </p>
                             <ul className="space-y-3">
                                 <li className="flex items-start gap-3 text-sm">
@@ -54,7 +54,20 @@ export default function PricingSection() {
                                         </li> */}
                                 <li className="flex items-start gap-3 text-sm">
                                     <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Generador de Pedidos Manual</span>
+                                    <span>Crea pedidos manualmente</span>
+                                </li>
+                                <li className="flex items-start gap-3 text-sm">
+                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
+                                    <span>Estadísticas de tus productos y ventas</span>
+                                </li>
+                                <li className="flex items-start gap-3 text-sm">
+                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
+                                    <span>Calcula tu rentabilidad</span>
+                                </li>
+
+                                <li className="flex items-start gap-3 text-sm">
+                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
+                                    <span>(Proximamente) Link en Bio</span>
                                 </li>
                                 {/* <li className="flex items-start gap-3 text-sm">
                                             <Zap className="h-5 w-5 text-yellow-500 shrink-0" />
@@ -67,32 +80,24 @@ export default function PricingSection() {
                             </ul>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full" variant="outline">Pronto</Button>
+                            <Link className="w-full" href="#hero">
+                                <Button className="w-full" variant="outline">Apartar mi lugar</Button>
+                            </Link>
                         </CardFooter>
                     </Card>
 
                     {/* Nivel 2: Recargas */}
                     <Card className="flex flex-col border-0 shadow-lg scale-105 z-10 relative overflow-hidden bg-background">
                         <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
-                        <div className="absolute -right-12 top-6 bg-primary text-primary-foreground text-xs font-bold px-12 py-1 rotate-45">
-                            POPULAR
+                        <div className="absolute -right-12 top-6 bg-primary text-primary-foreground text-xs font-bold px-10 py-1 rotate-45">
+                            MEJOR VALOR
                         </div>
                         <CardHeader>
                             <div className="mb-2 text-primary font-bold tracking-wide uppercase text-sm">Nivel 2</div>
-                            <CardTitle className="text-3xl font-bold">Recargas</CardTitle>
-                            <CardDescription className="text-lg mt-2">Concentrate en crear, no en administrar</CardDescription>
+                            <CardTitle className="text-3xl font-bold">Automatiza</CardTitle>
+                            <CardDescription className="text-lg mt-2">Nosotros contestamos, tú te enfocas en crear los mejores productos.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
-                            <div className="mb-6">
-                                <span className="text-2xl font-bold">Desde $5 USD</span>
-                            </div>
-                            <p className="text-muted-foreground mb-6 text-sm">
-                                Créditos de IA.
-                                Pagas solo lo que usas.
-                                Sin rentas forzosas.
-                                Tus creditos nunca caducan.
-                            </p>
-
                             <div className="space-y-4 mb-6">
                                 <div className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
                                     <div className="flex justify-between items-center mb-1">
@@ -124,16 +129,18 @@ export default function PricingSection() {
                                 </li>
                                 <li className="flex items-start gap-3 text-sm">
                                     <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>0.3 Créditos = Conversación No Efectiva</span>
+                                    <span>Tus creditos nunca caducan.</span>
                                 </li>
                                 <li className="flex items-start gap-3 text-sm">
                                     <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Tus creditos nunca caducan.</span>
+                                    <span>(Proximamente) Validación de Transferencias (OCR)</span>
                                 </li>
                             </ul>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full" size="lg">Pronto</Button>
+                            <Link className="w-full" href="#hero">
+                                <Button className="w-full" size="lg">Apartar mi lugar</Button>
+                            </Link>
                         </CardFooter>
                     </Card>
 
@@ -142,32 +149,30 @@ export default function PricingSection() {
                         <CardHeader>
                             <div className="mb-2 text-primary font-bold tracking-wide uppercase text-sm">Nivel 3</div>
                             <CardTitle className="text-3xl font-bold">Empresaria</CardTitle>
-                            <CardDescription className="text-lg mt-2">The Infinity Tier</CardDescription>
+                            <CardDescription className="text-lg mt-2">Negocios con grandes volumenes de chats.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <div className="mb-6">
-                                <span className="text-5xl font-extrabold">$999</span>
+                                <span className="text-5xl font-extrabold">$2,499</span>
                                 <span className="text-muted-foreground"> mxn / mes</span>
                             </div>
                             <p className="text-muted-foreground mb-6 text-sm">
-                                Para la PYME con empleados. Barra libre de automatización.
+                                Maneja cientos de chats diarios con facilidad.
                             </p>
                             <ul className="space-y-3">
                                 <li className="flex items-start gap-3 text-sm">
                                     <Crown className="h-5 w-5 text-yellow-500 shrink-0" />
-                                    <span><strong>Conversaciones "Ilimitadas"</strong><br /><span className="text-xs text-muted-foreground">Política de uso justo (2,000 chats)</span></span>
+                                    <div className="flex flex-col">
+                                        <span><strong>Conversaciones Ilimitadas</strong></span>
+                                        <span className="text-muted-foreground text-xs">No vuelvas a preocuparte por tus créditos.</span>
+                                    </div>
                                 </li>
                                 <li className="flex items-start gap-3 text-sm">
-                                    <Users className="h-5 w-5 text-blue-500 shrink-0" />
-                                    <span><strong>Multi-Agente (Team Inbox)</strong><br /><span className="text-xs text-muted-foreground">Varios usuarios en la misma línea</span></span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <BarChart className="h-5 w-5 text-purple-500 shrink-0" />
-                                    <span>Exportación de Data (Excel/CSV)</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <MessageSquare className="h-5 w-5 text-pink-500 shrink-0" />
-                                    <span>Broadcasts / Difusión Masiva</span>
+                                    <Users className="h-5 w-5 text-indigo-500 shrink-0" />
+                                    <div className="flex flex-col">
+                                        <span><strong>Hasta 5 usuarios</strong></span>
+                                        <span className="text-muted-foreground text-xs">Invita hasta 4 personas y controla sus roles y permisos.</span>
+                                    </div>
                                 </li>
                             </ul>
                         </CardContent>

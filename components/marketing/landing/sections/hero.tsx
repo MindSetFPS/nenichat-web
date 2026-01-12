@@ -56,7 +56,7 @@ export function Hero({ phoneNumber }: { phoneNumber: string }) {
                         <div className="w-full max-w-lg space-y-2 mx-auto lg:mx-0">
                             <WaitlistForm phoneNumber={phoneNumber!} />
                             <p className="text-xs text-primary text-center lg:text-left pl-1">
-                                Pre-registrate y obtén $999mxn en créditos.
+                                Aparta tu lugar hoy y obtén $999mxn en créditos.
                             </p>
                         </div>
 
