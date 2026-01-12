@@ -95,7 +95,7 @@ export default function PricingSection() {
                         <CardHeader>
                             <div className="mb-2 text-primary font-bold tracking-wide uppercase text-sm">Nivel 2</div>
                             <CardTitle className="text-3xl font-bold">Automatiza</CardTitle>
-                            <CardDescription className="text-lg mt-2">Nosotros contestamos, tú te enfocas en crear los mejores productos.</CardDescription>
+                            <CardDescription className="text-lg mt-2">Contestamos, organizamos y vendemos, mientras tú creas productos increíbles.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <div className="space-y-4 mb-6">
