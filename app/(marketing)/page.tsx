@@ -30,9 +30,9 @@ export default function LandingPage() {
 
                 <EcommerceCapabilities />
 
-                <FeatureGrid />
-
                 <EaseOfUseSection />
+
+                <FeatureGrid />
 
                 {/* Todo: Social Proof & testimonials / Stats */}
 

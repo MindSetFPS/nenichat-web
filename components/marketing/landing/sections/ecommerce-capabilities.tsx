@@ -35,7 +35,7 @@ export default function EcommerceCapabilities() {
                                 <div>
                                     <h3 className="text-xl font-bold mb-1">De "Pendiente" a "Enviado".</h3>
                                     <p className="text-muted-foreground">
-                                        Organiza el caos con etiquetas de colores en cada chat: 🔴 Por Pagar, 🟡 Empacando, 🟢 Enviado. Nunca más volverás a enviar un paquete sin haber confirmado el cobro primero.                                    </p>
+                                        Organiza el caos con etiquetas en cada chat: Por Pagar, Empacando, Enviado. Nunca más volverás a olvidarte de una venta.                                    </p>
                                 </div>
                             </div>
 

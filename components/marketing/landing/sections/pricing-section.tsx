@@ -21,7 +21,7 @@ export default function PricingSection() {
                         <span className="text-primary">y crece con Nenichat.</span>
                     </h1>
                     <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-12">
-                        Usa nuestras herramientas de organización gratis siempre, y automatiza tus ventas solo cuando tú quieras, con recargas desde $99 pesos.                    </p>
+                        Usa nuestras herramientas de organización gratis siempre, y automatiza tus ventas con Neni Flow solo cuando tú quieras, con recargas desde $99 pesos.                    </p>
                 </div>
             </section>
 
@@ -94,7 +94,7 @@ export default function PricingSection() {
                         </div>
                         <CardHeader>
                             <div className="mb-2 text-primary font-bold tracking-wide uppercase text-sm">Nivel 2</div>
-                            <CardTitle className="text-3xl font-bold">Automatiza</CardTitle>
+                            <CardTitle className="text-3xl font-bold">Neni Flow</CardTitle>
                             <CardDescription className="text-lg mt-2">Contestamos, organizamos y vendemos, mientras tú creas productos increíbles.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
@@ -149,16 +149,13 @@ export default function PricingSection() {
                         <CardHeader>
                             <div className="mb-2 text-primary font-bold tracking-wide uppercase text-sm">Nivel 3</div>
                             <CardTitle className="text-3xl font-bold">Empresaria</CardTitle>
-                            <CardDescription className="text-lg mt-2">Negocios con grandes volumenes de chats.</CardDescription>
+                            <CardDescription className="text-lg mt-2">Maneja cientos de chats diarios con Neni Flow.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <div className="mb-6">
                                 <span className="text-5xl font-extrabold">$2,499</span>
                                 <span className="text-muted-foreground"> mxn / mes</span>
                             </div>
-                            <p className="text-muted-foreground mb-6 text-sm">
-                                Maneja cientos de chats diarios con facilidad.
-                            </p>
                             <ul className="space-y-3">
                                 <li className="flex items-start gap-3 text-sm">
                                     <Crown className="h-5 w-5 text-yellow-500 shrink-0" />

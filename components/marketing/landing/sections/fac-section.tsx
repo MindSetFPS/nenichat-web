@@ -24,8 +24,13 @@ export default function FaqSection() {
                         answer="¡Por supuesto! Puedes migrar tu número de negocio actual a nuestra plataforma."
                     />
                     <FaqItem
-                        question="¿El bot realmente maneja las ventas?"
-                        answer="Nuestro bot está entrenado para manejar consultas de productos, recomendar artículos basados en tu catálogo y guiar a los clientes al checkout. Para problemas complejos, se lo envía suavemente a un agente humano."
+                        question="¿Neni Flow realmente maneja las ventas?"
+                        answer="Neni Flow está entrenado para manejar consultas de productos, recomendar artículos basados en tu catálogo y guiar a los clientes al checkout. Para problemas complejos, se lo envía suavemente a un agente humano."
+                    />
+
+                    <FaqItem
+                        question="¿Cual es la diferencia entre Nenichat y Neni Flow?"
+                        answer="Nenichat es la interfaz de usuario que añade características de ecommerce a tus chats y es totalmente gratuito. Neni Flow te permite automatizar totalmente tus ventas."
                     />
 
                 </div>

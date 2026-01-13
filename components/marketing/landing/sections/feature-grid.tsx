@@ -29,7 +29,7 @@ export default function FeatureGrid() {
                     width={900}
                 />
 
-                <div className="text-center mb-16 max-w-3xl mx-auto">
+                <div className="text-center mb-4 max-w-3xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -38,14 +38,16 @@ export default function FeatureGrid() {
                     >
                         <Badge variant="outline" className="mb-4 border-primary/20 text-primary bg-primary/5">
                             <Sparkles className="w-3 h-3 mr-1" />
-                            Tecnología Autónoma
+                            Agosto 2026
                         </Badge>
                         <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6 bg-clip-text text-transparent bg-linear-to-b from-foreground to-foreground/70">
-                            Tu Agente de Ventas automatizado
+                            Vende hasta cuando no estas.
                         </h2>
-                        <p className="text-muted-foreground text-xl">
-                            Un cerebro digital que vive en tus chats. Gestiona conversaciones, conoce tu inventario y procesa ventas automáticamente para que tú tengas libertad.
+                        <p className="text-muted-foreground text-xl my-4">
+                            Neni Flow automatiza tus ventas totalmente.
+                            Gestiona conversaciones, conoce tu inventario y procesa ventas automáticamente para que tú tengas libertad de crear productos inigualables (o tener más tiempo para ti).
                         </p>
+                        <span className="text-muted-foreground text-md mt-8">Disponible en Agosto 2026</span>
                     </motion.div>
                 </div>
 
