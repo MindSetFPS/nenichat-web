@@ -1,3 +1,12 @@
+# NeniChat
+
+Nenichat es una plataforma que permite a los comercios y restaurantes gestionar sus ventas a través de WhatsApp.
+Convierte los mensajes entrantes en datos de ventas.
+En la versión gratis, puedes conectar tu whatsapp a Nenichat, y dentro de cada chat puedes crear productos, ordenes manualmente, ver estatus, ver estadisticas de tus clientes y tus ventas.
+
+Neni Flow es la versión premium de Nenichat, que te permite automatizar totalmente el flujo de comercio: desde el primer mensaje hasta la confirmacion del pago, sin intervención humana.
+Neni Flow no está disponible actualmente, pero lo estará pronto.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
 
 ## Getting Started

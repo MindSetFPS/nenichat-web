@@ -4,8 +4,8 @@ import EcommerceCapabilities from "@/components/marketing/landing/sections/ecomm
 import PricingSection from "@/components/marketing/landing/sections/pricing-section"
 import FaqSection from "@/components/marketing/landing/sections/fac-section"
 import CtaSection from "@/components/marketing/landing/sections/cta-section"
-import EaseOfUseSection from "@/components/marketing/landing/sections/ease-of-use-section"
-import FeatureGrid from "@/components/marketing/landing/sections/feature-grid"
+// import EaseOfUseSection from "@/components/marketing/landing/sections/ease-of-use-section"
+import NeniFlow from "@/components/marketing/landing/sections/neni-flow"
 
 export const metadata: Metadata = {
     title: 'Nenichat',
@@ -30,9 +30,9 @@ export default function LandingPage() {
 
                 <EcommerceCapabilities />
 
-                <EaseOfUseSection />
+                {/* <EaseOfUseSection /> */}
 
-                <FeatureGrid />
+                <NeniFlow />
 
                 {/* Todo: Social Proof & testimonials / Stats */}
 

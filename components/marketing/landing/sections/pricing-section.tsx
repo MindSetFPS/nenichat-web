@@ -21,7 +21,7 @@ export default function PricingSection() {
                         <span className="text-primary">y crece con Nenichat.</span>
                     </h1>
                     <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-12">
-                        Usa nuestras herramientas de organización gratis siempre, y automatiza tus ventas con Neni Flow solo cuando tú quieras, con recargas desde $99 pesos.                    </p>
+                        Usa nuestras herramientas de administración gratis siempre, y automatiza tus ventas con Neni Flow solo cuando tú quieras, con recargas desde $99 pesos.                    </p>
                 </div>
             </section>
 
