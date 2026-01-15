@@ -11,7 +11,7 @@ export default function CtaSection() {
     };
 
     return (
-        <section className="py-12">
+        <section className="py-64">
             <div className="container px-4 md:px-6 mx-auto text-center space-y-4">
                 <h2 className="text-3xl font-bold">Tu yo del futuro te agradecerá este click.</h2>
                 <p className="text-lg max-w-2xl mx-auto text-muted-foreground">

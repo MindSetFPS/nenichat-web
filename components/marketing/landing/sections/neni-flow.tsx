@@ -12,7 +12,7 @@ import { ShineBorder } from "@/components/ui/shine-border";
  */
 export default function NeniFlow() {
     return (
-        <section id="neniflow" className="py-24 overflow-hidden bg-linear-to-b from-background via-muted/30 to-background relative">
+        <section id="neniflow" className="py-32 overflow-hidden bg-linear-to-b from-background via-muted/30 to-background relative">
             {/* Background Effects */}
             <div className="absolute inset-0 -z-10">
                 <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px]" />

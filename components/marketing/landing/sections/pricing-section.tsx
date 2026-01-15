@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function PricingSection() {
     return (
-        <section id="pricing" className="py-8 bg-muted/50">
+        <section id="pricing" className="pb-24 bg-muted/50">
 
             {/* Hero Section */}
             <section className="relative py-8 md:py-16 overflow-hidden">

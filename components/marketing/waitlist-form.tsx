@@ -16,7 +16,7 @@ export function WaitlistForm({ phoneNumber }: { phoneNumber: string }) {
             <Input
                 name="contact"
                 type="text"
-                placeholder="Tu nombre"
+                placeholder="¡Solo con tu nombre!"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 className="py-6 md:h-12 bg-background border-primary/20 w-full md:w-lg "
