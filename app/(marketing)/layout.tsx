@@ -6,14 +6,16 @@ import Footer from "@/components/marketing/landing/sections/footer"
 import { ToasterProvider } from "@/components/toaster-provider"
 import { StructuredData } from "@/components/marketing/structured-data"
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://nenichat.com'),
   title: {
-    default: 'Nenichat - Full Commerce in Your Chats',
+    default: 'Nenichat - E-commerce completo en tus chats',
     template: '%s | Nenichat'
   },
-  description: 'Full commerce in your chats. Streamline your business communications with integrated e-commerce capabilities.',
-  keywords: ['chat commerce', 'e-commerce', 'business chat', 'messaging platform', 'whatsapp commerce', 'conversational commerce'],
+  description: 'E-commerce completo en tus chats. Administra y automatiza tus ventas en WhatsApp.',
+  keywords: ['whatsapp crm', 'whatsapp automation', 'e-commerce', 'conversational commerce', 'whatsapp chatbot'],
   authors: [{ name: 'Nenichat' }],
   creator: 'Nenichat',
   publisher: 'Nenichat',
@@ -24,11 +26,11 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'es_MX',
     url: 'https://nenichat.com',
     siteName: 'Nenichat',
-    title: 'Nenichat - Full Commerce in Your Chats',
-    description: 'Full commerce in your chats. Streamline your business communications with integrated e-commerce capabilities.',
+    title: 'Nenichat - E-commerce completo en tus chats',
+    description: 'E-commerce completo en tus chats. Administra y automatiza tus ventas en WhatsApp.',
     images: [
       {
         url: '/og-image.png',
@@ -40,8 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nenichat - Full Commerce in Your Chats',
-    description: 'Full commerce in your chats. Streamline your business communications with integrated e-commerce capabilities.',
+    title: 'Nenichat - E-commerce completo en tus chats',
+    description: 'E-commerce completo en tus chats. Administra y automatiza tus ventas en WhatsApp.',
     images: ['/twitter-image.png'],
     creator: '@nenichat',
   },
@@ -67,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es-MX" suppressHydrationWarning>
       <head>
         <StructuredData />
         <link

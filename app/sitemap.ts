@@ -1,7 +1,12 @@
 import { MetadataRoute } from 'next'
 
 /**
- * Dynamic sitemap for SEO
+ * Required for static export (output: "export" in next.config.ts)
+ */
+export const dynamic = "force-static"
+
+/**
+ * Static sitemap for SEO
  * Next.js will automatically generate sitemap.xml from this file
  */
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -9,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         {
             url: 'https://nenichat.com',
             lastModified: new Date(),
-            changeFrequency: 'weekly',
+            changeFrequency: 'monthly',
             priority: 1,
         },
         // Add more URLs as your site grows:

@@ -7,6 +7,8 @@ import CtaSection from "@/components/marketing/landing/sections/cta-section"
 // import EaseOfUseSection from "@/components/marketing/landing/sections/ease-of-use-section"
 import NeniFlow from "@/components/marketing/landing/sections/neni-flow"
 
+export const dynamic = "force-static";
+
 export const metadata: Metadata = {
     title: 'Nenichat',
     description: 'Transform your business communications with Nenichat\'s integrated commerce platform. Chat, sell, and grow your business all in one place. Seamless e-commerce integrated into your messaging workflow.',
