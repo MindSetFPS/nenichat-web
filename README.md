@@ -1,70 +1,40 @@
-# the-good-one
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
 
-## Doing
+## Getting Started
 
-- [ ] In orders page, filter by today, week, month, year, all time
+First, run the development server:
 
-## TODO
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- [ ] Fix most recents messages (chats)
-- [ ] Set when a message is a sale
-- [ ] Send messages
-- [ ] Limited time products
-- [ ] Sync chat
-- [ ] A contact can have unlimited lids, returns all the messages that belong to a lid
-    - Preview merge: 
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-    In a chat, i have a button that allows me to merge the contact with another contact. It shows a list of contacts that can be merged with the current contact. When i select a contact, it shows a preview of the merge.
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-    To make this happen, i need to:
-    - 1. Query other contacts. First 25 contacts that have sent recent messages, they probably should only be contacts without a phone number.
-    - 2. Query messages from the contact to merge.
-    - 3. Render the messages in the chat.
-    - 4. Show a buton to cancel and to proceed.
-    - 5. I can easily switch to the next contact, which puls recent messages and replaces previous messages.
-    - 6. When i click proceed, it queries '/api/contacts/merge' with the primary contact id and the secondary contact ids.
-- [ ] Editing a product is not reflected in order creation until i refresh the page. A fix would be to use the product store in products pages and basically everywhere else.
+[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
-- [ ] Daily scheduler
-- [ ] Publish marketing site
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
 
-- [x] From message counting graph in home, do not count messags from groups
-- [x] Fix landing page
-- [x] Add a day separator to the chat
+This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Learn More
 
-# Bugs:
+To learn more about Next.js, take a look at the following resources:
 
-- [ ] Do not save empty messages (stickers, voice notes, images, reactions)
-- Audience:
-- [ ] Delete audience does not work
-- [x] Width is fixed and looks weird in medium sized screens
-- [ ] Product stock does not decrease when selling
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
 
-# KPI:
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-- Messages per sale: I need to know how many messages it takes to make a sale. Each message increases the cost of the sale.
-- I need to find a good number of messages to aim.
+## Deploy on Vercel
 
-# Features:
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-- TTS Read messages
-- Hide contacts
-- Groups support
-- Actually automate sending messages
-- Set order to a message
-- Delete products
-- See products statistics
-- See sales statistics
-- See sales per product
-- Send messages from the app
-- Customer can pay in advance: 
-
-
-# What do customers actually do when messaging?
-
-for now we only want to know about this cases:
-
-- greeting
-- asking if its open
-- buying
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
