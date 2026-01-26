@@ -1,10 +1,9 @@
 "use client"
 
-import { Bot } from "lucide-react";
 import Link from "next/link";
-import { RainbowButton } from "../ui/rainbow-button";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/mode-toggle";
+import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname();
@@ -13,9 +12,7 @@ export default function Navigation() {
             <div className="container flex h-16 items-center justify-between px-4 md:px-6 mx-auto">
                 <Link href="/">
                     <div className="flex items-center gap-2 font-bold text-xl">
-                        <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-                            <Bot className="h-5 w-5" />
-                        </div>
+                        <Image src="/icon.svg" alt="Logo" width={24} height={24} />
                         <span>Nenichat</span>
                     </div>
                 </Link>
@@ -24,16 +21,7 @@ export default function Navigation() {
                 <div className="flex items-center gap-4">
                     <div className=" md:flex items-center gap-4">
                         <Link href="/#features" className="hover:text-primary transition-colors hidden md:block">Features</Link>
-                        {
-                            pathname !== "/pricing" && (
-                                <Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
-                            )
-                        }
-                        {pathname !== "/" && (
-                            <Link href="/#hero">
-                                <RainbowButton>Pre-registrarme</RainbowButton>
-                            </Link>
-                        )}
+                        <Link href="/#pricing" className="hover:text-primary transition-colors">Pricing</Link>
                     </div>
                     <ModeToggle />
                 </div>

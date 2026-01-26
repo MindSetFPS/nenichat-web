@@ -1,57 +1,37 @@
 "use client"
 
 import { Input } from "@/components/ui/input"
-import { RainbowButton } from "@/components/ui/rainbow-button"
-import { addToWaitlist } from "@/app/actions/waitlist"
-import { useActionState, useEffect, useState } from "react"
-import { toast } from "sonner"
+import { useState } from "react"
+import { WhatsAppButton } from "./whatsapp-button"
 
-export function WaitlistForm() {
-    const [state, action, isPending] = useActionState(addToWaitlist, null)
-    const [submitted, setSubmitted] = useState(false)
+export function WaitlistForm({ phoneNumber }: { phoneNumber: string }) {
+    const [contact, setContact] = useState("")
 
-    useEffect(() => {
-        if (state?.success) {
-            setSubmitted(true)
-            toast.success("¡Gracias por unirte!")
-        } else if (state?.error) {
-            toast.error(state.error)
-        }
-    }, [state])
-
-    useEffect(() => {
-        if (document.cookie.includes('waitlist_joined=true')) {
-            setSubmitted(true)
-        }
-    }, [])
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+    }
 
     return (
-        <form action={action} className="flex flex-col sm:flex-row gap-2 h-12">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 h-12">
             <Input
                 name="contact"
                 type="text"
-                placeholder="Correo electrónico o número de teléfono"
+                placeholder="¡Solo con tu nombre!"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
                 className="py-6 md:h-12 bg-background border-primary/20 w-full md:w-lg "
-                disabled={submitted || isPending}
                 required
             />
-            <RainbowButton
-                variant={"default"}
+            <WhatsAppButton
+                phone={phoneNumber!}
+                message={`Hola, me interesa unirme a la lista de espera de NeniChat, me llamo ${contact}`}
+                label="Apartar mi lugar"
+                showIcon={true}
+                variant="default"
                 className="h-12 rounded-lg font-bold"
-                size={"lg"}
-                disabled={submitted || isPending}
-            >
-                {submitted ? (
-                    "Gracias por unirte al pre-registro"
-                ) : (
-                    <>
-                        <p className="block md:hidden">
-                            Unirme a la lista de espera
-                        </p>
-                        <p className="hidden md:block">Pre-registrarme</p>
-                    </>
-                )}
-            </RainbowButton>
+                size="lg"
+            />
         </form>
     )
 }
+

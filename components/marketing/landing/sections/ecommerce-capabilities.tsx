@@ -3,17 +3,17 @@ import { Check, CreditCard, Package, ShoppingBag, Truck } from "lucide-react";
 
 export default function EcommerceCapabilities() {
     return (
-        <section className="py-24 bg-background relative overflow-hidden">
+        <section id="ecommerce-capabilities" className="pb-24 pt-24 bg-background relative overflow-hidden">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div>
                         <Badge variant="outline" className="mb-4 border-blue-500/20 text-blue-500 bg-blue-500/5">End-to-End Commerce</Badge>
                         <h2 className="text-3xl font-bold tracking-tight md:text-5xl mb-6">
                             Un <span className="text-blue-500">ecommerce</span> completo. <br />
-                            <span className="text-blue-500">Dentro de WhatsApp.</span>
+                            <span className="text-blue-500">En tus chats.</span>
                         </h2>
                         <p className="text-muted-foreground text-xl mb-8">
-                            Olvida los enlaces externos desordenados. Dale a tus clientes una experiencia de compra nativa y sin complicaciones con todo lo que esperan de una tienda profesional.
+                            Convierte cada chat en una caja registradora. Carga tus productos, genera órdenes y controla quién ya pagó y quién falta, todo en una sola app.
                         </p>
 
                         <div className="space-y-6">
@@ -22,11 +22,9 @@ export default function EcommerceCapabilities() {
                                     <Package className="h-6 w-6 text-blue-500" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-1">Sincronización en tiempo real</h3>
+                                    <h3 className="text-xl font-bold mb-1">Tu Catálogo nunca miente</h3>
                                     <p className="text-muted-foreground">
-                                        {/* Real-time unit tracking. When a product sells, stock updates instantly across all active chats. Never oversell again. */}
-                                        Inventario real de productos, unidades, restock.
-                                    </p>
+                                        Si vendes la última pieza, se marca como agotado automáticamente. Adiós a la pena de decirle al cliente: "Uy nena, ya se me acabó, te quedo mal".                                    </p>
                                 </div>
                             </div>
 
@@ -35,10 +33,9 @@ export default function EcommerceCapabilities() {
                                     <Truck className="h-6 w-6 text-blue-500" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-1">Logística integrada</h3>
+                                    <h3 className="text-xl font-bold mb-1">De "Pendiente" a "Enviado".</h3>
                                     <p className="text-muted-foreground">
-                                        Desde la confirmación del pedido hasta la entrega en su domicilio. Envía actualizaciones de seguimiento y notificaciones de envío directamente en el chat.
-                                    </p>
+                                        Organiza el caos con etiquetas en cada chat: Por Pagar, Empacando, Enviado. Nunca más volverás a olvidarte de una venta.                                    </p>
                                 </div>
                             </div>
 
@@ -47,10 +44,9 @@ export default function EcommerceCapabilities() {
                                     <CreditCard className="h-6 w-6 text-blue-500" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-1">Procesamiento de pagos</h3>
+                                    <h3 className="text-xl font-bold mb-1">Cobra como quieras (incluso Transferencias).</h3>
                                     <p className="text-muted-foreground">
-                                        Procesamiento de pagos en el chat, pagos en línea, pagos en efectivo, pagos con tarjeta de crédito, pagos con tarjeta de débito, pagos con transferencia bancaria.
-                                    </p>
+                                        Acepta tarjeta, link de pago o detecta automáticamente los comprobantes de transferencia y efectivo. Centralizamos el dinero para que sepas exactamente cuánto ganaste hoy.                                    </p>
                                 </div>
                             </div>
                         </div>

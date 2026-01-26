@@ -22,6 +22,39 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
 
+# NeniChat
+
+Nenichat es una plataforma que permite a los comercios y restaurantes gestionar sus ventas a través de WhatsApp.
+Convierte los mensajes entrantes en datos de ventas.
+En la versión gratis, puedes conectar tu whatsapp a Nenichat, y dentro de cada chat puedes crear productos, ordenes manualmente, ver estatus, ver estadisticas de tus clientes y tus ventas.
+
+Neni Flow es la versión premium de Nenichat, que te permite automatizar totalmente el flujo de comercio: desde el primer mensaje hasta la confirmacion del pago, sin intervención humana.
+Neni Flow no está disponible actualmente, pero lo estará pronto.
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+
+[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+
 This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
