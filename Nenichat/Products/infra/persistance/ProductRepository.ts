@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { IProduct } from '../../domain/IProduct';
+import { IProduct, IProductWithUnitsSold } from '../../domain/IProduct';
 import { IProductRepository } from '../../domain/IProductRepository';
 import { Product } from '../../domain/Product';
 import { pool } from '../../../Shared/infra/persistance/db';
@@ -60,10 +60,10 @@ export class ProductRepository implements IProductRepository {
   }
 
   /**
-   * Retrieves all products, including their images.
+   * Retrieves all products, including their images and units sold in the last month.
    * @returns {Promise<IProduct[]>} A promise that resolves to an array of products.
    */
-  async getAll(): Promise<IProduct[]> {
+  async getAll(): Promise<IProductWithUnitsSold[]> {
     const query = `
       SELECT
         p.*,
@@ -81,7 +81,7 @@ export class ProductRepository implements IProductRepository {
       ORDER BY p.created_at DESC;
     `;
     const result = await this.pool.query(query);
-    return result.rows.map(
+    const products = result.rows.map(
       (row) =>
         new Product(
           row.id,
@@ -96,6 +96,24 @@ export class ProductRepository implements IProductRepository {
           row.updated_at
         )
     );
+
+    // Fetch monthly sales for each product
+    const salesQuery = `
+      SELECT
+        COUNT(*) as units_sold
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      WHERE oi.product_id = $1
+      AND o.created_at >= CURRENT_DATE - INTERVAL '1 month'
+    `;
+
+    for (const product of products) {
+      const salesResult = await this.pool.query(salesQuery, [product.id]);
+      (product as any).units_sold = salesResult.rows[0].units_sold;
+    }
+
+    const productWithUnitsSold = products as IProductWithUnitsSold[];
+    return productWithUnitsSold;
   }
 
   /**

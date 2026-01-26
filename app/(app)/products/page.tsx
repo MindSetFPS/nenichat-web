@@ -1,10 +1,10 @@
-import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { ProductActions } from './ProductActions';
 import { HeaderAction } from '@/components/header-action';
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 import ProductsList from '@/components/products/products-list';
+import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 
 const productRepository = new ProductRepository(pool);
 export const metadata: Metadata = {
@@ -22,23 +22,7 @@ export default async function ProductsPage() {
   let error: string | null = null;
 
   try {
-    products = await productRepository.getAll() as IProductWithUnitsSold[];
-
-    // get montly sales
-    const query = `
-    SELECT
-    COUNT(*) as units_sold
-    FROM order_items oi
-    JOIN orders o ON oi.order_id = o.id
-    WHERE oi.product_id = $1
-    AND o.created_at >= CURRENT_DATE - INTERVAL '1 month'
-    `;
-
-    // loop every product
-    for (const product of products) {
-      const result = await pool.query(query, [product.id]);
-      product.units_sold = result.rows[0].units_sold;
-    }
+    products = await productRepository.getAll();
 
     // sort by is_active true first, is_active false second
     products.sort((a, b) => (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0));
