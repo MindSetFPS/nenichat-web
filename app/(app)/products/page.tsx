@@ -1,14 +1,10 @@
-import { Package } from 'lucide-react';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { ProductActions } from './ProductActions';
-import { EmptyList } from '@/components/empty-list';
-import { DataTable } from '@/components/data-table';
-import { columns } from '@/components/products/table/columns';
 import { HeaderAction } from '@/components/header-action';
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
-
+import ProductsList from '@/components/products/products-list';
 
 const productRepository = new ProductRepository(pool);
 export const metadata: Metadata = {
@@ -67,24 +63,7 @@ export default async function ProductsPage() {
         }
       </HeaderAction>
 
-      {products.length === 0 ?
-        <EmptyList
-          title="No Products"
-          description="Start building your product catalog by creating your first product."
-          action={<ProductActions />}
-          icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
-        />
-        :
-        <DataTable
-          columns={columns}
-          data={products}
-          searchInputColumnId={"name"}
-          visibleColumns={{
-            id: false,
-            description: false,
-          }}
-        />
-      }
+      <ProductsList products={products} />
     </>
   );
 }
