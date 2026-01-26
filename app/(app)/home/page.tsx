@@ -8,8 +8,13 @@ import { OrderProductChart } from "@/components/home/product-orders-chart";
 import { HeaderAction } from "@/components/header-action";
 import BusinessSummary from "@/components/home/business-summary";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
+import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
 
 export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: 'Home',
+}
+
 const orderRepository = new OrderRepository(pool);
 
 export default async function Page() {

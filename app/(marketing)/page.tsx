@@ -4,7 +4,6 @@ import EcommerceCapabilities from "@/components/marketing/landing/sections/ecomm
 import PricingSection from "@/components/marketing/landing/sections/pricing-section"
 import FaqSection from "@/components/marketing/landing/sections/fac-section"
 import CtaSection from "@/components/marketing/landing/sections/cta-section"
-// import EaseOfUseSection from "@/components/marketing/landing/sections/ease-of-use-section"
 import NeniFlow from "@/components/marketing/landing/sections/neni-flow"
 
 export const dynamic = "force-static";
@@ -30,8 +29,6 @@ export default function LandingPage() {
             <Hero phoneNumber={phoneNumber!} />
 
             <EcommerceCapabilities />
-
-            {/* <EaseOfUseSection /> */}
 
             <NeniFlow />
 

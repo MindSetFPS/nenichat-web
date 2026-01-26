@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --port=5102 --webpack",
+        "dev": "next dev --port=5101 --webpack",
         "build": "next build --webpack && opennextjs-cloudflare build --skipNextBuild",
         "start": "next start --port=5102",
         "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",

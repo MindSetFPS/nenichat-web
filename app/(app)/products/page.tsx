@@ -7,9 +7,13 @@ import { EmptyList } from '@/components/empty-list';
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/components/products/table/columns';
 import { HeaderAction } from '@/components/header-action';
+import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 
 
 const productRepository = new ProductRepository(pool);
+export const metadata: Metadata = {
+  title: 'Productos',
+}
 export const dynamic = 'force-dynamic';
 
 /**
