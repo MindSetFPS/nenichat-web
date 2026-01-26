@@ -1,0 +1,102 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { OrderForm, OrderFormValues } from "./order-form";
+import { useProductStore } from "@/stores/product-store";
+import { IProduct } from "@/Nenichat/Products/domain/IProduct";
+
+interface CreateOrderFormProps {
+    contacts?: IContact[];
+    contactId?: string;
+    contact?: IContact;
+    createdAt?: Date;
+    className?: string;
+    onSubmit?: () => void;
+}
+
+export function CreateOrderForm({
+    contacts,
+    contactId,
+    contact,
+    createdAt,
+    className,
+    onSubmit,
+}: CreateOrderFormProps) {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+
+    const { products, fetchProducts } = useProductStore();
+
+    let activeProducts: IProduct[];
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            if (products.length === 0) {
+                await fetchProducts();
+            }
+        };
+        loadProducts();
+    }, [products.length, fetchProducts]);
+
+    activeProducts = products.filter((product) => product.is_active);
+
+    const handleSubmit = async (values: OrderFormValues) => {
+        setLoading(true);
+        try {
+            const payload = {
+                contact_id: values.contactId ? parseInt(String(values.contactId)) : null,
+                items: values.items,
+                shipping_address: values.shippingAddress,
+                shipping_cost: values.shippingCost,
+                status: values.status,
+                payment_method: values.paymentMethod,
+                amount_paid: values.amountPaid,
+                payment_status: values.paymentStatus,
+                notes: values.notes,
+                created_at: values.createdAt || createdAt,
+                // Total amount is calculated on backend usually or derived? 
+                // In original it was calculated on client and sent.
+                total_amount: values.items.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0) + values.shippingCost,
+            };
+
+            const response = await fetch("/api/orders/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create order");
+            }
+
+            toast.success("Order created successfully");
+            onSubmit?.();
+            router.push("/orders");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to create order");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <OrderForm
+            contacts={contacts || []}
+            onSubmit={handleSubmit}
+            isLoading={loading}
+            submitLabel="Crear Orden"
+            className={className}
+            contact={contact}
+            initialValues={{
+                contactId: contactId,
+                // If we want to support other initial props passed to CreateOrderForm, we should map them here, 
+                // but standard CreateOrderForm usually starts empty except maybe contact.
+            }}
+            products={activeProducts!}
+        />
+    );
+}
