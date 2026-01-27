@@ -1,27 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
 # NeniChat
 
 Nenichat es una plataforma que permite a los comercios y restaurantes gestionar sus ventas a través de WhatsApp.
@@ -31,7 +7,10 @@ En la versión gratis, puedes conectar tu whatsapp a Nenichat, y dentro de cada 
 Neni Flow es la versión premium de Nenichat, que te permite automatizar totalmente el flujo de comercio: desde el primer mensaje hasta la confirmacion del pago, sin intervención humana.
 Neni Flow no está disponible actualmente, pero lo estará pronto.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+Neni Chat currently has two monetization models:
+
+1. Neni Flow credits: pay a fixed amount: $99mxn for 50 credits, $249mxn for 175 credits, $499mxn for 500 credits. A credit is consumed when a sale is made.
+2. Neni Chat Premium: pay a montly subscription of $2499 mxn and get premium features like unlimited conversations and 5 extra users (for your team).
 
 ## Getting Started
 
@@ -62,7 +41,6 @@ This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-appl
 To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 

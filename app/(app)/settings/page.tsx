@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link"
-import { User, Shield, EyeOff, Bell, Palette, Search, ChevronRight, Lock, Moon, Globe, HelpCircle } from "lucide-react"
+import { User, EyeOff, ChevronRight, Lock } from "lucide-react"
 import { HeaderAction } from "@/components/header-action"
 import { ModeToggle } from "@/components/mode-toggle"
 
@@ -24,39 +24,13 @@ export default function SettingsPage() {
                 // { label: "Last Seen & Online", href: "/settings/privacy/last-seen", icon: Globe, description: "Control who can see when you're online" },
             ]
         },
-        // {
-        //     title: "Chats",
-        //     description: "Customize your chat experience.",
-        //     items: [
-        //         { label: "Chat Wallpaper", href: "/settings/chats/wallpaper", icon: Palette, description: "Choose a background for your chats" },
-        //     ]
-        // },
-        // {
-        //     title: "Notifications",
-        //     description: "Manage how you receive notifications.",
-        //     items: [
-        //         { label: "Message Notifications", href: "/settings/notifications", icon: Bell, description: "Sound and vibration settings" },
-        //     ]
-        // },
-        // {
-        //     title: "Appearance",
-        //     description: "Customize the look and feel of the app.",
-        //     items: [
-        //         {
-        //             label: "Theme",
-        //             href: "/settings/appearance",
-        //             icon: Moon,
-        //             description: "Switch between light and dark mode"
-        //         },
-        //     ]
-        // },
-        // {
-        //     title: "Help",
-        //     description: "Get help and contact support.",
-        //     items: [
-        //         { label: "Help Center", href: "/help", icon: HelpCircle, description: "FAQ and support" },
-        //     ]
-        // }
+        {
+            title: "Subscriptions",
+            description: "Manage your subscription plans and billing information.",
+            items: [
+                { label: "Subscription Plans", href: "/settings/subscriptions", icon: Lock, description: "View and manage your subscription plans" },
+            ]
+        }
     ]
 
     return (
