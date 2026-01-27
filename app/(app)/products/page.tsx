@@ -47,7 +47,7 @@ export default async function ProductsPage() {
         }
       </HeaderAction>
 
-      <ProductsList products={products} />
+      <ProductsList />
     </>
   );
 }

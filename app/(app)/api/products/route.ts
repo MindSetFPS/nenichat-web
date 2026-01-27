@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const active_only = searchParams.get('active_only') === 'true';
 
-    const products = await productRepository.list(limit, offset, active_only);
+    const products = await productRepository.getAll();
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
     console.error('Error listing products:', error);

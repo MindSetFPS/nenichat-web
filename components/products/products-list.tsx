@@ -1,11 +1,26 @@
+'use client';
+
+import { useEffect } from "react";
 import { Package } from "lucide-react";
 import { IProductWithUnitsSold } from "@/Nenichat/Products/domain/IProduct";
 import { columns } from '@/components/products/table/columns';
 import { ProductActions } from "@/app/(app)/products/ProductActions";
 import { EmptyList } from "../empty-list";
 import { DataTable } from "../data-table";
+import { useProductStore } from "@/stores/product-store";
 
-export default function ProductsList({ products }: { products: IProductWithUnitsSold[] }) {
+export default function ProductsList() {
+    const { products, fetchProducts } = useProductStore();
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            if (products.length === 0) {
+                await fetchProducts();
+            }
+        };
+        loadProducts();
+    }, [products.length, fetchProducts])
+
     return (
         <div>
             {products && products.length === 0 ?
