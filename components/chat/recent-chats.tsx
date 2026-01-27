@@ -7,9 +7,11 @@ import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identi
 import ContactAvatar from '@/components/contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
+import { cn } from "@/lib/utils"
 
 interface RecentChatsProps {
     contacts: string
+    className?: string
 }
 
 /**
@@ -20,7 +22,7 @@ interface RecentChatsProps {
  * @param {string} props.contacts - JSON string of contacts with last messages
  * @returns {JSX.Element} The rendered RecentChats component.
  */
-export function RecentChats({ contacts: contactsJson }: RecentChatsProps) {
+export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
     const pathname = usePathname()
     const router = useRouter()
     const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
@@ -34,7 +36,7 @@ export function RecentChats({ contacts: contactsJson }: RecentChatsProps) {
     }
 
     return (
-        <div className="hidden lg:flex flex-col col-span-1 border rounded-lg my-2 bg-muted/5 md:h-[calc(100vh-1rem)] overflow-hidden">
+        <div className={cn("hidden lg:flex flex-col h-full overflow-hidden", className)}>
             <div className="p-4 border-b">
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent Chats</h2>
                 <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Search" />

@@ -21,14 +21,14 @@ import {
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
-import { Badge } from "./ui/badge"
+import { Badge } from "../ui/badge"
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
+import { NavUser } from "./nav-user"
 
 export function AppSidebar() {
     const sidebar = useSidebar()
     const pathname = usePathname()
     const router = useRouter()
-    const supabase = createBrowserSupabaseClient()
 
     const isActive = (path: string) => {
         return pathname === path
@@ -133,10 +133,12 @@ export function AppSidebar() {
         sidebar.setOpenMobile(false)
     }, [pathname]);
 
-    async function handleLogout() {
-        await supabase.auth.signOut()
-        router.push('/login')
-        router.refresh()
+
+
+    const user = {
+        name: 'Daniel',
+        email: 'daniel@nenichat.com',
+        avatar: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
     }
 
     return (
@@ -199,15 +201,9 @@ export function AppSidebar() {
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
+
             <SidebarFooter>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton onClick={handleLogout} className="cursor-pointer">
-                            <LogOut className="w-5! h-5! md:h-4! md:w-4!" />
-                            <span className="text-lg md:text-sm">Cerrar sesión</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <NavUser user={user} />
             </SidebarFooter>
         </Sidebar>
     )
