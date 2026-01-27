@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
 import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp, LogOut } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
 import {
     Sidebar,
     SidebarHeader,
@@ -12,7 +12,7 @@ import {
     SidebarMenuItem,
     SidebarMenuButton,
     SidebarGroup,
-    SidebarGroupLabel,
+
     SidebarMenuSub,
     SidebarMenuSubItem,
     SidebarMenuSubButton,
@@ -20,23 +20,16 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
-import ContactAvatar from './contact-avatar'
-import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
-import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
+
 import { Badge } from "./ui/badge"
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 
-interface AppSidebarProps {
-    contacts: string
-}
-
-export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
+export function AppSidebar() {
     const sidebar = useSidebar()
     const pathname = usePathname()
     const router = useRouter()
     const supabase = createBrowserSupabaseClient()
-    const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
+
     const isActive = (path: string) => {
         return pathname === path
     }
@@ -47,6 +40,12 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
             href: '/home',
             icon: HomeIcon,
             label: 'Inicio'
+        },
+        {
+            id: 'chats',
+            href: '/chats',
+            icon: MailIcon,
+            label: 'Chats'
         },
         {
             id: 'sales',
@@ -118,14 +117,6 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                 }
             ]
         },
-
-
-        {
-            id: 'messages',
-            href: '/messages',
-            icon: MailIcon,
-            label: 'Mensajes'
-        },
         {
             id: 'settings',
             href: '/settings',
@@ -158,7 +149,6 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                     <SidebarMenu>
                         {menuItems.map((item) => {
                             const Icon = item.icon
-
                             // If item has submenu, render collapsible
                             if (item.submenu && item.submenu.length > 0) {
                                 return (
@@ -189,7 +179,6 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                     </Collapsible>
                                 )
                             }
-
                             // Regular menu item without submenu
                             return (
                                 <SidebarMenuItem key={item.id}>
@@ -207,44 +196,6 @@ export function AppSidebar({ contacts: contactsJson }: AppSidebarProps) {
                                 </SidebarMenuItem>
                             )
                         })}
-                    </SidebarMenu>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel>Contacts</SidebarGroupLabel>
-                    <SidebarMenu>
-                        {contacts.map((contact: IContactWithLastMessage) => (
-                            <SidebarMenuItem key={contact.id}>
-                                <SidebarMenuButton
-                                    className="py-2 h-16 w-full truncate overflow-hidden whitespace-nowrap cursor-pointer"
-                                    size={'lg'}
-                                    isActive={isActive(`/chats/${contact.id}`)}
-                                    onClick={() => changeRoute(`/chats/${contact.id}`)}>
-                                    <div className="flex w-full items-center gap-2">
-                                        <Avatar className="h-full">
-                                            <ContactAvatar seed={getContactIdentifier(contact!)!} />
-                                            <AvatarFallback>
-                                                <AvatarImage src="https://github.com/shadcn.png" />
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex flex-col py-2 text-left">
-                                            <span className="font-semibold">
-                                                {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
-                                            </span>
-                                            <span className="text-sm text-muted-foreground text-ellipsis">
-                                                {contact.last_message?.text_content}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground w-auto">
-                                                {(() => {
-                                                    const createdAt = contact.last_message?.created_at;
-                                                    return dateToHuman(String(createdAt));
-                                                })()}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
