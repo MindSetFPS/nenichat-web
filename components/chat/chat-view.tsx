@@ -7,6 +7,9 @@ import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
 import { Order } from "@/Nenichat/Orders/domain/Order"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import ChatHeader from "./chat-header"
+import { ChatDropDownDialog } from "./chat-dropdown"
 
 // Union type for timeline items
 type TimelineItem =
@@ -17,7 +20,8 @@ interface ChatViewProps {
   initialMessages: IMessageWithSender[]
   me: IContact | null,
   isGroup: boolean,
-  orders: Order[]
+  orders: Order[],
+  contact: any
 }
 
 export default function ChatView({
@@ -25,6 +29,7 @@ export default function ChatView({
   me,
   isGroup,
   orders,
+  contact,
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -78,32 +83,43 @@ export default function ChatView({
 
   return (
     <main className="h-full overflow-y-auto flex-col space-y-2">
-      {groupedTimeline.map((group, groupIndex) => (
-        <div key={groupIndex}>
-          <DateSeparator
-            messages={group.items
-              .map(item => item.data as IMessageWithSender)}
-            index={groupIndex}
-          />
-          <div className="space-y-2">
-            {group.items.map((item, itemIndex) => (
-              item.type === 'message' ? (
-                <Message
-                  message={item.data as IMessageWithSender}
-                  me={me}
-                  key={`message-${itemIndex}`}
-                />
-              ) : (
-                <OrderMessage
-                  order={item.data as Order}
-                  key={`order-${itemIndex}`}
-                  isGroup={isGroup}
-                />
-              )
-            ))}
+      <div className="flex items-center justify-between py-2 bg-stone-50 sticky border-b top-0 z-60 px-2">
+        {isGroup ? (
+          <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contact)}</h1>
+        ) : (
+          <ChatHeader contact={contact!} />
+        )}
+        <ChatDropDownDialog contact={contact} />
+      </div>
+
+      <div className="px-4 space-y-4">
+        {groupedTimeline.map((group, groupIndex) => (
+          <div key={groupIndex}>
+            <DateSeparator
+              messages={group.items
+                .map(item => item.data as IMessageWithSender)}
+              index={groupIndex}
+            />
+            <div className="space-y-2">
+              {group.items.map((item, itemIndex) => (
+                item.type === 'message' ? (
+                  <Message
+                    message={item.data as IMessageWithSender}
+                    me={me}
+                    key={`message-${itemIndex}`}
+                  />
+                ) : (
+                  <OrderMessage
+                    order={item.data as Order}
+                    key={`order-${itemIndex}`}
+                    isGroup={isGroup}
+                  />
+                )
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
       <div ref={messagesEndRef} />
     </main>
   )

@@ -44,15 +44,12 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
 
   return (
     <div className="h-full grid grid-rows-[auto_1fr_auto]">
-      <HeaderAction>
-        {chatData?.is_group ? (
-          <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contactJson)}</h1>
-        ) : (
-          <ChatHeader contact={contactJson!} />
-        )}
-        <ChatDropDownDialog contact={contactJson} />
-      </HeaderAction>
-      <ChatView initialMessages={messagesJson.reverse()} me={me} orders={ordersJson} isGroup={chatData ? chatData.is_group : false} />
+      <ChatView 
+        contact={contactJson}
+        initialMessages={messagesJson.reverse()} 
+        me={me} 
+        orders={ordersJson} 
+        isGroup={chatData ? chatData.is_group : false} />
       <ChatControls />
     </div>
   )
