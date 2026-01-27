@@ -1,15 +1,15 @@
 import { create } from 'zustand';
-import { IProduct } from '@/Nenichat/Products/domain/IProduct';
+import { IProduct, IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 
 interface ProductState {
-    products: IProduct[];
+    products: IProductWithUnitsSold[];
     isLoading: boolean;
     error: string | null;
 
     // Actions
-    setProducts: (products: IProduct[]) => void;
-    addProduct: (product: IProduct) => void;
-    updateProduct: (product: IProduct) => void;
+    setProducts: (products: IProductWithUnitsSold[]) => void;
+    addProduct: (product: IProductWithUnitsSold) => void;
+    updateProduct: (product: IProductWithUnitsSold) => void;
     deleteProduct: (productId: string) => void;
 
     /**

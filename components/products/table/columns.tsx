@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { IProduct, IProductWithUnitsSold } from "@/Nenichat/Products/domain/IProduct";
+import { IProductWithUnitsSold } from "@/Nenichat/Products/domain/IProduct";
 import Link from "next/link";
 import { AvailableCheckbot } from "./available-checkbot";
 
