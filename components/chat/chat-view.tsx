@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import Message from "./message"
 import OrderMessage from "./order-message"
@@ -10,6 +11,9 @@ import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSende
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 import ChatHeader from "./chat-header"
 import { ChatDropDownDialog } from "./chat-dropdown"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 
 // Union type for timeline items
 type TimelineItem =
@@ -33,6 +37,8 @@ export default function ChatView({
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const isMobile = useIsMobile()
 
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
@@ -83,12 +89,26 @@ export default function ChatView({
 
   return (
     <main className="h-full overflow-y-auto flex-col space-y-2">
-      <div className="flex items-center justify-between py-2 bg-stone-50 sticky border-b top-0 z-60 px-2">
-        {isGroup ? (
-          <h1 className="text-lg md:text-2xl font-bold w-full">{getContactIdentifier(contact)}</h1>
-        ) : (
-          <ChatHeader contact={contact!} />
-        )}
+      <div className="flex items-center justify-between py-2 bg-stone-50 sticky border-b top-0 z-30 px-2">
+        <div className="flex items-center gap-2 flex-1">
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="p-0 h-auto"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <div className="flex-1">
+            {isGroup ? (
+              <h1 className="text-lg md:text-2xl font-bold">{getContactIdentifier(contact)}</h1>
+            ) : (
+              <ChatHeader contact={contact!} />
+            )}
+          </div>
+        </div>
         <ChatDropDownDialog contact={contact} />
       </div>
 

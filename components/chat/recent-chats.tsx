@@ -8,6 +8,7 @@ import ContactAvatar from '@/components/contact-avatar'
 import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface RecentChatsProps {
     contacts: string
@@ -17,6 +18,7 @@ interface RecentChatsProps {
 /**
  * RecentChats component displays a list of recent conversations in the app layout.
  * It provides a search input and a scrollable list of chats with contact information.
+ * On mobile, it's hidden when viewing a chat and shown when on the chats list.
  * 
  * @param {RecentChatsProps} props - Component props
  * @param {string} props.contacts - JSON string of contacts with last messages
@@ -25,7 +27,16 @@ interface RecentChatsProps {
 export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
     const pathname = usePathname()
     const router = useRouter()
+    const isMobile = useIsMobile()
     const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
+
+    // Check if we're viewing a specific chat (has an ID after /chats/)
+    const isViewingChat = pathname.match(/^\/chats\/[^/]+$/)
+
+    // On mobile, hide when viewing a specific chat
+    if (isMobile && isViewingChat) {
+        return null
+    }
 
     const isActive = (path: string) => {
         return pathname === path
@@ -36,7 +47,9 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
     }
 
     return (
-        <div className={cn("hidden lg:flex flex-col h-full overflow-hidden", className)}>
+        <div className={cn("flex flex-col h-full overflow-hidden", className, {
+            "hidden lg:flex": isMobile && isViewingChat,
+        })}>
             <div className="p-4 border-b">
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent Chats</h2>
                 <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Search" />

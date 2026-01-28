@@ -1,14 +1,10 @@
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository"
 import ChatView from "@/components/chat/chat-view"
-import ChatHeader from "@/components/chat/chat-header"
 import { chatRepository } from "@/Nenichat/Chats/infra/persistance/ChatRepository"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository"
 import { pool } from "@/Nenichat/Shared/infra/persistance/db"
-import { ChatDropDownDialog } from "@/components/chat/chat-dropdown"
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
-import { HeaderAction } from "@/components/header-action"
 import ChatControls from "@/components/chat/chat-controls"
 
 export default async function ChatPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
