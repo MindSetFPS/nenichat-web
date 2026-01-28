@@ -35,8 +35,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             <AppSidebar />
             <div className="flex flex-col md:flex-row w-full">
                 <SidebarInset className="justify-center w-full md:h-[calc(100vh-1rem)]">
-                    <div className="flex flex-col border-t border-b border-r box-border w-full h-dvh ">
-                        <div className="flex w-full items-center my-2 px-2 ">
+                    <div className="flex flex-col md:border-t md:border-b md:border-r box-border w-full h-dvh ">
+                        <div className="flex w-full items-center md:my-2 px-2 ">
                             <ConditionalSidebarTrigger className="size-auto mr-2" />
                             <div className="flex items-center w-full justify-between">
                                 <DynamicHeaderContent />

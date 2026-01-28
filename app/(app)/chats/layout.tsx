@@ -21,8 +21,10 @@ export default async function ChatLayout({
   }
   const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)
   return (
-    <div className="flex h-full w-full border rounded-lg overflow-hidden bg-muted/5 flex-col md:flex-row">
-      <RecentChats className="w-full md:max-w-sm md:border-r border-b md:border-b-0" contacts={contactsWithLastMessageJSON} />
+    <div className="flex h-full w-full md:border md:rounded-lg overflow-hidden md:bg-muted/5 flex-col md:flex-row">
+      <RecentChats
+        className="w-full md:max-w-sm md:border-r"
+        contacts={contactsWithLastMessageJSON} />
       <div className="flex-1 overflow-hidden bg-background">
         {children}
       </div>

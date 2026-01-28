@@ -10,6 +10,7 @@ import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
 import { useIsMobile } from '@/hooks/use-mobile'
 import HideSidebarTrigger from "../layout/hide-sidebar-trigger"
+import { SidebarTrigger } from '../ui/sidebar'
 
 interface RecentChatsProps {
     contacts: string
@@ -26,8 +27,6 @@ interface RecentChatsProps {
  * @returns {JSX.Element} The rendered RecentChats component.
  */
 export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
-
-
     HideSidebarTrigger()
     const pathname = usePathname()
     const router = useRouter()
@@ -55,8 +54,11 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
             "hidden lg:flex": isMobile && isViewingChat,
         })}>
             <div className="p-4 border-b">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent Chats</h2>
-                <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Search" />
+                <div className="flex items-center">
+                    <SidebarTrigger className="size-auto mr-2 text-muted-foreground" />
+                    <h2 className="text-md font-bold uppercase tracking-wider text-muted-foreground">Tus chats</h2>
+                </div>
+                <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Buscar" />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-none">
                 {contacts.map((contact: IContactWithLastMessage) => (
