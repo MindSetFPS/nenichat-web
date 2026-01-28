@@ -1,7 +1,6 @@
 import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
 import { EditCampaignForm } from '@/components/edit-campaign-form';
-import { HeaderAction } from '@/components/header-action';
 import { cronToStr } from '@/Nenichat/Shared/domain/cron-to-string-converter';
 
 export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,9 +29,9 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
 
   return (
     <>
-      <HeaderAction>
-        <h2 className="text-3xl font-bold tracking-tight">Editar campaña</h2>
-      </HeaderAction>
+
+      <h2 className="text-3xl font-bold tracking-tight">Editar campaña</h2>
+
       <EditCampaignForm campaign={plainCampaign} />
     </>
   );

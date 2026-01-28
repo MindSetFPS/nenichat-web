@@ -19,7 +19,6 @@ import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { IAudience } from '@/Nenichat/Audiences/domain/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
 import updateAudienceMembers from "@/Nenichat/Audiences/app/update-audience-members-from-api";
-import { HeaderAction } from "@/components/header-action";
 import { DataTable } from "@/components/data-table";
 import { columns } from "../../../../../components/audiences/columns";
 import { Toggle } from "@/components/ui/toggle";
@@ -132,9 +131,7 @@ export default function AudienceMembersPage() {
           <Spinner className="h-5 w-5" />
         ) : (
           <>
-            <HeaderAction>
-              <h1 className="text-2xl font-bold">Miembros de: {audienceDetails?.name || 'Loading...'}</h1>
-            </HeaderAction>
+            <h1 className="text-2xl font-bold">Miembros de: {audienceDetails?.name || 'Loading...'}</h1>
 
             <div className="md:flex justify-end md:justify-start my-2 space-x-1">
               <Button onClick={handleSaveMembers} variant="secondary">Guardar cambios</Button>

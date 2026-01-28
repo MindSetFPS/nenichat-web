@@ -9,7 +9,6 @@ import { EmptyList } from "@/components/empty-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";
 import { AudiencesTable } from "@/components/audiences/audiences-table";
 import { getAudiences } from "@/Nenichat/Audiences/app/get-audiences-from-api";
-import { HeaderAction } from "@/components/header-action";
 
 export default function AudiencesPage() {
   const [audiences, setAudiences] = useState<IAudience[]>([]);
@@ -76,10 +75,8 @@ export default function AudiencesPage() {
 
   return (
     <>
-      <HeaderAction>
-        <h1 className="text-2xl font-bold">Audiences</h1>
-        {audiences.length > 0 && createAudienceButton}
-      </HeaderAction>
+      <h1 className="text-2xl font-bold">Audiences</h1>
+      {audiences.length > 0 && createAudienceButton}
 
       {audiences.length === 0 ?
         <EmptyList

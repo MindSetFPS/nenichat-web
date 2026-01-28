@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IProfitabilityReport } from "@/Nenichat/Expenses/app/dto/IProfitabilityReport";
 import { Loader2, Plus } from "lucide-react";
-import { HeaderAction } from "@/components/header-action";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -46,15 +45,15 @@ export default function ProfitabilityPage() {
 
     return (
         <>
-            <HeaderAction>
-                <h1 className="text-2xl font-bold">Rentabilidad</h1>
-                <Link href="/expenses/new">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Registrar gasto
-                    </Button>
-                </Link>
-            </HeaderAction>
+
+            <h1 className="text-2xl font-bold">Rentabilidad</h1>
+            <Link href="/expenses/new">
+                <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Registrar gasto
+                </Button>
+            </Link>
+
 
             <div className="overflow-y-auto space-y-2">
                 {/* Date Range Selector */}

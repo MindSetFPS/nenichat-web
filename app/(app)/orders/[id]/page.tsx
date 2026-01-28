@@ -16,7 +16,6 @@ import { EditOrderButton } from "@/components/orders/edit-order-button";
 import { getPaymentStatusColor, getStatusColor } from "@/lib/utils";
 
 import { DropdownMenuDialog } from "@/components/orders/dropdown";
-import { HeaderAction } from "@/components/header-action";
 import PaymentStatusDropdown from "@/components/orders/payment-status-dropdown";
 import OrderStatusDropdown from "@/components/orders/order-status-dropdown";
 
@@ -49,16 +48,16 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
     return (
         <>
-            <HeaderAction>
-                <h1 className="text-2xl font-bold">Orden #{order.id}</h1>
-                <div className="md:hidden ml-16">
-                    <DropdownMenuDialog orderId={orderId} />
-                </div>
-                <div className="hidden md:flex items-center justify-end gap-2">
-                    <EditOrderButton orderId={order.id} />
-                    <DeleteOrderButton orderId={order.id} />
-                </div>
-            </HeaderAction>
+
+            <h1 className="text-2xl font-bold">Orden #{order.id}</h1>
+            <div className="md:hidden ml-16">
+                <DropdownMenuDialog orderId={orderId} />
+            </div>
+            <div className="hidden md:flex items-center justify-end gap-2">
+                <EditOrderButton orderId={order.id} />
+                <DeleteOrderButton orderId={order.id} />
+            </div>
+
             <div className="container w-full h-full space-y-2">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">

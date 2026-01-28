@@ -5,10 +5,10 @@ import { EmptyList } from "@/components/empty-list";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
-import { HeaderAction } from "@/components/header-action";
 import { CreateOrderButton } from "@/components/orders/create-order-button";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/orders/table/columns";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const orderRepository = new OrderRepository(pool);
 
@@ -29,11 +29,12 @@ export default async function OrdersPage() {
     const plainOrders = JSON.parse(JSON.stringify(orders));
 
     return (
-        <>
-            <HeaderAction>
-                <h1 className="text-2xl font-bold">Ventas</h1>
+        <div className="md:border md:rounded-lg h-full p-2 md:p-4">
+            <div className="flex items-center justify-between">
+                <SidebarTrigger className="size-auto mr-2 text-muted-foreground " />
+                <h1 className="text-md text-muted-foreground font-bold w-full">Ventas</h1>
                 <CreateOrderButton />
-            </HeaderAction>
+            </div>
             {
                 plainOrders.length === 0 ?
                     <EmptyList
@@ -59,6 +60,6 @@ export default async function OrdersPage() {
                         }}
                     />
             }
-        </>
+        </div>
     );
 }

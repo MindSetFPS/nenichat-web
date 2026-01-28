@@ -1,7 +1,6 @@
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/ExpenseRepository";
 import { ExpenseForm } from "@/components/forms/expense-form";
-import { HeaderAction } from "@/components/header-action";
 import { notFound } from "next/navigation";
 
 const expenseRepository = new ExpenseRepository(pool);
@@ -21,9 +20,9 @@ export default async function EditExpensePage({ params }: { params: Promise<{ id
 
     return (
         <>
-            <HeaderAction>
-                <h1 className="text-2xl font-bold tracking-tight">Editar Gasto</h1>
-            </HeaderAction>
+
+            <h1 className="text-2xl font-bold tracking-tight">Editar Gasto</h1>
+
             <ExpenseForm
                 initialData={{
                     id: plainExpense.id,

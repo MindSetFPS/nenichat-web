@@ -13,7 +13,6 @@ import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 import { EmptyList } from "@/components/empty-list";
-import { HeaderAction } from "@/components/header-action";
 
 export const dynamic = 'force-dynamic';
 
@@ -103,10 +102,10 @@ export default async function CampaignsPage() {
 
   return (
     <>
-      <HeaderAction>
-        <h1 className="text-2xl font-bold">Campaigns</h1>
-        {allCampaigns.length > 0 && <CreateCampaignDialog />}
-      </HeaderAction>
+
+      <h1 className="text-2xl font-bold">Campaigns</h1>
+      {allCampaigns.length > 0 && <CreateCampaignDialog />}
+
       <div className="overflow-y-auto h-full">
         {allCampaigns.length === 0 ? (
           <EmptyList

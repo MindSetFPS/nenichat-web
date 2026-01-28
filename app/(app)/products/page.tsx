@@ -1,7 +1,7 @@
 import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { ProductActions } from './ProductActions';
-import { HeaderAction } from '@/components/header-action';
+
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 import ProductsList from '@/components/products/products-list';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
@@ -38,14 +38,14 @@ export default async function ProductsPage() {
 
   return (
     <>
-      <HeaderAction>
-        <h1 className="text-2xl font-bold">
-          Products
-        </h1>
-        {products.length !== 0 &&
-          <ProductActions />
-        }
-      </HeaderAction>
+
+      <h1 className="text-2xl font-bold">
+        Products
+      </h1>
+      {products.length !== 0 &&
+        <ProductActions />
+      }
+
 
       <ProductsList />
     </>

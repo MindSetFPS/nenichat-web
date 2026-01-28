@@ -5,7 +5,6 @@ import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderReposi
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
 import { OrderProductChart } from "@/components/home/product-orders-chart";
-import { HeaderAction } from "@/components/header-action";
 import BusinessSummary from "@/components/home/business-summary";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
@@ -38,9 +37,7 @@ export default async function Page() {
 
   return (
     <>
-      <HeaderAction>
-        <h1 className="text-2xl font-bold">Buenos días</h1>
-      </HeaderAction>
+      <h1 className="text-2xl font-bold">Buenos días</h1>
       <div className="flex flex-col overflow-y-auto gap-4">
         <BusinessSummary
           totalRevenue={totalRevenue}

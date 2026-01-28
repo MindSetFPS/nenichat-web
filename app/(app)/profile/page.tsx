@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { ComboboxDemo } from './combobox';
 import { useDebounce } from '@/hooks/use-debounce';
-import { HeaderAction } from '@/components/header-action';
+
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { User } from '@supabase/supabase-js';
 import { Badge } from '@/components/ui/badge';
@@ -88,15 +88,15 @@ const MyProfilePage = () => {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <HeaderAction>
-        <div className="flex items-center justify-between w-full">
-          <h1 className="text-2xl font-bold tracking-tight">Account Settings</h1>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
-      </HeaderAction>
+
+      <div className="flex items-center justify-between w-full">
+        <h1 className="text-2xl font-bold tracking-tight">Account Settings</h1>
+        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
+      </div>
+
 
       <div className="container mx-auto p-4 space-y-8 max-w-5xl">
         {/* Welcome Section */}
@@ -243,7 +243,7 @@ const MyProfilePage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

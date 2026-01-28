@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { HeaderAction } from "@/components/header-action"
+
 import { Check, Crown, MessageSquare, Star, Users, Zap } from "lucide-react"
 import { ShineBorder } from "@/components/ui/shine-border"
 import { CheckoutDialog, CheckoutItem } from "@/components/checkout/checkout-dialog"
@@ -65,11 +65,11 @@ export default function SubscriptionPage() {
 
     return (
         <>
-            <HeaderAction>
-                <div className="flex flex-col">
-                    <h1 className="text-2xl font-bold">Suscripción y Créditos</h1>
-                </div>
-            </HeaderAction>
+
+            <div className="flex flex-col">
+                <h1 className="text-2xl font-bold">Suscripción y Créditos</h1>
+            </div>
+
 
             <main className="flex-1 overflow-y-auto p-4 space-y-8">
 

@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { User, EyeOff, ChevronRight, Lock } from "lucide-react"
-import { HeaderAction } from "@/components/header-action"
 import { ModeToggle } from "@/components/mode-toggle"
 
 export default function SettingsPage() {
@@ -35,11 +34,8 @@ export default function SettingsPage() {
 
     return (
         <>
-            <HeaderAction>
-                <h1 className="text-2xl font-bold">Settings</h1>
-            </HeaderAction>
+            <h1 className="text-2xl font-bold">Settings</h1>
             <main className="flex-1 overflow-y-auto mt-2">
-
                 <>
                     {
                         content.map((item, index) => (
