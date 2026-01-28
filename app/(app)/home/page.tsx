@@ -9,6 +9,7 @@ import BusinessSummary from "@/components/home/business-summary";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
 import { PageHeader } from "@/components/ui/page-header";
+import Content from "@/components/layout/content";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -37,9 +38,9 @@ export default async function Page() {
   const ordersToday = await orderRepository.getOrdersCountByDate(new Date());
 
   return (
-    <>
+    <Content className="p-4 scroll-auto overflow-y-auto">
       <PageHeader title="Buenos días" />
-      <div className="flex flex-col overflow-y-auto gap-4">
+      <div className="flex flex-col gap-4">
         <BusinessSummary
           totalRevenue={totalRevenue}
           totalOrders={plainOrders.length}
@@ -52,6 +53,6 @@ export default async function Page() {
         <OrdersTotalValueChart data={orderTotalsPerDay} />
         <OrderProductChart data={ordersCountByDateInterval} />
       </div>
-    </>
+    </Content>
   );
 }

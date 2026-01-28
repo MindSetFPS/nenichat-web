@@ -1,6 +1,7 @@
 import { RecentChats } from "@/components/chat/recent-chats";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
+import Content from "@/components/layout/content";
 
 export const metadata = {
   title: 'Chats',
@@ -21,13 +22,13 @@ export default async function ChatLayout({
   }
   const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)
   return (
-    <div className="flex h-full w-full md:border md:rounded-lg overflow-hidden md:bg-muted/5 flex-col md:flex-row">
+    <Content className="flex flex-col md:flex-row">
       <RecentChats
         className="w-full md:max-w-sm md:border-r"
         contacts={contactsWithLastMessageJSON} />
       <div className="flex-1 overflow-hidden bg-background">
         {children}
       </div>
-    </div>
+    </Content>
   )
 }

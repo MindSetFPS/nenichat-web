@@ -12,6 +12,7 @@ import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
+import Content from "@/components/layout/content";
 
 export default function ProfitabilityPage() {
     const [loading, setLoading] = useState(true);
@@ -45,7 +46,7 @@ export default function ProfitabilityPage() {
     };
 
     return (
-        <>
+        <Content className="p-4 scroll-auto overflow-y-auto">
             <PageHeader title="Rentabilidad">
                 <Link href="/expenses/new">
                     <Button>
@@ -149,6 +150,6 @@ export default function ProfitabilityPage() {
                     </div>
                 )}
             </div>
-        </>
+        </Content>
     );
 }

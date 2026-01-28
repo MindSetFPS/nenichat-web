@@ -5,6 +5,7 @@ import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 import ProductsList from '@/components/products/products-list';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { PageHeader } from '@/components/ui/page-header';
+import Content from '@/components/layout/content';
 
 const productRepository = new ProductRepository(pool);
 export const metadata: Metadata = {
@@ -23,7 +24,6 @@ export default async function ProductsPage() {
 
   try {
     products = await productRepository.getAll();
-
     // sort by is_active true first, is_active false second
     products.sort((a, b) => (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0));
     products = JSON.parse(JSON.stringify(products));
@@ -37,14 +37,13 @@ export default async function ProductsPage() {
   }
 
   return (
-    <>
-
+    <Content className="p-4 scroll-auto overflow-y-auto">
       <PageHeader title="Productos">
         {products.length !== 0 &&
           <ProductActions />
         }
       </PageHeader>
       <ProductsList />
-    </>
+    </Content>
   );
 }

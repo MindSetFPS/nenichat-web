@@ -103,7 +103,6 @@ export default async function CampaignsPage() {
 
   return (
     <>
-
       <PageHeader title="Campaigns">
         {allCampaigns.length > 0 && <CreateCampaignDialog />}
       </PageHeader>

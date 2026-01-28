@@ -16,9 +16,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <AppSidebar />
             <div className="flex flex-col md:flex-row w-full">
                 <SidebarInset className="justify-center w-full ">
-                    <div className="p-2 overflow-auto h-full">
-                        {children}
-                    </div>
+                    {children}
                     <ToasterProvider />
                 </SidebarInset>
             </div>

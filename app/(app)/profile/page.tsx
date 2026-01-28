@@ -15,6 +15,7 @@ import { LogOut, User as UserIcon, Mail, ShieldCheck, Calendar, Phone, AtSign, F
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/ui/page-header';
+import Content from '@/components/layout/content';
 
 
 const MyProfilePage = () => {
@@ -86,164 +87,157 @@ const MyProfilePage = () => {
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-
-      <div className="flex items-center justify-between w-full">
-        <PageHeader title="Configuración de cuenta">
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </PageHeader>
-      </div>
-
-
-      <div className="container mx-auto p-4 space-y-8 max-w-5xl">
-        {/* Welcome Section */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-primary/10 to-transparent p-8 md:p-12 border border-primary/10">
-          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-            <div className="relative">
-              <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-background shadow-2xl">
-                <AvatarImage src={''} alt={user?.pushname || user?.username || supabaseUser?.email || 'User'} />
-                <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
-                  {(user?.pushname || user?.username || supabaseUser?.email || 'U').charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-2 -right-2 bg-background p-1.5 rounded-full shadow-lg border">
-                <div className="bg-green-500 w-4 h-4 rounded-full border-2 border-background animate-pulse" />
+    <Content className="p-4 scroll-auto overflow-y-auto">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex items-center justify-between w-full">
+          <PageHeader title="Configuración de cuenta">
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </PageHeader>
+        </div>
+        <div className="container mx-auto p-4 space-y-8 max-w-5xl">
+          {/* Welcome Section */}
+          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-primary/10 to-transparent p-8 md:p-12 border border-primary/10">
+            <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+              <div className="relative">
+                <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-background shadow-2xl">
+                  <AvatarImage src={''} alt={user?.pushname || user?.username || supabaseUser?.email || 'User'} />
+                  <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
+                    {(user?.pushname || user?.username || supabaseUser?.email || 'U').charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-2 -right-2 bg-background p-1.5 rounded-full shadow-lg border">
+                  <div className="bg-green-500 w-4 h-4 rounded-full border-2 border-background animate-pulse" />
+                </div>
+              </div>
+              <div className="flex-1 text-center md:text-left space-y-2">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+                    {user?.pushname || user?.username || 'Welcome!'}
+                  </h2>
+                  {supabaseUser && (
+                    <Badge variant="secondary" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+                      {supabaseUser.aud}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-lg text-muted-foreground font-medium">
+                  {supabaseUser?.email || 'Manage your account and preferences'}
+                </p>
+                <div className="pt-4 flex flex-wrap justify-center md:justify-start gap-4">
+                  <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
+                    <UserIcon className="w-4 h-4 mr-2 text-primary" />
+                    [Name]
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
+                    <Building2 className="w-4 h-4 mr-2 text-primary" />
+                    [Business Name]
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
+                    <Calendar className="w-4 h-4 mr-2 text-primary" />
+                    Joined {supabaseUser ? new Date(supabaseUser.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : 'Recently'}
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
+                    <ShieldCheck className="w-4 h-4 mr-2 text-primary" />
+                    Verified Session
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="flex-1 text-center md:text-left space-y-2">
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                  {user?.pushname || user?.username || 'Welcome!'}
-                </h2>
-                {supabaseUser && (
-                  <Badge variant="secondary" className="px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-                    {supabaseUser.aud}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-lg text-muted-foreground font-medium">
-                {supabaseUser?.email || 'Manage your account and preferences'}
-              </p>
-              <div className="pt-4 flex flex-wrap justify-center md:justify-start gap-4">
-                <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
-                  <UserIcon className="w-4 h-4 mr-2 text-primary" />
-                  [Name]
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
-                  <Building2 className="w-4 h-4 mr-2 text-primary" />
-                  [Business Name]
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
-                  <Calendar className="w-4 h-4 mr-2 text-primary" />
-                  Joined {supabaseUser ? new Date(supabaseUser.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : 'Recently'}
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground bg-background/50 px-3 py-1.5 rounded-full border">
-                  <ShieldCheck className="w-4 h-4 mr-2 text-primary" />
-                  Verified Session
-                </div>
-              </div>
+            {/* Decorative background blobs */}
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
+          </section>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
+            {/* Security & Auth Card */}
+            <div className="lg:col-span-2 space-y-8">
+              {supabaseUser && (
+                <Card className="relative p-0 overflow-hidden border-none shadow-xl bg-card/50 backdrop-blur-sm group border border-primary/10 rounded-lg">
+                  <CardHeader className="relative pt-6 z-10 border-b bg-muted/30">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <CardTitle className="text-xl">Authentication</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="relative z-10 pb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                      <InfoItem
+                        icon={<AtSign className="w-4 h-4" />}
+                        label="Email Address"
+                        value={supabaseUser.email}
+                      />
+                      <InfoItem
+                        icon={<Calendar className="w-4 h-4" />}
+                        label="Account Created"
+                        value={new Date(supabaseUser.created_at).toLocaleString()}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          </div>
-
-          {/* Decorative background blobs */}
-          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 blur-[80px] rounded-full pointer-events-none" />
-        </section>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 ">
-          {/* Security & Auth Card */}
-          <div className="lg:col-span-2 space-y-8">
-            {supabaseUser && (
-              <Card className="relative p-0 overflow-hidden border-none shadow-xl bg-card/50 backdrop-blur-sm group border border-primary/10 rounded-lg">
-                <CardHeader className="relative pt-6 z-10 border-b bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                      <ShieldCheck className="w-5 h-5" />
+            {/* Right Column: Local Data */}
+            <div className="space-y-8">
+              {user && (
+                <Card className="border-none p-0 shadow-xl bg-card/50 backdrop-blur-sm h-fit overflow-hidden">
+                  <CardHeader className="bg-primary/5 border-b py-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+                        <UserIcon className="w-5 h-5" />
+                      </div>
+                      <CardTitle className="text-xl">Whatsapp Profile</CardTitle>
                     </div>
-                    <CardTitle className="text-xl">Authentication</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10 pb-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <InfoItem
-                      icon={<AtSign className="w-4 h-4" />}
-                      label="Email Address"
-                      value={supabaseUser.email}
-                    />
-                    <InfoItem
-                      icon={<Calendar className="w-4 h-4" />}
-                      label="Account Created"
-                      value={new Date(supabaseUser.created_at).toLocaleString()}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column: Local Data */}
-          <div className="space-y-8">
-            {user && (
-              <Card className="border-none p-0 shadow-xl bg-card/50 backdrop-blur-sm h-fit overflow-hidden">
-                <CardHeader className="bg-primary/5 border-b py-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-                      <UserIcon className="w-5 h-5" />
+                  </CardHeader>
+                  <CardContent className="pt-6 space-y-6">
+                    <div className="flex flex-col items-center py-4 border-b border-dashed">
+                      <Avatar className="w-20 h-20 mb-3 border-2 border-primary/20 p-1">
+                        <AvatarImage src={''} alt={user.pushname || user.username || 'User'} />
+                        <AvatarFallback className="bg-muted text-xl">
+                          {(user.pushname || user.username || 'U').charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="font-bold text-lg">{user.pushname || user.username}</p>
+                      <Badge variant="outline" className="mt-1 font-mono">{user.phone_number || 'No Phone'}</Badge>
                     </div>
-                    <CardTitle className="text-xl">Whatsapp Profile</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-6 space-y-6">
-                  <div className="flex flex-col items-center py-4 border-b border-dashed">
-                    <Avatar className="w-20 h-20 mb-3 border-2 border-primary/20 p-1">
-                      <AvatarImage src={''} alt={user.pushname || user.username || 'User'} />
-                      <AvatarFallback className="bg-muted text-xl">
-                        {(user.pushname || user.username || 'U').charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <p className="font-bold text-lg">{user.pushname || user.username}</p>
-                    <Badge variant="outline" className="mt-1 font-mono">{user.phone_number || 'No Phone'}</Badge>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground flex items-center gap-2">
-                        <AtSign className="w-3.5 h-3.5" /> Username
-                      </span>
-                      <span className="font-medium">{user.username || 'Not set'}</span>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <AtSign className="w-3.5 h-3.5" /> Username
+                        </span>
+                        <span className="font-medium">{user.username || 'Not set'}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5" /> LID
+                        </span>
+                        <span className="font-medium truncate max-w-[120px]" title={user.lid || ''}>{user.lid || 'Not set'}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <UserIcon className="w-3.5 h-3.5" /> Full Name
+                        </span>
+                        <span className="font-medium">{user.contact_name || 'Not set'}</span>
+                      </div>
                     </div>
-                    <Separator />
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground flex items-center gap-2">
-                        <Phone className="w-3.5 h-3.5" /> LID
-                      </span>
-                      <span className="font-medium truncate max-w-[120px]" title={user.lid || ''}>{user.lid || 'Not set'}</span>
+                    <div className="pt-4">
+                      <Button variant="outline" className="w-full text-xs h-8" disabled>
+                        Edit Profile Data
+                      </Button>
                     </div>
-                    <Separator />
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground flex items-center gap-2">
-                        <UserIcon className="w-3.5 h-3.5" /> Full Name
-                      </span>
-                      <span className="font-medium">{user.contact_name || 'Not set'}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
-                    <Button variant="outline" className="w-full text-xs h-8" disabled>
-                      Edit Profile Data
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div >
+    </Content>
   );
 };
 

@@ -29,7 +29,7 @@ export default async function OrdersPage() {
     const plainOrders = JSON.parse(JSON.stringify(orders));
 
     return (
-        <div className="md:border md:rounded-lg h-full p-2 md:p-4">
+        <>
             <PageHeader title="Ventas">
                 <CreateOrderButton />
             </PageHeader>
@@ -58,6 +58,6 @@ export default async function OrdersPage() {
                         }}
                     />
             }
-        </div>
+        </>
     );
 }
