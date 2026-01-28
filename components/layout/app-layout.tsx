@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { useHeaderStore } from "@/stores/header-store"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { ToasterProvider } from "@/components/toaster-provider"
+import { useSidebarTriggerStore } from '@/stores/sidebar-trigger-store'
 
 interface AppLayoutProps {
     children: React.ReactNode
@@ -21,6 +22,12 @@ function DynamicHeaderContent() {
     return <>{component}</>
 }
 
+function ConditionalSidebarTrigger(props: { className?: string }) {
+    const visible = useSidebarTriggerStore((s) => s.visible)
+    if (!visible) return null
+    return <SidebarTrigger className={props.className} />
+}
+
 export function AppLayout({ children }: AppLayoutProps) {
     const [isOpen, setIsOpen] = useState(false)
     return (
@@ -30,7 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <SidebarInset className="justify-center w-full md:h-[calc(100vh-1rem)]">
                     <div className="flex flex-col border-t border-b border-r box-border w-full h-dvh ">
                         <div className="flex w-full items-center my-2 px-2 ">
-                            <SidebarTrigger className="size-auto mr-2" />
+                            <ConditionalSidebarTrigger className="size-auto mr-2" />
                             <div className="flex items-center w-full justify-between">
                                 <DynamicHeaderContent />
                             </div>

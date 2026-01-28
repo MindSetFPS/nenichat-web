@@ -39,7 +39,7 @@ export default function ChatView({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const isMobile = useIsMobile()
-
+  
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
     const items: TimelineItem[] = [

@@ -9,6 +9,7 @@ import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLa
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
 import { useIsMobile } from '@/hooks/use-mobile'
+import HideSidebarTrigger from "../layout/hide-sidebar-trigger"
 
 interface RecentChatsProps {
     contacts: string
@@ -25,6 +26,9 @@ interface RecentChatsProps {
  * @returns {JSX.Element} The rendered RecentChats component.
  */
 export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
+
+
+    HideSidebarTrigger()
     const pathname = usePathname()
     const router = useRouter()
     const isMobile = useIsMobile()
