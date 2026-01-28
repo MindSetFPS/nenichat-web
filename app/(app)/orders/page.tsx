@@ -8,7 +8,7 @@ import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-conta
 import { CreateOrderButton } from "@/components/orders/create-order-button";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/orders/table/columns";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { PageHeader } from "@/components/ui/page-header";
 
 const orderRepository = new OrderRepository(pool);
 
@@ -30,11 +30,9 @@ export default async function OrdersPage() {
 
     return (
         <div className="md:border md:rounded-lg h-full p-2 md:p-4">
-            <div className="flex items-center justify-between">
-                <SidebarTrigger className="size-auto mr-2 text-muted-foreground " />
-                <h1 className="text-md text-muted-foreground font-bold w-full">Ventas</h1>
+            <PageHeader title="Ventas">
                 <CreateOrderButton />
-            </div>
+            </PageHeader>
             {
                 plainOrders.length === 0 ?
                     <EmptyList

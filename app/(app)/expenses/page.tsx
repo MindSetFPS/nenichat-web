@@ -6,6 +6,7 @@ import { Plus, Receipt } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/expenses/table/columns";
+import { PageHeader } from "@/components/ui/page-header";
 
 const expenseRepository = new ExpenseRepository(pool);
 
@@ -28,15 +29,14 @@ export default async function ExpensesPage() {
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold">Gastos</h1>
-            {
-                plainExpenses.length !== 0 ?
-                    <CreateExpenseButton />
-                    :
-                    null
-            }
-
+            <PageHeader title="Gastos">
+                {
+                    plainExpenses.length !== 0 ?
+                        <CreateExpenseButton />
+                        :
+                        null
+                }
+            </PageHeader>
 
             <div className="overflow-y-auto h-full">
                 {

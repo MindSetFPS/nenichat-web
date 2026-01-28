@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { User, EyeOff, ChevronRight, Lock } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
+import { PageHeader } from "@/components/ui/page-header"
 
 export default function SettingsPage() {
     const content = [
@@ -34,7 +35,7 @@ export default function SettingsPage() {
 
     return (
         <>
-            <h1 className="text-2xl font-bold">Settings</h1>
+            <PageHeader title="Settings" />
             <main className="flex-1 overflow-y-auto mt-2">
                 <>
                     {

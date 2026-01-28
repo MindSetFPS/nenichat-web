@@ -5,6 +5,7 @@ import { ProductForm } from '@/components/forms/product-form'; // Import the new
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 import { ChartBarLabel } from '@/components/products/chart';
 import { ProductOrdersByDate } from '@/Nenichat/Products/app/dto/product-orders-by-date';
+import { PageHeader } from '@/components/ui/page-header';
 
 const productRepository = new ProductRepository(pool);
 
@@ -64,11 +65,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
 
   return (
     <>
-
-      <h1 className="text-2xl font-bold">
-        Edit product
-      </h1>
-
+      <PageHeader title="Editar producto" />
       <div className="overflow-y-auto mt-2">
         <ChartBarLabel data={sales} />
         <ProductForm product={plainProduct} />

@@ -4,6 +4,7 @@ import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderReposi
 import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { EditOrderForm } from "@/components/forms/edit-order-form";
+import { PageHeader } from "@/components/ui/page-header";
 
 const orderRepository = new OrderRepository(pool);
 const orderItemRepository = new OrderItemRepository(pool);
@@ -52,9 +53,7 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold tracking-tight">Edit Order #{orderId}</h1>
-
+            <PageHeader title={`Editar Orden #${orderId}`} />
             <div className="overflow-scroll">
                 <EditOrderForm
                     contacts={plainContacts}

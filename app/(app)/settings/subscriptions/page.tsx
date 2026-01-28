@@ -11,6 +11,7 @@ import { useState } from "react"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { History } from "lucide-react"
+import { PageHeader } from "@/components/ui/page-header"
 
 interface Purchase {
     id: string
@@ -65,14 +66,8 @@ export default function SubscriptionPage() {
 
     return (
         <>
-
-            <div className="flex flex-col">
-                <h1 className="text-2xl font-bold">Suscripción y Créditos</h1>
-            </div>
-
-
+            <PageHeader title="Suscripción y Créditos" />
             <main className="flex-1 overflow-y-auto p-4 space-y-8">
-
                 {/* Status Section */}
                 <section>
                     <h2 className="text-lg font-semibold mb-4">Estado Actual</h2>

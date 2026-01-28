@@ -2,9 +2,9 @@ import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { ExpenseCategoryRepository } from "@/Nenichat/Expenses/infra/persistance/ExpenseCategoryRepository";
 import { ExpenseCategoryForm } from "@/components/forms/expense-category-form";
 import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/ui/page-header";
 
 const categoryRepository = new ExpenseCategoryRepository(pool);
-
 export const dynamic = 'force-dynamic';
 
 export default async function EditExpenseCategoryPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,9 +20,7 @@ export default async function EditExpenseCategoryPage({ params }: { params: Prom
 
     return (
         <>
-
-            <h1 className="text-3xl font-bold tracking-tight">Editar Categoría</h1>
-
+            <PageHeader title="Editar Categoría" />
             <div className="overflow-scroll p-4">
                 <ExpenseCategoryForm
                     initialData={{

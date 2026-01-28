@@ -2,22 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
-
 import { pool } from "@/Nenichat/Shared/infra/persistance/db";
 import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
 import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
 import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { DeleteOrderButton } from "@/components/orders/delete-order-button";
 import { EditOrderButton } from "@/components/orders/edit-order-button";
-import { getPaymentStatusColor, getStatusColor } from "@/lib/utils";
-
 import { DropdownMenuDialog } from "@/components/orders/dropdown";
 import PaymentStatusDropdown from "@/components/orders/payment-status-dropdown";
 import OrderStatusDropdown from "@/components/orders/order-status-dropdown";
+import { PageHeader } from "@/components/ui/page-header";
 
 const orderRepository = new OrderRepository(pool);
 const orderItemRepository = new OrderItemRepository(pool);
@@ -48,8 +45,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold">Orden #{order.id}</h1>
+            <PageHeader title={`Orden #${order.id}`} />
             <div className="md:hidden ml-16">
                 <DropdownMenuDialog orderId={orderId} />
             </div>
@@ -69,7 +65,6 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                         <PaymentStatusDropdown order={JSON.parse(JSON.stringify(order))} />
                         <OrderStatusDropdown order={JSON.parse(JSON.stringify(order))} />
                     </div>
-
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-2">

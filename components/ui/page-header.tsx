@@ -1,12 +1,30 @@
-import { Separator } from "./separator";
-import { SidebarTrigger } from "./sidebar";
+'use client'
 
-export function PageHeader({ content }: { content: React.ReactNode }) {
+import { SidebarTrigger } from "@/components/ui/sidebar"
+
+interface PageHeaderProps {
+    title: string
+    children?: React.ReactNode
+}
+
+/**
+ * PageHeader component displays a header with a toggle trigger, a title, and optional actions.
+ * 
+ * @param {PageHeaderProps} props - Component props
+ * @param {string} props.title - The title to display in the header
+ * @param {React.ReactNode} [props.children] - Optional actions or components to display on the right
+ * @returns {JSX.Element} The rendered PageHeader component.
+ */
+export function PageHeader({ title, children }: PageHeaderProps) {
     return (
-        <div className="flex items-center border-b pb-2">
-            <SidebarTrigger className="size-auto mr-2" />
-            <Separator orientation="vertical" className="data-[orientation=vertical]:h-4" />
-            <div className="ml-2 w-full">{content}</div>
+        <div className="flex items-center justify-between h-8 w-full">
+            <div className="flex items-center overflow-hidden">
+                <SidebarTrigger className="size-auto mr-2 text-muted-foreground shrink-0" />
+                <h2 className="text-md font-bold tracking-wider text-muted-foreground truncate">{title}</h2>
+            </div>
+            <div className="flex items-center gap-2 ml-4">
+                {children}
+            </div>
         </div>
     )
 }

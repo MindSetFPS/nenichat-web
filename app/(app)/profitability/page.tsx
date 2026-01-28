@@ -11,6 +11,7 @@ import { IProfitabilityReport } from "@/Nenichat/Expenses/app/dto/IProfitability
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function ProfitabilityPage() {
     const [loading, setLoading] = useState(true);
@@ -45,15 +46,14 @@ export default function ProfitabilityPage() {
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold">Rentabilidad</h1>
-            <Link href="/expenses/new">
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Registrar gasto
-                </Button>
-            </Link>
-
+            <PageHeader title="Rentabilidad">
+                <Link href="/expenses/new">
+                    <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Registrar gasto
+                    </Button>
+                </Link>
+            </PageHeader>
 
             <div className="overflow-y-auto space-y-2">
                 {/* Date Range Selector */}

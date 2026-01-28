@@ -1,10 +1,10 @@
 import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { ProductActions } from './ProductActions';
-
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 import ProductsList from '@/components/products/products-list';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
+import { PageHeader } from '@/components/ui/page-header';
 
 const productRepository = new ProductRepository(pool);
 export const metadata: Metadata = {
@@ -39,14 +39,11 @@ export default async function ProductsPage() {
   return (
     <>
 
-      <h1 className="text-2xl font-bold">
-        Products
-      </h1>
-      {products.length !== 0 &&
-        <ProductActions />
-      }
-
-
+      <PageHeader title="Productos">
+        {products.length !== 0 &&
+          <ProductActions />
+        }
+      </PageHeader>
       <ProductsList />
     </>
   );

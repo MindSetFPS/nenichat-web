@@ -26,6 +26,7 @@ import { getAudienceDetails } from "@/Nenichat/Audiences/app/get-audience-detail
 import { getAudienceMembers } from "@/Nenichat/Audiences/app/get-audience-members-from-api";
 import { getAudienceUnselectedContacts } from "@/Nenichat/Audiences/app/get-audience-unselected-contacts";
 import updateAudienceDetailsFromApi from "@/Nenichat/Audiences/app/update-audience-details-from-api";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function AudienceMembersPage() {
   const params = useParams();
@@ -131,17 +132,15 @@ export default function AudienceMembersPage() {
           <Spinner className="h-5 w-5" />
         ) : (
           <>
-            <h1 className="text-2xl font-bold">Miembros de: {audienceDetails?.name || 'Loading...'}</h1>
-
-            <div className="md:flex justify-end md:justify-start my-2 space-x-1">
-              <Button onClick={handleSaveMembers} variant="secondary">Guardar cambios</Button>
-              <Toggle variant="outline" onClick={onToggleChangeMembers}>
+            <PageHeader title={`Miembros de ${audienceDetails?.name || 'Loading...'}`}>
+              <Button onClick={handleSaveMembers} size="sm" variant="secondary">Guardar cambios</Button>
+              <Toggle variant="outline" size="sm" onClick={onToggleChangeMembers}>
                 Cambiar miembros
               </Toggle>
-              <Button onClick={() => setIsEditDialogOpen(true)} variant="outline">
+              <Button onClick={() => setIsEditDialogOpen(true)} size="sm" variant="outline">
                 Editar audiencia
               </Button>
-            </div>
+            </PageHeader>
 
             <DataTable
               rowSelection={rowSelection}

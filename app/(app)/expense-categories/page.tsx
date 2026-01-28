@@ -6,6 +6,7 @@ import { Plus, Tag } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/expense-categories/table/columns";
+import { PageHeader } from "@/components/ui/page-header";
 
 const categoryRepository = new ExpenseCategoryRepository(pool);
 
@@ -28,15 +29,14 @@ export default async function ExpenseCategoriesPage() {
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold">Categorías de Gastos</h1>
-            {
-                plainCategories.length !== 0 ?
-                    <CreateCategoryButton />
-                    :
-                    null
-            }
-
+            <PageHeader title="Categorías de Gastos">
+                {
+                    plainCategories.length !== 0 ?
+                        <CreateCategoryButton />
+                        :
+                        null
+                }
+            </PageHeader>
 
             <div className="overflow-y-auto h-full">
                 {

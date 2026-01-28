@@ -12,6 +12,7 @@ import ChatHeader from "@/components/chat/chat-header";
 import { columns } from "@/components/orders/table/columns";
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
+import { PageHeader } from "@/components/ui/page-header";
 
 const contactRepository = new ContactRepository(pool);
 const orderRepository = new OrderRepository(pool);
@@ -44,11 +45,9 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
 
     return (
         <>
-
-            <ChatHeader contact={plainContact!} />
-            <ChatDropDownDialog contact={plainContact!} />
-
-
+            <PageHeader title={plainContact.contact_name || plainContact.pushname || 'Unknown'}>
+                <ChatDropDownDialog contact={plainContact!} />
+            </PageHeader>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 pt-4 overflow-y-auto" >
                 <Card className="space-y-2 md:col-span-2 h-full gap-0">
                     <CardHeader className="px-2 py-0">

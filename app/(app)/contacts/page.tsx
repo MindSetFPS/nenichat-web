@@ -2,6 +2,7 @@ import { DataTable } from "@/components/data-table";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { columns } from "@/components/contacts/table/columns";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function ContactsPage() {
 
@@ -41,9 +42,7 @@ export default async function ContactsPage() {
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold">Contactos</h1>
-
+            <PageHeader title="Contactos" />
             <DataTable
                 columns={columns}
                 data={newContactsJson}

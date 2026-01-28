@@ -6,16 +6,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { ComboboxDemo } from './combobox';
 import { useDebounce } from '@/hooks/use-debounce';
-
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { User } from '@supabase/supabase-js';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ShineBorder } from '@/components/ui/shine-border';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LogOut, User as UserIcon, Mail, ShieldCheck, Calendar, Phone, AtSign, Fingerprint, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { PageHeader } from '@/components/ui/page-header';
 
 
 const MyProfilePage = () => {
@@ -90,11 +89,12 @@ const MyProfilePage = () => {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
 
       <div className="flex items-center justify-between w-full">
-        <h1 className="text-2xl font-bold tracking-tight">Account Settings</h1>
-        <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </Button>
+        <PageHeader title="Configuración de cuenta">
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-destructive transition-colors">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </PageHeader>
       </div>
 
 

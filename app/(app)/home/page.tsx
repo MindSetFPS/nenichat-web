@@ -8,6 +8,7 @@ import { OrderProductChart } from "@/components/home/product-orders-chart";
 import BusinessSummary from "@/components/home/business-summary";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default async function Page() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold">Buenos días</h1>
+      <PageHeader title="Buenos días" />
       <div className="flex flex-col overflow-y-auto gap-4">
         <BusinessSummary
           totalRevenue={totalRevenue}
