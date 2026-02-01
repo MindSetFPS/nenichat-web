@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { MessageSquareOff, UserPlus, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 /**
@@ -66,10 +65,10 @@ export function EmptyChats() {
                 </div>
 
                 <h3 className="text-3xl font-bold tracking-tight mb-3 text-balance">
-                    Bandeja de entrada vacía
+                    Sin conexion a WhatsApp.
                 </h3>
                 <p className="text-muted-foreground mb-10 text-lg leading-relaxed text-balance">
-                    Parece que aún no tienes conversaciones activas. Conecta tu cuenta para empezar a gestionar tus chats de forma inteligente.
+                    Conecta tu cuenta de WhatsApp para empezar a usar Nenichat.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
