@@ -1,0 +1,108 @@
+"use client";
+
+import { motion } from "motion/react";
+import { MessageSquareOff, UserPlus, RefreshCw, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+
+/**
+ * EmptyChats component displays a premium empty state when no contacts are found.
+ * 
+ * @returns {JSX.Element} The rendered empty state view.
+ */
+export function EmptyChats() {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[500px] h-full w-full p-6 text-center relative overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute inset-0 -z-10 overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px]" />
+                <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[80px]" />
+                <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-cyan-500/5 rounded-full blur-[80px]" />
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="flex flex-col items-center max-w-lg relative z-10"
+            >
+                <div className="relative mb-10">
+                    {/* Main Icon with animated background */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.05, 1],
+                            rotate: [0, 5, 0, -5, 0],
+                        }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="w-28 h-28 bg-linear-to-br from-primary/20 via-primary/10 to-background border border-primary/20 rounded-3xl flex items-center justify-center text-primary shadow-xl shadow-primary/5"
+                    >
+                        <MessageSquareOff size={56} strokeWidth={1.5} />
+                    </motion.div>
+
+                    {/* Floating badge */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        transition={{ delay: 0.4, type: "spring" }}
+                        className="absolute -right-4 -top-4 w-12 h-12 bg-background border border-border rounded-2xl flex items-center justify-center shadow-xl text-primary"
+                    >
+                        <Sparkles size={24} className="fill-primary/10" />
+                    </motion.div>
+
+                    {/* Secondary floating icon */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.5, x: -20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        transition={{ delay: 0.6, type: "spring" }}
+                        className="absolute -left-6 bottom-2 w-10 h-10 bg-muted border border-border rounded-xl flex items-center justify-center shadow-lg text-muted-foreground"
+                    >
+                        <UserPlus size={18} />
+                    </motion.div>
+                </div>
+
+                <h3 className="text-3xl font-bold tracking-tight mb-3 text-balance">
+                    Bandeja de entrada vacía
+                </h3>
+                <p className="text-muted-foreground mb-10 text-lg leading-relaxed text-balance">
+                    Parece que aún no tienes conversaciones activas. Conecta tu cuenta para empezar a gestionar tus chats de forma inteligente.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <Button size="lg" className="rounded-2xl px-8 h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all group overflow-hidden relative">
+                        <span className="relative z-10 flex items-center">
+                            <RefreshCw className="mr-2 h-5 w-5 group-hover:rotate-180 transition-transform duration-700" />
+                            Sincronizar Mensajes
+                        </span>
+                        <motion.div
+                            className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
+                            animate={{ x: ['-100%', '200%'] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        />
+                    </Button>
+                    <Link href="/settings/connections/whatsapp">
+                        <Button variant="outline" size="lg" className="rounded-2xl px-8 h-12 text-base font-semibold border-border/50 bg-muted/30 hover:bg-muted/50 transition-colors">
+                            Conectar WhatsApp
+                        </Button>
+                    </Link>
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.6 }}
+                    transition={{ delay: 1.2, duration: 1 }}
+                    className="mt-16 pt-8 border-t border-border/50 w-full"
+                >
+                    <div className="flex items-center justify-center gap-2 text-sm text-balance">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <span className="text-muted-foreground font-medium">Sistema listo para recibir mensajes</span>
+                    </div>
+                </motion.div>
+            </motion.div>
+        </div>
+    );
+}
