@@ -11,7 +11,7 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <Content className="p-4 scroll-auto overflow-y-auto">
+        <Content className="md:p-4 px-2 scroll-auto overflow-y-auto">
             {children}
         </Content>
     )
