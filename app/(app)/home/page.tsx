@@ -10,6 +10,9 @@ import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
 import { PageHeader } from "@/components/ui/page-header";
 import Content from "@/components/layout/content";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { CreateBusinessSection } from "@/components/forms/create-business-section";
+import { requireAuth } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -19,10 +22,30 @@ export const metadata: Metadata = {
 const orderRepository = new OrderRepository(pool);
 
 export default async function Page() {
-  const messagesPerDay = await messageRepository.getMessageCountPerDay(14);
-  const orders = await orderRepository.getAll();
+  const supabase = await createServerSupabaseClient();
+  const user = await requireAuth();
+
+  const { data: businesses } = await supabase
+    .from('business')
+    .select('*')
+    .eq('owner_id', user.id)
+    .limit(1);
+
+  const business = businesses && businesses.length > 0 ? businesses[0] : null;
+
+  if (!business) {
+    return (
+      <Content className="p-4 scroll-auto overflow-y-auto">
+        <PageHeader title="Bienvenido" />
+        <CreateBusinessSection />
+      </Content>
+    );
+  }
+
+  const messagesPerDay: any[] = []; //await messageRepository.getMessageCountPerDay(14);
+  const orders: any[] = []; //await orderRepository.getAll();
   const plainOrders = JSON.parse(JSON.stringify(orders));
-  const orderTotalsPerDay = await orderRepository.getOrderTotalPerDay(14);
+  const orderTotalsPerDay: any[] = []; //await orderRepository.getOrderTotalPerDay(14);
 
   const totalRevenue = plainOrders.reduce((acc: number, order: any) => {
     return acc + (order.payment_status === 'paid' ? Number(order.total_amount) : 0);
@@ -33,9 +56,9 @@ export default async function Page() {
     return acc + Number(order.total_amount);
   }, 0);
 
-  const ordersCountByDateInterval = await orderRepository.getProductOrdersByDateInterval(14);
-  const ordersCountByDayOfWeek = await orderRepository.getOrdersCountByDayOfWeek();
-  const ordersToday = await orderRepository.getOrdersCountByDate(new Date());
+  const ordersCountByDateInterval: any[] = []; //await orderRepository.getProductOrdersByDateInterval(14);
+  const ordersCountByDayOfWeek: any[] = []; //await orderRepository.getOrdersCountByDayOfWeek();
+  const ordersToday: any[] = []; //await orderRepository.getOrdersCountByDate(new Date());
 
   return (
     <Content className="p-4 scroll-auto overflow-y-auto">
