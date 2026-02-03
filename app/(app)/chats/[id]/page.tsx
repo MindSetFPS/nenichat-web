@@ -39,12 +39,12 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
   const me = JSON.parse(JSON.stringify(meData))
 
   return (
-    <div className="h-full grid grid-rows-[auto_1fr_auto]">
-      <ChatView 
+    <div className="h-full grid grid-rows-[1fr_auto]">
+      <ChatView
         contact={contactJson}
-        initialMessages={messagesJson.reverse()} 
-        me={me} 
-        orders={ordersJson} 
+        initialMessages={messagesJson.reverse()}
+        me={me}
+        orders={ordersJson}
         isGroup={chatData ? chatData.is_group : false} />
       <ChatControls />
     </div>

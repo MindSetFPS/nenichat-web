@@ -16,7 +16,7 @@ export default function ChatControls() {
     }
 
     return (
-        <footer className="pt-2">
+        <footer className="p-2">
             <form
                 className="flex items-center gap-4"
                 onSubmit={handleSendMessage}
