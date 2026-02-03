@@ -46,7 +46,10 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
         me={me}
         orders={ordersJson}
         isGroup={chatData ? chatData.is_group : false} />
-      <ChatControls />
+      <ChatControls
+        phone={contactJson?.phone}
+        lastMessages={messagesJson.slice(0, 10)}
+      />
     </div>
   )
 }

@@ -1,9 +1,7 @@
-import { EmptyChats } from "@/components/chat/empty-chats";
 import { RecentChats } from "@/components/chat/recent-chats";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
 import Content from "@/components/layout/content";
-import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = {
   title: 'Chats',
@@ -18,33 +16,19 @@ export default async function ChatLayout({
 
   let contactsWithLastMessage: IContactWithLastMessage[] = [];
   try {
-    // contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
-    contactsWithLastMessage = []; // suppose we have no contacts
+    contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
   } catch (error) {
     console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
   }
   const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)
   return (
-    <>
-      <Content className="flex flex-col md:flex-row">
-        {
-          contactsWithLastMessage.length > 0 ? (
-            <>
-              <RecentChats
-                className="w-full md:max-w-sm md:border-r"
-                contacts={contactsWithLastMessageJSON} />
-              <div className="flex-1 overflow-hidden bg-background">
-                {children}
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 p-2 overflow-hidden bg-background">
-              <PageHeader title="Chats" />
-              <EmptyChats />
-            </div>
-          )
-        }
-      </Content>
-    </>
+    <Content className="flex flex-col md:flex-row">
+      <RecentChats
+        className="w-full md:max-w-sm md:border-r"
+        contacts={contactsWithLastMessageJSON} />
+      <div className="flex-1 overflow-hidden bg-background">
+        {children}
+      </div>
+    </Content>
   )
 }

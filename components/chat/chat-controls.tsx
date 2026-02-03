@@ -1,45 +1,102 @@
 "use client"
 
-import { Paperclip, Send, Smile } from "lucide-react";
+import { Paperclip, Send, Smile, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useState } from "react";
+import { toast } from "sonner";
+import { ChatAiSuggestions } from "./chat-ai-suggestions";
 
-export default function ChatControls() {
+interface ChatControlsProps {
+    phone?: string;
+    lastMessages?: any[];
+}
+
+/**
+ * Chat controls component with AI response suggestions.
+ * @param props - Component properties including phone and previous messages context.
+ * @returns {JSX.Element} The rendered chat controls footer.
+ */
+export default function ChatControls({ phone, lastMessages }: ChatControlsProps) {
     const [newMessage, setNewMessage] = useState("")
+    const [isSending, setIsSending] = useState(false)
 
-    const handleSendMessage = (e: React.FormEvent) => {
-        e.preventDefault()
-        // Sending messages is disabled for now.
-        if (newMessage.trim() === "") return
-        setNewMessage("")
-    }
+    /**
+     * Handles sending a message.
+     * @param messageText - The text content of the message to send.
+     */
+    const handleSendMessage = async (messageText: string) => {
+        if (!phone || messageText.trim() === "" || isSending) return;
+
+        setIsSending(true);
+        try {
+            const response = await fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone, message: messageText }),
+                signal: AbortSignal.timeout(60000), // 1 minute timeout
+            });
+
+            if (response.ok) {
+                setNewMessage("");
+                toast.success("Message sent");
+            } else {
+                toast.error("Failed to send message");
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            toast.error("Error sending message");
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+    /**
+     * Handles the form submission.
+     * @param e - The form event.
+     */
+    const onSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSendMessage(newMessage);
+    };
 
     return (
-        <footer className="p-2">
+        <footer className="p-4 border-t bg-background/80 backdrop-blur-md sticky bottom-0 z-10">
+            <ChatAiSuggestions
+                lastMessages={lastMessages}
+                onSuggestionClick={handleSendMessage}
+                disabled={isSending}
+            />
+
+            {/* Input Form */}
             <form
-                className="flex items-center gap-4"
-                onSubmit={handleSendMessage}
+                className="flex items-center gap-3"
+                onSubmit={onSubmit}
             >
-                <div className="flex items-center gap-2 flex-1">
-                    <Button variant="ghost" size="icon">
-                        <Smile />
+                <div className="flex items-center gap-1 flex-1 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20 transition-all px-2 py-1">
+                    <Button variant="ghost" size="icon" type="button" className="text-muted-foreground hover:text-primary rounded-full h-9 w-9">
+                        <Smile className="w-5 h-5" />
                     </Button>
                     <Input
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1"
-                        disabled
+                        className="flex-1 border-none bg-transparent focus-visible:ring-0 shadow-none px-2 h-10 text-sm"
+                        disabled={isSending}
                     />
-                    <Button variant="ghost" size="icon" disabled>
-                        <Paperclip />
+                    <Button variant="ghost" size="icon" type="button" className="text-muted-foreground hover:text-primary rounded-full h-9 w-9">
+                        <Paperclip className="w-5 h-5" />
                     </Button>
                 </div>
-                <Button type="submit" size="icon" disabled>
-                    <Send />
+                <Button
+                    type="submit"
+                    size="icon"
+                    disabled={isSending || newMessage.trim() === ""}
+                    className="rounded-2xl h-11 w-11 shadow-lg shadow-primary/20 transition-transform active:scale-95"
+                >
+                    {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 </Button>
             </form>
         </footer>
-    )
+    );
 }
