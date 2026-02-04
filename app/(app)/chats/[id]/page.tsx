@@ -16,6 +16,26 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
 
   let messages: IMessageWithSender[] = []
   let orders: any[] = []
+  let suggestions: any[] = []
+
+  suggestions.push(
+    {
+      id: 1,
+      chat_id: params.id,
+      message_id: "",
+      suggestion: "Hello",
+      is_selected: false,
+      created_at: new Date(),
+    },
+    {
+      id: 2,
+      chat_id: params.id,
+      message_id: "",
+      suggestion: "Hi",
+      is_selected: false,
+      created_at: new Date(),
+    }
+  )
 
   if (chatData?.is_group) {
     // A group chat is still a contact that we can name
@@ -33,10 +53,18 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
     orders = await orderRepository.getByContactId(Number(params.id))
   }
 
+  // if the last message belongs to a customer, then check in database if there is suggestions and 
+  // include themn in te response.
+  // if there is not suggestion, generate them. 
+  // also, the message should not belong to hidden contacts, othetwise it would be a waste of tokens
+
   const contactJson = JSON.parse(JSON.stringify(contact))
   const messagesJson = JSON.parse(JSON.stringify(messages))
   const ordersJson = JSON.parse(JSON.stringify(orders))
   const me = JSON.parse(JSON.stringify(meData))
+  const suggestionsJson = JSON.parse(JSON.stringify(suggestions))
+  let mostRecentMessages = messagesJson.reverse()
+  mostRecentMessages = mostRecentMessages.slice(-10)
 
   return (
     <div className="h-full grid grid-rows-[1fr_auto]">
@@ -46,9 +74,12 @@ export default async function ChatPage({ params: paramsPromise }: { params: Prom
         me={me}
         orders={ordersJson}
         isGroup={chatData ? chatData.is_group : false} />
+
       <ChatControls
         phone={contactJson?.phone}
-        lastMessages={messagesJson.slice(0, 10)}
+        lastMessages={mostRecentMessages}
+        me={me}
+        suggestions={suggestionsJson}
       />
     </div>
   )

@@ -4,12 +4,17 @@ import { Contact } from "@/Nenichat/Contacts/domain/Contact";
 import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
 import { getOrCreateChat } from "@/Nenichat/Chats/app/getOrCreateChat";
+import { formatConversationContext, generateSuggestion } from "@/lib/suggestions";
 
 export async function GET(request: Request) {
     return new Response("Message Webhook Endpoint", { status: 200 });
 }
 
 export async function POST(request: Request) {
+    // how can i secure this endpoint so that noone but my services can send messages to it?
+    // i was thinking of using a shared secret key and a signature header.
+    // but if its too annoying to implement, i can just use a private network.
+
     const body: IWebhookEvent = await request.json();
     const webhookEvent = new WebhookEvent(body);
 
@@ -30,6 +35,19 @@ export async function POST(request: Request) {
         chatContact = await contactRepository.getOrCreateContact(webhookEvent.chat_id!);
     } else { // isSentByCustomer
         senderContact = await contactRepository.getOrCreateContact(webhookEvent.chat_id!);
+
+        // generat llm suggestions
+        // new problem: i need to query the last x messages from the chat each time there is 
+        // a new message. in the future i should use a queue to process messages and 
+        // generate suggestions in batch.
+        // also, who is this message being sent to?
+        // also, check if user is hidden, if so, do not generate suggestions
+        // also, whats if this is the first message ever sent?
+
+        const messages = await messageRepository.findByChatIdWithSender(webhookEvent.chat_id!, 0, 10)
+        const context = formatConversationContext(messages)
+        const suggestion = await generateSuggestion(context)
+
         chatContact = senderContact;
     }
     const chat = await getOrCreateChat(chatContact);

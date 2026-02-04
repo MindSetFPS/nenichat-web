@@ -1,24 +1,29 @@
 import { chatSuggestionRepository } from '../infra/persistance/ChatSuggestionRepository';
 import { IChatSuggestion } from '../domain/IChatSuggestion';
+import { formatConversationContext, generateManySuggestions } from '@/lib/suggestions';
 
 /**
- * Creates a new chat suggestion
+ * Creates a new chat suggestion and saves it to the database
  * @param chatId The chat ID to associate the suggestion with
  * @param messageId The message ID to associate the suggestion with
- * @param suggestion The suggestion text
+ * @param messages The messages to generate suggestions from
  * @param isSelected Whether the suggestion is selected (default: false)
  * @returns The created chat suggestion
  */
 export async function createChatSuggestion(
   chatId: bigint,
   messageId: string,
-  suggestion: string,
+  messages: any[],
   isSelected: boolean = false
 ): Promise<IChatSuggestion> {
+
+  const prompt = formatConversationContext(messages)
+  const suggestions = await generateManySuggestions(prompt)
+
   return await chatSuggestionRepository.create({
     chat_id: chatId,
     message_id: messageId,
-    suggestion,
+    suggestion: suggestions[0],
     is_selected: isSelected
   });
 }

@@ -6,10 +6,14 @@ import { Input } from "../ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ChatAiSuggestions } from "./chat-ai-suggestions";
+import { IChatSuggestion } from "@/Nenichat/ChatSuggestions/domain/IChatSuggestion";
+import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 
 interface ChatControlsProps {
     phone?: string;
     lastMessages?: any[];
+    me?: IContact | null;
+    suggestions?: IChatSuggestion[];
 }
 
 /**
@@ -17,7 +21,7 @@ interface ChatControlsProps {
  * @param props - Component properties including phone and previous messages context.
  * @returns {JSX.Element} The rendered chat controls footer.
  */
-export default function ChatControls({ phone, lastMessages }: ChatControlsProps) {
+export default function ChatControls({ phone, lastMessages, me, suggestions }: ChatControlsProps) {
     const [newMessage, setNewMessage] = useState("")
     const [isSending, setIsSending] = useState(false)
 
@@ -66,6 +70,8 @@ export default function ChatControls({ phone, lastMessages }: ChatControlsProps)
                 lastMessages={lastMessages}
                 onSuggestionClick={handleSendMessage}
                 disabled={isSending}
+                me={me}
+                suggestions={suggestions}
             />
 
             {/* Input Form */}
