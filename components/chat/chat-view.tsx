@@ -88,7 +88,7 @@ export default function ChatView({
   }, [messages, orders])
 
   return (
-    <main className="h-full overflow-y-auto flex-col space-y-2">
+    <main className="flex h-full flex-col overflow-y-auto space-y-2">
       <div className="flex items-center justify-between py-2 bg-stone-50 dark:bg-neutral-900 sticky border-b top-0 z-30 px-2">
         <div className="flex items-center gap-2 flex-1">
           {isMobile && (

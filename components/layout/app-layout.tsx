@@ -12,10 +12,10 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
     const [isOpen, setIsOpen] = useState(false)
     return (
-        <SidebarProvider open={isOpen} onOpenChange={setIsOpen}>
+        <SidebarProvider open={isOpen} onOpenChange={setIsOpen} className="h-svh overflow-hidden">
             <AppSidebar />
-            <div className="flex flex-col md:flex-row w-full">
-                <SidebarInset className="justify-center w-full ">
+            <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
+                <SidebarInset className="justify-center flex-1 overflow-hidden flex flex-col pr-2">
                     {children}
                     <ToasterProvider />
                 </SidebarInset>
