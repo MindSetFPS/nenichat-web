@@ -58,7 +58,7 @@ export default function ProfitabilityPage() {
 
             <div className="overflow-y-auto space-y-2">
                 {/* Date Range Selector */}
-                <Card className="flex justify-between flex-col md:flex-row">
+                <Card className="flex justify-between flex-col md:flex-row mt-4">
                     <CardHeader className="w-full align-middle items-center">
                         <CardTitle className="w-full">Período de Análisis</CardTitle>
                     </CardHeader>
@@ -67,6 +67,7 @@ export default function ProfitabilityPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="start_date">Fecha Inicio</Label>
                                 <Input
+                                    className="text-xs md:text-md"
                                     id="start_date"
                                     type="date"
                                     value={startDate}
@@ -76,6 +77,7 @@ export default function ProfitabilityPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="end_date">Fecha Fin</Label>
                                 <Input
+                                    className="text-xs md:text-md"
                                     id="end_date"
                                     type="date"
                                     value={endDate}

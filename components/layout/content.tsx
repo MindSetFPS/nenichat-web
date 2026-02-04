@@ -1,6 +1,6 @@
 export default function Content({ children, className }: { children: React.ReactNode, className?: string }) {
     return <div
-        className={`md:h-[calc(100vh-1rem)] md:mt-1 max-w-6xl mx-auto w-full md:border md:rounded-lg overflow-hidden md:bg-muted/5 ${className}`}>
+        className={`h-full md:h-[calc(100vh-1rem)] md:mt-1 max-w-6xl mx-auto w-full md:border md:rounded-lg overflow-hidden md:bg-muted/5 ${className}`}>
         {children}
     </div>
 }

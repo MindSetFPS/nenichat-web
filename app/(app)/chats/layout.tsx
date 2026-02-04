@@ -24,7 +24,7 @@ export default async function ChatLayout({
   return (
     <Content className="flex flex-col md:flex-row">
       <RecentChats
-        className="w-full md:max-w-sm md:border-r"
+        className="w-full md:max-w-xs md:border-r"
         contacts={contactsWithLastMessageJSON} />
       <div className="flex-1 overflow-hidden bg-background">
         {children}

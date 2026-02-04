@@ -51,7 +51,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
         <div className={cn("flex flex-col h-full overflow-hidden", className, {
             "hidden lg:flex": isMobile && isViewingChat,
         })}>
-            <div className="pb-2 md:p-4 border-b">
+            <div className="p-4 border-b">
                 <PageHeader title="Tus chats" />
                 <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Buscar" />
             </div>
