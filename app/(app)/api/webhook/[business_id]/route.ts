@@ -9,7 +9,12 @@ export async function GET(request: Request) {
     return new Response("Message Webhook Endpoint", { status: 200 });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: { business_id: string } }) {
+    const { business_id } = await params
+
+    // the following operations must be done for the business_id tables/columns
+    // and to do this we must redesign the database
+
     const body: IWebhookEvent = await request.json();
     const webhookEvent = new WebhookEvent(body);
 

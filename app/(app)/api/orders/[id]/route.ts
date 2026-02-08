@@ -91,7 +91,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     try {
         const result = await orderRepository.delete(parseInt(id));
-        console.log(result);
         return NextResponse.json({ message: 'Order deleted successfully' });
     } catch (error) {
         console.error('Error deleting order:', error);
