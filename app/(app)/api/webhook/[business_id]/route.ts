@@ -10,10 +10,11 @@ export async function GET(request: Request) {
     return new Response("Message Webhook Endpoint", { status: 200 });
 }
 
-export async function POST(request: Request) {
-    // how can i secure this endpoint so that noone but my services can send messages to it?
-    // i was thinking of using a shared secret key and a signature header.
-    // but if its too annoying to implement, i can just use a private network.
+export async function POST(request: Request, { params }: { params: { business_id: string } }) {
+    const { business_id } = await params
+
+    // the following operations must be done for the business_id tables/columns
+    // and to do this we must redesign the database
 
     const body: IWebhookEvent = await request.json();
     const webhookEvent = new WebhookEvent(body);

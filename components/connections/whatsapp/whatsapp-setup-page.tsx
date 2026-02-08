@@ -7,9 +7,13 @@ import { Loader2, MessageCircle, QrCode, Shield, Zap, CheckCircle2, AlertCircle 
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
+import { supabase } from "@/lib/supabase"
+import { useEffect } from "react"
 
 interface WhatsAppSetupPageProps {
     businessId: string;
+    initialStep?: number;
+    initialQrCode?: string | null;
 }
 
 /**
@@ -18,9 +22,36 @@ interface WhatsAppSetupPageProps {
  * @param {WhatsAppSetupPageProps} props - The component props.
  * @returns {JSX.Element} The WhatsApp setup page.
  */
-export default function WhatsAppSetupPage({ businessId }: WhatsAppSetupPageProps) {
+export default function WhatsAppSetupPage({ businessId, initialStep = 1, initialQrCode = null }: WhatsAppSetupPageProps) {
     const [isLoading, setIsLoading] = useState(false)
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(initialStep)
+    const [qrCode, setQrCode] = useState<string | null>(initialQrCode)
+
+    useEffect(() => {
+        if (step !== 2) return
+
+        const channel = supabase
+            .channel('schema-db-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'whatsapp-containers',
+                    filter: `business_id=eq.${businessId}`,
+                },
+                (payload) => {
+                    if (payload.new && payload.new.qr_code_url) {
+                        setQrCode(payload.new.qr_code_url)
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [step, businessId])
 
     async function handleCreateWAPPConnection() {
         setIsLoading(true)
@@ -41,7 +72,6 @@ export default function WhatsAppSetupPage({ businessId }: WhatsAppSetupPageProps
             }
 
             const data = await response.json();
-            console.log('Connection created:', data);
 
             setStep(2)
         } catch (error) {
@@ -174,8 +204,20 @@ export default function WhatsAppSetupPage({ businessId }: WhatsAppSetupPageProps
                                         className="space-y-6 flex flex-col items-center"
                                     >
                                         <div className="w-64 h-64 bg-white p-4 rounded-3xl shadow-inner border-8 border-muted flex items-center justify-center relative overflow-hidden group">
-                                            <div className="absolute inset-0 bg-linear-to-tr from-muted/50 to-transparent animate-pulse" />
-                                            <QrCode className="h-40 w-40 text-muted-foreground/30 relative z-10" />
+                                            {qrCode ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={qrCode}
+                                                    alt="WhatsApp QR Code"
+                                                    className="h-full w-full object-contain"
+                                                />
+                                            ) : (
+                                                <>
+                                                    <div className="absolute inset-0 bg-linear-to-tr from-muted/50 to-transparent animate-pulse" />
+                                                    <QrCode className="h-40 w-40 text-muted-foreground/30 relative z-10" />
+                                                </>
+                                            )}
+
                                             <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Button variant="secondary" size="sm" className="rounded-full">
                                                     Recargar QR

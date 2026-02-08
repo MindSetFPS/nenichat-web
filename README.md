@@ -12,6 +12,12 @@ Neni Chat currently has two monetization models:
 1. Neni Flow credits: pay a fixed amount: $99mxn for 50 credits, $249mxn for 175 credits, $499mxn for 500 credits. A credit is consumed when a sale is made.
 2. Neni Chat Premium: pay a montly subscription of $2499 mxn and get premium features like unlimited conversations and 5 extra users (for your team).
 
+## Todo:
+
+- Show a QR code expiration coundown in the frontend
+- Make a retry scanning qr code button
+- Protect QR code images
+
 ## Getting Started
 
 First, run the development server:
@@ -49,3 +55,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+

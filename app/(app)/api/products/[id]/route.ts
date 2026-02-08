@@ -22,7 +22,6 @@ const uploadDir = path.join(process.cwd(), 'public', 'images', 'products');
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    console.log(request.body);
     const { id } = await params;
 
     // Ensure the upload directory exists
