@@ -14,6 +14,8 @@ Neni Chat currently has two monetization models:
 
 ## Todo:
 
+- Show a QR code expiration coundown in the frontend
+- Make a retry scanning qr code button
 - Protect QR code images
 
 ## Getting Started
