@@ -3,27 +3,28 @@ import { updateSuggestionSelection, deleteChatSuggestion } from '@/Nenichat/Chat
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { is_selected } = await request.json();
-    const suggestionId = BigInt(params.id);
+    const suggestionId = BigInt(id);
 
     if (typeof is_selected !== 'boolean') {
       return NextResponse.json(
-        { error: 'is_selected must be a boolean' }, 
+        { error: 'is_selected must be a boolean' },
         { status: 400 }
       );
     }
 
     const updatedSuggestion = await updateSuggestionSelection(
-      suggestionId, 
+      suggestionId,
       is_selected
     );
 
     if (!updatedSuggestion) {
       return NextResponse.json(
-        { error: 'Chat suggestion not found' }, 
+        { error: 'Chat suggestion not found' },
         { status: 404 }
       );
     }
@@ -32,7 +33,7 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating chat suggestion:', error);
     return NextResponse.json(
-      { error: 'Failed to update chat suggestion' }, 
+      { error: 'Failed to update chat suggestion' },
       { status: 500 }
     );
   }
@@ -40,15 +41,16 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const suggestionId = BigInt(params.id);
+    const { id } = await params;
+    const suggestionId = BigInt(id);
     const deleted = await deleteChatSuggestion(suggestionId);
 
     if (!deleted) {
       return NextResponse.json(
-        { error: 'Chat suggestion not found' }, 
+        { error: 'Chat suggestion not found' },
         { status: 404 }
       );
     }
@@ -57,7 +59,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting chat suggestion:', error);
     return NextResponse.json(
-      { error: 'Failed to delete chat suggestion' }, 
+      { error: 'Failed to delete chat suggestion' },
       { status: 500 }
     );
   }

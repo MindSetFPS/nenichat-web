@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     return new Response("Message Webhook Endpoint", { status: 200 });
 }
 
-export async function POST(request: Request, { params }: { params: { business_id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ business_id: string }> }) {
     const { business_id } = await params
 
     // the following operations must be done for the business_id tables/columns
