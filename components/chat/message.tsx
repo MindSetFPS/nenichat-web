@@ -48,9 +48,9 @@ export default function Message({ message, me }: MessageProps) {
             <div
                 key={message.id}
                 className={cn(
-                    "flex w-max max-w-[75%] border flex-col gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity",
+                    "flex flex-row w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity",
                     message.sender_id === me?.id
-                        ? "ml-auto bg-primary text-primary-foreground rounded-tr-none"
+                        ? "ml-auto text-primary rounded-tr-none px-1 py-0"
                         : "bg-muted rounded-tl-none"
                 )}
             >
@@ -110,9 +110,9 @@ export default function Message({ message, me }: MessageProps) {
 
                 <span
                     className={cn(
-                        "text-xs self-end",
+                        "text-[0.5rem] self-end",
                         message.sender_id === me?.id
-                            ? "text-primary-foreground/70"
+                            ? "text-primary/70"
                             : "text-muted-foreground"
                     )}
                 >

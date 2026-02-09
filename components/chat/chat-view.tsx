@@ -120,7 +120,7 @@ export default function ChatView({
                 .map(item => item.data as IMessageWithSender)}
               index={groupIndex}
             />
-            <div className="space-y-2">
+            <div className="space-y-1">
               {group.items.map((item, itemIndex) => (
                 item.type === 'message' ? (
                   <Message

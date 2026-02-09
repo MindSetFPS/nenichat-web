@@ -23,7 +23,7 @@ export default function ChatHeader({ contact }: ChatHeaderProps) {
                     <div>
 
                         <Link href={`/contacts/${contact.id}`}>
-                            <h1 className="text-lg md:text-2xl font-bold ">{contactName}</h1>
+                            <h1 className="text-lg md:text-xl font-bold ">{contactName}</h1>
                         </Link>
                         <div className="flex flex-wrap items-center gap-x-4 w-full text-xs text-muted-foreground">
                             <span>
