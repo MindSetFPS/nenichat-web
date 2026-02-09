@@ -63,7 +63,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                         onClick={() => changeRoute(`/chats/${contact.id}`)}
                     >
                         <div className="flex items-center gap-3">
-                            <Avatar className="size-8 shrink-0">
+                            <Avatar className="size-6 lg:size-8 shrink-0">
                                 <ContactAvatar seed={getContactIdentifier(contact!)!} />
                                 <AvatarFallback>
                                     <AvatarImage src="https://github.com/shadcn.png" />

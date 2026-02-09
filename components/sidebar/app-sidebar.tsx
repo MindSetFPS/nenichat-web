@@ -61,7 +61,7 @@ export function AppSidebar() {
                 {
                     id: 'expenses-list',
                     href: '/expenses',
-                    label: 'Todos los gastos'
+                    label: 'Ver todos'
                 },
                 {
                     id: 'expense-categories',
@@ -108,7 +108,7 @@ export function AppSidebar() {
                 {
                     id: 'contacts-list',
                     href: '/contacts',
-                    label: 'Todos los contactos'
+                    label: 'Ver todos'
                 },
                 {
                     id: 'merge-contacts',

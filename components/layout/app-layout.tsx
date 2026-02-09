@@ -12,7 +12,14 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
     const [isOpen, setIsOpen] = useState(false)
     return (
-        <SidebarProvider open={isOpen} onOpenChange={setIsOpen} className="h-svh overflow-hidden">
+        <SidebarProvider
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            className="h-svh overflow-hidden"
+            style={{
+                "--sidebar-width": "12rem",
+            } as React.CSSProperties}
+        >
             <AppSidebar />
             <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
                 <SidebarInset className="justify-center flex-1 overflow-hidden flex flex-col md:pr-2">
