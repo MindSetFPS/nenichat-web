@@ -19,7 +19,7 @@ export function PageHeader({ title, children }: PageHeaderProps) {
     return (
         <div className="flex items-center justify-between h-8 w-full">
             <div className="flex items-center overflow-hidden">
-                <SidebarTrigger className="size-auto mr-2 text-muted-foreground shrink-0" />
+                <SidebarTrigger className=" text-muted-foreground shrink-0 md:hidden" />
                 <h2 className="text-md font-bold tracking-wider text-muted-foreground truncate">{title}</h2>
             </div>
             <div className="flex items-center gap-2 ml-4">

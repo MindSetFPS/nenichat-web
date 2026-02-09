@@ -18,11 +18,11 @@ import {
     SidebarMenuSubButton,
     SidebarFooter,
     useSidebar,
+    SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 import { Badge } from "../ui/badge"
-import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { NavUser } from "./nav-user"
 
 export function AppSidebar() {
@@ -144,7 +144,12 @@ export function AppSidebar() {
     return (
         <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
-                {/* <p>Nenichat</p> */}
+                <SidebarMenuItem className="hidden md:block">
+                    <SidebarMenuButton >
+                        <SidebarTrigger className='size-4!' />
+                        <span className="font-bold text-xl md:text-sm">Nenichat</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
