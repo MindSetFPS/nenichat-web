@@ -134,6 +134,7 @@ export default async function WhatsAppPage() {
                     businessId={businesses[0].id}
                     initialStep={2}
                     initialQrCode={container.qr_code}
+                    initialQrCodeUpdatedAt={container.qr_code_updated_at}
                 />;
             }
 

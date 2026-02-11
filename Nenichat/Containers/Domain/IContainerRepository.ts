@@ -22,6 +22,13 @@ export interface IContainerRepository {
     updateQrCode(businessId: number, qrCode: string): Promise<void>;
 
     /**
+     * Updates the container state.
+     * @param businessId The ID of the business.
+     * @param state The container state.
+     */
+    updateContainerState(businessId: number, state: string): Promise<void>;
+
+    /**
      * Creates a container row in the database.
      * @param businessId The ID of the business.
      * @param containerId The ID of the container project.

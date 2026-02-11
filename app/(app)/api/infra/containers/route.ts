@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { containerService, SupabaseContainerRepository } from '@/Nenichat/Containers';
+import { container_states } from '@/Nenichat/Containers/Domain/container-states';
 
 interface LoginResponse {
     code: string;
@@ -8,50 +9,21 @@ interface LoginResponse {
     results: {
         qr_duration: number;
         qr_link: string;
+        qr_code_created_at: string;
         qr_image_link?: string; // Keep for backward compatibility if needed
     };
 }
 
 /**
- * GET handler for the infra containers API.
- * Checks for user authentication before proceeding.
+ * GET is not supported. Return a generic error.
  * 
- * @param {NextRequest} request - The incoming request object.
  * @returns {Promise<NextResponse>} The response object.
  */
-export async function GET(request: NextRequest) {
-    try {
-        // Initialize Supabase client
-        const supabase = await createServerSupabaseClient();
-
-        // Check for user authentication
-        // getUser() is more secure than getSession() as it validates the user with the Supabase API
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || user === null) {
-            return NextResponse.json(
-                { error: 'Unauthorized', message: 'You must be logged in to access this resource.' },
-                { status: 401 }
-            );
-        }
-
-        // Proceed with the logic for authenticated users
-        // For example, fetching data from the database
-        // const { data, error } = await supabase.from('your_table').select('*').eq('user_id', user.id);
-
-        return NextResponse.json({
-            message: 'Authentication successful',
-            userId: user.id,
-            timestamp: new Date().toISOString(),
-        });
-
-    } catch (error) {
-        console.error('Unexpected error in API route:', error);
-        return NextResponse.json(
-            { error: 'Internal Server Error', message: 'An unexpected error occurred.' },
-            { status: 500 }
-        );
-    }
+export async function GET() {
+    return NextResponse.json(
+        { error: 'Internal Server Error', message: 'An unexpected error occurred.' },
+        { status: 500 }
+    );
 }
 
 /**
@@ -87,6 +59,8 @@ export async function POST(request: NextRequest) {
             // 2. create whatsapp container(business_id)
             composeId = await containerService.createContainer(body.business_id);
             await supaRepo.insertContainer(body.business_id, composeId);
+            // Update state to 'created' after container is created
+            await supaRepo.updateContainerState(body.business_id, 'created');
         }
 
         if (composeId) {
@@ -94,13 +68,15 @@ export async function POST(request: NextRequest) {
             const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
             // 2. set initial wapp container(compose_id, business_id, port, source_type="raw")
-            const initialWappContainer = await containerService.updateContainerConfiguration(composeId, body.business_id, 6666);
+            const initialWappContainer = await containerService.updateContainerConfiguration(composeId, body.business_id);
             // wait a few seconds for container initialization
             // 3. deploy whatsapp container(compose_id)
             const deployedWappContainer = await containerService.deployContainer(composeId);
+            // Update state to 'deployed' after deployment
+            await supaRepo.updateContainerState(body.business_id, 'deployed');
             await wait(6000);
             // 4. Update container info in Supabase
-            await supaRepo.updateContainerInfo(body.business_id, composeId, 6666);
+            await supaRepo.updateContainerInfo(body.business_id, composeId);
 
             // Helper to retry getting the QR code
             const waitForQrCode = async (retries = 10, delay = 5000): Promise<string | null> => {
@@ -115,7 +91,6 @@ export async function POST(request: NextRequest) {
 
                 for (let i = 0; i < retries; i++) {
                     try {
-                        console.log(`Attempt ${i + 1} to fetch QR from ${wappUrl}`);
                         const response = await fetch(wappUrl, {
                             headers: {
                                 'Authorization': `Basic ${btoa('admin:admin')}`
@@ -138,7 +113,6 @@ export async function POST(request: NextRequest) {
                                         try {
                                             const urlObj = new URL(rawUrl);
                                             qrCodeImageURL = `${urlObj.protocol}//${urlObj.host}/api/user/${body.business_id}${urlObj.pathname}`;
-                                            console.log("Transformed QR URL to:", qrCodeImageURL);
                                         } catch (e) {
                                             console.error("Error parsing QR URL:", e);
                                             qrCodeImageURL = rawUrl;
@@ -210,15 +184,20 @@ export async function POST(request: NextRequest) {
                             .from('qr')
                             .getPublicUrl(fileName);
 
-                        console.log("QR Image uploaded to:", publicUrl);
 
                         await supaRepo.updateQrCode(body.business_id, publicUrl);
-
+                        // QR code is now available, when the user scans it and the wapp container
+                        // assures it has logged in, we can set the container state to connected.
+                        await supaRepo.updateContainerState(body.business_id, 'deployed');
                     } catch (error) {
                         console.error("Error processing QR code image:", error);
+                        // Update state to 'error' if QR code processing fails
+                        await supaRepo.updateContainerState(body.business_id, 'error');
                     }
                 } else {
                     console.error("Failed to retrieve QR code after retries");
+                    // Update state to 'error' if QR code cannot be retrieved
+                    await supaRepo.updateContainerState(body.business_id, 'error');
                 }
             })();
 

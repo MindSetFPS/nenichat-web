@@ -28,13 +28,11 @@ export class SupabaseContainerRepository implements IContainerRepository {
     async updateContainerInfo(
         businessId: number,
         containerId: string,
-        port: number
     ): Promise<void> {
         const { error } = await this.supabase
             .from("whatsapp-containers")
             .update({
                 container_id: containerId,
-                port: port
             })
             .eq("business_id", businessId);
 
@@ -51,12 +49,30 @@ export class SupabaseContainerRepository implements IContainerRepository {
         const { data, error } = await this.supabase
             .from("whatsapp-containers")
             .update({
-                qr_code_url: qrCode
+                qr_code_url: qrCode,
+                qr_code_updated_at: new Date().toISOString()
             })
             .eq("business_id", businessId);
 
         if (error) {
             console.error("Error updating QR code in Supabase:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the container state.
+     */
+    async updateContainerState(businessId: number, state: string): Promise<void> {
+        const { error } = await this.supabase
+            .from("whatsapp-containers")
+            .update({
+                status: state
+            })
+            .eq("business_id", businessId);
+
+        if (error) {
+            console.error("Error updating container state in Supabase:", error);
             throw error;
         }
     }

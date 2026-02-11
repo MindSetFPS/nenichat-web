@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp, LogOut } from 'lucide-react'
+import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp, LogOut, Menu } from 'lucide-react'
 
 import {
     Sidebar,
@@ -24,11 +24,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 
 import { Badge } from "../ui/badge"
 import { NavUser } from "./nav-user"
+import { Logo } from "../logo"
 
 export function AppSidebar() {
-    const sidebar = useSidebar()
-    const pathname = usePathname()
     const router = useRouter()
+    const pathname = usePathname()
+    const sidebar = useSidebar()
+    const { toggleSidebar, isMobile } = useSidebar()
 
     const isActive = (path: string) => {
         return pathname === path
@@ -134,7 +136,6 @@ export function AppSidebar() {
     }, [pathname]);
 
 
-
     const user = {
         name: 'Daniel',
         email: 'daniel@nenichat.com',
@@ -145,8 +146,8 @@ export function AppSidebar() {
         <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
                 <SidebarMenuItem className="hidden md:block">
-                    <SidebarMenuButton >
-                        <SidebarTrigger className='size-4!' />
+                    <SidebarMenuButton onClick={toggleSidebar} >
+                        {isMobile ? <Menu className="size-5" /> : <Logo className="size-5" />}
                         <span className="font-bold text-xl md:text-sm">Nenichat</span>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

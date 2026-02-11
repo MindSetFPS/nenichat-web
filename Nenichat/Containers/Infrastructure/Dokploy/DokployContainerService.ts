@@ -75,11 +75,8 @@ export class DokployContainerService implements IContainerService {
     async updateContainerConfiguration(
         composeId: string,
         businessId: number,
-        port: number
     ): Promise<any> {
-        const composeFile = INITIAL_COMPOSE_FILE
-            .replace(/{business_id}/g, businessId.toString())
-            .replace(/{port}/g, port.toString());
+        const composeFile = INITIAL_COMPOSE_FILE.replace(/{business_id}/g, businessId.toString())
 
         const env = `BUSINESS_ID=${businessId}
 SUPABASE_URL=\${{project.SUPABASE_URL}}
@@ -102,13 +99,11 @@ SUPABASE_KEY=\${{project.SUPABASE_KEY}}
     async updateContainerWithPhone(
         composeId: string,
         businessId: number,
-        port: number,
         initialPhone: string,
         phoneId: string
     ): Promise<any> {
         const composeFile = COMPOSE_FILE_WITH_PHONE
             .replace(/{business_id}/g, businessId.toString())
-            .replace(/{port}/g, port.toString())
             .replace(/{initial_phone}/g, initialPhone)
             .replace(/{phone_id}/g, phoneId);
 

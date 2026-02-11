@@ -20,7 +20,6 @@ export interface IContainerService {
      * Updates the container configuration (compose file and environment variables).
      * @param composeId The ID of the compose project.
      * @param businessId The ID of the business.
-     * @param port The port to expose.
      * @returns The update result.
      */
     updateContainerConfiguration(
@@ -32,7 +31,6 @@ export interface IContainerService {
      * Updates the container configuration with a specific phone.
      * @param composeId The ID of the compose project.
      * @param businessId The ID of the business.
-     * @param port The port to expose.
      * @param initialPhone The initial phone number.
      * @param phoneId The ID of the phone in the system.
      * @returns The update result.
@@ -40,7 +38,6 @@ export interface IContainerService {
     updateContainerWithPhone(
         composeId: string,
         businessId: number,
-        port: number,
         initialPhone: string,
         phoneId: string
     ): Promise<any>;
