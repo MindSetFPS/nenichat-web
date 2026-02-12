@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import {
     BadgeCheck,
     Bell,
@@ -32,9 +32,10 @@ import {
 } from "@/components/ui/sidebar"
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { useUserStore } from "@/stores/user-store"
 
 export function NavUser({
-    user,
+    user: initialUser,
 }: {
     user: {
         name: string
@@ -44,56 +45,17 @@ export function NavUser({
 }) {
     const supabase = createBrowserSupabaseClient()
     const router = useRouter()
-    const [userData, setUserData] = useState(user)
-    const [isLoading, setIsLoading] = useState(true)
+    const { user, supabaseUser, isLoading, fetchUser } = useUserStore()
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Get the current authenticated user from Supabase Auth
-                const {
-                    data: { user: authUser },
-                    error: authError,
-                } = await supabase.auth.getUser()
+        fetchUser()
+    }, [fetchUser])
 
-                if (authError || !authUser) {
-                    console.error("Failed to fetch authenticated user:", authError)
-                    setIsLoading(false)
-                    return
-                }
-
-                // Get user profile data from the database
-                const { data: profile, error: profileError } = await supabase
-                    .from("profiles")
-                    .select("full_name, avatar_url")
-                    .eq("id", authUser.id)
-                    .single()
-
-                if (profileError) {
-                    console.error("Failed to fetch user profile:", profileError)
-                    // Fall back to auth user data
-                    setUserData({
-                        name: authUser.user_metadata?.full_name || authUser.email?.split("@")[0] || "User",
-                        email: authUser.email || "",
-                        avatar: authUser.user_metadata?.avatar_url || user.avatar,
-                    })
-                } else if (profile) {
-                    setUserData({
-                        name: profile.full_name || authUser.email?.split("@")[0] || "User",
-                        email: authUser.email || "",
-                        avatar: profile.avatar_url || user.avatar,
-                    })
-                }
-            } catch (error) {
-                console.error("Error fetching user data:", error)
-                // Keep the initial user data on error
-            } finally {
-                setIsLoading(false)
-            }
-        }
-
-        fetchUserData()
-    }, [supabase, user])
+    const userData = {
+        name: user?.pushname || user?.username || supabaseUser?.user_metadata?.full_name || supabaseUser?.email?.split("@")[0] || initialUser.name,
+        email: supabaseUser?.email || initialUser.email,
+        avatar: user?.avatar_url || supabaseUser?.user_metadata?.avatar_url || initialUser.avatar,
+    }
 
     async function handleLogout() {
         await supabase.auth.signOut()

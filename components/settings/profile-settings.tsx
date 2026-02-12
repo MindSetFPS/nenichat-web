@@ -10,23 +10,20 @@ import Link from "next/link"
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
+import { useUserStore } from "@/stores/user-store"
+
 /**
  * @function ProfileSettings
  * @description Renders the profile/account settings view.
  */
 export function ProfileSettings() {
-    const [profile, setProfile] = useState<any>(null)
+    const { user: profile, fetchUser } = useUserStore()
     const supabase = createBrowserSupabaseClient()
     const router = useRouter()
 
     useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(data => {
-                if (!data.error) setProfile(data)
-            })
-            .catch(err => console.error('Error fetching profile:', err))
-    }, [])
+        fetchUser()
+    }, [fetchUser])
 
     async function handleLogout() {
         await supabase.auth.signOut()

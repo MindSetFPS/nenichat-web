@@ -14,42 +14,20 @@ import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { User } from "@supabase/supabase-js"
 import { ProfileSelectorCombobox } from "./profile-selector-combobox"
 
+import { useUserStore } from "@/stores/user-store"
+
 /**
  * @function AccountSettings
  * @description Renders the consolidated account and profile settings view.
  */
 export function AccountSettings() {
-    const [user, setUser] = useState<IContact | null>(null)
-    const [supabaseUser, setSupabaseUser] = useState<User | null>(null)
-    const [loading, setLoading] = useState(true)
+    const { user, supabaseUser, isLoading, fetchUser } = useUserStore()
     const supabase = createBrowserSupabaseClient()
     const router = useRouter()
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const [profileRes, authRes] = await Promise.all([
-                    fetch('/api/profile'),
-                    supabase.auth.getUser()
-                ])
-
-                if (profileRes.ok) {
-                    const userData = await profileRes.json()
-                    setUser(userData)
-                }
-
-                if (authRes.data.user) {
-                    setSupabaseUser(authRes.data.user)
-                }
-            } catch (error) {
-                console.error('Failed to fetch user', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchUser()
-    }, [supabase])
+    }, [fetchUser])
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
@@ -57,7 +35,7 @@ export function AccountSettings() {
         router.refresh()
     }
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="space-y-6 animate-in fade-in duration-500">
                 <Skeleton className="h-32 w-full rounded-2xl" />

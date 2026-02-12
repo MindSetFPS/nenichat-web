@@ -18,38 +18,16 @@ import { PageHeader } from '@/components/ui/page-header';
 import Content from '@/components/layout/content';
 
 
+import { useUserStore } from '@/stores/user-store';
+
 const MyProfilePage = () => {
-  const [user, setUser] = useState<IContact | null>(null);
-  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, supabaseUser, isLoading, fetchUser } = useUserStore();
   const supabase = createBrowserSupabaseClient()
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const [profileRes, authRes] = await Promise.all([
-          fetch('/api/profile'),
-          supabase.auth.getUser()
-        ]);
-
-        if (profileRes.ok) {
-          const userData = await profileRes.json();
-          setUser(userData);
-        }
-
-        if (authRes.data.user) {
-          setSupabaseUser(authRes.data.user);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUser();
-  }, [supabase]);
+  }, [fetchUser]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -57,7 +35,7 @@ const MyProfilePage = () => {
     router.refresh();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto p-4 space-y-6 animate-in fade-in duration-500">
         <Skeleton className="h-32 w-full rounded-xl" />
