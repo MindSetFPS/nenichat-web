@@ -167,8 +167,6 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
 
     return (
         <div className="flex flex-col h-full">
-            <PageHeader title="Conexiones" />
-
             <main className="flex-1 w-full max-w-4xl mx-auto ">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

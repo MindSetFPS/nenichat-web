@@ -107,11 +107,10 @@ export function NavUser({
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <SidebarMenuButton
-                            size="lg"
+                        <SidebarMenuButton size="sm"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <Avatar className="h-8 w-8 rounded-lg">
+                            <Avatar className="h-4 w-4">
                                 <AvatarImage src={userData.avatar} alt={userData.name} />
                                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                             </Avatar>
@@ -119,7 +118,7 @@ export function NavUser({
                                 <span className="truncate font-medium">{userData.name}</span>
                                 <span className="truncate text-xs">{userData.email}</span>
                             </div>
-                            <ChevronsUpDown className="ml-auto size-4" />
+                            <ChevronsUpDown className="" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -149,13 +148,13 @@ export function NavUser({
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => router.push('/profile')}>
+                            <DropdownMenuItem onClick={() => { window.location.search = '?settings=true&section=account' }}>
                                 <BadgeCheck />
-                                Profile
+                                Perfil
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push('/settings/subscriptions')}>
+                            <DropdownMenuItem onClick={() => { window.location.search = '?settings=true&section=billing' }}>
                                 <CreditCard />
-                                Billing
+                                Suscripciones
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />

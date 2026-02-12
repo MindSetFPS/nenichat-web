@@ -41,7 +41,7 @@ export function SetContactAsUserDropdown({ contact }: SetContactAsUserDropdownPr
             })
 
             if (response.ok) {
-                router.push("/profile")
+                window.location.href = "/home?settings=true&section=account"
                 setShowConfirmDialog(false)
             } else {
                 const errorData = await response.json()

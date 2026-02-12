@@ -18,13 +18,13 @@ import {
     SidebarMenuSubButton,
     SidebarFooter,
     useSidebar,
-    SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 import { Badge } from "../ui/badge"
 import { NavUser } from "./nav-user"
 import { Logo } from "../logo"
+import { SettingsDialog } from "../settings-dialog"
 
 export function AppSidebar() {
     const router = useRouter()
@@ -118,12 +118,6 @@ export function AppSidebar() {
                     label: 'Unir contactos'
                 }
             ]
-        },
-        {
-            id: 'settings',
-            href: '/settings',
-            icon: SettingsIcon,
-            label: 'Ajustes'
         }
     ]
 
@@ -209,6 +203,7 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <SettingsDialog />
                 <NavUser user={user} />
             </SidebarFooter>
         </Sidebar>

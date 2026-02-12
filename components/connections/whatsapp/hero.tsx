@@ -12,7 +12,7 @@ export default function Hero() {
                     transition={{ duration: 3, repeat: Infinity }}
                 />
             </div>
-            <h1 className="text-2xl font-extrabold tracking-tight lg:text-5xl">
+            <h1 className="text-2xl font-extrabold tracking-tight">
                 WhatsApp
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
