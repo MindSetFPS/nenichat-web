@@ -1,13 +1,27 @@
 import { DataTable } from "@/components/data-table";
-import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 import { columns } from "@/components/contacts/table/columns";
-import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { PageHeader } from "@/components/ui/page-header";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
+import { GoWappMessageRepository } from "@/Nenichat/Messages/infra/api";
+
+export const dynamic = 'force-dynamic';
 
 export default async function ContactsPage() {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return <div>Unauthorized</div>;
+    }
+
+    const contactRepository = new SupabaseContactRepository(supabase);
+    // const messageRepository = new SupabaseMessageRepository(supabase);
+    const messageRepository = new GoWappMessageRepository("http://192.168.1.64" + "/api/user/" + business.id) // i think this isnt working
 
     // get all the contacts from contacts table
-    let contacts = await contactRepository.list(0, 10000);
+    let contacts = await contactRepository.list(business.id, 0, 100);
     let contactWithLastMessageTime = [];
 
     // get the last message time for each contact
@@ -36,7 +50,7 @@ export default async function ContactsPage() {
 
     // contacts has all the contacts while contactWithLastMessageTime has the contacts that have sent messages.
     // i need to merge both, no repeat, and order by last_message_time and contacts without messages last
-    const mergedContacts = [...contactWithLastMessageTime, ...contacts]; // , 
+    const mergedContacts = [...contactWithLastMessageTime, ...contacts];
     const uniqueContacts = mergedContacts.filter((contact, index) => mergedContacts.findIndex(c => c.id === contact.id) === index);
     const newContactsJson = JSON.parse(JSON.stringify(uniqueContacts));
 

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Mail } from "lucide-react"
-import { pool } from "@/Nenichat/Shared/infra/persistance/db";
-import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,8 @@ import { columns } from "@/components/orders/table/columns";
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
 import { PageHeader } from "@/components/ui/page-header";
-
-const contactRepository = new ContactRepository(pool);
-const orderRepository = new OrderRepository(pool);
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -23,19 +21,26 @@ interface ContactDetailPageProps {
 
 export default async function ContactDetailPage({ params }: ContactDetailPageProps) {
     const { id } = await params;
-    const contactId = BigInt(id);
+    const contactId = Number(id);
 
-    let contact = await contactRepository.findById(contactId);
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return <div>Unauthorized</div>;
+    }
+
+    const contactRepository = new SupabaseContactRepository(supabase);
+    const orderRepository = new SupabaseOrderRepository(supabase);
+
+    let contact = await contactRepository.findById(business.id, contactId);
     if (!contact) {
         notFound();
     }
 
     // Fetch orders for this contact
-    // Note: OrderRepository expects number for contactId currently, but DB is bigint.
-    // We cast to number for now as per existing pattern, but this should be fixed in repository.
-    // We cast to number for now as per existing pattern, but this should be fixed in repository.
-    const orders = await orderRepository.getByContactId(Number(contactId));
-    const ordersByDay = await orderRepository.getOrdersCountByDayOfWeek(Number(contactId));
+    const orders = await orderRepository.getByContactId(business.id, contactId);
+    const ordersByDay = await orderRepository.getOrdersCountByDayOfWeek(business.id, contactId);
 
     // Serialize for client component
     const plainOrders = JSON.parse(JSON.stringify(orders));

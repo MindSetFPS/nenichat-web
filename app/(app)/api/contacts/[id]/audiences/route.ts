@@ -1,32 +1,60 @@
-/**
- * Next.js API route handler for GET requests.
- * The list of audiences a contact is assigned to.
- * It filters the table audience_contacts by contact_id
- */
-
 import { NextResponse } from "next/server";
-import { audienceContactRepository } from "@/Nenichat/Audiences/infra/persistance/AudienceContactRepository";
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getBusinessFromUser } from '@/lib/user-auth';
+import { SupabaseAudienceContactRepository } from "@/Nenichat/Audiences/infra/persistance/SupabaseAudienceContactRepository";
 import { IAudienceUpdate } from "@/Nenichat/Audiences/dto/IAudienceUpdate";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
-    const contactAudiences = await audienceContactRepository.findByContactId(BigInt(id));
-    return NextResponse.json(contactAudiences);
+    const audienceContactRepository = new SupabaseAudienceContactRepository(supabase);
+
+    try {
+        const contactAudiences = await audienceContactRepository.findByContactId(business.id, Number(id));
+        return NextResponse.json(contactAudiences);
+    } catch (error: any) {
+        console.error("Error fetching contact audiences:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
+    const audienceContactRepository = new SupabaseAudienceContactRepository(supabase);
     const { audienceUpdates } = await request.json() as { audienceUpdates: IAudienceUpdate[] };
 
-    audienceUpdates.forEach((audienceUpdate) => {
-        if (audienceUpdate.action == "add") {
-            audienceContactRepository.addContactToAudiences(id, [audienceUpdate.audience_id]);
+    try {
+        for (const audienceUpdate of audienceUpdates) {
+            if (audienceUpdate.action === "add") {
+                await audienceContactRepository.addContactToAudience(
+                    business.id,
+                    Number(audienceUpdate.audience_id),
+                    Number(id)
+                );
+            } else if (audienceUpdate.action === "remove") {
+                await audienceContactRepository.removeContactFromAudience(
+                    business.id,
+                    Number(audienceUpdate.audience_id),
+                    Number(id)
+                );
+            }
         }
-
-        if (audienceUpdate.action == "remove") {
-            audienceContactRepository.removeContactFromAudience(audienceUpdate.audience_id, id);
-        }
-    })
-
-    return NextResponse.json({ message: "Audiences added successfully" });
+        return NextResponse.json({ message: "Audiences updated successfully" });
+    } catch (error: any) {
+        console.error("Error updating contact audiences:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }

@@ -1,41 +1,24 @@
 import { NextResponse } from 'next/server';
-import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseContactRepository } from '@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 
 /**
  * @swagger
  * /api/contacts/merge:
  *   post:
  *     summary: Merge multiple contacts into a primary contact
- *     description: Merges a list of secondary contacts into a specified primary contact. All related data will be re-assigned to the primary contact, and secondary contacts will be deleted.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - primaryContactId
- *               - secondaryContactIds
- *             properties:
- *               primaryContactId:
- *                 type: string
- *                 format: bigint
- *                 description: The ID of the contact to merge into.
- *               secondaryContactIds:
- *                 type: array
- *                 items:
- *                   type: string
- *                   format: bigint
- *                 description: An array of IDs of contacts to be merged and then deleted.
- *     responses:
- *       200:
- *         description: Contacts merged successfully.
- *       400:
- *         description: Invalid request body or merge parameters.
- *       500:
- *         description: Internal server error during merge operation.
  */
 export async function POST(request: Request) {
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) {
+    return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+  }
+
+  const contactRepository = new SupabaseContactRepository(supabase);
+
   try {
     const { primaryContactId, secondaryContactIds } = await request.json();
 
@@ -43,11 +26,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Invalid request body. primaryContactId and secondaryContactIds (array) are required.' }, { status: 400 });
     }
 
-    // Convert string IDs to bigint
-    const primaryId = BigInt(primaryContactId);
-    const secondaryIds = secondaryContactIds.map((id: string) => BigInt(id));
+    const primaryId = Number(primaryContactId);
+    const secondaryIds = secondaryContactIds.map((id: string) => Number(id));
 
-    await contactRepository.mergeContacts(primaryId, secondaryIds);
+    // Verify all contacts belong to this business
+    const primaryContact = await contactRepository.findById(business.id, primaryId);
+    if (!primaryContact) {
+      return NextResponse.json({ message: 'Primary contact not found or unauthorized' }, { status: 404 });
+    }
+
+    await contactRepository.mergeContacts(business.id, primaryId, secondaryIds);
 
     return NextResponse.json({ message: 'Contacts merged successfully.' }, { status: 200 });
   } catch (error: any) {
