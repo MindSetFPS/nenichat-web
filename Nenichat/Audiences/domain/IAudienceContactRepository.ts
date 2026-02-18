@@ -1,11 +1,12 @@
 import { IContact } from '../../Contacts/domain/IContact';
+import { IAudience } from './IAudience';
 
 export interface IAudienceContactRepository {
-  findByAudienceId(audienceId: BigInt): Promise<IContact[]>;
-  findAvailableContacts(audienceId: number | BigInt): Promise<IContact[]>;
-  addContactToAudience(audienceId: string, contactId: string): Promise<void>;
-  removeContactFromAudience(audienceId: string, contactId: string): Promise<void>;
-  // cascade delete? 
-  delete(audienceId: string): Promise<void>;
-  updateAudienceMembers(audienceId: string, contactIds: string[]): Promise<void>;
+  findByAudienceId(businessId: number, audienceId: number): Promise<IContact[]>;
+  findByContactId(businessId: number, contactId: number): Promise<IAudience[]>;
+  findAvailableContacts(businessId: number, audienceId: number): Promise<IContact[]>;
+  addContactToAudience(businessId: number, audienceId: number, contactId: number): Promise<void>;
+  removeContactFromAudience(businessId: number, audienceId: number, contactId: number): Promise<void>;
+  delete(businessId: number, audienceId: number): Promise<void>;
+  updateAudienceMembers(businessId: number, audienceId: number, contactIds: number[]): Promise<void>;
 }

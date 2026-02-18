@@ -16,8 +16,8 @@ export class AudienceRepository implements IAudienceRepository {
     };
   }
 
-  async findById(id: number): Promise<IAudience | null> {
-    const result = await this.pool.query('SELECT * FROM audiences WHERE id = $1', [id]);
+  async findById(businessId: number, id: number): Promise<IAudience | null> {
+    const result = await this.pool.query('SELECT * FROM audiences WHERE id = $1 AND business_id = $2', [id, businessId]);
 
     if (result.rows.length === 0) {
       return null;
@@ -25,28 +25,28 @@ export class AudienceRepository implements IAudienceRepository {
     return this.toAudience(result.rows[0]);
   }
 
-  async getByIds(ids: number[]): Promise<IAudience[]> {
-    const result = await this.pool.query('SELECT * FROM audiences WHERE id = ANY($1)', [ids]);
+  async getByIds(businessId: number, ids: number[]): Promise<IAudience[]> {
+    const result = await this.pool.query('SELECT * FROM audiences WHERE id = ANY($1) AND business_id = $2', [ids, businessId]);
     return result.rows.map(this.toAudience);
   }
 
-  async findAll(): Promise<IAudience[]> {
-    const result = await this.pool.query('SELECT * FROM audiences');
+  async findAll(businessId: number): Promise<IAudience[]> {
+    const result = await this.pool.query('SELECT * FROM audiences WHERE business_id = $1', [businessId]);
     return result.rows.map(this.toAudience);
   }
 
-  async delete(id: number): Promise<void> {
-    await this.pool.query('DELETE FROM audiences WHERE id = $1', [id]);
+  async delete(businessId: number, id: number): Promise<void> {
+    await this.pool.query('DELETE FROM audiences WHERE id = $1 AND business_id = $2', [id, businessId]);
   }
 
-  async create(audience: Omit<IAudience, 'id' | 'created_at'>): Promise<IAudience> {
+  async create(businessId: number, audience: Omit<IAudience, 'id' | 'business_id' | 'created_at'>): Promise<IAudience> {
     const result = await this.pool.query(
       `
-      INSERT INTO audiences (name, description)
-      VALUES ($1, $2)
+      INSERT INTO audiences (name, description, business_id)
+      VALUES ($1, $2, $3)
       RETURNING *
     `,
-      [audience.name, audience.description]
+      [audience.name, audience.description, businessId]
     );
     return this.toAudience(result.rows[0]);
   }

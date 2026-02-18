@@ -13,6 +13,7 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     if (!data) return data;
     return new Contact(
       data.id,
+      data.business_id,
       data.phone_number,
       data.lid,
       data.username,
@@ -24,39 +25,34 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     );
   }
 
-  async findByAudienceId(audienceId: number | BigInt): Promise<IContact[]> {
+  async findByAudienceId(businessId: number, audienceId: number): Promise<IContact[]> {
     const result = await this.pool.query(`
       SELECT c.*
       FROM contacts c
       JOIN audience_contacts ac ON c.id = ac.contact_id
-      WHERE ac.audience_id = $1
-    `, [audienceId]);
+      WHERE ac.audience_id = $1 AND c.business_id = $2
+    `, [audienceId, businessId]);
     return result.rows.map(this.toContact);
   }
 
-  /*
-  * Get contacts that are not in the audience
-  * @param audienceId: number | BigInt
-  * @returns Promise<IContact[]>
-  */
-  async findAvailableContacts(audienceId: number | BigInt): Promise<IContact[]> {
+  async findAvailableContacts(businessId: number, audienceId: number): Promise<IContact[]> {
     const result = await this.pool.query(`
       SELECT c.*
       FROM contacts c
       LEFT JOIN audience_contacts ac ON c.id = ac.contact_id AND ac.audience_id = $1
-      WHERE ac.contact_id IS NULL
+      WHERE ac.contact_id IS NULL AND c.business_id = $2
       ORDER BY c.created_at DESC
-    `, [audienceId]);
+    `, [audienceId, businessId]);
     return result.rows.map(this.toContact);
   }
 
-  async findByContactId(contactId: number | BigInt): Promise<IAudience[]> {
+  async findByContactId(businessId: number, contactId: number): Promise<IAudience[]> {
     const result = await this.pool.query(`
       SELECT a.*
       FROM audiences a
       JOIN audience_contacts ac ON a.id = ac.audience_id
-      WHERE ac.contact_id = $1
-    `, [contactId]);
+      WHERE ac.contact_id = $1 AND a.business_id = $2
+    `, [contactId, businessId]);
     return result.rows.map(this.toAudience);
   }
 
@@ -70,51 +66,50 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     );
   }
 
-  async addContactToAudiences(contactId: string, audiencesIds: string[]): Promise<void> {
-    if (audiencesIds.length === 0) {
-      return;
-    }
-
-    const valueStrings: string[] = [];
-    const queryParams: (string | number)[] = [];
-    let paramIndex = 1;
-
-    for (const audienceId of audiencesIds) {
-      valueStrings.push(`($${paramIndex++}, $${paramIndex++})`);
-      queryParams.push(audienceId);
-      queryParams.push(contactId);
-    }
+  async addContactToAudience(businessId: number, audienceId: number, contactId: number): Promise<void> {
+    // Verify business ownership
+    const checkQuery = `
+        SELECT 1 FROM audiences a
+        JOIN contacts c ON c.business_id = a.business_id
+        WHERE a.id = $1 AND c.id = $2 AND a.business_id = $3
+    `;
+    const check = await this.pool.query(checkQuery, [audienceId, contactId, businessId]);
+    if (check.rows.length === 0) throw new Error("Unauthorized or invalid audience/contact");
 
     const queryText = `
       INSERT INTO audience_contacts (audience_id, contact_id)
-      VALUES ${valueStrings.join(', ')}
+      VALUES ($1, $2)
       ON CONFLICT (audience_id, contact_id) DO NOTHING
     `;
 
-    await this.pool.query(queryText, queryParams);
+    await this.pool.query(queryText, [audienceId, contactId]);
   }
 
-  async removeContactFromAudience(audienceId: string, contactId: string): Promise<void> {
+  async removeContactFromAudience(businessId: number, audienceId: number, contactId: number): Promise<void> {
+    // Verify business ownership via subquery or join
     await this.pool.query(`
       DELETE FROM audience_contacts
       WHERE audience_id = $1 AND contact_id = $2
-    `, [audienceId, contactId]);
+      AND EXISTS (SELECT 1 FROM audiences WHERE id = $1 AND business_id = $3)
+    `, [audienceId, contactId, businessId]);
   }
 
-  async delete(audienceId: string): Promise<void> {
+  async delete(businessId: number, audienceId: number): Promise<void> {
     await this.pool.query(`
       DELETE FROM audience_contacts
       WHERE audience_id = $1
-    `, [audienceId]);
+      AND EXISTS (SELECT 1 FROM audiences WHERE id = $1 AND business_id = $2)
+    `, [audienceId, businessId]);
   }
 
-  async addContactToAudience(audienceId: string, contactId: string): Promise<void> {
-  }
-
-  async updateAudienceMembers(audienceId: string, contactIds: string[]): Promise<void> {
+  async updateAudienceMembers(businessId: number, audienceId: number, contactIds: number[]): Promise<void> {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Verify audience belongs to business
+      const auth = await client.query('SELECT 1 FROM audiences WHERE id = $1 AND business_id = $2', [audienceId, businessId]);
+      if (auth.rows.length === 0) throw new Error("Unauthorized");
 
       // Delete existing members for the audience
       await client.query(
