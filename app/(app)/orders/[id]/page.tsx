@@ -2,10 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
-import { pool } from "@/Nenichat/Shared/infra/persistance/db";
-import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
-import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
+import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -15,10 +13,9 @@ import { DropdownMenuDialog } from "@/components/orders/dropdown";
 import PaymentStatusDropdown from "@/components/orders/payment-status-dropdown";
 import OrderStatusDropdown from "@/components/orders/order-status-dropdown";
 import { PageHeader } from "@/components/ui/page-header";
-
-const orderRepository = new OrderRepository(pool);
-const orderItemRepository = new OrderItemRepository(pool);
-const contactRepository = new ContactRepository(pool);
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
+import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithProduct";
 
 export const dynamic = 'force-dynamic';
 
@@ -32,15 +29,24 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
     if (isNaN(orderId)) notFound()
 
-    const order = await orderRepository.getById(orderId);
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return <div>Unauthorized</div>;
+    }
+
+    const orderRepository = new SupabaseOrderRepository(supabase);
+    const contactRepository = new SupabaseContactRepository(supabase);
+
+    const order = await orderRepository.getById(business.id, orderId);
     if (!order) notFound()
 
-    const items = await orderItemRepository.getByOrderIdWithProduct(orderId);
+    const items = await orderRepository.getItems(business.id, orderId);
 
     let contact = null;
     if (order.contact_id) {
-        // ContactRepository.findById takes a bigint, but our order.contact_id is number.
-        contact = await contactRepository.findById(BigInt(order.contact_id));
+        contact = await contactRepository.findById(business.id, Number(order.contact_id));
     }
 
     return (
@@ -79,7 +85,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="border-none border-0">
-                                {items.map((item) => (
+                                {items.map((item: IOrderItemWithProduct) => (
                                     <TableRow key={item.id} className="border-none border-0">
                                         <TableCell className="font-medium">
                                             {item.product_name || <span className="text-gray-400 italic">Unknown Product</span>}
@@ -92,7 +98,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                                 <TableRow>
                                     <TableCell colSpan={3} className="text-right font-medium">Subtotal</TableCell>
                                     <TableCell className="text-right font-medium">
-                                        ${items.reduce((sum, item) => sum + Number(item.total_price), 0).toFixed(2)}
+                                        ${items.reduce((sum: number, item: IOrderItemWithProduct) => sum + Number(item.total_price), 0).toFixed(2)}
                                     </TableCell>
                                 </TableRow>
                                 {

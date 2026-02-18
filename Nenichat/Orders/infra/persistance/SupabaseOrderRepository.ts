@@ -54,10 +54,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Retrieves an order by its ID.
      */
-    async getById(id: number): Promise<IOrder | null> {
+    async getById(businessId: number, id: number): Promise<IOrder | null> {
         const { data, error } = await this.supabase
             .from('orders')
             .select('*')
+            .eq('business_id', businessId)
             .eq('id', id)
             .single();
 
@@ -72,12 +73,13 @@ export class SupabaseOrderRepository implements IOrderRepository {
     }
 
     /**
-     * Retrieves all orders, ordered by creation date descending.
+     * Retrieves all orders for a business.
      */
-    async getAll(): Promise<IOrder[]> {
+    async getAll(businessId: number): Promise<IOrder[]> {
         const { data, error } = await this.supabase
             .from('orders')
             .select('*')
+            .eq('business_id', businessId)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -90,10 +92,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Retrieves all orders for a specific contact.
      */
-    async getByContactId(contactId: number): Promise<IOrder[]> {
+    async getByContactId(businessId: number, contactId: number): Promise<IOrder[]> {
         const { data, error } = await this.supabase
             .from('orders')
             .select('*')
+            .eq('business_id', businessId)
             .eq('contact_id', contactId)
             .order('created_at', { ascending: false });
 
@@ -106,17 +109,16 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
     /**
      * Creates a new order and its associated items.
-     * Note: This implementation is not atomic because it uses the client-side library.
-     * For full atomicity, a PostgreSQL function (RPC) should be used.
      */
     async create(
-        orderData: Omit<IOrder, 'id' | 'created_at' | 'updated_at'> & { created_at?: Date },
+        businessId: number,
+        orderData: Omit<IOrder, 'id' | 'business_id' | 'created_at' | 'updated_at'> & { created_at?: Date },
         items: Array<{ productId: string; quantity: number; unitPrice: number }>
     ): Promise<IOrder> {
         const { data: newOrder, error: orderError } = await this.supabase
             .from('orders')
             .insert({
-                business_id: orderData.business_id,
+                business_id: businessId,
                 contact_id: orderData.contact_id,
                 total_amount: orderData.total_amount,
                 shipping_cost: orderData.shipping_cost,
@@ -153,7 +155,6 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
         if (itemsError) {
             console.error("Error creating order items for order:", newOrder.id, itemsError);
-            // Ideally we'd rollback here, but we'd need an RPC.
             throw itemsError;
         }
 
@@ -163,13 +164,14 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Updates an existing order.
      */
-    async update(id: number, updates: Partial<IOrder>): Promise<IOrder | null> {
+    async update(businessId: number, id: number, updates: Partial<IOrder>): Promise<IOrder | null> {
         const { data, error } = await this.supabase
             .from('orders')
             .update({
                 ...updates,
                 updated_at: new Date().toISOString()
             })
+            .eq('business_id', businessId)
             .eq('id', id)
             .select()
             .single();
@@ -187,10 +189,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Deletes an order by its ID.
      */
-    async delete(id: number): Promise<boolean> {
+    async delete(businessId: number, id: number): Promise<boolean> {
         const { error } = await this.supabase
             .from('orders')
             .delete()
+            .eq('business_id', businessId)
             .eq('id', id);
 
         if (error) {
@@ -203,7 +206,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Aggregates the number of products ordered on a specific date.
      */
-    async getOrdersCountByDate(date: Date): Promise<{ product_name: string; count: number }[]> {
+    async getOrdersCountByDate(businessId: number, date: Date): Promise<{ product_name: string; count: number }[]> {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
@@ -222,6 +225,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
                     )
                 )
             `)
+            .eq('business_id', businessId)
             .gte('created_at', `${localDateString}T00:00:00`)
             .lte('created_at', `${localDateString}T23:59:59`);
 
@@ -246,7 +250,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Gets the total quantity of products ordered per day over a given interval.
      */
-    async getProductOrdersByDateInterval(interval: number): Promise<{ date: string; quantity: number }[]> {
+    async getProductOrdersByDateInterval(businessId: number, interval: number): Promise<{ date: string; quantity: number }[]> {
         const dateLimit = new Date();
         dateLimit.setDate(dateLimit.getDate() - interval);
 
@@ -258,6 +262,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
                     quantity
                 )
             `)
+            .eq('business_id', businessId)
             .gte('created_at', dateLimit.toISOString());
 
         if (error) {
@@ -280,10 +285,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Returns the count of orders for each day of the week.
      */
-    async getOrdersCountByDayOfWeek(contactId?: number): Promise<{ day_index: number; count: number }[]> {
+    async getOrdersCountByDayOfWeek(businessId: number, contactId?: number): Promise<{ day_index: number; count: number }[]> {
         let query = this.supabase
             .from('orders')
-            .select('created_at');
+            .select('created_at')
+            .eq('business_id', businessId);
 
         if (contactId) {
             query = query.eq('contact_id', contactId);
@@ -323,13 +329,14 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Returns the total amount of orders per day for a given interval.
      */
-    async getOrderTotalPerDay(interval: number): Promise<IOrdersReport[]> {
+    async getOrderTotalPerDay(businessId: number, interval: number): Promise<IOrdersReport[]> {
         const dateLimit = new Date();
         dateLimit.setDate(dateLimit.getDate() - interval);
 
         const { data, error } = await this.supabase
             .from('orders')
             .select('created_at, total_amount')
+            .eq('business_id', businessId)
             .gte('created_at', dateLimit.toISOString())
             .order('created_at', { ascending: true });
 
@@ -354,7 +361,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Retrieves all items for an order, including the product name.
      */
-    async getItems(orderId: number): Promise<IOrderItemWithProduct[]> {
+    async getItems(businessId: number, orderId: number): Promise<IOrderItemWithProduct[]> {
         const { data, error } = await this.supabase
             .from('order_items')
             .select(`
@@ -365,10 +372,12 @@ export class SupabaseOrderRepository implements IOrderRepository {
                 unit_price,
                 total_price,
                 products (
-                    name
+                    name,
+                    business_id
                 )
             `)
-            .eq('order_id', orderId);
+            .eq('order_id', orderId)
+            .eq('products.business_id', businessId);
 
         if (error) {
             console.error("Error fetching order items:", error);

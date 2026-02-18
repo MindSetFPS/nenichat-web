@@ -16,6 +16,7 @@ export class OrderRepository implements IOrderRepository {
     private mapRowToOrder(row: any): Order {
         return new Order(
             parseInt(row.id),
+            parseInt(row.business_id),
             row.contact_id ? parseInt(row.contact_id) : null,
             parseFloat(row.total_amount),
             parseFloat(row.shipping_cost),
@@ -33,38 +34,39 @@ export class OrderRepository implements IOrderRepository {
         );
     }
 
-    async getById(id: number): Promise<IOrder | null> {
-        const result = await this.pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+    async getById(businessId: number, id: number): Promise<IOrder | null> {
+        const result = await this.pool.query('SELECT * FROM orders WHERE id = $1 AND business_id = $2', [id, businessId]);
         if (result.rows.length === 0) {
             return null;
         }
         return this.mapRowToOrder(result.rows[0]);
     }
 
-    async getAll(): Promise<IOrder[]> {
-        const result = await this.pool.query('SELECT * FROM orders ORDER BY created_at DESC');
+    async getAll(businessId: number): Promise<IOrder[]> {
+        const result = await this.pool.query('SELECT * FROM orders WHERE business_id = $1 ORDER BY created_at DESC', [businessId]);
         return result.rows.map(this.mapRowToOrder);
     }
 
-    async getByContactId(contactId: number): Promise<IOrder[]> {
-        const result = await this.pool.query('SELECT * FROM orders WHERE contact_id = $1 ORDER BY created_at DESC', [contactId]);
+    async getByContactId(businessId: number, contactId: number): Promise<IOrder[]> {
+        const result = await this.pool.query('SELECT * FROM orders WHERE contact_id = $1 AND business_id = $2 ORDER BY created_at DESC', [contactId, businessId]);
         return result.rows.map(this.mapRowToOrder);
     }
 
-    async create(orderData: Omit<IOrder, 'id' | 'created_at' | 'updated_at'> & { created_at?: Date }, items: Array<{ productId: string; quantity: number; unitPrice: number }>): Promise<IOrder> {
+    async create(businessId: number, orderData: Omit<IOrder, 'id' | 'business_id' | 'created_at' | 'updated_at'> & { created_at?: Date }, items: Array<{ productId: string; quantity: number; unitPrice: number }>): Promise<IOrder> {
         const client = await this.pool.connect();
         try {
             await client.query('BEGIN');
 
             const orderQuery = `
               INSERT INTO orders (
-                contact_id, total_amount, shipping_cost, shipping_address, status,
+                business_id, contact_id, total_amount, shipping_cost, shipping_address, status,
                 payment_method, amount_paid, refunded_amount, payment_status, notes,
                 completed_at, cancelled_at, created_at
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, COALESCE($13, NOW()))
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, COALESCE($14, NOW()))
               RETURNING *
             `;
             const orderValues = [
+                businessId,
                 orderData.contact_id,
                 orderData.total_amount,
                 orderData.shipping_cost,
@@ -107,18 +109,18 @@ export class OrderRepository implements IOrderRepository {
         }
     }
 
-    async update(id: number, updates: Partial<IOrder>): Promise<IOrder | null> {
+    async update(businessId: number, id: number, updates: Partial<IOrder>): Promise<IOrder | null> {
         const fields = Object.keys(updates)
-            .map((key, index) => `"${key}" = $${index + 2}`)
+            .map((key, index) => `"${key}" = $${index + 3}`)
             .join(', ');
         const values = Object.values(updates);
 
         if (fields.length === 0) {
-            return this.getById(id);
+            return this.getById(businessId, id);
         }
 
-        const query = `UPDATE orders SET ${fields}, updated_at = NOW() WHERE id = $1 RETURNING *`;
-        const result = await this.pool.query(query, [id, ...values]);
+        const query = `UPDATE orders SET ${fields}, updated_at = NOW() WHERE id = $1 AND business_id = $2 RETURNING *`;
+        const result = await this.pool.query(query, [id, businessId, ...values]);
 
         if (result.rows.length === 0) {
             return null;
@@ -126,29 +128,30 @@ export class OrderRepository implements IOrderRepository {
         return this.mapRowToOrder(result.rows[0]);
     }
 
-    async getOrderTotalPerDay(interval: number): Promise<IOrdersReport[]> {
+    async getOrderTotalPerDay(businessId: number, interval: number): Promise<IOrdersReport[]> {
         const query = `
             SELECT 
                 DATE(created_at) as date,
                 SUM(total_amount) as total
             FROM orders
             WHERE created_at >= NOW() - INTERVAL '${interval} days'
+            AND business_id = $1
             GROUP BY DATE(created_at)
             ORDER BY date ASC
         `;
-        const result = await this.pool.query(query);
+        const result = await this.pool.query(query, [businessId]);
         return result.rows.map(row => ({
             date: row.date,
             total: parseFloat(row.total)
         }));
     }
 
-    async delete(id: number): Promise<boolean> {
-        const result = await this.pool.query('DELETE FROM orders WHERE id = $1', [id]);
+    async delete(businessId: number, id: number): Promise<boolean> {
+        const result = await this.pool.query('DELETE FROM orders WHERE id = $1 AND business_id = $2', [id, businessId]);
         return (result.rowCount || 0) > 0;
     }
 
-    async getOrdersCountByDate(date: Date): Promise<{ product_name: string; count: number }[]> {
+    async getOrdersCountByDate(businessId: number, date: Date): Promise<{ product_name: string; count: number }[]> {
         //  A method that takes a date, for example, july 1st, and returns the count of orders of each product on that day
         // to get the product name, we also need to join the products table
 
@@ -161,7 +164,7 @@ export class OrderRepository implements IOrderRepository {
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
             JOIN products p ON oi.product_id = p.id
-            WHERE DATE(o.created_at) = $1
+            WHERE DATE(o.created_at) = $1 AND o.business_id = $2
             GROUP BY oi.product_id, p.name
             ORDER BY count DESC
         `;
@@ -172,14 +175,14 @@ export class OrderRepository implements IOrderRepository {
         const day = String(date.getDate()).padStart(2, '0');
         const localDateString = `${year}-${month}-${day}`;
 
-        const result = await this.pool.query(query, [localDateString]);
+        const result = await this.pool.query(query, [localDateString, businessId]);
         return result.rows.map(row => ({
             product_name: row.product_name,
             count: row.count
         }));
     }
 
-    async getProductOrdersByDateInterval(interval: number): Promise<{ date: string; quantity: number }[]> {
+    async getProductOrdersByDateInterval(businessId: number, interval: number): Promise<{ date: string; quantity: number }[]> {
         const query = `
             SELECT 
                 DATE(o.created_at) as date,
@@ -187,28 +190,30 @@ export class OrderRepository implements IOrderRepository {
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
             WHERE o.created_at >= NOW() - INTERVAL '${interval} days'
+            AND o.business_id = $1
             GROUP BY DATE(o.created_at)
             ORDER BY date ASC
         `;
-        const result = await this.pool.query(query);
+        const result = await this.pool.query(query, [businessId]);
         return result.rows.map(row => ({
             date: row.date,
             quantity: Number(row.quantity)
         }));
     }
 
-    async getOrdersCountByDayOfWeek(contactId?: number): Promise<{ day_index: number; count: number }[]> {
+    async getOrdersCountByDayOfWeek(businessId: number, contactId?: number): Promise<{ day_index: number; count: number }[]> {
         let query = `
             SELECT 
                 EXTRACT(ISODOW FROM created_at) as day_index,
                 COUNT(*) as count
             FROM orders 
+            WHERE business_id = $1
         `;
 
-        const params: any[] = [];
+        const params: any[] = [businessId];
 
         if (contactId) {
-            query += ` WHERE contact_id = $1 `;
+            query += ` AND contact_id = $2 `;
             params.push(contactId);
         }
 
@@ -225,7 +230,7 @@ export class OrderRepository implements IOrderRepository {
     }
 
     // this seems to be a duplicate of OrderItemRepository.getByOrderIdWithProduct
-    async getItems(orderId: number): Promise<IOrderItemWithProduct[]> {
+    async getItems(businessId: number, orderId: number): Promise<IOrderItemWithProduct[]> {
         const query = `
             SELECT 
                 oi.id,
@@ -237,9 +242,9 @@ export class OrderRepository implements IOrderRepository {
                 p.name as product_name
             FROM order_items oi
             LEFT JOIN products p ON oi.product_id = p.id
-            WHERE oi.order_id = $1
+            WHERE oi.order_id = $1 AND p.business_id = $2
         `;
-        const result = await this.pool.query(query, [orderId]);
+        const result = await this.pool.query(query, [orderId, businessId]);
         return result.rows.map(row => ({
             id: parseInt(row.id),
             order_id: parseInt(row.order_id),

@@ -2,6 +2,7 @@ import { IOrder } from './IOrder';
 
 export class Order implements IOrder {
     id: number;
+    business_id: number;
     contact_id: number | null;
     total_amount: number;
     shipping_cost: number;
@@ -19,6 +20,7 @@ export class Order implements IOrder {
 
     constructor(
         id: number,
+        business_id: number,
         contact_id: number | null,
         total_amount: number,
         shipping_cost: number,
@@ -35,6 +37,7 @@ export class Order implements IOrder {
         updated_at: Date
     ) {
         this.id = id;
+        this.business_id = business_id;
         this.contact_id = contact_id;
         this.total_amount = total_amount;
         this.shipping_cost = shipping_cost;

@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
-import { pool } from "@/Nenichat/Shared/infra/persistance/db";
-import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
-
-const orderRepository = new OrderRepository(pool);
-const orderItemRepository = new OrderItemRepository(pool);
+import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const orderId = parseInt(id);
 
     if (isNaN(orderId)) return NextResponse.json({ error: 'Invalid order ID' }, { status: 400 });
+
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+    const orderRepository = new SupabaseOrderRepository(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
 
     try {
         const body = await request.json();
@@ -40,7 +45,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         }
 
         // Update order details
-        const updatedOrder = await orderRepository.update(orderId, updates);
+        const updatedOrder = await orderRepository.update(business.id, orderId, updates);
 
         if (!updatedOrder) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -55,22 +60,20 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
         // if you leave clientOrderProducts empty, we do notin
         if (clientOrderProducts && clientOrderProducts.length > 0) {
-            const serverOrderProducts = await orderItemRepository.getByOrderId(orderId);
-
-            for (const item of serverOrderProducts) {
-                await orderItemRepository.delete(item.id);
-            }
+            // Delete existing items
+            await supabase.from('order_items').delete().eq('order_id', orderId);
 
             // Recreate all items
-            for (const item of clientOrderProducts) {
-                await orderItemRepository.create({
-                    order_id: orderId,
-                    product_id: item.productId,
-                    quantity: item.quantity,
-                    unit_price: item.unitPrice,
-                    total_price: item.totalPrice || (item.quantity * item.unitPrice), // too lazy to fix this in client
-                } as any);
-            }
+            const newItems = clientOrderProducts.map(item => ({
+                order_id: orderId,
+                product_id: item.productId,
+                quantity: item.quantity,
+                unit_price: item.unitPrice,
+                total_price: item.totalPrice || (item.quantity * item.unitPrice),
+            }));
+
+            const { error: itemsError } = await supabase.from('order_items').insert(newItems);
+            if (itemsError) throw itemsError;
         }
 
         return NextResponse.json({
@@ -85,12 +88,21 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    if (isNaN(parseInt(id))) {
+    const orderId = parseInt(id);
+    if (isNaN(orderId)) {
         return NextResponse.json({ error: 'Invalid order ID' }, { status: 400 });
     }
 
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+    const orderRepository = new SupabaseOrderRepository(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-        const result = await orderRepository.delete(parseInt(id));
+        const result = await orderRepository.delete(business.id, orderId);
         return NextResponse.json({ message: 'Order deleted successfully' });
     } catch (error) {
         console.error('Error deleting order:', error);

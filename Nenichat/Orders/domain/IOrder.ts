@@ -1,5 +1,6 @@
 export interface IOrder {
     id: number;
+    business_id: number;
     contact_id: number | null;
     total_amount: number;
     shipping_cost: number;

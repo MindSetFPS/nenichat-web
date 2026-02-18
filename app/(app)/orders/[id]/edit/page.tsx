@@ -1,14 +1,10 @@
 import { notFound } from "next/navigation";
-import { pool } from "@/Nenichat/Shared/infra/persistance/db";
-import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import { OrderItemRepository } from "@/Nenichat/Orders/infra/persistance/OrderItemRepository";
-import { ContactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
+import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 import { EditOrderForm } from "@/components/forms/edit-order-form";
 import { PageHeader } from "@/components/ui/page-header";
-
-const orderRepository = new OrderRepository(pool);
-const orderItemRepository = new OrderItemRepository(pool);
-const contactRepository = new ContactRepository(pool);
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,20 +18,30 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
 
     if (isNaN(orderId)) notFound();
 
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return <div>Unauthorized</div>;
+    }
+
+    const orderRepository = new SupabaseOrderRepository(supabase);
+    const contactRepository = new SupabaseContactRepository(supabase);
+
     // Fetch order
-    const order = await orderRepository.getById(orderId);
+    const order = await orderRepository.getById(business.id, orderId);
     if (!order) notFound();
 
     // Fetch order items with product info
-    const items = await orderItemRepository.getByOrderIdWithProduct(orderId);
+    const items = await orderRepository.getItems(business.id, orderId);
 
     // Fetch all contacts for selection
-    const contacts = await contactRepository.list(0, 100);
+    const contacts = await contactRepository.list(business.id, 0, 100);
 
     // Fetch the contact associated with this order
     let contact = null;
     if (order.contact_id) {
-        contact = await contactRepository.findById(BigInt(order.contact_id));
+        contact = await contactRepository.findById(business.id, Number(order.contact_id));
     }
 
     // Serialize for client component
