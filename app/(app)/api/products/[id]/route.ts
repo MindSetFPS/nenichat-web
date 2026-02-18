@@ -7,6 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs/promises';
 
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getBusinessFromUser } from '@/lib/user-auth';
+
 const productRepository = new ProductRepository(pool);
 
 // Define the upload directory
@@ -23,6 +26,13 @@ const uploadDir = path.join(process.cwd(), 'public', 'images', 'products');
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+      return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
 
     // Ensure the upload directory exists
     await fs.mkdir(uploadDir, { recursive: true });
@@ -80,14 +90,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       await client.query('BEGIN');
 
       // 1. Update the product details
-      const updatedProduct = await productRepository.update(id, updates);
+      const updatedProduct = await productRepository.update(business.id, id, updates);
       if (!updatedProduct) {
         await client.query('ROLLBACK');
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }
 
       // 2. Get current images associated with the product
-      const currentProduct = await productRepository.getById(id);
+      const currentProduct = await productRepository.getById(business.id, id);
       const currentImageIds = currentProduct?.images?.map(img => img.id) || [];
 
       // 3. Determine images to delete (those not in existingImageIds)
@@ -133,7 +143,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       await client.query('COMMIT');
 
       // Fetch the product again to include the newly associated images
-      const productWithImages = await productRepository.getById(id);
+      const productWithImages = await productRepository.getById(business.id, id);
 
       return NextResponse.json(productWithImages, { status: 200 });
     } catch (dbError) {
@@ -160,19 +170,26 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: productId } = await params;
 
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) {
+    return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+  }
+
   // Get imageId from query parameters or request body
   const { searchParams } = new URL(request.url);
   const imageId = searchParams.get('imageId');
 
   try {
     if (imageId) {
-      const success = await productRepository.deleteImage(productId, imageId);
+      const success = await productRepository.deleteImage(business.id, productId, imageId);
       if (!success) {
         return NextResponse.json({ error: 'Failed to delete image (not found or not associated)' }, { status: 404 });
       }
       return NextResponse.json({ message: 'Image deleted successfully' }, { status: 200 });
     } else {
-      const success = await productRepository.delete(productId);
+      const success = await productRepository.delete(business.id, productId);
       if (!success) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }

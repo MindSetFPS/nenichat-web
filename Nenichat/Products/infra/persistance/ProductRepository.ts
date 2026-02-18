@@ -20,10 +20,11 @@ export class ProductRepository implements IProductRepository {
 
   /**
    * Retrieves a product by its unique identifier, including its images.
+   * @param {number} businessId - The ID of the business.
    * @param {string} id - The ID of the product to retrieve.
    * @returns {Promise<IProduct | null>} A promise that resolves to the product if found, otherwise null.
    */
-  async getById(id: string): Promise<IProduct | null> {
+  async getById(businessId: number, id: string): Promise<IProduct | null> {
     const query = `
       SELECT
         p.*,
@@ -37,10 +38,10 @@ export class ProductRepository implements IProductRepository {
           '[]'
         ) as images
       FROM products p
-      WHERE p.id = $1
+      WHERE p.id = $1 AND p.business_id = $2
       GROUP BY p.id;
     `;
-    const result = await this.pool.query(query, [id]);
+    const result = await this.pool.query(query, [id, businessId]);
     if (result.rows.length === 0) {
       return null;
     }
@@ -61,9 +62,10 @@ export class ProductRepository implements IProductRepository {
 
   /**
    * Retrieves all products, including their images and units sold in the last month.
+   * @param {number} businessId - The ID of the business.
    * @returns {Promise<IProduct[]>} A promise that resolves to an array of products.
    */
-  async getAll(): Promise<IProductWithUnitsSold[]> {
+  async getAll(businessId: number): Promise<IProductWithUnitsSold[]> {
     const query = `
       SELECT
         p.*,
@@ -77,10 +79,11 @@ export class ProductRepository implements IProductRepository {
           '[]'
         ) as images
       FROM products p
+      WHERE p.business_id = $1
       GROUP BY p.id
       ORDER BY p.created_at DESC;
     `;
-    const result = await this.pool.query(query);
+    const result = await this.pool.query(query, [businessId]);
     const products = result.rows.map(
       (row) =>
         new Product(
@@ -103,12 +106,12 @@ export class ProductRepository implements IProductRepository {
         COUNT(*) as units_sold
       FROM order_items oi
       JOIN orders o ON oi.order_id = o.id
-      WHERE oi.product_id = $1
+      WHERE oi.product_id = $1 AND o.business_id = $2
       AND o.created_at >= CURRENT_DATE - INTERVAL '1 month'
     `;
 
     for (const product of products) {
-      const salesResult = await this.pool.query(salesQuery, [product.id]);
+      const salesResult = await this.pool.query(salesQuery, [product.id, businessId]);
       (product as any).units_sold = salesResult.rows[0].units_sold;
     }
 
@@ -118,12 +121,13 @@ export class ProductRepository implements IProductRepository {
 
   /**
    * Retrieves a list of products with pagination.
+   * @param {number} businessId - The ID of the business.
    * @param {number} limit - The maximum number of products to return.
    * @param {number} offset - The number of products to skip.
    * @param {boolean} active_only - Whether to only return active products or all products.
    * @returns {Promise<IProduct[]>} A promise that resolves to an array of products.
    */
-  async list(limit: number, offset: number, active_only?: boolean): Promise<IProduct[]> {
+  async list(businessId: number, limit: number, offset: number, active_only?: boolean): Promise<IProductWithUnitsSold[]> {
     const query = `
       SELECT
         p.*,
@@ -137,15 +141,16 @@ export class ProductRepository implements IProductRepository {
           '[]'
         ) as images
       FROM products p
-      ${active_only ? 'WHERE p.is_active = true' : ''}
+      WHERE p.business_id = $3
+      ${active_only ? 'AND p.is_active = true' : ''}
       GROUP BY p.id
       ORDER BY p.created_at DESC
       LIMIT $1 OFFSET $2;
     `;
-    const result = await this.pool.query(query, [limit, offset]);
+    const result = await this.pool.query(query, [limit, offset, businessId]);
     return result.rows.map(
-      (row) =>
-        new Product(
+      (row) => {
+        const product = new Product(
           row.id,
           row.name,
           row.description,
@@ -156,20 +161,24 @@ export class ProductRepository implements IProductRepository {
           row.is_active,
           row.created_at,
           row.updated_at
-        )
+        );
+        return {
+          ...product,
+          units_sold: 0 // Default to 0 for list in this repo
+        } as IProductWithUnitsSold;
+      }
     );
   }
 
   /**
-   * Creates a new product. Note: This method does not handle image creation.
-   * Image creation and association should be handled in a service layer or API route
-   * to ensure transactional integrity.
-   * @param {IProduct} product - The product object to create.
+   * Creates a new product.
+   * @param {number} businessId - The ID of the business.
+   * @param {Omit<IProduct, 'business_id' | 'created_at' | 'updated_at'>} product - The product data.
    * @returns {Promise<IProduct>} A promise that resolves to the created product.
    */
-  async create(product: IProduct): Promise<IProduct> {
+  async create(businessId: number, product: Omit<IProduct, 'business_id' | 'created_at' | 'updated_at'>): Promise<IProduct> {
     const result = await this.pool.query(
-      'INSERT INTO products (id, name, description, price, stock, whatsapp_product_id, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      'INSERT INTO products (id, name, description, price, stock, whatsapp_product_id, is_active, business_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
       [
         product.id,
         product.name,
@@ -178,6 +187,7 @@ export class ProductRepository implements IProductRepository {
         product.stock,
         product.whatsapp_product_id,
         product.is_active,
+        businessId
       ]
     );
     const row = result.rows[0];
@@ -196,28 +206,31 @@ export class ProductRepository implements IProductRepository {
   }
 
   /**
-   * Updates an existing product. Note: This method does not handle image updates.
-   * Image updates and associations should be handled in a service layer or API route
-   * to ensure transactional integrity.
+   * Updates an existing product.
+   * @param {number} businessId - The ID of the business.
    * @param {string} id - The ID of the product to update.
    * @param {Partial<IProduct>} updates - An object containing the fields to update.
    * @returns {Promise<IProduct | null>} A promise that resolves to the updated product if found, otherwise null.
    */
-  async update(id: string, updates: Partial<IProduct>): Promise<IProduct | null> {
+  async update(businessId: number, id: string, updates: Partial<IProduct>): Promise<IProduct | null> {
     const { images, ...productUpdates } = updates; // Exclude images from direct update
 
     const fields = Object.keys(productUpdates)
-      .map((key, index) => `"${key}" = $${index + 2}`)
+      .filter(key => key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'business_id')
+      .map((key, index) => `"${key}" = $${index + 3}`)
       .join(', ');
-    const values = Object.values(productUpdates);
+    const values = Object.values(productUpdates).filter((_, index) => {
+      const key = Object.keys(productUpdates)[index];
+      return key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'business_id';
+    });
 
     if (fields.length === 0) {
-      return this.getById(id); // No updates to apply
+      return this.getById(businessId, id); // No updates to apply
     }
 
     const result = await this.pool.query(
-      `UPDATE products SET ${fields}, updated_at = NOW() WHERE id = $1 RETURNING *`,
-      [id, ...values]
+      `UPDATE products SET ${fields}, updated_at = NOW() WHERE id = $1 AND business_id = $2 RETURNING *`,
+      [id, businessId, ...values]
     );
 
     if (result.rows.length === 0) {
@@ -225,17 +238,16 @@ export class ProductRepository implements IProductRepository {
     }
 
     // The updated product is fetched again to get the images
-    return this.getById(id);
+    return this.getById(businessId, id);
   }
 
   /**
    * Deletes a product by its unique identifier.
-   * This method handles the deletion of the product and cleans up any orphaned images
-   * from the database and filesystem.
+   * @param {number} businessId - The ID of the business.
    * @param {string} id - The ID of the product to delete.
    * @returns {Promise<boolean>} A promise that resolves to true if the product was deleted, otherwise false.
    */
-  async delete(id: string): Promise<boolean> {
+  async delete(businessId: number, id: string): Promise<boolean> {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -245,14 +257,14 @@ export class ProductRepository implements IProductRepository {
         `SELECT i.id, i.path 
          FROM images i
          JOIN product_images pi ON i.id = pi.image_id
-         WHERE pi.product_id = $1`,
-        [id]
+         JOIN products p ON pi.product_id = p.id
+         WHERE pi.product_id = $1 AND p.business_id = $2`,
+        [id, businessId]
       );
       const imagesToCheck = productImagesResult.rows;
 
       // 2. Delete the product
-      // This will cascade delete from product_images due to ON DELETE CASCADE foreign key
-      const deleteProductResult = await client.query('DELETE FROM products WHERE id = $1', [id]);
+      const deleteProductResult = await client.query('DELETE FROM products WHERE id = $1 AND business_id = $2', [id, businessId]);
 
       if ((deleteProductResult.rowCount || 0) === 0) {
         await client.query('ROLLBACK');
@@ -296,16 +308,22 @@ export class ProductRepository implements IProductRepository {
 
   /**
    * Deletes a specific image from a product.
-   * This method removes the association between the product and the image.
-   * If the image is not associated with any other products, it is deleted from the database and filesystem.
+   * @param {number} businessId - The ID of the business.
    * @param {string} productId - The ID of the product.
    * @param {string} imageId - The ID of the image to delete.
    * @returns {Promise<boolean>} A promise that resolves to true if the image was deleted/dissociated, otherwise false.
    */
-  async deleteImage(productId: string, imageId: string): Promise<boolean> {
+  async deleteImage(businessId: number, productId: string, imageId: string): Promise<boolean> {
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Verify product belongs to business
+      const productCheck = await client.query('SELECT id FROM products WHERE id = $1 AND business_id = $2', [productId, businessId]);
+      if (productCheck.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return false;
+      }
 
       // 1. Get image path from the images table
       const imageResult = await client.query('SELECT path FROM images WHERE id = $1', [imageId]);
@@ -345,8 +363,6 @@ export class ProductRepository implements IProductRepository {
             console.warn(`File not found on disk, skipping deletion: ${absolutePath}`);
           } else {
             console.error(`Failed to delete file ${absolutePath}:`, fsError);
-            // We don't rollback here because the DB state is consistent (image deleted)
-            // but we log the error.
           }
         }
       }

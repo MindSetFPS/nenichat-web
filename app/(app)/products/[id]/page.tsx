@@ -1,4 +1,3 @@
-import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
 import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/product-form'; // Import the new edit form
@@ -7,8 +6,9 @@ import { ChartBarLabel } from '@/components/products/chart';
 import { ProductOrdersByDate } from '@/Nenichat/Products/app/dto/product-orders-by-date';
 import { PageHeader } from '@/components/ui/page-header';
 import Content from '@/components/layout/content';
-
-const productRepository = new ProductRepository(pool);
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getBusinessFromUser } from '@/lib/user-auth';
+import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
 
 /**
  * @function ProductEditPage
@@ -19,14 +19,23 @@ const productRepository = new ProductRepository(pool);
  */
 export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await productRepository.getById(id);
+
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) {
+    return <div>Unauthorized</div>;
+  }
+
+  const productRepository = new SupabaseProductRepository(supabase);
+  const product = await productRepository.getById(business.id, id);
 
   // get sales by date include order table with join table in order_id column
   const order_items = await pool.query(
-    `SELECT quantity, order_id, o.created_at FROM order_items oi
+    `SELECT oi.quantity, o.id as order_id, o.created_at FROM order_items oi
     JOIN orders o ON oi.order_id = o.id 
-    WHERE product_id = $1`,
-    [id]
+    WHERE oi.product_id = $1 AND o.business_id = $2`,
+    [id, business.id]
   );
 
   const sales: ProductOrdersByDate[] = [];

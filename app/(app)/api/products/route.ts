@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ProductRepository } from '@/Nenichat/Products/infra/persistance/ProductRepository';
-import { pool } from '@/Nenichat/Shared/infra/persistance/db';
-import { IProduct } from '@/Nenichat/Products/domain/IProduct';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 import { IImage } from '@/dto/IImage';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs/promises';
 
-const productRepository = new ProductRepository(pool);
-
 // Define the upload directory
+// in next versions replace local image save with supabase bucket
 const uploadDir = path.join(process.cwd(), 'public', 'images', 'products');
 
 /**
@@ -19,13 +18,22 @@ const uploadDir = path.join(process.cwd(), 'public', 'images', 'products');
  * @returns {NextResponse} The response containing the list of products or an error.
  */
 export async function GET(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) {
+    return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+  }
+
+  const productRepository = new SupabaseProductRepository(supabase);
+
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const active_only = searchParams.get('active_only') === 'true';
 
-    const products = await productRepository.getAll();
+    const products = await productRepository.list(business.id, limit, offset, active_only);
     return NextResponse.json(products, { status: 200 });
   } catch (error) {
     console.error('Error listing products:', error);
@@ -40,6 +48,15 @@ export async function GET(request: NextRequest) {
  * @returns {NextResponse} The response containing the created product or an error.
  */
 export async function POST(request: NextRequest) {
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) {
+    return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+  }
+
+  const productRepository = new SupabaseProductRepository(supabase);
+
   try {
     // Ensure the upload directory exists
     await fs.mkdir(uploadDir, { recursive: true });
@@ -60,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     const newProductId = uuidv4();
     const images: IImage[] = [];
-    const imageFiles = formData.getAll('images') as File[]; // 'images' is the name of the file input
+    const imageFiles = formData.getAll('images') as File[];
 
     for (const file of imageFiles) {
       if (file instanceof File) {
@@ -76,61 +93,61 @@ export async function POST(request: NextRequest) {
         const newImage: IImage = {
           id: uuidv4(),
           path: relativePath,
-          alt_text: file.name, // Use original filename as alt text for now
+          alt_text: file.name,
           created_at: new Date(),
         };
         images.push(newImage);
       }
     }
 
-    // Start a transaction
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      // 1. Create the product
-      const newProduct: IProduct = {
+    // Creating product via Supabase
+    const { data: createdProduct, error: productError } = await supabase
+      .from('products')
+      .insert({
         id: newProductId,
+        business_id: business.id,
         name,
         description,
         price,
         stock,
-        images: [], // Images are handled separately
         whatsapp_product_id,
-        is_active,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      const createdProduct = await productRepository.create(newProduct);
+        is_active
+      })
+      .select()
+      .single();
 
-      // 2. Insert images into the images table and product_images table
-      for (let i = 0; i < images.length; i++) {
-        const image = images[i];
-        await client.query(
-          'INSERT INTO images (id, path, alt_text, created_at) VALUES ($1, $2, $3, $4)',
-          [image.id, image.path, image.alt_text, image.created_at]
-        );
-        await client.query(
-          'INSERT INTO product_images (product_id, image_id, display_order) VALUES ($1, $2, $3)',
-          [createdProduct.id, image.id, i]
-        );
-      }
+    if (productError) throw productError;
 
-      await client.query('COMMIT');
+    // Insert images and associations
+    if (images.length > 0) {
+      const { error: imagesError } = await supabase
+        .from('images')
+        .insert(images.map(img => ({
+          id: img.id,
+          path: img.path,
+          alt_text: img.alt_text,
+          created_at: img.created_at.toISOString()
+        })));
 
-      // Fetch the product again to include the newly associated images
-      const productWithImages = await productRepository.getById(createdProduct.id);
+      if (imagesError) throw imagesError;
 
-      return NextResponse.json(productWithImages, { status: 201 });
-    } catch (dbError) {
-      await client.query('ROLLBACK');
-      console.error('Database transaction failed:', dbError);
-      return NextResponse.json({ error: 'Failed to create product with images' }, { status: 500 });
-    } finally {
-      client.release();
+      const { error: assocError } = await supabase
+        .from('product_images')
+        .insert(images.map((img, i) => ({
+          product_id: createdProduct.id,
+          image_id: img.id,
+          display_order: i
+        })));
+
+      if (assocError) throw assocError;
     }
-  } catch (error) {
+
+    // Fetch the product again to include the newly associated images
+    const productWithImages = await productRepository.getById(business.id, createdProduct.id);
+
+    return NextResponse.json(productWithImages, { status: 201 });
+  } catch (error: any) {
     console.error('Error creating product:', error);
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create product', details: error.message }, { status: 500 });
   }
 }
