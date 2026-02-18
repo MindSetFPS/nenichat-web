@@ -2,6 +2,11 @@ import { RecentChats } from "@/components/chat/recent-chats";
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
 import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
 import Content from "@/components/layout/content";
+import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
+import { IChat } from "@/Nenichat/Chats/domain/IChat";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyChats } from "@/components/chat/empty-chats";
 
 export const metadata = {
   title: 'Chats',
@@ -13,10 +18,46 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode
 }) {
-
-  let contactsWithLastMessage: IContactWithLastMessage[] = [];
+  let contactsWithLastMessage: IChat[] = [];
   try {
-    contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError) console.error(userError)
+
+    // what business' contacts to retrieve
+    const { data: business, error: businessError } = await supabase
+      .from("business")
+      .select("id")
+      .eq("owner_id", user?.id)
+      .single();
+
+    if (businessError) console.error(businessError)
+
+    if (!business) {
+      throw new Error("No tienes un negocio");
+    }
+
+    const { data: containerData, error: containerError } = await supabase
+      .from("whatsapp-containers")
+      .select("*")
+      .eq("business_id", business.id)
+      .single();
+
+    if (containerError) console.error(containerError)
+
+    if (!containerData) {
+      return <Content>
+        <PageHeader title="" />
+        <EmptyChats />
+      </Content>
+    }
+
+    let url = "http://192.168.1.64" + "/api/user" + "/" + business.id
+    const wappChatRepository = new GoWappChatRepository(url, "admin", "admin")
+    // contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
+    contactsWithLastMessage = await wappChatRepository.list(0, 26)
+    console.log(contactsWithLastMessage)
   } catch (error) {
     console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
   }

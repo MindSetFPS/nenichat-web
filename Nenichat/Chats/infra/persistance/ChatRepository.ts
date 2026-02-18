@@ -11,12 +11,16 @@ export class ChatRepository implements IChatRepository {
     if (!data) return data;
     return new Chat(
       data.id,
+      data.name || 'Unknown',
+      data.last_message_time || new Date(),
+      data.ephemeral_expiration || 0,
       data.is_group,
-      data.created_at,
+      data.created_at || new Date(),
+      data.updated_at || new Date()
     );
   }
 
-  async findById(id: bigint): Promise<IChat | null> {
+  async findById(id: string): Promise<IChat | null> {
     const result = await this.pool.query('SELECT * FROM chats WHERE id = $1', [id]);
 
     if (result.rows.length === 0) {

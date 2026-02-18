@@ -10,13 +10,19 @@ import { Chat } from '../../domain/Chat';
  */
 export class GoWappChatRepository implements IChatRepository {
     private baseUrl: string;
+    private user?: string;
+    private password?: string;
 
     /**
      * Creates an instance of GoWappChatRepository.
      * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
+     * @param {string} [user] - Optional Basic Auth user.
+     * @param {string} [password] - Optional Basic Auth password.
      */
-    constructor(baseUrl?: string) {
+    constructor(baseUrl?: string, user?: string, password?: string) {
         this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://localhost:3000';
+        this.user = user;
+        this.password = password;
     }
 
     /**
@@ -24,17 +30,30 @@ export class GoWappChatRepository implements IChatRepository {
      * @template T
      * @param {string} path - The API path.
      * @param {RequestInit} [options={}] - Fetch options.
+     * @param {string} [user] - Optional Basic Auth user override.
+     * @param {string} [password] - Optional Basic Auth password override.
      * @returns {Promise<T>} The parsed JSON response.
      * @private
      */
-    private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    private async request<T>(path: string, options: RequestInit = {}, user?: string, password?: string): Promise<T> {
+        const authUser = user || this.user;
+        const authPassword = password || this.password;
+
+        const headers: any = {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        };
+
+        if (authUser && authPassword) {
+            headers['Authorization'] = `Basic ${btoa(`${authUser}:${authPassword}`)}`;
+        }
+
         const response = await fetch(`${this.baseUrl}${path}`, {
             ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers,
-            },
+            headers,
         });
+
+        console.log(response)
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
