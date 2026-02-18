@@ -8,17 +8,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CalendarDays, MessageSquare } from "lucide-react";
-import { campaignRepository } from '@/Nenichat/Campaigns/infra/persistance/CampaignRepository';
+import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
 import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import Link from "next/link";
 import { EmptyList } from "@/components/empty-list";
 import { PageHeader } from "@/components/ui/page-header";
 
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getBusinessFromUser } from '@/lib/user-auth';
+
 export const dynamic = 'force-dynamic';
 
 export default async function CampaignsPage() {
-  const allCampaigns: ICampaign[] = await campaignRepository.list(0, 100);
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) return <div>Unauthorized</div>;
+
+  const campaignRepository = new SupabaseCampaignRepository(supabase);
+  const allCampaigns: ICampaign[] = await campaignRepository.list(business.id, 0, 100);
+
 
   const now = new Date();
   now.setHours(0, 0, 0, 0); // Normalize 'now' to start of today for comparison

@@ -44,12 +44,11 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async findById(
-    id: string,
-    _includeAudiences = false,
-    _includeMessage = false
+    businessId: number,
+    id: string
   ): Promise<ICampaign | null> {
-    const query = "SELECT * FROM scheduled_tasks WHERE id = $1 AND task_type = 'message-campaign'";
-    const result = await this.pool.query(query, [id]);
+    const query = "SELECT * FROM scheduled_tasks WHERE id = $1 AND business_id = $2 AND task_type = 'message-campaign'";
+    const result = await this.pool.query(query, [id, businessId]);
 
     if (result.rows.length === 0) {
       return null;
@@ -57,7 +56,7 @@ export class CampaignRepository implements ICampaignRepository {
     return await this.toCampaign(result.rows[0]);
   }
 
-  async create(campaign: Partial<ICampaign>): Promise<ICampaign> {
+  async create(businessId: number, campaign: Partial<ICampaign>): Promise<ICampaign> {
     const {
       name,
       run_at,
@@ -100,15 +99,17 @@ export class CampaignRepository implements ICampaignRepository {
           frequency_type, 
           payload, 
           enabled,
-          task_type
-        ) VALUES ($1, $2, $3, $4, $5, $6, 'campaign') RETURNING *`,
+          task_type,
+          business_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, 'message-campaign', $7) RETURNING *`,
         [
           name,
           run_at || null,
           description || null,
           frequency_type,
           finalPayload,
-          enabled ?? true
+          enabled ?? true,
+          businessId
         ]
       );
 
@@ -124,7 +125,7 @@ export class CampaignRepository implements ICampaignRepository {
     }
   }
 
-  async update(campaign: Partial<ICampaign>): Promise<ICampaign> {
+  async update(businessId: number, campaign: Partial<ICampaign>): Promise<ICampaign> {
     const {
       id,
       name,
@@ -148,9 +149,9 @@ export class CampaignRepository implements ICampaignRepository {
     try {
       await client.query("BEGIN");
 
-      const existingResult = await client.query("SELECT * FROM scheduled_tasks WHERE id = $1 FOR UPDATE", [id]);
+      const existingResult = await client.query("SELECT * FROM scheduled_tasks WHERE id = $1 AND business_id = $2 FOR UPDATE", [id, businessId]);
       if (existingResult.rows.length === 0) {
-        throw new Error(`Campaign with id ${id} not found`);
+        throw new Error(`Campaign with id ${id} not found or unauthorized`);
       }
       const existing = existingResult.rows[0];
       const existingPayload = existing.payload || {};
@@ -212,7 +213,7 @@ export class CampaignRepository implements ICampaignRepository {
           cron_expression = $7,
           next_run_at = $8,
           updated_at = NOW()
-        WHERE id = $9
+        WHERE id = $9 AND business_id = $10
         RETURNING *`,
         [
           name,
@@ -223,7 +224,8 @@ export class CampaignRepository implements ICampaignRepository {
           enabled,
           cronExpression,
           nextRunAt,
-          id
+          id,
+          businessId
         ]
       );
 
@@ -238,17 +240,15 @@ export class CampaignRepository implements ICampaignRepository {
   }
 
   async list(
+    businessId: number,
     offset: number,
-    limit: number,
-    _includeAudiences = false,
-    _includeMessage = false
+    limit: number
   ): Promise<ICampaign[]> {
     const query =
-      "SELECT * FROM scheduled_tasks WHERE task_type = 'message-campaign' ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2";
+      "SELECT * FROM scheduled_tasks WHERE task_type = 'message-campaign' AND business_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2 OFFSET $3";
 
-    const result = await this.pool.query(query, [limit, offset]);
+    const result = await this.pool.query(query, [businessId, limit, offset]);
     const campaigns = await Promise.all(result.rows.map((d) => this.toCampaign(d)));
-    console.log(campaigns)
     return campaigns;
   }
 }
