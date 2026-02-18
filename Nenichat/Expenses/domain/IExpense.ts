@@ -4,6 +4,7 @@
  */
 export interface IExpense {
     id: number;
+    business_id: number;
     category_id: number;
     amount: number;
     description: string;

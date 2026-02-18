@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
@@ -65,21 +64,6 @@ export const columns: ColumnDef<IExpenseCategory>[] = [
                 <Badge variant={row.original.is_active ? "default" : "secondary"}>
                     {row.original.is_active ? 'Activa' : 'Inactiva'}
                 </Badge>
-            );
-        },
-    },
-    {
-        id: "actions",
-        header: "Acciones",
-        cell: ({ row }) => {
-            return (
-                <div className="flex gap-2">
-                    <Link href={`/expense-categories/${row.original.id}/edit`}>
-                        <Button variant="ghost" size="sm">
-                            Editar
-                        </Button>
-                    </Link>
-                </div>
             );
         },
     },

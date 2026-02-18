@@ -1,5 +1,4 @@
-import { pool } from "@/Nenichat/Shared/infra/persistance/db";
-import { ExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/ExpenseRepository";
+import { SupabaseExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus, Receipt } from "lucide-react";
@@ -7,13 +6,21 @@ import { EmptyList } from "@/components/empty-list";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/expenses/table/columns";
 import { PageHeader } from "@/components/ui/page-header";
-
-const expenseRepository = new ExpenseRepository(pool);
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
 
 export const dynamic = 'force-dynamic';
 
 export default async function ExpensesPage() {
-    const expenses = await expenseRepository.getAll();
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return <div>Unauthorized</div>;
+    }
+
+    const expenseRepository = new SupabaseExpenseRepository(supabase);
+    const expenses = await expenseRepository.getAll(business.id);
     const plainExpenses = JSON.parse(JSON.stringify(expenses));
 
     function CreateExpenseButton() {

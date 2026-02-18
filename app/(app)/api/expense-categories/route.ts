@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/Nenichat/Shared/infra/persistance/db';
-import { ExpenseCategoryRepository } from '@/Nenichat/Expenses/infra/persistance/ExpenseCategoryRepository';
-
-const categoryRepository = new ExpenseCategoryRepository(pool);
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseExpenseCategoryRepository } from '@/Nenichat/Expenses/infra/persistance/SupabaseExpenseCategoryRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 
 /**
  * GET /api/expense-categories
  * Fetch all active expense categories
  */
 export async function GET() {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
+    const categoryRepository = new SupabaseExpenseCategoryRepository(supabase);
+
     try {
-        const categories = await categoryRepository.getAll();
+        const categories = await categoryRepository.getAll(business.id);
         return NextResponse.json(categories);
     } catch (error: any) {
         console.error('Error fetching expense categories:', error);
@@ -21,34 +29,4 @@ export async function GET() {
     }
 }
 
-/**
- * POST /api/expense-categories
- * Create a new expense category
- */
-export async function POST(request: Request) {
-    try {
-        const body = await request.json();
 
-        if (!body.name) {
-            return NextResponse.json(
-                { error: 'Missing required field: name' },
-                { status: 400 }
-            );
-        }
-
-        const category = await categoryRepository.create({
-            name: body.name,
-            description: body.description || null,
-            color: body.color || '#6B7280',
-            is_active: true
-        });
-
-        return NextResponse.json(category, { status: 201 });
-    } catch (error: any) {
-        console.error('Error creating expense category:', error);
-        return NextResponse.json(
-            { error: 'Failed to create expense category', details: error.message },
-            { status: 500 }
-        );
-    }
-}

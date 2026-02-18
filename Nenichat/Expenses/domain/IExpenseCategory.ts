@@ -4,6 +4,7 @@
  */
 export interface IExpenseCategory {
     id: number;
+    business_id?: number;
     name: string;
     description: string | null;
     color: string;

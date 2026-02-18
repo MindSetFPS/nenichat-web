@@ -16,6 +16,7 @@ export class ExpenseRepository implements IExpenseRepository {
     private mapRowToExpense(row: any): IExpense {
         return {
             id: parseInt(row.id),
+            business_id: parseInt(row.business_id),
             category_id: parseInt(row.category_id),
             amount: parseFloat(row.amount),
             description: row.description,
@@ -37,7 +38,7 @@ export class ExpenseRepository implements IExpenseRepository {
         };
     }
 
-    async getAll(): Promise<IExpenseWithCategory[]> {
+    async getAll(businessId: number): Promise<IExpenseWithCategory[]> {
         const query = `
             SELECT 
                 e.*,
@@ -45,15 +46,16 @@ export class ExpenseRepository implements IExpenseRepository {
                 ec.color as category_color
             FROM expenses e
             JOIN expense_categories ec ON e.category_id = ec.id
+            WHERE e.business_id = $1
             ORDER BY e.expense_date DESC, e.created_at DESC
         `;
-        const result = await this.pool.query(query);
+        const result = await this.pool.query(query, [businessId]);
         return result.rows.map(row => this.mapRowToExpenseWithCategory(row));
     }
 
-    async getById(id: number): Promise<IExpense | null> {
-        const query = 'SELECT * FROM expenses WHERE id = $1';
-        const result = await this.pool.query(query, [id]);
+    async getById(businessId: number, id: number): Promise<IExpense | null> {
+        const query = 'SELECT * FROM expenses WHERE id = $1 AND business_id = $2';
+        const result = await this.pool.query(query, [id, businessId]);
 
         if (result.rows.length === 0) {
             return null;
@@ -62,7 +64,7 @@ export class ExpenseRepository implements IExpenseRepository {
         return this.mapRowToExpense(result.rows[0]);
     }
 
-    async getByCategoryId(categoryId: number): Promise<IExpenseWithCategory[]> {
+    async getByCategoryId(businessId: number, categoryId: number): Promise<IExpenseWithCategory[]> {
         const query = `
             SELECT 
                 e.*,
@@ -70,14 +72,14 @@ export class ExpenseRepository implements IExpenseRepository {
                 ec.color as category_color
             FROM expenses e
             JOIN expense_categories ec ON e.category_id = ec.id
-            WHERE e.category_id = $1
+            WHERE e.category_id = $1 AND e.business_id = $2
             ORDER BY e.expense_date DESC, e.created_at DESC
         `;
-        const result = await this.pool.query(query, [categoryId]);
+        const result = await this.pool.query(query, [categoryId, businessId]);
         return result.rows.map(row => this.mapRowToExpenseWithCategory(row));
     }
 
-    async getByDateRange(startDate: Date, endDate: Date): Promise<IExpenseWithCategory[]> {
+    async getByDateRange(businessId: number, startDate: Date, endDate: Date): Promise<IExpenseWithCategory[]> {
         const query = `
             SELECT 
                 e.*,
@@ -85,19 +87,19 @@ export class ExpenseRepository implements IExpenseRepository {
                 ec.color as category_color
             FROM expenses e
             JOIN expense_categories ec ON e.category_id = ec.id
-            WHERE e.expense_date >= $1 AND e.expense_date <= $2
+            WHERE e.expense_date >= $1 AND e.expense_date <= $2 AND e.business_id = $3
             ORDER BY e.expense_date DESC, e.created_at DESC
         `;
-        const result = await this.pool.query(query, [startDate, endDate]);
+        const result = await this.pool.query(query, [startDate, endDate, businessId]);
         return result.rows.map(row => this.mapRowToExpenseWithCategory(row));
     }
 
-    async create(expense: Omit<IExpense, 'id' | 'created_at' | 'updated_at'>): Promise<IExpense> {
+    async create(businessId: number, expense: Omit<IExpense, 'id' | 'business_id' | 'created_at' | 'updated_at'>): Promise<IExpense> {
         const query = `
             INSERT INTO expenses (
                 category_id, amount, description, vendor, 
-                payment_method, receipt_url, notes, expense_date
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                payment_method, receipt_url, notes, expense_date, business_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *
         `;
         const values = [
@@ -108,34 +110,35 @@ export class ExpenseRepository implements IExpenseRepository {
             expense.payment_method,
             expense.receipt_url,
             expense.notes,
-            expense.expense_date
+            expense.expense_date,
+            businessId
         ];
 
         const result = await this.pool.query(query, values);
         return this.mapRowToExpense(result.rows[0]);
     }
 
-    async update(id: number, updates: Partial<IExpense>): Promise<IExpense | null> {
+    async update(businessId: number, id: number, updates: Partial<IExpense>): Promise<IExpense | null> {
         const fields = Object.keys(updates)
-            .filter(key => key !== 'id' && key !== 'created_at' && key !== 'updated_at')
-            .map((key, index) => `${key} = $${index + 2}`)
+            .filter(key => key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'business_id')
+            .map((key, index) => `${key} = $${index + 3}`)
             .join(', ');
 
         const values = Object.entries(updates)
-            .filter(([key]) => key !== 'id' && key !== 'created_at' && key !== 'updated_at')
+            .filter(([key]) => key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'business_id')
             .map(([, value]) => value);
 
         if (fields.length === 0) {
-            return this.getById(id);
+            return this.getById(businessId, id);
         }
 
         const query = `
             UPDATE expenses 
             SET ${fields}, updated_at = NOW() 
-            WHERE id = $1 
+            WHERE id = $1 AND business_id = $2
             RETURNING *
         `;
-        const result = await this.pool.query(query, [id, ...values]);
+        const result = await this.pool.query(query, [id, businessId, ...values]);
 
         if (result.rows.length === 0) {
             return null;
@@ -144,23 +147,23 @@ export class ExpenseRepository implements IExpenseRepository {
         return this.mapRowToExpense(result.rows[0]);
     }
 
-    async delete(id: number): Promise<boolean> {
-        const query = 'DELETE FROM expenses WHERE id = $1';
-        const result = await this.pool.query(query, [id]);
+    async delete(businessId: number, id: number): Promise<boolean> {
+        const query = 'DELETE FROM expenses WHERE id = $1 AND business_id = $2';
+        const result = await this.pool.query(query, [id, businessId]);
         return (result.rowCount || 0) > 0;
     }
 
-    async getTotalByDateRange(startDate: Date, endDate: Date): Promise<number> {
+    async getTotalByDateRange(businessId: number, startDate: Date, endDate: Date): Promise<number> {
         const query = `
             SELECT COALESCE(SUM(amount), 0) as total
             FROM expenses
-            WHERE expense_date >= $1 AND expense_date <= $2
+            WHERE expense_date >= $1 AND expense_date <= $2 AND business_id = $3
         `;
-        const result = await this.pool.query(query, [startDate, endDate]);
+        const result = await this.pool.query(query, [startDate, endDate, businessId]);
         return parseFloat(result.rows[0].total);
     }
 
-    async getTotalByCategory(startDate: Date, endDate: Date): Promise<Array<{
+    async getTotalByCategory(businessId: number, startDate: Date, endDate: Date): Promise<Array<{
         category_id: number;
         category_name: string;
         category_color: string;
@@ -176,7 +179,7 @@ export class ExpenseRepository implements IExpenseRepository {
                     SUM(e.amount) as total
                 FROM expenses e
                 JOIN expense_categories ec ON e.category_id = ec.id
-                WHERE e.expense_date >= $1 AND e.expense_date <= $2
+                WHERE e.expense_date >= $1 AND e.expense_date <= $2 AND e.business_id = $3
                 GROUP BY e.category_id, ec.name, ec.color
             ),
             grand_total AS (
@@ -195,7 +198,7 @@ export class ExpenseRepository implements IExpenseRepository {
             CROSS JOIN grand_total gt
             ORDER BY ct.total DESC
         `;
-        const result = await this.pool.query(query, [startDate, endDate]);
+        const result = await this.pool.query(query, [startDate, endDate, businessId]);
         return result.rows.map(row => ({
             category_id: parseInt(row.category_id),
             category_name: row.category_name,
@@ -205,7 +208,7 @@ export class ExpenseRepository implements IExpenseRepository {
         }));
     }
 
-    async getDailyTotals(startDate: Date, endDate: Date): Promise<Array<{
+    async getDailyTotals(businessId: number, startDate: Date, endDate: Date): Promise<Array<{
         date: Date;
         total: number;
     }>> {
@@ -214,11 +217,11 @@ export class ExpenseRepository implements IExpenseRepository {
                 expense_date as date,
                 SUM(amount) as total
             FROM expenses
-            WHERE expense_date >= $1 AND expense_date <= $2
+            WHERE expense_date >= $1 AND expense_date <= $2 AND business_id = $3
             GROUP BY expense_date
             ORDER BY expense_date ASC
         `;
-        const result = await this.pool.query(query, [startDate, endDate]);
+        const result = await this.pool.query(query, [startDate, endDate, businessId]);
         return result.rows.map(row => ({
             date: new Date(row.date),
             total: parseFloat(row.total)

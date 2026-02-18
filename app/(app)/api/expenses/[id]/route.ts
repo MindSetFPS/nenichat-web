@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/Nenichat/Shared/infra/persistance/db';
-import { ExpenseRepository } from '@/Nenichat/Expenses/infra/persistance/ExpenseRepository';
-
-const expenseRepository = new ExpenseRepository(pool);
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseExpenseRepository } from '@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 
 /**
  * GET /api/expenses/[id]
@@ -12,9 +11,18 @@ export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
+    const expenseRepository = new SupabaseExpenseRepository(supabase);
+
     try {
         const { id } = await params;
-        const expense = await expenseRepository.getById(parseInt(id));
+        const expense = await expenseRepository.getById(business.id, parseInt(id));
 
         if (!expense) {
             return NextResponse.json(
@@ -41,6 +49,15 @@ export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
+    const expenseRepository = new SupabaseExpenseRepository(supabase);
+
     try {
         const { id } = await params;
         const body = await request.json();
@@ -55,7 +72,7 @@ export async function PUT(
         if (body.notes !== undefined) updates.notes = body.notes;
         if (body.expense_date !== undefined) updates.expense_date = new Date(body.expense_date);
 
-        const expense = await expenseRepository.update(parseInt(id), updates);
+        const expense = await expenseRepository.update(business.id, parseInt(id), updates);
 
         if (!expense) {
             return NextResponse.json(
@@ -82,9 +99,18 @@ export async function DELETE(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
+    const expenseRepository = new SupabaseExpenseRepository(supabase);
+
     try {
         const { id } = await params;
-        const success = await expenseRepository.delete(parseInt(id));
+        const success = await expenseRepository.delete(business.id, parseInt(id));
 
         if (!success) {
             return NextResponse.json(
