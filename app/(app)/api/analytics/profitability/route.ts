@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/Nenichat/Shared/infra/persistance/db';
-import { ExpenseRepository } from '@/Nenichat/Expenses/infra/persistance/ExpenseRepository';
-import { OrderRepository } from '@/Nenichat/Orders/infra/persistance/OrderRepository';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseExpenseRepository } from '@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 import { IProfitabilityReport } from '@/Nenichat/Expenses/app/dto/IProfitabilityReport';
-
-const expenseRepository = new ExpenseRepository(pool);
-const orderRepository = new OrderRepository(pool);
 
 /**
  * GET /api/analytics/profitability
@@ -13,6 +10,15 @@ const orderRepository = new OrderRepository(pool);
  * Query params: start_date, end_date (defaults to current month)
  */
 export async function GET(request: Request) {
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+        return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
+    const expenseRepository = new SupabaseExpenseRepository(supabase);
+
     try {
         const { searchParams } = new URL(request.url);
 
@@ -28,37 +34,36 @@ export async function GET(request: Request) {
             ? new Date(searchParams.get('end_date')!)
             : defaultEndDate;
 
-        // Fetch revenue data (only paid orders)
-        const revenueQuery = `
-            SELECT COALESCE(SUM(total_amount), 0) as total
-            FROM orders
-            WHERE payment_status = 'paid'
-            AND created_at >= $1 AND created_at <= $2
-        `;
-        const revenueResult = await pool.query(revenueQuery, [startDate, endDate]);
-        const revenue = parseFloat(revenueResult.rows[0].total);
+        // Fetch revenue data (only paid orders) using Supabase
+        const { data: orders, error: ordersError } = await supabase
+            .from('orders')
+            .select('total_amount, created_at')
+            .eq('business_id', business.id)
+            .eq('payment_status', 'paid')
+            .gte('created_at', startDate.toISOString())
+            .lte('created_at', endDate.toISOString());
+
+        if (ordersError) throw ordersError;
+
+        const revenue = (orders || []).reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
 
         // Fetch daily revenue
-        const dailyRevenueQuery = `
-            SELECT 
-                DATE(created_at) as date,
-                SUM(total_amount) as amount
-            FROM orders
-            WHERE payment_status = 'paid'
-            AND created_at >= $1 AND created_at <= $2
-            GROUP BY DATE(created_at)
-            ORDER BY date ASC
-        `;
-        const dailyRevenueResult = await pool.query(dailyRevenueQuery, [startDate, endDate]);
-        const revenueByDay = dailyRevenueResult.rows.map(row => ({
-            date: new Date(row.date),
-            amount: parseFloat(row.amount)
-        }));
+        const dailyRevenue: Record<string, number> = {};
+        (orders || []).forEach(order => {
+            const dateStr = new Date(order.created_at).toISOString().split('T')[0];
+            dailyRevenue[dateStr] = (dailyRevenue[dateStr] || 0) + parseFloat(order.total_amount);
+        });
+
+        const revenueByDay = Object.entries(dailyRevenue).map(([date, amount]) => ({
+            date: new Date(date),
+            amount
+        })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
         // Fetch expense data
-        const expenses = await expenseRepository.getTotalByDateRange(startDate, endDate);
-        const expensesByCategory = await expenseRepository.getTotalByCategory(startDate, endDate);
-        const expensesByDay = await expenseRepository.getDailyTotals(startDate, endDate);
+        const expenses = await expenseRepository.getTotalByDateRange(business.id, startDate, endDate);
+        const expensesByCategory = await expenseRepository.getTotalByCategory(business.id, startDate, endDate);
+        const expensesByDay = await expenseRepository.getDailyTotals(business.id, startDate, endDate);
+
         // Map to match interface
         const expensesByDayMapped = expensesByDay.map(item => ({
             date: item.date,
