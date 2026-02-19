@@ -1,8 +1,6 @@
-import { messageRepository } from "@/Nenichat/Messages/infra/persistance/MessageRepository";
 import { MessagesChart } from "@/components/home/messages-chart";
 import { OrdersTotalValueChart } from "@/components/home/orders-total-chart";
-import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository";
-import { pool } from "@/Nenichat/Shared/infra/persistance/db";
+import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
 import { OrderProductChart } from "@/components/home/product-orders-chart";
 import BusinessSummary from "@/components/home/business-summary";
@@ -13,13 +11,12 @@ import Content from "@/components/layout/content";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CreateBusinessSection } from "@/components/forms/create-business-section";
 import { requireAuth } from "@/lib/auth";
+import { WelcomePage } from "@/components/home/welcome-page";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Home',
 }
-
-const orderRepository = new OrderRepository(pool);
 
 export default async function Page() {
   const supabase = await createServerSupabaseClient();
@@ -42,10 +39,12 @@ export default async function Page() {
     );
   }
 
-  const messagesPerDay: any[] = []; //await messageRepository.getMessageCountPerDay(14);
-  const orders: any[] = []; //await orderRepository.getAll();
+  const orderRepository = new SupabaseOrderRepository(supabase);
+
+  const messagesPerDay: any[] = []; //await messageRepository.getMessageCountPerDay(business.id, 14);
+  const orders: any[] = await orderRepository.getAll(business.id);
   const plainOrders = JSON.parse(JSON.stringify(orders));
-  const orderTotalsPerDay: any[] = []; //await orderRepository.getOrderTotalPerDay(14);
+  const orderTotalsPerDay: any[] = await orderRepository.getOrderTotalPerDay(business.id, 14);
 
   const totalRevenue = plainOrders.reduce((acc: number, order: any) => {
     return acc + (order.payment_status === 'paid' ? Number(order.total_amount) : 0);
@@ -56,9 +55,15 @@ export default async function Page() {
     return acc + Number(order.total_amount);
   }, 0);
 
-  const ordersCountByDateInterval: any[] = []; //await orderRepository.getProductOrdersByDateInterval(14);
-  const ordersCountByDayOfWeek: any[] = []; //await orderRepository.getOrdersCountByDayOfWeek();
-  const ordersToday: any[] = []; //await orderRepository.getOrdersCountByDate(new Date());
+  const ordersCountByDateInterval: any[] = await orderRepository.getProductOrdersByDateInterval(business.id, 14);
+  const ordersCountByDayOfWeek: any[] = await orderRepository.getOrdersCountByDayOfWeek(business.id);
+  const ordersToday: any[] = await orderRepository.getOrdersCountByDate(business.id, new Date());
+
+  if (orders.length === 0) {
+    return (
+      <WelcomePage />
+    );
+  }
 
   return (
     <Content className="p-4 scroll-auto overflow-y-auto">
