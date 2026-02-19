@@ -1,10 +1,20 @@
-
 import { NextResponse } from 'next/server'
-import { pool } from '@/Nenichat/Shared/infra/persistance/db'
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 import { CronExpressionParser } from 'cron-parser'
 import { ICampaignRequest } from '@/Nenichat/Campaigns/dto/ICampaignRequest';
 
 export async function POST(request: Request) {
+  const supabase = await createServerSupabaseClient();
+  const { business, error: authError } = await getBusinessFromUser(supabase);
+
+  if (authError || !business) {
+    return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+  }
+
+  const campaignRepository = new SupabaseCampaignRepository(supabase);
+
   try {
     const body = await request.json() as ICampaignRequest;
     const {
@@ -30,19 +40,9 @@ export async function POST(request: Request) {
     const hour = runAtDate.getHours();
     const minute = runAtDate.getMinutes();
 
-    // in my time zone merida mexico, the time set is 3:00 pm, however,
-    // the Date object shows 21:00 or 9:00 pm
-    // as long as it runs at the correct time, it's fine
-
-    let lastRunAt = null; // null because we are creating it
     let nextRunAt = null;
-
-    if (frequency_type === 'once') { // set run_at to run_at
-      runAtDate.setHours(hour);
-      runAtDate.setMinutes(minute);
-    }
-
     let cronExpression = '';
+
     if (frequency_type === 'recurring') {
       // generate cron expression compatible with linux cron
       if (interval === 'daily') {
@@ -52,22 +52,32 @@ export async function POST(request: Request) {
       } else if (interval === 'monthly') {
         cronExpression = `${minute} ${hour} ${dayOfMonth} * *`;
       }
-      // calculate next run from cron expression 
-      const cronInterval = CronExpressionParser.parse(cronExpression);
 
-      const nextRunAtDate = cronInterval.next().toDate();
-      nextRunAt = nextRunAtDate;
+      // calculate next run from cron expression 
+      try {
+        const cronInterval = CronExpressionParser.parse(cronExpression);
+        nextRunAt = cronInterval.next().toDate();
+      } catch (e) {
+        console.error("Error parsing cron expression:", e);
+      }
     }
 
-    let res = await pool.query(
-      `INSERT INTO scheduled_tasks 
-      (name, description,  task_type, frequency_type, cron_expression, run_at,   payload,                 enabled, last_run_at, next_run_at, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [name, description, 'message-campaign', frequency_type, cronExpression, runAtDate, { message, audienceIds }, true, lastRunAt, nextRunAt, new Date(), new Date()]
-    );
+    await campaignRepository.create(business.id, {
+      name,
+      description,
+      task_type: 'message-campaign',
+      frequency_type: frequency_type as "recurring" | "once",
+      cron_expression: cronExpression,
+      run_at: runAtDate,
+      payload: { message, audienceIds },
+      enabled: true,
+      last_run_at: undefined,
+      next_run_at: nextRunAt || undefined
+    });
 
     return NextResponse.json("Campaign created successfully", { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to create campaign:', error);
-    return NextResponse.json({ error: 'Failed to create campaign' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create campaign', details: error.message }, { status: 500 });
   }
 }
