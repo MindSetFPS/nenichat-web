@@ -57,20 +57,9 @@ export function AppSidebar() {
         },
         {
             id: 'expenses',
+            href: '/expenses',
             icon: Receipt,
-            label: 'Gastos',
-            submenu: [
-                {
-                    id: 'expenses-list',
-                    href: '/expenses',
-                    label: 'Ver todos'
-                },
-                {
-                    id: 'expense-categories',
-                    href: '/expense-categories',
-                    label: 'Categorías'
-                }
-            ]
+            label: 'Gastos'
         },
         {
             id: 'profitability',
