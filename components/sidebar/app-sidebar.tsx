@@ -56,6 +56,12 @@ export function AppSidebar() {
             label: 'Ventas'
         },
         {
+            id: 'products',
+            href: '/products',
+            icon: PackageIcon,
+            label: 'Productos'
+        },
+        {
             id: 'expenses',
             href: '/expenses',
             icon: Receipt,
@@ -66,12 +72,6 @@ export function AppSidebar() {
             href: '/profitability',
             icon: TrendingUp,
             label: 'Rentabilidad'
-        },
-        {
-            id: 'products',
-            href: '/products',
-            icon: PackageIcon,
-            label: 'Productos'
         },
         {
             id: 'campaigns',
