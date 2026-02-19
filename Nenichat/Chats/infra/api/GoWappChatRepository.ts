@@ -53,8 +53,6 @@ export class GoWappChatRepository implements IChatRepository {
             headers,
         });
 
-        console.log(response)
-
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || `GoWapp API request failed with status ${response.status}`);
