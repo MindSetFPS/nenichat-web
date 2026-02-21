@@ -2,10 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/ui/page-header"
-import { Loader2, MessageCircle, QrCode, Shield, Zap, CheckCircle2, AlertCircle, RefreshCcw } from "lucide-react"
+import { Loader2, QrCode, CheckCircle2, AlertCircle, RefreshCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useEffect } from "react"
@@ -166,102 +164,92 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
     }
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-y-scroll">
             <main className="flex-1 w-full max-w-4xl mx-auto ">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="space-y-8"
+                    className="space-y-4"
                 >
                     <Hero />
-                    {/* Call to Action */}
-                    <Card
-                        className="relative overflow-hidden border border-border/50 bg-linear-to-br from-card/50 to-muted/30 backdrop-blur-md rounded-4xl p-0">
-                        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-green-500/10 blur-[100px] rounded-full pointer-events-none" />
+                    {/* <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-green-500/10 blur-[100px] rounded-full pointer-events-none" /> */}
 
-                        <CardContent className="p-0 py-4 lg:p-12 text-center flex flex-col items-center">
-                            <AnimatePresence mode="wait">
-                                {step === 1 ? (
-                                    <motion.div
-                                        key="step1"
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 1.05 }}
-                                        className="space-y-6 w-full max-w-md px-2"
-                                    >
-                                        <div className="space-y-2">
-                                            <h2 className="text-2xl font-bold">¿Listo para comenzar?</h2>
-                                            <p className="text-muted-foreground">Conecta tu cuenta de WhatsApp a Nenichat.</p>
+                    <AnimatePresence mode="wait">
+                        {step === 1 ? (
+                            <motion.div
+                                key="step1"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 1.05 }}
+                                className="space-y-6 mx-auto w-full max-w-md px-2"
+                            >
+                                <Button
+                                    size="lg"
+                                    className="w-full rounded-2xl h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white shadow-xl shadow-green-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                    onClick={handleCreateWAPPConnection}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                            Provisionando instancia...
+                                        </>
+                                    ) : (
+                                        "Vincular una cuenta"
+                                    )}
+                                </Button>
+                                <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+                                    <CheckCircle2 className="h-3 w-3 text-green-500" /> No requiere tarjeta de crédito
+                                </p>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="step2"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="flex justify-center mx-auto w-full flex-col md:flex-row items-center"
+                            >
+                                <div className="w-64 h-64 border-2 border-muted flex items-center justify-center relative overflow-hidden group">
+                                    {qrCode && !isQrExpired ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={qrCode}
+                                            alt="WhatsApp QR Code"
+                                            className={`h-full aspect-square w-full object-contain transition-opacity duration-300 ${isQrExpired ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+                                        />
+                                    ) : (<></>)}
+
+                                    {/* Reload button - only show when expired */}
+                                    {isQrExpired && (
+                                        <div className="flex flex-col gap-2">
+                                            {/* TODO: Check if user could succesfully log in */}
+                                            <Button variant="default">
+                                                Ya escaneé el código QR
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="default"
+                                                className="hover:cursor-pointer"
+                                                onClick={handleRegenerateQRCode}
+                                                disabled={isLoading}
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    {isLoading ? (
+                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                    ) : (
+                                                        <RefreshCcw className="h-4 w-4" />
+                                                    )}
+                                                    <span>Obtener otro código QR</span>
+                                                </span>
+                                            </Button>
                                         </div>
-
-                                        <Button
-                                            size="lg"
-                                            className="w-full rounded-2xl h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white shadow-xl shadow-green-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                                            onClick={handleCreateWAPPConnection}
-                                            disabled={isLoading}
-                                        >
-                                            {isLoading ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                                    Provisionando instancia...
-                                                </>
-                                            ) : (
-                                                "Vincular cuenta nueva"
-                                            )}
-                                        </Button>
-                                        <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
-                                            <CheckCircle2 className="h-3 w-3 text-green-500" /> No requiere tarjeta de crédito
-                                        </p>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        key="step2"
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="flex flex-col items-center"
-                                    >
-                                        <div className="w-64 h-64 bg-white p-4 rounded-3xl shadow-inner border-8 border-muted flex items-center justify-center relative overflow-hidden group">
-                                            {qrCode ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={qrCode}
-                                                    alt="WhatsApp QR Code"
-                                                    className={`h-full aspect-square w-full object-contain transition-opacity duration-300 ${isQrExpired ? 'opacity-20 blur-sm' : 'opacity-100'}`}
-                                                />
-                                            ) : (
-                                                <>
-                                                    <div className="absolute inset-0 bg-linear-to-tr from-muted/50 to-transparent animate-pulse" />
-                                                    <QrCode className="h-40 w-40 aspect-square text-muted-foreground/30 relative z-10" />
-                                                </>
-                                            )}
-
-                                            {/* Reload button - only show when expired */}
-                                            <div className={`absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-xs transition-opacity duration-300 ${isQrExpired ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                                                <Button
-                                                    variant="default"
-                                                    size="default"
-                                                    className="rounded-2xl shadow-xl relative z-10"
-                                                    onClick={handleRegenerateQRCode}
-                                                    disabled={isLoading}
-                                                >
-                                                    <span className="flex items-center gap-2">
-                                                        {isLoading ? (
-                                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                                        ) : (
-                                                            <RefreshCcw className="h-4 w-4" />
-                                                        )}
-                                                        <span>Recargar código QR</span>
-                                                    </span>
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <QrCodeSetupInstructions />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </CardContent>
-                    </Card>
+                                    )}
+                                </div>
+                                <QrCodeSetupInstructions />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
             </main>
         </div>
