@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase"
 import { useEffect } from "react"
 import QrCodeSetupInstructions from "./qr-code-setup-instructions"
 import Hero from "./hero"
+import CheckWappAuthButton from "./check-wapp-auth-button"
 
 interface WhatsAppSetupPageProps {
     businessId: string;
@@ -33,8 +34,30 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
     useEffect(() => {
         if (step !== 2) return
 
+        const handleDbChange = (payload: any) => {
+            if (payload.new && Object.keys(payload.new).length > 0) {
+                if (payload.new.qr_code_url) {
+                    setQrCode(payload.new.qr_code_url)
+                }
+                const newUpdatedAt = payload.new.qr_code_updated_at
+                if (newUpdatedAt) {
+                    setQrCodeUpdatedAt(newUpdatedAt)
+                }
+            }
+        }
+
         const channel = supabase
             .channel('schema-db-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'whatsapp-containers',
+                    filter: `business_id=eq.${businessId}`,
+                },
+                handleDbChange
+            )
             .on(
                 'postgres_changes',
                 {
@@ -43,18 +66,7 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
                     table: 'whatsapp-containers',
                     filter: `business_id=eq.${businessId}`,
                 },
-                (payload) => {
-                    if (payload.new) {
-                        if (payload.new.qr_code_url) {
-                            setQrCode(payload.new.qr_code_url)
-                        }
-                        // Update the timestamp whenever we get an update
-                        const newUpdatedAt = payload.new.qr_code_updated_at
-                        if (newUpdatedAt) {
-                            setQrCodeUpdatedAt(newUpdatedAt)
-                        }
-                    }
-                }
+                handleDbChange
             )
             .subscribe()
 
@@ -199,9 +211,6 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
                                         "Vincular una cuenta"
                                     )}
                                 </Button>
-                                <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
-                                    <CheckCircle2 className="h-3 w-3 text-green-500" /> No requiere tarjeta de crédito
-                                </p>
                             </motion.div>
                         ) : (
                             <motion.div
@@ -210,7 +219,8 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="flex justify-center mx-auto w-full flex-col md:flex-row items-center"
                             >
-                                <div className="w-64 h-64 border-2 border-muted flex items-center justify-center relative overflow-hidden group">
+                                <QrCodeSetupInstructions />
+                                <div className="w-64 h-64 flex items-center justify-center relative overflow-hidden group">
                                     {qrCode && !isQrExpired ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
@@ -224,9 +234,7 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
                                     {isQrExpired && (
                                         <div className="flex flex-col gap-2">
                                             {/* TODO: Check if user could succesfully log in */}
-                                            <Button variant="default">
-                                                Ya escaneé el código QR
-                                            </Button>
+                                            <CheckWappAuthButton businessId={businessId} />
                                             <Button
                                                 variant="outline"
                                                 size="default"
@@ -246,7 +254,6 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
                                         </div>
                                     )}
                                 </div>
-                                <QrCodeSetupInstructions />
                             </motion.div>
                         )}
                     </AnimatePresence>

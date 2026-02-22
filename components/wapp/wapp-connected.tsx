@@ -1,11 +1,9 @@
-import { CheckCircle2, RefreshCcw } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import Link from "next/link";
-import { Button } from "../ui/button";
 
 export default function WappConnected(container: any) {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 mx-4">
             <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/10 dark:border-green-800 rounded-3xl">
                 <CardHeader className="text-center pb-2">
                     <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mx-auto mb-2">
@@ -24,12 +22,6 @@ export default function WappConnected(container: any) {
                             <span className="font-mono text-xs">{container.container_id || 'N/A'}</span>
                         </div>
                     </div>
-                    <Button asChild variant="outline" className="w-full rounded-xl">
-                        <Link href="#" onClick={(e: React.MouseEvent) => { e.preventDefault(); window.location.search = '?reconnect=true'; }}>
-                            <RefreshCcw className="mr-2 h-4 w-4" />
-                            Forzar nueva vinculación
-                        </Link>
-                    </Button>
                 </CardContent>
             </Card>
         </div>
