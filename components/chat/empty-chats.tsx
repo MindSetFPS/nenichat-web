@@ -72,35 +72,12 @@ export function EmptyChats() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                    <Button size="lg" className="rounded-2xl px-8 h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all group overflow-hidden relative">
-                        <span className="relative z-10 flex items-center">
-                            <RefreshCw className="mr-2 h-5 w-5 group-hover:rotate-180 transition-transform duration-700" />
-                            Sincronizar Mensajes
-                        </span>
-                        <motion.div
-                            className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
-                            animate={{ x: ['-100%', '200%'] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        />
-                    </Button>
-                    <Link href="/settings/connections/whatsapp">
+                    <Link href="/wapp">
                         <Button variant="outline" size="lg" className="rounded-2xl px-8 h-12 text-base font-semibold border-border/50 bg-muted/30 hover:bg-muted/50 transition-colors">
                             Conectar WhatsApp
                         </Button>
                     </Link>
                 </div>
-
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.6 }}
-                    transition={{ delay: 1.2, duration: 1 }}
-                    className="mt-16 pt-8 border-t border-border/50 w-full"
-                >
-                    <div className="flex items-center justify-center gap-2 text-sm text-balance">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-muted-foreground font-medium">Sistema listo para recibir mensajes</span>
-                    </div>
-                </motion.div>
             </motion.div>
         </div>
     );
