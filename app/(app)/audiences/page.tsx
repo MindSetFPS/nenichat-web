@@ -74,29 +74,32 @@ export default function AudiencesPage() {
 
   const createAudienceButton = <Button onClick={() => setIsCreateDialogOpen(true)}>Create Audience</Button>
 
+  if (audiences.length === 0) {
+    return (
+      <>
+        <PageHeader />
+        <EmptyList
+          action={createAudienceButton}
+          description="Start building your audiences by creating your first audience."
+          title="No audiences found"
+          icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
+      </>
+    )
+  }
+
   return (
     <>
       <PageHeader title="Audiences">
         {audiences.length > 0 && createAudienceButton}
       </PageHeader>
 
-      {audiences.length === 0 ?
-        <EmptyList
-          action={createAudienceButton}
-          description="Start building your audiences by creating your first audience."
-          title="No audiences found"
-          icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
-        :
-        <>
-          <AudiencesTable
-            audiences={audiences}
-            onDeleteClick={(audience) => {
-              setSelectedAudience(audience);
-              setIsDeleteDialogOpen(true);
-            }}
-          />
-        </>
-      }
+      <AudiencesTable
+        audiences={audiences}
+        onDeleteClick={(audience) => {
+          setSelectedAudience(audience);
+          setIsDeleteDialogOpen(true);
+        }}
+      />
       <CreateAudienceDialog
         handleCreateAudience={handleCreateAudience}
         isCreateDialogOpen={isCreateDialogOpen}
