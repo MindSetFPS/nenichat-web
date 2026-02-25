@@ -7,6 +7,8 @@ import { PageHeader } from '@/components/ui/page-header';
 import Content from '@/components/layout/content';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
+import { EmptyList } from '@/components/empty-list';
+import { Package } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Productos',
@@ -30,6 +32,7 @@ export default async function ProductsPage() {
       error = authError || 'Unauthorized';
     } else {
       const productRepository = new SupabaseProductRepository(supabase);
+
       products = await productRepository.getAll(business.id);
 
       // sort by is_active true first, is_active false second
@@ -45,14 +48,28 @@ export default async function ProductsPage() {
     return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
   }
 
+  if (products.length === 0) {
+    return (
+      <>
+        <PageHeader />
+        <EmptyList
+          title="Sin productos"
+          description="Cuando agregues tu primer producto aparecerá aquí."
+          action={<ProductActions />}
+          icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
+        />
+      </>
+    )
+  }
+
   return (
-    <Content className="p-4 scroll-auto overflow-y-auto">
+    <>
       <PageHeader title="Productos">
-        {products.length !== 0 &&
+        {products.length === 0 &&
           <ProductActions />
         }
       </PageHeader>
       <ProductsList />
-    </Content>
+    </>
   );
 }

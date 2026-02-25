@@ -42,38 +42,40 @@ export default async function OrdersPage() {
 
     const plainOrders = JSON.parse(JSON.stringify(orders));
 
+    if (plainOrders.length === 0) {
+        return (
+            <>
+                <PageHeader />
+                <EmptyList
+                    title="Sin ordenes"
+                    description="Cuando hagas tu primera orden aparecerá aquí."
+                    action={<CreateOrderButton />}
+                    icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
+                />
+            </>
+        )
+    }
+
     return (
         <>
-            {
-                plainOrders.length === 0 ?
-                    <EmptyList
-                        title="Sin ordenes"
-                        description="Cuando hagas tu primera orden aparecerá aquí."
-                        action={<CreateOrderButton />}
-                        icon={<Package className="w-16 h-16 text-primary" strokeWidth={1.5} />}
-                    />
-                    :
-                    <>
-                        <PageHeader title="Ventas">
-                            <CreateOrderButton />
-                        </PageHeader>
-                        <DataTable
-                            columns={columns}
-                            data={plainOrders}
-                            searchInputColumnId="id"
-                            showDateSelector={true}
-                            showSearchInput={false}
-                            visibleColumns={{
-                                "updated_at": false,
-                                "status": false,
-                                "payment_method": false,
-                                "refunded_amount": false,
-                                "notes": false,
-                                "amount_paid": false,
-                            }}
-                        />
-                    </>
-            }
+            <PageHeader title="Ventas">
+                <CreateOrderButton />
+            </PageHeader>
+            <DataTable
+                columns={columns}
+                data={plainOrders}
+                searchInputColumnId="id"
+                showDateSelector={true}
+                showSearchInput={false}
+                visibleColumns={{
+                    "updated_at": false,
+                    "status": false,
+                    "payment_method": false,
+                    "refunded_amount": false,
+                    "notes": false,
+                    "amount_paid": false,
+                }}
+            />
         </>
     );
 }
