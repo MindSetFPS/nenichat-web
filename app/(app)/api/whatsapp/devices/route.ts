@@ -64,8 +64,12 @@ export async function GET(request: NextRequest) {
                 );
             } else {
                 return NextResponse.json(
-                    { error: 'No devices found', message: 'No devices were found for this business. Please scan the QR code first.' },
-                    { status: 400 }
+                    {
+                        code: "SUCCESS",
+                        message: "Fetch device success",
+                        results: null
+                    },
+                    { status: 200 }
                 );
             }
         } else {

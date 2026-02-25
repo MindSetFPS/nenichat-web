@@ -1,8 +1,8 @@
 "use client"
 
+import { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { getWappDevices } from "./get-wapp-devices";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
@@ -15,18 +15,29 @@ export default function CheckWappConnectionButton({ container }: { container: an
             setLoading(true);
             const data = await getWappDevices(container.business_id) as { success?: boolean; devices?: Array<{ name: string; device: string }> };
 
+            console.log(data)
             if (data.success && data.devices && data.devices.length > 0) {
                 // If there are devices connected, just reload to reflect any new status, or maybe do nothing.
                 window.location.reload();
             } else {
                 // Devices empty means not connected, set status to deployed to show QR
-                await supabase.from('whatsapp-containers').update({ status: 'deployed' }).eq('id', container.id);
+                console.log("setting deployed bc no devices")
+                const { error } = await supabase
+                    .from('whatsapp-containers')
+                    .update({ status: 'deployed', qr_code_url: null })
+                    .eq('business_id', container.business_id);
+                if (error) console.error(error)
                 window.location.reload();
             }
         } catch (err) {
             console.error(err);
             // Error means probably not connected or container broken, set generic deployed state
-            await supabase.from('whatsapp-containers').update({ status: 'deployed' }).eq('id', container.id);
+            console.log(container.business_id)
+            const { error } = await supabase
+                .from('whatsapp-containers')
+                .update({ status: 'deployed', qr_code_url: null })
+                .eq('business_id', container.business_id);
+            if (error) console.error(error)
             window.location.reload();
         } finally {
             setLoading(false);
