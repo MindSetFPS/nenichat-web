@@ -1,10 +1,12 @@
 'use client'
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 
 interface PageHeaderProps {
-    title: string
+    title?: string
     children?: React.ReactNode
+    className?: string
 }
 
 /**
@@ -15,16 +17,18 @@ interface PageHeaderProps {
  * @param {React.ReactNode} [props.children] - Optional actions or components to display on the right
  * @returns {JSX.Element} The rendered PageHeader component.
  */
-export function PageHeader({ title, children }: PageHeaderProps) {
+export function PageHeader({ title, children, className }: PageHeaderProps) {
     return (
-        <div className="flex items-center justify-between h-8 w-full">
+        <div className={cn("flex items-center justify-between h-8 w-full", className)}>
             <div className="flex items-center overflow-hidden">
                 <SidebarTrigger className=" text-muted-foreground shrink-0 md:hidden" />
-                <h2 className="text-md font-bold tracking-wider text-muted-foreground truncate">{title}</h2>
+                {title && <h2 className="text-md font-bold tracking-wider text-muted-foreground truncate">{title}</h2>}
             </div>
-            <div className="flex items-center gap-2 ml-4">
-                {children}
-            </div>
+            {children && (
+                <div className="flex items-center gap-2 ml-4">
+                    {children}
+                </div>
+            )}
         </div>
     )
 }
