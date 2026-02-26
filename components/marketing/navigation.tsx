@@ -22,6 +22,7 @@ export default function Navigation() {
                     <div className=" md:flex items-center gap-4">
                         <Link href="/#features" className="hover:text-primary transition-colors hidden md:block">Features</Link>
                         <Link href="/#pricing" className="hover:text-primary transition-colors">Pricing</Link>
+                        <Link href="/signup" className={`hover:text-primary transition-colors ${pathname === "/register" ? "text-primary" : ""}`}>Crear una cuenta gratis</Link>
                     </div>
                     <ModeToggle />
                 </div>
