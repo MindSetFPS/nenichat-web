@@ -108,12 +108,12 @@ export function SettingsDialog() {
                     <span>Ajustes</span>
                 </SidebarMenuButton>
             </DialogTrigger>
-            <DialogContent className="overflow-hidden p-0 h-[90vh] md:max-h-[600px] md:max-w-[750px] lg:max-w-[900px] rounded-3xl">
+            <DialogContent className="overflow-hidden p-0 h-[90dvh] max-w-[95vw] md:max-w-[750px] lg:max-w-[900px] rounded-3xl">
                 <DialogTitle className="sr-only">Settings</DialogTitle>
                 <DialogDescription className="sr-only">
                     Customize your settings here.
                 </DialogDescription>
-                <SidebarProvider className="items-start min-h-0">
+                <SidebarProvider className="items-start" style={{ minHeight: 0, height: '100%' }}>
                     <Sidebar
                         collapsible="none"
                         className={cn(
@@ -143,10 +143,10 @@ export function SettingsDialog() {
                         </SidebarContent>
                     </Sidebar>
                     <main className={cn(
-                        "flex h-full flex-1 flex-col overflow-hidden bg-background",
+                        "flex h-full flex-1 min-w-0 flex-col overflow-hidden bg-background",
                         activeSection === null && "hidden md:flex"
                     )}>
-                        <header className="flex h-14 shrink-0 items-center gap-2 px-6 border-b">
+                        <header className="flex h-14 shrink-0 items-center gap-2 px-4 md:px-6 border-b">
                             {activeSection !== null && (
                                 <Button
                                     variant="ghost"
@@ -161,7 +161,7 @@ export function SettingsDialog() {
                                 {sections.find(s => s.id === activeSection)?.title || "Ajustes"}
                             </h2>
                         </header>
-                        <div className="flex-1 overflow-y-auto p-6 scrollbar-none">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 scrollbar-none">
                             {activeSection === 'appearance' ? (
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border">

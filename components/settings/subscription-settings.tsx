@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check, Crown, MessageSquare, Star, Users, Zap, History } from "lucide-react"
@@ -61,9 +61,9 @@ export function SubscriptionSettings() {
     }
 
     return (
-        <div className="space-y-8 pb-10">
+        <div className="space-y-6 pb-10 w-full max-w-full">
             {/* Status Section */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Card className="bg-muted/30 border-none shadow-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tu Plan</CardTitle>
@@ -95,7 +95,8 @@ export function SubscriptionSettings() {
                     <h2 className="text-lg font-bold">Recarga Créditos</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Mobile: horizontal compact rows. Desktop: 3-col cards */}
+                <div className="hidden md:grid md:grid-cols-3 gap-4">
                     {/* Changarro */}
                     <Card className="flex flex-col border-border/50 bg-card/50">
                         <CardHeader className="pb-2">
@@ -161,6 +162,42 @@ export function SubscriptionSettings() {
                         </CardFooter>
                     </Card>
                 </div>
+
+                {/* Mobile: compact horizontal rows */}
+                <div className="flex flex-col gap-2 md:hidden">
+                    {[
+                        { id: "changarro", name: "Changarro", price: 99, credits: 50, badge: null, variant: "outline" as const, featured: false },
+                        { id: "bazar", name: "Bazar", price: 249, credits: 175, badge: "Ahorras 28%", variant: "default" as const, featured: true },
+                        { id: "patrona", name: "Patrona", price: 499, credits: 500, badge: "Ahorras 50%", variant: "outline" as const, featured: false },
+                    ].map((pkg) => (
+                        <div
+                            key={pkg.id}
+                            className={`flex items-center justify-between rounded-2xl border p-3 gap-3 bg-card/50 ${pkg.featured ? "border-primary/50 shadow-sm" : "border-border/50"}`}
+                        >
+                            <div className="flex items-center gap-3 min-w-0">
+                                {pkg.featured && <Star className="h-3.5 w-3.5 shrink-0 text-yellow-500 fill-yellow-500" />}
+                                <div className="min-w-0">
+                                    <p className="font-bold text-sm leading-none">{pkg.name}</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        <span className="font-black text-foreground">{pkg.credits}</span> créditos
+                                        {pkg.badge && <span className="inline-block ml-1.5 text-[10px] font-bold text-primary">· {pkg.badge}</span>}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-1.5 shrink-0">
+                                <span className="text-sm font-black">${pkg.price} <span className="text-muted-foreground font-normal text-[10px]">MXN</span></span>
+                                <Button
+                                    variant={pkg.variant}
+                                    size="sm"
+                                    className="rounded-xl text-[10px] h-7 px-3"
+                                    onClick={() => handleBuy({ id: pkg.id, title: `Paquete ${pkg.name}`, price: pkg.price, description: `${pkg.credits} créditos Neni Flow` })}
+                                >
+                                    Comprar
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </section>
 
             {/* Premium Section */}
@@ -172,7 +209,7 @@ export function SubscriptionSettings() {
 
                 <Card className="bg-linear-to-br from-primary/5 to-background border-primary/20 shadow-lg overflow-hidden relative">
                     <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 blur-[60px] rounded-full" />
-                    <CardContent className="p-6 space-y-6">
+                    <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
                         <div className="space-y-2 relative z-10">
                             <h3 className="text-xl font-black tracking-tight">LEVEL UP YOUR BUSINESS</h3>
                             <p className="text-sm text-muted-foreground">Acceso ilimitado y equipo incluido.</p>
@@ -195,7 +232,7 @@ export function SubscriptionSettings() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/50 relative z-10">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-border/50 relative z-10">
                             <div>
                                 <span className="text-3xl font-black">$2,499</span>
                                 <span className="text-muted-foreground text-xs">/mes</span>
@@ -217,26 +254,24 @@ export function SubscriptionSettings() {
                     <History className="h-5 w-5 text-muted-foreground" />
                     <h2 className="text-lg font-bold">Historial</h2>
                 </div>
-                <div className="rounded-2xl border bg-card overflow-hidden">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="text-xs font-bold">Fecha</TableHead>
-                                <TableHead className="text-xs font-bold">Concepto</TableHead>
-                                <TableHead className="text-xs font-bold text-right">Monto</TableHead>
+                <Table>
+                    <TableHeader className="bg-muted/50">
+                        <TableRow>
+                            <TableHead className="text-xs font-bold">Fecha</TableHead>
+                            <TableHead className="text-xs font-bold">Concepto</TableHead>
+                            <TableHead className="text-xs font-bold text-right">Monto</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {purchases.map((purchase) => (
+                            <TableRow key={purchase.id} className="text-sm">
+                                <TableCell className="text-muted-foreground whitespace-nowrap">{purchase.date}</TableCell>
+                                <TableCell className="font-bold">{purchase.item}</TableCell>
+                                <TableCell className="text-right font-bold whitespace-nowrap">${purchase.amount}</TableCell>
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {purchases.map((purchase) => (
-                                <TableRow key={purchase.id} className="text-sm">
-                                    <TableCell className="text-muted-foreground">{purchase.date}</TableCell>
-                                    <TableCell className="font-bold">{purchase.item}</TableCell>
-                                    <TableCell className="text-right font-bold">${purchase.amount}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                        ))}
+                    </TableBody>
+                </Table>
             </section>
 
             <CheckoutDialog
