@@ -210,88 +210,74 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-2 overflow-scroll py-2">
       <div className="space-y-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Product Details</CardTitle>
-            <CardDescription>Enter the main details for your product.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="name">Product Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="description">Description</Label>
-              <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="price">Price</Label>
-                <Input id="price" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="stock">Stock</Label>
-                <Input id="stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="whatsappProductId">WhatsApp Product ID (Optional)</Label>
-              <Input id="whatsappProductId" value={whatsappProductId} onChange={(e) => setWhatsappProductId(e.target.value)} />
-            </div>
-            <div className="flex items-center space-x-2 pt-2">
-              <Switch id="is-active" checked={isActive} onCheckedChange={setIsActive} />
-              <Label htmlFor="is-active">Active</Label>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-1">
+          <Label htmlFor="name">Nombre del producto</Label>
+          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="description">Descripción</Label>
+          <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label htmlFor="price">Precio</Label>
+            <Input id="price" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="stock">Stock</Label>
+            <Input id="stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
+          </div>
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="whatsappProductId">WhatsApp Product ID (Opcional)</Label>
+          <Input id="whatsappProductId" value={whatsappProductId} onChange={(e) => setWhatsappProductId(e.target.value)} />
+        </div>
+        <div className="flex items-center space-x-2 pt-2">
+          <Switch id="is-active" checked={isActive} onCheckedChange={setIsActive} />
+          <Label htmlFor="is-active">Activo</Label>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Product Images</CardTitle>
-            <CardDescription>Upload images for your product.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-2">
-              {isEditMode &&
-                existingImages.map((image) => (
-                  <div key={image.id} className="relative w-full h-24 border rounded-md overflow-hidden group">
-                    <Image src={getProductImageUrl(image.path)} alt={image.alt_text || 'Product image'} fill style={{ objectFit: 'cover' }} />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => setImageToDelete(image)}
-                    >
-                      <XCircle className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              {newImagePreviews.map((previewUrl, index) => (
-                <div key={index} className="relative w-full h-24 border rounded-md overflow-hidden group">
-                  <Image src={previewUrl} alt={`New image ${index + 1}`} fill style={{ objectFit: 'cover' }} onLoad={() => URL.revokeObjectURL(previewUrl)} />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removeNewImage(index)}
-                  >
-                    <XCircle className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <Label
-                htmlFor="newImages"
-                className="relative w-full h-24 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors"
+        <CardTitle className='mt-4'>Imagenes</CardTitle>
+        <CardDescription>Sube imágenes para tu producto.</CardDescription>
+        <div className="grid grid-cols-3 gap-2">
+          {isEditMode &&
+            existingImages.map((image) => (
+              <div key={image.id} className="relative w-full h-24 border rounded-md overflow-hidden group">
+                <Image src={getProductImageUrl(image.path)} alt={image.alt_text || 'Product image'} fill style={{ objectFit: 'cover' }} />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => setImageToDelete(image)}
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          {newImagePreviews.map((previewUrl, index) => (
+            <div key={index} className="relative w-full h-24 border rounded-md overflow-hidden group">
+              <Image src={previewUrl} alt={`New image ${index + 1}`} fill style={{ objectFit: 'cover' }} onLoad={() => URL.revokeObjectURL(previewUrl)} />
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => removeNewImage(index)}
               >
-                <PlusCircle className="h-6 w-6 mb-1" />
-                <span>Add Images</span>
-                <Input id="newImages" type="file" multiple accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleNewImageChange} />
-              </Label>
+                <XCircle className="h-4 w-4" />
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          ))}
+          <Label
+            htmlFor="newImages"
+            className="relative w-full h-24 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors"
+          >
+            <PlusCircle className="h-6 w-6 mb-1" />
+            <span>Agregar imágenes</span>
+            <Input id="newImages" type="file" multiple accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleNewImageChange} />
+          </Label>
+        </div>
       </div>
 
       <div className="flex justify-between items-center">
@@ -303,18 +289,18 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             disabled={loading}
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete Product
+            Eliminar producto
           </Button>
         ) : (
           <div></div> // Spacer
         )}
         <div className="flex gap-4">
           <Button type="button" variant="outline" onClick={handleCancel} disabled={loading}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {loading ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Product')}
+            {loading ? (isEditMode ? 'Guardando...' : 'Creando...') : (isEditMode ? 'Guardar cambios' : 'Crear producto')}
           </Button>
         </div>
       </div>
@@ -324,12 +310,12 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
           <AlertDialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Image?</AlertDialogTitle>
-                <AlertDialogDescription>This action cannot be undone. This will permanently delete the image.</AlertDialogDescription>
+                <AlertDialogTitle>Eliminar imagen?</AlertDialogTitle>
+                <AlertDialogDescription>Esta acción no puede ser deshecha. Esta acción eliminará permanentemente la imagen.</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleImageDelete}>Delete</AlertDialogAction>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleImageDelete}>Eliminar</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -337,15 +323,15 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
           <AlertDialog open={showDeleteProductDialog} onOpenChange={setShowDeleteProductDialog}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Product?</AlertDialogTitle>
+                <AlertDialogTitle>Eliminar producto?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete <strong>{product?.name}</strong>? This action cannot be undone and will remove the product and all its images.
+                  ¿Estás seguro de que quieres eliminar <strong>{product?.name}</strong>? Esta acción no puede ser deshecha y eliminará permanentemente el producto y todas sus imágenes.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={handleProductDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Delete
+                  Eliminar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

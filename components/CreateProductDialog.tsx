@@ -32,14 +32,14 @@ export function CreateProductDialog({ onProductCreated }: { onProductCreated: (p
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <PlusCircle className="w-4 h-4" />
-          Create Product
+          Agrega un producto
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] md:max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Product</DialogTitle>
+          <DialogTitle>Agrega un producto</DialogTitle>
           <DialogDescription>
-            Fill in the details below to create a new product.
+            Llena los detalles para crear un nuevo producto.
           </DialogDescription>
         </DialogHeader>
         <ProductForm
