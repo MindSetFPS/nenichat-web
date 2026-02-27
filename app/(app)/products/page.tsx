@@ -64,9 +64,7 @@ export default async function ProductsPage() {
   return (
     <>
       <PageHeader title="Productos">
-        {products.length === 0 &&
-          <ProductActions />
-        }
+        <ProductActions />
       </PageHeader>
       <ProductsList />
     </>
