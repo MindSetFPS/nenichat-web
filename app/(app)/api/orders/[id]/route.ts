@@ -61,7 +61,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         // if you leave clientOrderProducts empty, we do notin
         if (clientOrderProducts && clientOrderProducts.length > 0) {
             // Delete existing items
-            await supabase.from('order_items').delete().eq('order_id', orderId);
+            await supabase.from('orders_products').delete().eq('order_id', orderId);
 
             // Recreate all items
             const newItems = clientOrderProducts.map(item => ({
@@ -72,7 +72,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
                 total_price: item.totalPrice || (item.quantity * item.unitPrice),
             }));
 
-            const { error: itemsError } = await supabase.from('order_items').insert(newItems);
+            const { error: itemsError } = await supabase.from('orders_products').insert(newItems);
             if (itemsError) throw itemsError;
         }
 

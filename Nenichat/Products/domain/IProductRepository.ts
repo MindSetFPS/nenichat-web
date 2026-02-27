@@ -39,4 +39,9 @@ export interface IProductRepository {
    * Deletes a specific image from a product.
    */
   deleteImage(businessId: number, productId: string, imageId: string): Promise<boolean>;
+
+  /**
+   * Retrieves sales data for a product.
+   */
+  getProductSales(businessId: number, productId: string): Promise<{ quantity: number, created_at: Date }[]>;
 }

@@ -4,7 +4,6 @@ import { ProductActions } from './ProductActions';
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 import ProductsList from '@/components/products/products-list';
 import { PageHeader } from '@/components/ui/page-header';
-import Content from '@/components/layout/content';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 import { EmptyList } from '@/components/empty-list';

@@ -150,7 +150,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
         }));
 
         const { error: itemsError } = await this.supabase
-            .from('order_items')
+            .from('orders_products')
             .insert(orderItems);
 
         if (itemsError) {
@@ -218,7 +218,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
             .select(`
                 id,
                 created_at,
-                order_items (
+                orders_products (
                     quantity,
                     products (
                         name
@@ -258,7 +258,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
             .from('orders')
             .select(`
                 created_at,
-                order_items (
+                orders_products (
                     quantity
                 )
             `)
@@ -363,7 +363,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
      */
     async getItems(businessId: number, orderId: number): Promise<IOrderItemWithProduct[]> {
         const { data, error } = await this.supabase
-            .from('order_items')
+            .from('orders_products')
             .select(`
                 id,
                 order_id,

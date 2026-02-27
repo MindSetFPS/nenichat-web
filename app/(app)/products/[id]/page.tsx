@@ -1,4 +1,3 @@
-import { pool } from '@/Nenichat/Shared/infra/persistance/db';
 import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/product-form'; // Import the new edit form
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
@@ -30,16 +29,11 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   const productRepository = new SupabaseProductRepository(supabase);
   const product = await productRepository.getById(business.id, id);
 
-  // get sales by date include order table with join table in order_id column
-  const order_items = await pool.query(
-    `SELECT oi.quantity, o.id as order_id, o.created_at FROM order_items oi
-    JOIN orders o ON oi.order_id = o.id 
-    WHERE oi.product_id = $1 AND o.business_id = $2`,
-    [id, business.id]
-  );
+  // get sales by date using repository
+  const order_items = await productRepository.getProductSales(business.id, id);
 
   const sales: ProductOrdersByDate[] = [];
-  for (const item of order_items.rows) {
+  for (const item of order_items) {
     // format date to "lunes 23 de diciembre"
     const date = item.created_at.toLocaleDateString('es-ES', {
       day: '2-digit',

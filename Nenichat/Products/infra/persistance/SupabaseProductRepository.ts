@@ -59,7 +59,7 @@ export class SupabaseProductRepository implements IProductRepository {
         lastMonth.setMonth(lastMonth.getMonth() - 1);
 
         const { data: salesData, error: salesError } = await this.supabase
-            .from('order_items')
+            .from('orders_products')
             .select('product_id, orders!inner(business_id, created_at)')
             .eq('orders.business_id', businessId)
             .gte('orders.created_at', lastMonth.toISOString());
@@ -103,7 +103,7 @@ export class SupabaseProductRepository implements IProductRepository {
         const productIds = products.map(p => p.id);
 
         const { data: salesData, error: salesError } = await this.supabase
-            .from('order_items')
+            .from('orders_products')
             .select('product_id, orders!inner(business_id, created_at)')
             .eq('orders.business_id', businessId)
             .in('product_id', productIds)
@@ -168,5 +168,20 @@ export class SupabaseProductRepository implements IProductRepository {
 
         if (error) throw error;
         return true;
+    }
+
+    async getProductSales(businessId: number, productId: string): Promise<{ quantity: number, created_at: Date }[]> {
+        const { data, error } = await this.supabase
+            .from('orders_products')
+            .select('quantity, orders!inner(id, created_at)')
+            .eq('product_id', productId)
+            .eq('orders.business_id', businessId);
+
+        if (error) throw error;
+
+        return (data || []).map((item: any) => ({
+            quantity: item.quantity,
+            created_at: new Date(item.orders.created_at)
+        }));
     }
 }
