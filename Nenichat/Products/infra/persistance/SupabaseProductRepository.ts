@@ -123,9 +123,10 @@ export class SupabaseProductRepository implements IProductRepository {
     }
 
     async create(businessId: number, product: Omit<IProduct, 'id' | 'business_id' | 'created_at' | 'updated_at'>): Promise<IProduct> {
+        const { images, ...productToInsert } = product as any;
         const { data, error } = await this.supabase
             .from('products')
-            .insert({ ...product, business_id: businessId })
+            .insert({ ...productToInsert, business_id: businessId })
             .select()
             .single();
 
@@ -134,9 +135,10 @@ export class SupabaseProductRepository implements IProductRepository {
     }
 
     async update(businessId: number, id: string, updates: Partial<IProduct>): Promise<IProduct | null> {
+        const { images, ...updatesToApply } = updates as any;
         const { data, error } = await this.supabase
             .from('products')
-            .update(updates)
+            .update(updatesToApply)
             .eq('business_id', businessId)
             .eq('id', id)
             .select()
