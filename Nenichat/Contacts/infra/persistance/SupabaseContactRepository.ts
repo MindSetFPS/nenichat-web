@@ -5,6 +5,7 @@ import { IContactRepository } from "../../domain/IContactRepository";
 import { Contact } from "../../domain/Contact";
 import IContactWithLastMessage from "../../app/dtos/IContactWithLastMessage";
 import { Message } from "@/Nenichat/Messages/domain/Message";
+import { getJidKind } from "../../../Chats/domain/Jid";
 
 export class SupabaseContactRepository implements IContactRepository {
     private _supabase: SupabaseClient;
@@ -32,19 +33,19 @@ export class SupabaseContactRepository implements IContactRepository {
         );
     }
 
-    async findById(id: number): Promise<IContact | null> {
+    async findById(businessId: number, id: number): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
             .select("*")
+            .eq("business_id", businessId)
             .eq("id", id)
-            .single();
+            .maybeSingle();
 
         if (error) {
-            if (error.code === "PGRST116") return null;
             console.error("Error fetching contact by ID:", error);
             throw error;
         }
-        return this.mapToContact(data);
+        return data ? this.mapToContact(data) : null;
     }
 
     async findByPhoneNumber(businessId: number, phoneNumber: string): Promise<IContact | null> {
@@ -85,9 +86,6 @@ export class SupabaseContactRepository implements IContactRepository {
             .eq("is_user", true)
             .maybeSingle(); // Use maybeSingle to avoid error if multiple (though unexpected) or none
 
-        console.log("data", data)
-        console.log("error", error)
-
         if (error) {
             console.error("Error fetching 'me' contact:", error);
             throw error;
@@ -97,59 +95,42 @@ export class SupabaseContactRepository implements IContactRepository {
 
     async save(contact: Partial<IContact>): Promise<IContact> {
         if (!contact.business_id && !contact.id) {
-            throw new Error("Business ID is required for creating a contact");
+            throw new Error("Business ID is required for saving a contact");
         }
 
-        // Prepare data for upsert/update/insert
         const contactData: any = {
             ...contact,
             updated_at: new Date().toISOString(),
         };
 
-        // If it's a new record creation, ensure created_at is set if not provided
         if (!contact.id && !contact.created_at) {
             contactData.created_at = new Date().toISOString();
         }
 
-        // Simplified save logic leveraging upsert if ID is present or check logic
-        // However, existing logic checks phone/lid first to prevent duplicates.
-        // Supabase upsert on ID works if ID is known. If not, we rely on constraints or logic.
-        // The previous implementation had complex logic to find existing by phone/lid.
-
-        let existingId = contact.id;
-        if (!existingId && contact.business_id) {
+        // Use upsert to handle race conditions gracefully.
+        // We conflict on 'id' if provided, otherwise on 'phone_number' or 'lid'.
+        // This requires the database to have unique constraints on these columns.
+        let onConflict = 'id';
+        if (!contact.id) {
             if (contact.phone_number) {
-                const existing = await this.findByPhoneNumber(contact.business_id, contact.phone_number);
-                if (existing) existingId = existing.id ?? undefined;
-            }
-            if (!existingId && contact.lid) {
-                const existing = await this.findByLid(contact.business_id, contact.lid);
-                if (existing) existingId = existing.id ?? undefined;
+                onConflict = 'phone_number';
+            } else if (contact.lid) {
+                onConflict = 'lid';
             }
         }
 
-        if (existingId) {
-            // Update
-            const { data, error } = await this.supabase
-                .from("contacts")
-                .update(contactData)
-                .eq("id", existingId)
-                .select()
-                .single();
+        const { data, error } = await this.supabase
+            .from("contacts")
+            .upsert(contactData, { onConflict })
+            .select()
+            .single();
 
-            if (error) throw error;
-            return this.mapToContact(data);
-        } else {
-            // Create
-            const { data, error } = await this.supabase
-                .from("contacts")
-                .insert(contactData)
-                .select()
-                .single();
-
-            if (error) throw error;
-            return this.mapToContact(data);
+        if (error) {
+            console.error("Error in SupabaseContactRepository.save:", error);
+            throw error;
         }
+
+        return this.mapToContact(data);
     }
 
     async saveBatch(contacts: Partial<IContact>[]): Promise<void> {
@@ -215,18 +196,19 @@ export class SupabaseContactRepository implements IContactRepository {
         };
     }
 
-    async mergeContacts(primaryContactId: number, secondaryContactIds: number[]): Promise<void> {
+    async mergeContacts(businessId: number, primaryContactId: number, secondaryContactIds: number[]): Promise<void> {
         // NOTE: Client-side implementation without transaction atomicity.
         // Ideally should be an RPC.
 
-        const primaryContact = await this.findById(primaryContactId);
-        if (!primaryContact) throw new Error("Primary contact not found");
+        const primaryContact = await this.findById(businessId, primaryContactId);
+        if (!primaryContact) throw new Error("Primary contact not found or unauthorized");
 
         // Fetch secondaries
         const { data: secondaries, error: fetchError } = await this.supabase
             .from("contacts")
             .select("*")
-            .in("id", secondaryContactIds);
+            .in("id", secondaryContactIds)
+            .eq("business_id", businessId);
 
         if (fetchError) throw fetchError;
         if (!secondaries || secondaries.length !== secondaryContactIds.length) {
@@ -278,7 +260,8 @@ export class SupabaseContactRepository implements IContactRepository {
     }
 
     async getOrCreateContact(businessId: number, contactId: string): Promise<IContact> {
-        const isLid = contactId.endsWith("@lid") || !contactId.startsWith("521");
+        const jidKind = getJidKind(contactId);
+        const isLid = jidKind === 'lid' || !contactId.startsWith("521");
         let contact: IContact | null = null;
 
         if (isLid) {
@@ -301,14 +284,11 @@ export class SupabaseContactRepository implements IContactRepository {
         return this.save(newContact);
     }
 
-    async setMe(userId: number): Promise<IContact> {
-        const contact = await this.findById(userId);
-        if (!contact) throw new Error("Contact not found");
-
+    async setMe(businessId: number, userId: number): Promise<IContact> {
         // Set all others to false
         await this.supabase.from('contacts')
             .update({ is_user: false })
-            .eq('business_id', contact.business_id)
+            .eq('business_id', businessId)
             .eq('is_user', true);
 
         // Set this one to true
@@ -415,12 +395,19 @@ export class SupabaseContactRepository implements IContactRepository {
             const msgData = chats.get(chatId);
             const lastMessage = new Message(
                 msgData.id,
-                msgData.chat_id,
-                msgData.sender_id,
-                msgData.text_content,
+                msgData.chat_id || msgData.chat_jid || '',
+                msgData.sender_id || msgData.sender_jid || '',
+                msgData.text_content || msgData.content || null,
+                msgData.timestamp || msgData.created_at || '',
+                msgData.is_from_me || false,
+                msgData.media_type || '',
+                msgData.filename || '',
+                msgData.url || '',
+                msgData.file_length || 0,
+                msgData.created_at || '',
+                msgData.updated_at || msgData.created_at || '',
                 msgData.replied_to_message_id,
-                msgData.quoted_message_text,
-                new Date(msgData.created_at)
+                msgData.quoted_message_text
             );
 
             result.push({
@@ -432,9 +419,9 @@ export class SupabaseContactRepository implements IContactRepository {
         return result;
     }
 
-    async hideContact(contactIdToHide: number): Promise<void> {
-        const me = await this.findMeByContactId(contactIdToHide);
-        if (!me) throw new Error("Current user not found for this contact context");
+    async hideContact(businessId: number, contactIdToHide: number): Promise<void> {
+        const me = await this.findMe(businessId);
+        if (!me) throw new Error("Current user not found for this business");
 
         const { error } = await this.supabase.from("hidden_contacts")
             .upsert(
@@ -443,13 +430,6 @@ export class SupabaseContactRepository implements IContactRepository {
             );
 
         if (error) throw error;
-    }
-
-    // Helper to find 'me' in the same business context as a contact
-    private async findMeByContactId(contactId: number): Promise<IContact | null> {
-        const contact = await this.findById(contactId);
-        if (!contact) return null;
-        return this.findMe(contact.business_id);
     }
 
     async getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]> {
@@ -470,14 +450,15 @@ export class SupabaseContactRepository implements IContactRepository {
         const { data: contacts, error: cError } = await this.supabase
             .from('contacts')
             .select('*')
-            .in('id', ids);
+            .in('id', ids)
+            .eq('business_id', businessId);
 
         if (cError) throw cError;
         return (contacts || []).map(this.mapToContact);
     }
 
-    async isContactHidden(contactId: number): Promise<boolean> {
-        const me = await this.findMeByContactId(contactId);
+    async isContactHidden(businessId: number, contactId: number): Promise<boolean> {
+        const me = await this.findMe(businessId);
         if (!me) return false;
 
         const { data, error } = await this.supabase
@@ -491,13 +472,38 @@ export class SupabaseContactRepository implements IContactRepository {
         return !!data;
     }
 
-    async unhideContact(contactId: number): Promise<void> {
-        const me = await this.findMeByContactId(contactId);
+    async unhideContact(businessId: number, contactId: number): Promise<void> {
+        const me = await this.findMe(businessId);
         if (!me) return;
 
         await this.supabase.from('hidden_contacts')
             .delete()
             .eq('user_contact_id', me.id)
             .eq('hidden_contact_id', contactId);
+    }
+
+    async count(businessId: number): Promise<number> {
+        const { count, error } = await this.supabase
+            .from("contacts")
+            .select("*", { count: 'exact', head: true })
+            .eq("business_id", businessId);
+
+        if (error) {
+            console.error("Error counting contacts:", error);
+            throw error;
+        }
+        return count || 0;
+    }
+
+    async search(businessId: number, query: string, limit: number): Promise<IContact[]> {
+        const { data, error } = await this.supabase
+            .from("contacts")
+            .select("*")
+            .eq("business_id", businessId)
+            .or(`contact_name.ilike.%${query}%,phone_number.ilike.%${query}%,pushname.ilike.%${query}%`)
+            .limit(limit);
+
+        if (error) throw error;
+        return (data || []).map(this.mapToContact);
     }
 }

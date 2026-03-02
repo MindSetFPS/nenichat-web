@@ -14,14 +14,15 @@ export class ContactRepository implements IContactRepository {
     this.pool = pool;
   }
 
-  public async findById(id: bigint): Promise<IContact | null> {
-    const result = await this.pool.query('SELECT * FROM contacts WHERE id = $1', [id]);
+  public async findById(businessId: number, id: number): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE id = $1 AND business_id = $2', [id, businessId]);
     if (result.rows.length === 0) {
       return null;
     }
     const row = result.rows[0];
     return new Contact(
       row.id,
+      row.business_id,
       row.phone_number,
       row.lid,
       row.username,
@@ -33,8 +34,9 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async findByPhoneNumber(phoneNumber: string): Promise<IContact | null> {
-    const result = await this.pool.query('SELECT * FROM contacts WHERE phone_number = $1', [
+  public async findByPhoneNumber(businessId: number, phoneNumber: string): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE business_id = $1 AND phone_number = $2', [
+      businessId,
       phoneNumber,
     ]);
     if (result.rows.length === 0) {
@@ -43,6 +45,7 @@ export class ContactRepository implements IContactRepository {
     const row = result.rows[0];
     return new Contact(
       row.id,
+      row.business_id,
       row.phone_number,
       row.lid,
       row.username,
@@ -54,14 +57,15 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async findByLid(lid: string): Promise<IContact | null> {
-    const result = await this.pool.query('SELECT * FROM contacts WHERE lid = $1', [lid]);
+  public async findByLid(businessId: number, lid: string): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE business_id = $1 AND lid = $2', [businessId, lid]);
     if (result.rows.length === 0) {
       return null;
     }
     const row = result.rows[0];
     return new Contact(
       row.id,
+      row.business_id,
       row.phone_number,
       row.lid,
       row.username,
@@ -73,14 +77,15 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async findMe(): Promise<IContact | null> {
-    const result = await this.pool.query('SELECT * FROM contacts WHERE is_user = TRUE LIMIT 1');
+  public async findMe(businessId: number): Promise<IContact | null> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE business_id = $1 AND is_user = TRUE LIMIT 1', [businessId]);
     if (result.rows.length === 0) {
       return null;
     }
     const row = result.rows[0];
     return new Contact(
       row.id,
+      row.business_id,
       row.phone_number,
       row.lid,
       row.username,
@@ -93,13 +98,17 @@ export class ContactRepository implements IContactRepository {
   }
 
   public async save(contact: Partial<IContact>): Promise<IContact> {
-    if (contact.phone_number || contact.lid) {
+    if (!contact.business_id && !contact.id) {
+      throw new Error("Business ID is required for creating a contact");
+    }
+
+    if (contact.business_id && (contact.phone_number || contact.lid)) {
       let existingContact;
       if (contact.phone_number) {
-        existingContact = await this.findByPhoneNumber(contact.phone_number);
+        existingContact = await this.findByPhoneNumber(contact.business_id, contact.phone_number);
       }
       if (!existingContact && contact.lid) {
-        existingContact = await this.findByLid(contact.lid);
+        existingContact = await this.findByLid(contact.business_id, contact.lid);
       }
 
       if (existingContact && existingContact.id) {
@@ -120,6 +129,7 @@ export class ContactRepository implements IContactRepository {
         const row = result.rows[0];
         return new Contact(
           row.id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -134,8 +144,9 @@ export class ContactRepository implements IContactRepository {
 
     // Create
     const result = await this.pool.query(
-      'INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      'INSERT INTO contacts (business_id, phone_number, lid, username, pushname, contact_name, is_user) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [
+        contact.business_id,
         contact.phone_number,
         contact.lid,
         contact.username,
@@ -147,6 +158,7 @@ export class ContactRepository implements IContactRepository {
     const row = result.rows[0];
     return new Contact(
       row.id,
+      row.business_id,
       row.phone_number,
       row.lid,
       row.username,
@@ -175,10 +187,12 @@ export class ContactRepository implements IContactRepository {
         let paramIndex = 1;
 
         for (const contact of phoneContacts) {
+          if (!contact.business_id) throw new Error("Business ID required for saveBatch");
           placeholders.push(
-            `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`
+            `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6})`
           );
           values.push(
+            contact.business_id,
             contact.phone_number,
             contact.lid || null,
             contact.username || null,
@@ -186,11 +200,11 @@ export class ContactRepository implements IContactRepository {
             contact.contact_name || null,
             contact.is_user || false
           );
-          paramIndex += 6;
+          paramIndex += 7;
         }
 
         const query = `
-          INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user)
+          INSERT INTO contacts (business_id, phone_number, lid, username, pushname, contact_name, is_user)
           VALUES ${placeholders.join(', ')}
           ON CONFLICT (phone_number) DO UPDATE SET
             lid = COALESCE(EXCLUDED.lid, contacts.lid),
@@ -211,10 +225,12 @@ export class ContactRepository implements IContactRepository {
         let paramIndex = 1;
 
         for (const contact of lidContacts) {
+          if (!contact.business_id) throw new Error("Business ID required for saveBatch");
           placeholders.push(
-            `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`
+            `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5}, $${paramIndex + 6})`
           );
           values.push(
+            contact.business_id,
             null, // phone_number is null for lid-only contacts
             contact.lid,
             contact.username || null,
@@ -222,11 +238,11 @@ export class ContactRepository implements IContactRepository {
             contact.contact_name || null,
             contact.is_user || false
           );
-          paramIndex += 6;
+          paramIndex += 7;
         }
 
         const query = `
-          INSERT INTO contacts (phone_number, lid, username, pushname, contact_name, is_user)
+          INSERT INTO contacts (business_id, phone_number, lid, username, pushname, contact_name, is_user)
           VALUES ${placeholders.join(', ')}
           ON CONFLICT (lid) DO UPDATE SET
             username = COALESCE(EXCLUDED.username, contacts.username),
@@ -248,8 +264,9 @@ export class ContactRepository implements IContactRepository {
     }
   }
 
-  public async list(offset: number, limit: number): Promise<IContact[]> {
-    const result = await this.pool.query('SELECT * FROM contacts ORDER BY created_at DESC LIMIT $1 OFFSET $2', [
+  public async list(businessId: number, offset: number, limit: number): Promise<IContact[]> {
+    const result = await this.pool.query('SELECT * FROM contacts WHERE business_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3', [
+      businessId,
       limit,
       offset,
     ]);
@@ -257,6 +274,7 @@ export class ContactRepository implements IContactRepository {
       (row) =>
         new Contact(
           row.id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -269,15 +287,16 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async search(query: string, limit = 10): Promise<IContact[]> {
+  public async search(businessId: number, query: string, limit: number): Promise<IContact[]> {
     const result = await this.pool.query(
-      "SELECT * FROM contacts WHERE phone_number ILIKE $1 OR lid ILIKE $1 ORDER BY created_at DESC LIMIT $2",
-      [`%${query}%`, limit]
+      "SELECT * FROM contacts WHERE business_id = $1 AND (phone_number ILIKE $2 OR lid ILIKE $2) ORDER BY created_at DESC LIMIT $3",
+      [businessId, `%${query}%`, limit]
     );
     return result.rows.map(
       (row) =>
         new Contact(
           row.id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -290,21 +309,23 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async findMergeCandidates(offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }> {
+  public async findMergeCandidates(businessId: number, offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }> {
     const countResult = await this.pool.query(
-      'SELECT COUNT(*) FROM contacts WHERE phone_number IS NULL OR lid IS NULL'
+      'SELECT COUNT(*) FROM contacts WHERE business_id = $1 AND (phone_number IS NULL OR lid IS NULL)',
+      [businessId]
     );
     const total = parseInt(countResult.rows[0].count, 10);
 
     const result = await this.pool.query(
-      'SELECT * FROM contacts WHERE phone_number IS NULL OR lid IS NULL ORDER BY created_at DESC LIMIT $1 OFFSET $2',
-      [limit, offset]
+      'SELECT * FROM contacts WHERE business_id = $1 AND (phone_number IS NULL OR lid IS NULL) ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      [businessId, limit, offset]
     );
 
     const contacts = result.rows.map(
       (row) =>
         new Contact(
           row.id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -324,26 +345,26 @@ export class ContactRepository implements IContactRepository {
    * @param contactId The LID or phone number of the contact.
    * @returns A promise that resolves to the found or newly created contact.
    */
-  public async getOrCreateContact(contactId: string): Promise<IContact> {
+  public async getOrCreateContact(businessId: number, contactId: string): Promise<IContact> {
     let contact: IContact | null = null;
 
     // Check if contactId is a LID (ends with "@lid" or doesn't start with "521")
     const isLid = contactId.endsWith('@lid') || !contactId.startsWith('521');
 
     if (isLid) {
-      contact = await this.findByLid(contactId);
+      contact = await this.findByLid(businessId, contactId);
     }
 
     // If not found by LID or if it's a phone number, try finding by phone number
     if (!contact && !isLid) {
-      contact = await this.findByPhoneNumber(contactId);
+      contact = await this.findByPhoneNumber(businessId, contactId);
     }
 
     if (contact) {
       return contact;
     } else {
       // Create a new contact if not found
-      const newContactData: Partial<IContact> = {};
+      const newContactData: Partial<IContact> = { business_id: businessId };
       if (isLid) {
         newContactData.lid = contactId;
       } else {
@@ -355,13 +376,20 @@ export class ContactRepository implements IContactRepository {
     }
   }
 
-  public async setMe(userId: bigint): Promise<IContact> {
+  public async setMe(businessId: number, userId: number): Promise<IContact> {
+    const contactToSet = await this.findById(businessId, userId);
+    if (!contactToSet) {
+      throw new Error(`Contact with ID ${userId} not found.`);
+    }
+
+    const businessIdFromContact = contactToSet.business_id; // Keeping it if used elsewhere but businessId is already in scope
+
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
 
-      // Set all contacts to is_user = FALSE
-      await client.query('UPDATE contacts SET is_user = FALSE WHERE is_user = TRUE');
+      // Set all contacts to is_user = FALSE for this business
+      await client.query('UPDATE contacts SET is_user = FALSE WHERE business_id = $1 AND is_user = TRUE', [businessId]);
 
       // Set the specified contact to is_user = TRUE and return it
       const result = await client.query('UPDATE contacts SET is_user = TRUE WHERE id = $1 RETURNING *', [userId]);
@@ -373,6 +401,7 @@ export class ContactRepository implements IContactRepository {
       const row = result.rows[0];
       const userContact = new Contact(
         row.id,
+        row.business_id,
         row.phone_number,
         row.lid,
         row.username,
@@ -393,7 +422,7 @@ export class ContactRepository implements IContactRepository {
     }
   }
 
-  public async mergeContacts(primaryContactId: bigint, secondaryContactIds: bigint[]): Promise<void> {
+  public async mergeContacts(businessId: number, primaryContactId: number, secondaryContactIds: number[]): Promise<void> {
     if (!primaryContactId || secondaryContactIds.length === 0) {
       throw new Error('Primary contact ID and at least one secondary contact ID are required for merging.');
     }
@@ -405,14 +434,14 @@ export class ContactRepository implements IContactRepository {
     try {
       await client.query('BEGIN');
 
-      const primaryContact = await this.findById(primaryContactId);
+      const primaryContact = await this.findById(businessId, primaryContactId);
       if (!primaryContact) {
         throw new Error(`Primary contact with ID ${primaryContactId} not found.`);
       }
 
       const secondaryContacts: IContact[] = [];
       for (const id of secondaryContactIds) {
-        const contact = await this.findById(id);
+        const contact = await this.findById(businessId, id);
         if (!contact) {
           throw new Error(`Secondary contact with ID ${id} not found.`);
         }
@@ -515,21 +544,23 @@ export class ContactRepository implements IContactRepository {
     }
   }
 
-  public async findRecentContacts(limit: number): Promise<IContact[]> {
+  public async findRecentContacts(businessId: number, limit: number): Promise<IContact[]> {
     const result = await this.pool.query(
       `SELECT c.*
        FROM contacts c
        JOIN messages m ON c.id = m.sender_id
+       WHERE c.business_id = $1
        GROUP BY c.id
        ORDER BY MAX(m.created_at) DESC
-       LIMIT $1`,
-      [limit]
+       LIMIT $2`,
+      [businessId, limit]
     );
 
     return result.rows.map(
       (row) =>
         new Contact(
           row.id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -542,10 +573,11 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async getContactsWithLastMessage(offset: number, limit: number): Promise<IContactWithLastMessage[]> {
+  public async getContactsWithLastMessage(businessId: number, offset: number, limit: number): Promise<IContactWithLastMessage[]> {
     const result = await this.pool.query(
       `SELECT
         c.id AS contact_id,
+        c.business_id,
         c.phone_number,
         c.lid,
         c.username,
@@ -569,20 +601,22 @@ export class ContactRepository implements IContactRepository {
            FROM messages
        ) m ON c.id = m.chat_id
        WHERE m.rn = 1
+       AND c.business_id = $1
        AND NOT EXISTS (
            SELECT 1 FROM hidden_contacts hc
            WHERE hc.hidden_contact_id = c.id
-           AND hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE LIMIT 1)
+           AND hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE AND business_id = $1 LIMIT 1)
        )
        ORDER BY m.created_at DESC
-       LIMIT $2 OFFSET $1`,
-      [offset, limit]
+       LIMIT $2 OFFSET $3`,
+      [businessId, limit, offset]
     );
 
     return result.rows.map(
       (row) => {
         const contact: IContact = new Contact(
           row.contact_id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -611,8 +645,10 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async hideContact(contactIdToHide: bigint): Promise<void> {
-    const me = await this.findMe();
+  public async hideContact(businessId: number, contactIdToHide: number): Promise<void> {
+    const contactToHide = await this.findById(businessId, contactIdToHide);
+    if (!contactToHide) throw new Error("Contact not found");
+    const me = await this.findMe(businessId);
     if (!me) {
       throw new Error('Current user not found');
     }
@@ -622,20 +658,21 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async getHiddenContacts(offset: number, limit: number): Promise<IContact[]> {
+  public async getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]> {
     const result = await this.pool.query(
       `SELECT c.*
        FROM contacts c
        JOIN hidden_contacts hc ON c.id = hc.hidden_contact_id
-       WHERE hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE LIMIT 1)
-       LIMIT $2 OFFSET $1`,
-      [offset, limit]
+       WHERE hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE AND business_id = $1 LIMIT 1)
+       LIMIT $2 OFFSET $3`,
+      [businessId, limit, offset]
     );
 
     return result.rows.map(
       (row) =>
         new Contact(
           row.id,
+          row.business_id,
           row.phone_number,
           row.lid,
           row.username,
@@ -648,8 +685,10 @@ export class ContactRepository implements IContactRepository {
     );
   }
 
-  public async isContactHidden(contactId: bigint): Promise<boolean> {
-    const me = await this.findMe();
+  public async isContactHidden(businessId: number, contactId: number): Promise<boolean> {
+    const contact = await this.findById(businessId, contactId);
+    if (!contact) return false;
+    const me = await this.findMe(businessId);
     if (!me) {
       throw new Error('Current user not found');
     }
@@ -660,8 +699,10 @@ export class ContactRepository implements IContactRepository {
     return result.rows.length > 0;
   }
 
-  public async unhideContact(contactIdToUnhide: bigint): Promise<void> {
-    const me = await this.findMe();
+  public async unhideContact(businessId: number, contactIdToUnhide: number): Promise<void> {
+    const contactToUnhide = await this.findById(businessId, contactIdToUnhide);
+    if (!contactToUnhide) return;
+    const me = await this.findMe(businessId);
     if (!me) {
       throw new Error('Current user not found');
     }
@@ -669,6 +710,14 @@ export class ContactRepository implements IContactRepository {
       'DELETE FROM hidden_contacts WHERE hidden_contact_id = $1 AND user_contact_id = $2',
       [contactIdToUnhide, me.id]
     );
+  }
+
+  public async count(businessId: number): Promise<number> {
+    const result = await this.pool.query(
+      'SELECT COUNT(*) FROM contacts WHERE business_id = $1',
+      [businessId]
+    );
+    return parseInt(result.rows[0].count, 10);
   }
 }
 

@@ -3,10 +3,10 @@ import { Message } from '@/Nenichat/Messages/domain/Message';
 import IContactWithLastMessage from '../app/dtos/IContactWithLastMessage';
 
 export interface IContactRepository {
-  findById(id: bigint): Promise<IContact | null>;
-  findByPhoneNumber(phoneNumber: string): Promise<IContact | null>;
-  findByLid(lid: string): Promise<IContact | null>;
-  findMe(): Promise<IContact | null>;
+  findById(businessId: number, id: number): Promise<IContact | null>;
+  findByPhoneNumber(businessId: number, phoneNumber: string): Promise<IContact | null>;
+  findByLid(businessId: number, lid: string): Promise<IContact | null>;
+  findMe(businessId: number): Promise<IContact | null>;
 
   /**
    * Saves a contact (creates or updates).
@@ -32,20 +32,22 @@ export interface IContactRepository {
 
   /**
    * Retrieves a paginated list of contacts.
+   * @param businessId The ID of the business.
    * @param offset The number of contacts to skip.
    * @param limit The maximum number of contacts to return.
    * @returns A promise that resolves to an array of contacts.
    */
-  list(offset: number, limit: number): Promise<IContact[]>;
+  list(businessId: number, offset: number, limit: number): Promise<IContact[]>;
 
   /**
    * Finds contacts that are candidates for merging.
    * A contact is a candidate if either its phone_number or lid is null.
+   * @param businessId The ID of the business.
    * @param offset The number of contacts to skip.
    * @param limit The maximum number of contacts to return.
    * @returns A promise that resolves to an object containing the contacts and the total count.
    */
-  findMergeCandidates(offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }>;
+  findMergeCandidates(businessId: number, offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }>;
 
   /**
    * Merges multiple secondary contacts into a primary contact.
@@ -55,61 +57,67 @@ export interface IContactRepository {
    * @param secondaryContactIds An array of IDs of contacts to be merged and then deleted.
    * @returns A promise that resolves when the merge operation is complete.
    */
-  mergeContacts(primaryContactId: bigint, secondaryContactIds: bigint[]): Promise<void>;
+  mergeContacts(businessId: number, primaryContactId: number, secondaryContactIds: number[]): Promise<void>;
 
   /**
    * Retrieves an existing contact by LID or phone number, or creates a new one if not found.
+   * @param businessId The ID of the business.
    * @param contactId The LID or phone number of the contact.
    * @returns A promise that resolves to the found or newly created contact.
    */
-  getOrCreateContact(contactId: string): Promise<IContact>;
+  getOrCreateContact(businessId: number, contactId: string): Promise<IContact>;
 
   /**
    * Sets the contact property "is_user" as true for the given userId, meaning this contact represents the user themselves.
    * All other contacts will have their "is_user" property set to false.
    * @param userId The ID of the contact to set as the user.
    */
-  setMe(userId: bigint): Promise<IContact>;
+  setMe(businessId: number, userId: number): Promise<IContact>;
   /**
    * Retrieves the most recent contacts who have sent messages.
+   * @param businessId The ID of the business.
    * @param limit The maximum number of contacts to return.
    * @returns A promise that resolves to an array of contacts ordered by their latest message.
    */
-  findRecentContacts(limit: number): Promise<IContact[]>;
+  findRecentContacts(businessId: number, limit: number): Promise<IContact[]>;
 
   /**
    * Retrieves a list of contacts with their last message.
+   * @param businessId The ID of the business.
    * @param offset The number of contacts to skip.
    * @param limit The maximum number of contacts to return.
    * @returns A promise that resolves to an array of contacts with their last message.
    */
-  getContactsWithLastMessage(offset: number, limit: number): Promise<IContactWithLastMessage[]>;
+  getContactsWithLastMessage(businessId: number, offset: number, limit: number): Promise<IContactWithLastMessage[]>;
 
 
   /**
    * updates a row in hidden_contacts table
    * @param contactIdToHide The ID of the contact to hide.
    */
-  hideContact(contactIdToHide: bigint): Promise<void>;
+  hideContact(businessId: number, contactIdToHide: number): Promise<void>;
 
   /**
    * Retrieves a list of hidden contacts.
+   * @param businessId The ID of the business.
    * @param offset The number of contacts to skip.
    * @param limit The maximum number of contacts to return.
    * @returns A promise that resolves to an array of hidden contacts.
    */
-  getHiddenContacts(offset: number, limit: number): Promise<IContact[]>;
+  getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]>;
 
   /**
    * Retrieves a hidden contact by ID.
    * @param contactId The ID of the contact to retrieve.
    * @returns A promise that resolves to the hidden contact.
    */
-  isContactHidden(contactId: bigint): Promise<boolean>;
+  isContactHidden(businessId: number, contactId: number): Promise<boolean>;
 
   /**
    * unhide a contact
    * @param contactId The ID of the contact to unhide.
    */
-  unhideContact(contactId: bigint): Promise<void>;
+  unhideContact(businessId: number, contactId: number): Promise<void>;
+  count(businessId: number): Promise<number>;
+  search(businessId: number, query: string, limit: number): Promise<IContact[]>;
 }

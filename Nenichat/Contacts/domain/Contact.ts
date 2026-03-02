@@ -1,7 +1,8 @@
 import { IContact } from './IContact';
 
 export class Contact implements IContact {
-  id: bigint | null;
+  id: number | null;
+  business_id: number;
 
   phone_number: string | null;
   lid: string | null;
@@ -15,7 +16,8 @@ export class Contact implements IContact {
   updated_at: Date;
 
   constructor(
-    id: bigint | null,
+    id: number | null,
+    businessId: number,
     phone_number: string | null,
     lid: string | null,
     username: string | null,
@@ -26,6 +28,7 @@ export class Contact implements IContact {
     updatedAt: Date
   ) {
     this.id = id;
+    this.business_id = businessId;
     this.phone_number = phone_number;
     this.lid = lid;
     this.username = username;
