@@ -2,7 +2,7 @@ import { IChat } from './IChat';
 
 export class Chat implements IChat {
   constructor(
-    public id: string,
+    public jid: string,
     public name: string,
     public last_message_time: Date,
     public ephemeral_expiration: number,

@@ -1,4 +1,5 @@
 import { IChat } from '../../domain/IChat';
+import { getJidKind } from '../../domain/Jid';
 import { IChatRepository } from '../../domain/IChatRepository';
 import { Chat } from '../../domain/Chat';
 
@@ -84,7 +85,7 @@ export class GoWappChatRepository implements IChatRepository {
      * @private
      */
     private mapToDomain(apiChat: any): IChat {
-        const isGroup = apiChat.jid ? apiChat.jid.endsWith('@g.us') : false;
+        const isGroup = apiChat.jid ? getJidKind(apiChat.jid) === 'group' : false;
         return new Chat(
             apiChat.jid || '',
             apiChat.name || apiChat.jid || 'Unknown',
@@ -117,23 +118,31 @@ export class GoWappChatRepository implements IChatRepository {
         return null;
     }
 
+    async getDevices() {
+        const response = await this.request<any>('/devices');
+        if (response.code === 'SUCCESS' && response.results?.data) {
+            return response.results.data;
+        }
+        return [];
+    }
+
     /**
      * Saves or updates a chat.
      * Note: GoWapp API manages chats automatically; this method primarily
      * constructs a local representation.
      * @param {Partial<IChat>} chat - The chat data to save.
      * @returns {Promise<IChat>} The saved chat.
-     * @throws {Error} if ID is missing.
+     * @throws {Error} if JID is missing.
      */
     async save(chat: Partial<IChat>): Promise<IChat> {
-        if (chat.id === undefined) {
-            throw new Error('Chat ID must be provided to save a chat.');
+        if (chat.jid === undefined) {
+            throw new Error('Chat JID must be provided to save a chat.');
         }
 
         // Mutations like creating groups would use different endpoints.
         // For a general save, we return the constructed object.
         return new Chat(
-            chat.id,
+            chat.jid,
             chat.name || 'Unknown',
             chat.last_message_time || new Date(),
             chat.ephemeral_expiration || 0,
