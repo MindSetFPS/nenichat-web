@@ -192,11 +192,11 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                         <CardContent className="space-y-4">
                             <div>
                                 <div className="text-sm font-medium text-gray-500">Created</div>
-                                <div>{format(new Date(order.created_at), "PPpp")}</div>
+                                <div>{order.created_at && !isNaN(order.created_at.getTime()) ? format(order.created_at, "PPpp") : 'N/A'}</div>
                             </div>
                             <div>
                                 <div className="text-sm font-medium text-gray-500">Last Updated</div>
-                                <div>{format(new Date(order.updated_at), "PPpp")}</div>
+                                <div>{order.updated_at && !isNaN(order.updated_at.getTime()) ? format(order.updated_at, "PPpp") : 'N/A'}</div>
                             </div>
                             {order.completed_at && (
                                 <div>
