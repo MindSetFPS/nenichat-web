@@ -23,7 +23,7 @@ export interface IProductRepository {
   /**
    * Creates a new product.
    */
-  create(businessId: number, product: Omit<IProduct, 'business_id' | 'created_at' | 'updated_at'>): Promise<IProduct>;
+  create(businessId: number, product: Omit<IProduct, 'id' | 'business_id' | 'created_at' | 'updated_at'>): Promise<IProduct>;
 
   /**
    * Updates an existing product.

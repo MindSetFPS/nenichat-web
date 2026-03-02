@@ -122,7 +122,7 @@ export class SupabaseProductRepository implements IProductRepository {
         })) as IProductWithUnitsSold[];
     }
 
-    async create(businessId: number, product: Omit<IProduct, 'business_id' | 'created_at' | 'updated_at'>): Promise<IProduct> {
+    async create(businessId: number, product: Omit<IProduct, 'id' | 'business_id' | 'created_at' | 'updated_at'>): Promise<IProduct> {
         const { data, error } = await this.supabase
             .from('products')
             .insert({ ...product, business_id: businessId })

@@ -68,13 +68,13 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   }
 
   return (
-    <Content className="p-4 scroll-auto overflow-y-auto">
+    <>
       <PageHeader title="Editar producto" />
       <div className="overflow-y-auto mt-2">
         <ChartBarLabel data={sales} />
-        <ProductForm product={plainProduct} />
+        <ProductForm product={plainProduct} businessId={business.id} />
       </div>
-    </Content>
+    </>
   );
 }
 

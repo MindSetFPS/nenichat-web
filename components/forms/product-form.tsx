@@ -11,6 +11,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
+import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,14 +26,16 @@ import {
 
 interface ProductFormProps {
   product?: IProduct;
+  businessId?: number;
   onSuccess?: (productId: string) => void;
   onCancel?: () => void;
 }
 
-export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
+export function ProductForm({ product, businessId, onSuccess, onCancel }: ProductFormProps) {
   const isEditMode = !!product;
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
+  const productRepository = new SupabaseProductRepository(supabase);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -65,12 +69,16 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
     setLoading(true);
     try {
-      const { error: deleteError } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', product.id);
+      let bId: number;
+      if (businessId) {
+        bId = businessId;
+      } else {
+        const { business, error: authError } = await getBusinessFromUser(supabase);
+        if (authError || !business) throw new Error(authError || 'Business not found');
+        bId = business.id;
+      }
 
-      if (deleteError) throw deleteError;
+      await productRepository.delete(bId, product.id);
 
       toast('Success!', {
         description: 'Product deleted successfully.',
@@ -93,48 +101,32 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { data: business, error: businessError } = await supabase
-        .from('business')
-        .select('id')
-        .eq('owner_id', user.id)
-        .single();
-
-      if (businessError || !business) throw new Error('Business not found');
+      let bId: number;
+      if (businessId) {
+        bId = businessId;
+      } else {
+        const { business, error: authError } = await getBusinessFromUser(supabase);
+        if (authError || !business) throw new Error(authError || 'Business not found');
+        bId = business.id;
+      }
 
       const productData = {
-        business_id: business.id,
         name,
         description: description || null,
         price: parseFloat(price),
         stock: parseInt(stock, 10),
         whatsapp_product_id: whatsappProductId || null,
-        is_active: isActive
+        is_active: isActive,
+        images: product?.images || []
       };
 
       let resultProduct;
 
       if (isEditMode) {
-        const { data, error: updateError } = await supabase
-          .from('products')
-          .update(productData)
-          .eq('id', product.id)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        resultProduct = data;
+        resultProduct = await productRepository.update(bId, product.id, productData);
+        if (!resultProduct) throw new Error('Failed to update product');
       } else {
-        const { data, error: insertError } = await supabase
-          .from('products')
-          .insert(productData)
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        resultProduct = data;
+        resultProduct = await productRepository.create(bId, productData);
       }
 
       toast('Success!', {
