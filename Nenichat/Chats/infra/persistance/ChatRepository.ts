@@ -30,13 +30,13 @@ export class ChatRepository implements IChatRepository {
   }
 
   async save(chat: Partial<IChat>): Promise<IChat> {
-    const { id, is_group } = chat;
+    const { jid, is_group } = chat;
 
-    if (!id) {
-      throw new Error('Chat ID must be provided to save a chat.');
+    if (!jid) {
+      throw new Error('Chat JID must be provided to save a chat.');
     }
 
-    const existingChat = await this.findById(id);
+    const existingChat = await this.findById(jid);
 
     if (existingChat) {
       // Update existing chat
@@ -49,7 +49,7 @@ export class ChatRepository implements IChatRepository {
         WHERE id = $2
         RETURNING *
       `,
-        [chatToUpdate.is_group, existingChat.id]
+        [chatToUpdate.is_group, existingChat.jid]
       );
       if (!result || result.rows.length === 0) {
         throw new Error('Failed to save chat.');
@@ -63,7 +63,7 @@ export class ChatRepository implements IChatRepository {
         VALUES ($1, $2)
         RETURNING *
       `,
-        [id, is_group || false]
+        [jid, is_group || false]
       );
       if (!result || result.rows.length === 0) {
         throw new Error('Failed to save chat.');
