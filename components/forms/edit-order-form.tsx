@@ -44,6 +44,7 @@ export function EditOrderForm({
         try {
             const payload = {
                 contact_id: values.contactId ? parseInt(String(values.contactId)) : null,
+                lid: values.lid || null,
                 items: values.items,
                 shipping_address: values.shippingAddress,
                 shipping_cost: values.shippingCost,

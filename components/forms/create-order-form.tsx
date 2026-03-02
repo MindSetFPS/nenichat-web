@@ -11,6 +11,7 @@ import { IProduct } from "@/Nenichat/Products/domain/IProduct";
 interface CreateOrderFormProps {
     contacts?: IContact[];
     contactId?: string;
+    lid?: string;
     contact?: IContact;
     createdAt?: Date;
     className?: string;
@@ -20,6 +21,7 @@ interface CreateOrderFormProps {
 export function CreateOrderForm({
     contacts,
     contactId,
+    lid,
     contact,
     createdAt,
     className,
@@ -48,6 +50,7 @@ export function CreateOrderForm({
         try {
             const payload = {
                 contact_id: values.contactId ? parseInt(String(values.contactId)) : null,
+                lid: values.lid || null,
                 items: values.items,
                 shipping_address: values.shippingAddress,
                 shipping_cost: values.shippingCost,
@@ -93,8 +96,7 @@ export function CreateOrderForm({
             contact={contact}
             initialValues={{
                 contactId: contactId,
-                // If we want to support other initial props passed to CreateOrderForm, we should map them here, 
-                // but standard CreateOrderForm usually starts empty except maybe contact.
+                lid: lid,
             }}
             products={activeProducts!}
         />
