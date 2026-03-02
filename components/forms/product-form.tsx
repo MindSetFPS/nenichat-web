@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
-import { IImage } from '@/dto/IImage';
-import { getProductImageUrl } from '@/lib/utils';
-import Image from 'next/image';
-import { XCircle, PlusCircle, Loader2, Trash2 } from 'lucide-react';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -23,7 +21,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 interface ProductFormProps {
   product?: IProduct;
@@ -34,6 +31,7 @@ interface ProductFormProps {
 export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
   const isEditMode = !!product;
   const router = useRouter();
+  const supabase = createBrowserSupabaseClient();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -41,15 +39,8 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   const [stock, setStock] = useState('');
   const [isActive, setIsActive] = useState<boolean>(true);
   const [whatsappProductId, setWhatsappProductId] = useState('');
-  const [existingImages, setExistingImages] = useState<IImage[]>([]);
-  const [newImages, setNewImages] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [imageToDelete, setImageToDelete] = useState<IImage | null>(null);
   const [showDeleteProductDialog, setShowDeleteProductDialog] = useState(false);
-
-  const newImagePreviews = useMemo(() => {
-    return newImages.map((file) => URL.createObjectURL(file));
-  }, [newImages]);
 
   useEffect(() => {
     if (isEditMode && product) {
@@ -59,8 +50,6 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       setStock(product.stock.toString());
       setIsActive(product.is_active);
       setWhatsappProductId(product.whatsapp_product_id || '');
-      setExistingImages(product.images || []);
-      setNewImages([]);
     } else {
       setName('');
       setDescription('');
@@ -68,53 +57,20 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       setStock('');
       setIsActive(true);
       setWhatsappProductId('');
-      setExistingImages([]);
-      setNewImages([]);
     }
   }, [product, isEditMode]);
-
-  const handleImageDelete = async () => {
-    if (!imageToDelete || !product) return;
-
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/products/${product.id}?imageId=${imageToDelete.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete image');
-      }
-
-      toast('Success!', {
-        description: 'Image deleted successfully.',
-      });
-      setExistingImages((prev) => prev.filter((img) => img.id !== imageToDelete.id));
-      router.refresh();
-    } catch (error: any) {
-      toast('Error', {
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-      setImageToDelete(null);
-    }
-  };
 
   const handleProductDelete = async () => {
     if (!product) return;
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/products/${product.id}`, {
-        method: 'DELETE',
-      });
+      const { error: deleteError } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', product.id);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete product');
-      }
+      if (deleteError) throw deleteError;
 
       toast('Success!', {
         description: 'Product deleted successfully.',
@@ -132,54 +88,54 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
     }
   };
 
-  const handleNewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewImages(Array.from(e.target.files));
-    }
-  };
-
-  const removeNewImage = (index: number) => {
-    setNewImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('stock', stock);
-    formData.append('is_active', isActive.toString());
-    formData.append('whatsapp_product_id', whatsappProductId);
-
-    if (isEditMode) {
-      existingImages.forEach((img) => formData.append('existingImageIds', img.id));
-    }
-
-    if (newImages.length > 0) {
-      const imageKey = isEditMode ? 'newImages' : 'images';
-      newImages.forEach((file) => {
-        formData.append(imageKey, file);
-      });
-    }
-
     try {
-      const url = isEditMode ? `/api/products/${product?.id}` : '/api/products';
-      const method = isEditMode ? 'PUT' : 'POST';
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
 
-      const response = await fetch(url, {
-        method: method,
-        body: formData,
-      });
+      const { data: business, error: businessError } = await supabase
+        .from('business')
+        .select('id')
+        .eq('owner_id', user.id)
+        .single();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to ${isEditMode ? 'update' : 'create'} product`);
+      if (businessError || !business) throw new Error('Business not found');
+
+      const productData = {
+        business_id: business.id,
+        name,
+        description: description || null,
+        price: parseFloat(price),
+        stock: parseInt(stock, 10),
+        whatsapp_product_id: whatsappProductId || null,
+        is_active: isActive
+      };
+
+      let resultProduct;
+
+      if (isEditMode) {
+        const { data, error: updateError } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', product.id)
+          .select()
+          .single();
+
+        if (updateError) throw updateError;
+        resultProduct = data;
+      } else {
+        const { data, error: insertError } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        resultProduct = data;
       }
-
-      const resultProduct = await response.json();
 
       toast('Success!', {
         description: `Product ${isEditMode ? 'updated' : 'created'} successfully.`,
@@ -191,6 +147,7 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
         router.refresh();
       }
     } catch (error: any) {
+      console.error('Product error:', error);
       toast('Error', {
         description: error.message,
       });
@@ -236,48 +193,6 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
           <Switch id="is-active" checked={isActive} onCheckedChange={setIsActive} />
           <Label htmlFor="is-active">Activo</Label>
         </div>
-
-        <CardTitle className='mt-4'>Imagenes</CardTitle>
-        <CardDescription>Sube imágenes para tu producto.</CardDescription>
-        <div className="grid grid-cols-3 gap-2">
-          {isEditMode &&
-            existingImages.map((image) => (
-              <div key={image.id} className="relative w-full h-24 border rounded-md overflow-hidden group">
-                <Image src={getProductImageUrl(image.path)} alt={image.alt_text || 'Product image'} fill style={{ objectFit: 'cover' }} />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => setImageToDelete(image)}
-                >
-                  <XCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          {newImagePreviews.map((previewUrl, index) => (
-            <div key={index} className="relative w-full h-24 border rounded-md overflow-hidden group">
-              <Image src={previewUrl} alt={`New image ${index + 1}`} fill style={{ objectFit: 'cover' }} onLoad={() => URL.revokeObjectURL(previewUrl)} />
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeNewImage(index)}
-              >
-                <XCircle className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          <Label
-            htmlFor="newImages"
-            className="relative w-full h-24 border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors"
-          >
-            <PlusCircle className="h-6 w-6 mb-1" />
-            <span>Agregar imágenes</span>
-            <Input id="newImages" type="file" multiple accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleNewImageChange} />
-          </Label>
-        </div>
       </div>
 
       <div className="flex justify-between items-center">
@@ -307,25 +222,12 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
 
       {isEditMode && (
         <>
-          <AlertDialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Eliminar imagen?</AlertDialogTitle>
-                <AlertDialogDescription>Esta acción no puede ser deshecha. Esta acción eliminará permanentemente la imagen.</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleImageDelete}>Eliminar</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
           <AlertDialog open={showDeleteProductDialog} onOpenChange={setShowDeleteProductDialog}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Eliminar producto?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  ¿Estás seguro de que quieres eliminar <strong>{product?.name}</strong>? Esta acción no puede ser deshecha y eliminará permanentemente el producto y todas sus imágenes.
+                  ¿Estás seguro de que quieres eliminar <strong>{product?.name}</strong>? Esta acción no puede ser deshecha.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
