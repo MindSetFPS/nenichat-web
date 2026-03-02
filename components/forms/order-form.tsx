@@ -18,7 +18,6 @@ import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identi
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "sonner";
 import { IProduct } from "@/Nenichat/Products/domain/IProduct";
 
 export interface OrderItemRow {
@@ -28,7 +27,8 @@ export interface OrderItemRow {
 }
 
 export interface OrderFormValues {
-    contactId: string;
+    contactId?: string;
+    lid?: string;
     status: string;
     paymentMethod: string;
     amountPaid: number;
@@ -69,11 +69,8 @@ export function OrderForm({
 
     // Order Details
     const [contactId, setContactId] = useState<string>(initialValues?.contactId || (initialContact ? String(initialContact.id) : ""));
+    const [lid, setLid] = useState<string>(initialValues?.lid || (initialContact?.lid ? initialContact.lid : ""));
     const [status, setStatus] = useState(initialValues?.status || "pending");
-
-    // Contact Data State
-    const [fetchedContact, setFetchedContact] = useState<IContact | null>(initialContact || null);
-    const [isFetchingContact, setIsFetchingContact] = useState(false);
 
     // Items
     const [items, setItems] = useState<OrderItemRow[]>(initialValues?.items || []);
@@ -88,29 +85,6 @@ export function OrderForm({
     const [amountPaid, setAmountPaid] = useState(initialValues?.amountPaid || 0);
     const [paymentStatus, setPaymentStatus] = useState(initialValues?.paymentStatus || "unpaid");
     const [notes, setNotes] = useState(initialValues?.notes || "");
-
-    // Fetch contact if only ID is provided and not in contacts list
-    useEffect(() => {
-        const fetchContact = async () => {
-            if (contactId && !initialContact && !contacts?.find(c => String(c.id) === contactId)) {
-                setIsFetchingContact(true);
-                try {
-                    const response = await fetch(`/api/contacts/${contactId}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        setFetchedContact(data);
-                    }
-                } catch (error) {
-                    console.error("Failed to fetch contact", error);
-                    toast.error("Failed to load contact details");
-                } finally {
-                    setIsFetchingContact(false);
-                }
-            }
-        };
-
-        fetchContact();
-    }, [contactId, initialContact, contacts]);
 
     // Helper to add a new item row
     const addItem = () => {
@@ -161,7 +135,8 @@ export function OrderForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         await onSubmit({
-            contactId,
+            contactId: contactId || undefined,
+            lid: lid || undefined,
             status,
             paymentMethod,
             amountPaid,
@@ -175,8 +150,12 @@ export function OrderForm({
     };
 
     // Determine display contact
-    const displayContact = fetchedContact || (contacts ? contacts.find(c => String(c.id) === contactId) : null);
-    const showContactSelect = contacts && contacts.length > 0 && !contactId && !initialContact && !fetchedContact;
+    const displayContact = contacts ? contacts.find(c => {
+        if (contactId) return String(c.id) === contactId;
+        if (lid) return c.lid === lid || c.phone_number === lid;
+        return false;
+    }) : null;
+    const showContactSelect = contacts && contacts.length > 0 && !contactId && !lid && !initialContact;
     // Determine if we should show the select or the display box. 
     // If we have a selected contactId, show the display box (which might be loading).
     // If we don't have a selected contactId, show the select.
@@ -188,7 +167,7 @@ export function OrderForm({
     // Here we use internal state `contactId`.
 
     // Let's refine `showContactSelect` to mimic original behavior but also allow selecting if nothing is selected.
-    const effectiveShowContactSelect = !contactId && contacts && contacts.length > 0;
+    const effectiveShowContactSelect = (!contactId && !lid) && contacts && contacts.length > 0;
 
     return (
         <form onSubmit={handleSubmit} className={cn("@container md:grid grid-cols-1 md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4 p-0 pb-2", className)}>
@@ -214,19 +193,19 @@ export function OrderForm({
                             </Select>
                         ) : (
                             <div className="p-3 border rounded-md bg-muted/50 flex justify-between items-center">
-                                {isFetchingContact ? (
-                                    <span className="text-sm text-muted-foreground">Loading contact...</span>
-                                ) : displayContact ? (
+                                {displayContact ? (
                                     <div className="flex flex-col">
                                         <span className="font-medium">{getContactIdentifier(displayContact)}</span>
                                         <span className="text-sm text-muted-foreground">{displayContact.phone_number}</span>
                                     </div>
+                                ) : contactId || lid ? (
+                                    <span className="font-medium">{contactId || lid}</span>
                                 ) : (
                                     <span className="text-sm text-muted-foreground">No contact selected</span>
                                 )}
                                 {/* Allow clearing selection if it wasn't an initial mandated contact? For now keep simple like original */}
-                                {contactId && !initialValues?.contactId && !initialContact && (
-                                    <Button variant="ghost" size="sm" onClick={() => setContactId("")} type="button">Change</Button>
+                                {(contactId || lid) && !initialValues?.contactId && !initialValues?.lid && !initialContact && (
+                                    <Button variant="ghost" size="sm" onClick={() => { setContactId(""); setLid(""); }} type="button">Change</Button>
                                 )}
                             </div>
                         )}
