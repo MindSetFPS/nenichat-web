@@ -125,10 +125,7 @@ export default function ChatView({
                 item.type === 'message' ? (
                   <Message
                     message={item.data as IMessageWithSender}
-                    isMe={isGroup
-                      ? (item.data as IMessageWithSender).sender_jid === me?.lid || (item.data as IMessageWithSender).sender_jid === me?.phone_number
-                      : (item.data as IMessageWithSender).chat_jid !== (item.data as IMessageWithSender).sender_jid
-                    }
+                    isMe={item.data.sender_jid.includes(me?.phone_number!)}
                     key={`message-${itemIndex}`}
                   />
                 ) : (
