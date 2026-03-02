@@ -77,7 +77,6 @@ export class OrderItemRepository implements IOrderItemRepository {
         }
 
         const query = `UPDATE order_items SET ${fields} WHERE id = $1 RETURNING *`;
-        console.log(query)
         const result = await this.pool.query(query, [id, ...values]);
 
         if (result.rows.length === 0) {

@@ -5,6 +5,7 @@ import { IOrderRepository } from "../../domain/IOrderRepository";
 import { IOrderItemWithProduct } from "../../domain/IOrderItemWithProduct";
 import { IOrdersReport } from "../../domain/IOrdersReport";
 import { Order } from "../../domain/Order";
+import { getJidKind } from "../../../Chats/domain/Jid";
 
 /**
  * Implementation of IOrderRepository using Supabase.
@@ -112,14 +113,38 @@ export class SupabaseOrderRepository implements IOrderRepository {
      */
     async create(
         businessId: number,
-        orderData: Omit<IOrder, 'id' | 'business_id' | 'created_at' | 'updated_at'> & { created_at?: Date },
+        orderData: Omit<IOrder, 'id' | 'business_id' | 'created_at' | 'updated_at'> & { created_at?: Date; lid?: string | null },
         items: Array<{ productId: string; quantity: number; unitPrice: number }>
     ): Promise<IOrder> {
+
+        let contactId = orderData.contact_id;
+
+        // If no contact_id but lid is provided, try to resolve it from the contacts table
+        if (!contactId && orderData.lid) {
+            const jidKind = getJidKind(orderData.lid);
+            const query = this.supabase
+                .from('contacts')
+                .select('id')
+                .eq('business_id', businessId);
+
+            if (jidKind === 'contact') {
+                query.eq('phone_number', orderData.lid);
+            } else {
+                query.eq('lid', orderData.lid);
+            }
+
+            const { data: contact } = await query.maybeSingle();
+
+            if (contact) {
+                contactId = contact.id;
+            }
+        }
+
         const { data: newOrder, error: orderError } = await this.supabase
             .from('orders')
             .insert({
                 business_id: businessId,
-                contact_id: orderData.contact_id,
+                contact_id: contactId,
                 total_amount: orderData.total_amount,
                 shipping_cost: orderData.shipping_cost,
                 shipping_address: orderData.shipping_address,
@@ -131,7 +156,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
                 notes: orderData.notes,
                 completed_at: orderData.completed_at,
                 cancelled_at: orderData.cancelled_at,
-                created_at: orderData.created_at ? orderData.created_at.toISOString() : new Date().toISOString()
+                created_at: orderData.created_at ? new Date(orderData.created_at).toISOString() : new Date().toISOString()
             })
             .select()
             .single();
@@ -154,7 +179,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
             .insert(orderItems);
 
         if (itemsError) {
-            console.error("Error creating order items for order:", newOrder.id, itemsError);
+            console.error("Error creating order items for order:", newOrder.id, itemsError, "for items: ", orderItems);
             throw itemsError;
         }
 
