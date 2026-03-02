@@ -10,6 +10,7 @@ import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
 import { useIsMobile } from '@/hooks/use-mobile'
 import { PageHeader } from '../ui/page-header'
+import { IChat } from '@/Nenichat/Chats/domain/IChat'
 
 interface RecentChatsProps {
     contacts: string
@@ -29,7 +30,8 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
     const pathname = usePathname()
     const router = useRouter()
     const isMobile = useIsMobile()
-    const contacts: IContactWithLastMessage[] = JSON.parse(contactsJson)
+    const chats: IChat[] = (JSON.parse(contactsJson) as IChat[])
+        .filter(chat => chat.jid !== 'status@broadcast')
 
     // Check if we're viewing a specific chat (has an ID after /chats/)
     const isViewingChat = pathname.match(/^\/chats\/[^/]+$/)
@@ -56,15 +58,15 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                 <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Buscar" />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-none">
-                {contacts.map((contact: IContactWithLastMessage) => (
+                {chats.map((chat: IChat) => (
                     <div
-                        key={contact.id}
-                        className={`p-3 hover:bg-accent/40 cursor-pointer transition-colors group ${isActive(`/chats/${contact.id}`) ? 'bg-accent/40' : ''}`}
-                        onClick={() => changeRoute(`/chats/${contact.id}`)}
+                        key={chat.jid}
+                        className={`p-3 hover:bg-accent/40 cursor-pointer transition-colors group ${isActive(`/chats/${chat.jid}`) ? 'bg-accent/40' : ''}`}
+                        onClick={() => changeRoute(`/chats/${chat.jid}`)}
                     >
                         <div className="flex items-center gap-3">
                             <Avatar className="size-6 lg:size-8 shrink-0">
-                                <ContactAvatar seed={getContactIdentifier(contact!)!} />
+                                <ContactAvatar seed={getContactIdentifier(chat.jid.toString())!} />
                                 <AvatarFallback>
                                     <AvatarImage src="https://github.com/shadcn.png" />
                                 </AvatarFallback>
@@ -72,17 +74,17 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-center mb-0.5">
                                     <span className="text-sm font-medium truncate">
-                                        {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
+                                        {chat.name}
                                     </span>
                                     <span className="text-[10px] text-muted-foreground">
                                         {(() => {
-                                            const createdAt = contact.last_message?.created_at;
+                                            const createdAt = chat.last_message_time;
                                             return dateToHuman(String(createdAt));
                                         })()}
                                     </span>
                                 </div>
                                 <p className="text-xs text-muted-foreground truncate leading-tight">
-                                    {contact.last_message?.text_content}
+                                    {/* {chat.last_message?.text_content} */}
                                 </p>
                             </div>
                         </div>

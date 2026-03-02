@@ -1,12 +1,12 @@
 import { RecentChats } from "@/components/chat/recent-chats";
-import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository"
-import IContactWithLastMessage from "@/Nenichat/Contacts/app/dtos/IContactWithLastMessage"
 import Content from "@/components/layout/content";
 import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
 import { IChat } from "@/Nenichat/Chats/domain/IChat";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyChats } from "@/components/chat/empty-chats";
+import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
+import { getBusinessFromUser } from "@/lib/user-auth";
 
 export const metadata = {
   title: 'Chats',
@@ -21,32 +21,15 @@ export default async function ChatLayout({
   let contactsWithLastMessage: IChat[] = [];
   try {
     const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { business, error: authError } = await getBusinessFromUser(supabase)
 
-    if (userError) console.error(userError)
+    if (authError) return <div>Unauthorized</div>
+    if (!business) throw new Error("No tienes un negocio");
 
-    // what business' contacts to retrieve
-    const { data: business, error: businessError } = await supabase
-      .from("business")
-      .select("id")
-      .eq("owner_id", user?.id)
-      .single();
+    const containerRepository = new SupabaseContainerRepository(supabase)
+    const containerData = await containerRepository.getContainerByBusinessId(business.id)
 
-    if (businessError) console.error(businessError)
-
-    if (!business) {
-      throw new Error("No tienes un negocio");
-    }
-
-    const { data: containerData, error: containerError } = await supabase
-      .from("whatsapp-containers")
-      .select("*")
-      .eq("business_id", business.id)
-      .single();
-
-    if (containerError) console.error(containerError)
-
-    if (!containerData) {
+    if (!containerData || containerData.status !== "connected") {
       return <Content>
         <PageHeader title="" />
         <EmptyChats />
@@ -57,9 +40,7 @@ export default async function ChatLayout({
     const wappChatRepository = new GoWappChatRepository(url, "admin", "admin")
     // contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
     contactsWithLastMessage = await wappChatRepository.list(0, 26)
-    console.log(contactsWithLastMessage)
   } catch (error) {
-    console.warn("Failed to fetch contacts in RootLayout (possibly during build):", error);
   }
   const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)
   return (

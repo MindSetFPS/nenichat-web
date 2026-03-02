@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { IContact } from "@/Nenichat/Contacts/domain/IContact"
-import { IMessage } from "@/Nenichat/Messages/domain/IMessage"
+// import { IContact } from "@/Nenichat/Contacts/domain/IContact" // Removed unused import
 import { Button } from "../ui/button"
 import {
     Accordion,
@@ -29,16 +28,16 @@ import Link from "next/link"
 
 interface MessageProps {
     message: IMessageWithSender
-    me: IContact | null
+    isMe: boolean
 }
 
-export default function Message({ message, me }: MessageProps) {
+export default function Message({ message, isMe }: MessageProps) {
     const [open, setOpen] = useState(false)
 
     return (
         <div className="flex gap-2">
             {
-                message.sender && message.sender_id !== me?.id ?
+                message.sender && !isMe ?
                     <Avatar className="h-8 w-8">
                         <ContactAvatar seed={getContactIdentifier(message.sender!)!} />
                         <AvatarFallback>{getContactIdentifier(message.sender!)!.substring(0, 2).toUpperCase()}</AvatarFallback>
@@ -49,7 +48,7 @@ export default function Message({ message, me }: MessageProps) {
                 key={message.id}
                 className={cn(
                     "flex flex-row w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity",
-                    message.sender_id === me?.id
+                    isMe
                         ? "ml-auto text-primary rounded-tr-none px-1 py-0"
                         : "bg-muted rounded-tl-none"
                 )}
@@ -57,8 +56,8 @@ export default function Message({ message, me }: MessageProps) {
                 <Accordion type="single" collapsible className="p-0">
                     <AccordionItem value="item-1" className="p-0">
                         {
-                            message.sender && message.sender_id !== me?.id ?
-                                <Link href={`/chats/${message.sender_id}`}>
+                            message.sender && !isMe ?
+                                <Link href={`/chats/${message.sender_jid}`}>
                                     <span className="text-xs font-bold">
                                         {getContactIdentifier(message.sender!)}
                                     </span>
@@ -66,15 +65,15 @@ export default function Message({ message, me }: MessageProps) {
                                 : <></>
                         }
 
-                        {message.sender_id !== me?.id ? (
+                        {!isMe ? (
                             <AccordionTrigger className="items-center p-0">
                                 <p className="text-sm py-2">
-                                    {message.text_content}
+                                    {message.content}
                                 </p>
                             </AccordionTrigger>
                         ) : (
                             <p className="text-sm py-2">
-                                {message.text_content}
+                                {message.content}
                             </p>
                         )}
 
@@ -93,13 +92,13 @@ export default function Message({ message, me }: MessageProps) {
                                         </SheetDescription>
                                         <div
                                             className="bg-muted font-normal italic text-primary-foreground p-3 rounded-b-lg rounded-tr-lg">
-                                            <span className="text-primary">"{message.text_content}"</span>
+                                            <span className="text-primary">"{message.content}"</span>
                                             <span className="text-muted-foreground text-sm block">{new Date(message.created_at).toLocaleString()}</span>
                                         </div>
                                         <CreateOrderForm
                                             onSubmit={() => setOpen(false)}
-                                            contactId={String(message.sender_id)}
-                                            createdAt={message.created_at}
+                                            lid={String(message.sender_jid)}
+                                            createdAt={new Date(message.created_at)}
                                         />
                                     </SheetContent>
                                 </Sheet>
@@ -111,7 +110,7 @@ export default function Message({ message, me }: MessageProps) {
                 <span
                     className={cn(
                         "text-[0.5rem] self-end",
-                        message.sender_id === me?.id
+                        isMe
                             ? "text-primary/70"
                             : "text-muted-foreground"
                     )}

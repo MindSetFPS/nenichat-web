@@ -8,12 +8,12 @@ import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
 import { Order } from "@/Nenichat/Orders/domain/Order"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 import ChatHeader from "./chat-header"
 import { ChatDropDownDialog } from "./chat-dropdown"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 
 // Union type for timeline items
 type TimelineItem =
@@ -25,7 +25,7 @@ interface ChatViewProps {
   me: IContact | null,
   isGroup: boolean,
   orders: Order[],
-  contact: any
+  contact?: IContact
 }
 
 export default function ChatView({
@@ -103,13 +103,13 @@ export default function ChatView({
           )}
           <div className="flex-1">
             {isGroup ? (
-              <h1 className="text-lg md:text-2xl font-bold">{getContactIdentifier(contact)}</h1>
+              <h1 className="text-lg md:text-2xl font-bold">{contact ? getContactIdentifier(contact) : "Unknown"}</h1>
             ) : (
               <ChatHeader contact={contact!} />
             )}
           </div>
         </div>
-        <ChatDropDownDialog contact={contact} />
+        {contact && <ChatDropDownDialog contact={contact} />}
       </div>
 
       <div className="px-4 space-y-4">
@@ -125,7 +125,10 @@ export default function ChatView({
                 item.type === 'message' ? (
                   <Message
                     message={item.data as IMessageWithSender}
-                    me={me}
+                    isMe={isGroup
+                      ? (item.data as IMessageWithSender).sender_jid === me?.lid || (item.data as IMessageWithSender).sender_jid === me?.phone_number
+                      : (item.data as IMessageWithSender).chat_jid !== (item.data as IMessageWithSender).sender_jid
+                    }
                     key={`message-${itemIndex}`}
                   />
                 ) : (

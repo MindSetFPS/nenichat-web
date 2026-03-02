@@ -1,10 +1,12 @@
-import { OrderRepository } from "@/Nenichat/Orders/infra/persistance/OrderRepository"
-import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
+import { notFound } from "next/navigation"
+import { getBusinessFromUser } from "@/lib/user-auth"
 import { GoWappMessageRepository } from "@/Nenichat/Messages/infra/api"
 import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
+import { getJidKind } from "@/Nenichat/Chats/domain/Jid"
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { pool } from "@/Nenichat/Shared/infra/persistance/db"
+import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository"
+import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import ChatView from "@/components/chat/chat-view"
 import ChatControls from "@/components/chat/chat-controls"
 
@@ -13,42 +15,62 @@ export default async function ChatPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  // get business id from supabase
-  const contactRepository = new SupabaseContactRepository()
-  const orderRepository = new OrderRepository(pool)
-  const gowappChatRepository = new GoWappChatRepository("http://192.168.1.64:5100")
-  const gowappMessageRepository = new GoWappMessageRepository("http://192.168.1.64:5100")
-
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { business, error: authError } = await getBusinessFromUser(supabase)
 
-  if (!user) {
+  if (authError || !business) {
     return <div>Unauthorized</div>
   }
 
-  // query business id from supabase
-  // i feel like this should be done by the client, will i query the same data 
-  // every time i open a chat?
-  // apparently, nextjs does detect duplicate queries and caches them, but i must make sure
-  const { data: business, error } = await supabase
-    .from("business")
-    .select("*")
-    .eq("owner_id", user.id)
-    .single()
-
-  if (error) {
-    console.log("error", error)
-  }
-
-  if (!business) {
-    return <div>Business not found</div>
-  }
+  const contactRepository = new SupabaseContactRepository(supabase)
+  const orderRepository = new SupabaseOrderRepository(supabase)
+  const gowappBaseUrl = "http://192.168.1.64/api/user/" + business.id
+  const gowappChatRepository = new GoWappChatRepository(gowappBaseUrl, "admin", "admin")
+  const gowappMessageRepository = new GoWappMessageRepository(gowappBaseUrl, "admin", "admin")
 
   const params = await paramsPromise
   const lid = decodeURIComponent(params.id)
-  const chatData = await gowappChatRepository.findById(lid)
-  // const meData = await contactRepository.findMe(1)
+
+  // Basic guard against invalid IDs (static assets or misrouted requests)
+  if (lid.includes('.') && !lid.includes('@')) {
+    return notFound();
+  }
+
+  let chatData = null;
+  try {
+    chatData = await gowappChatRepository.findById(lid)
+    if (!chatData) {
+      return notFound();
+    }
+  } catch (e) {
+    console.error(`Error finding chat ${lid}:`, e);
+    return notFound();
+  }
+
   const meData = await contactRepository.findMe(business.id)
+
+  // retrieve contact info with lid or phone number
+  let contactInfo = null;
+  if (chatData) {
+    const jidKind = getJidKind(lid);
+    const isLid = jidKind === 'lid' || !lid.startsWith("521");
+    const isPhoneNumber = jidKind === 'contact';
+
+    if (isPhoneNumber) {
+      contactInfo = await contactRepository.findByPhoneNumber(business.id, lid);
+    } else {
+      contactInfo = await contactRepository.findByLid(business.id, lid);
+    }
+
+    if (!contactInfo) {
+      contactInfo = await contactRepository.save({
+        business_id: business.id,
+        is_user: false,
+        contact_name: chatData.name || null,
+        ...(isLid ? { lid: lid } : { phone_number: lid })
+      });
+    }
+  }
 
   // todo: setMe() we currently does not have a way to tell the app what is my profile
   let messages: IMessageWithSender[] = []
@@ -74,16 +96,12 @@ export default async function ChatPage({
     }
   )
 
-  // console.log("chatData", chatData)
-
   if (chatData?.is_group) {
-    console.log("group chat")
     // A group chat is still a contact that we can name
     messages = await gowappMessageRepository.findByChatIdWithSender(lid, 0, 100)
-    console.log("messages", messages)
 
     // 1. Create a list of unique users that have sent a message
-    const userIdSet = new Set(messages.map((message) => message.sender_id))
+    const userIdSet = new Set(messages.map((message) => message.sender_jid))
     const userIdList = Array.from(userIdSet)
 
     // 2. Loop through the list of users and query every order that belongs to that user
@@ -91,8 +109,10 @@ export default async function ChatPage({
     orders = ordersList.flat()
   } else {
     messages = await gowappMessageRepository.findByChatId(lid, 0, 10)
-    const numericId = parseInt(lid.split('@')[0], 10)
-    orders = await orderRepository.getByContactId(business.id, numericId)
+    // orders = await orderRepository.getByContactId(business.id, numericId)
+    if (contactInfo && contactInfo.id) {
+      orders = await orderRepository.getByContactId(business.id, contactInfo.id)
+    }
   }
 
   // if the last message belongs to a customer, then check in database if there is suggestions and 
@@ -100,7 +120,7 @@ export default async function ChatPage({
   // if there is not suggestion, generate them. 
   // also, the message should not belong to hidden contacts, othetwise it would be a waste of tokens
 
-  const contactJson = JSON.parse(JSON.stringify(chatData))
+  const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
   const messagesJson = JSON.parse(JSON.stringify(messages))
   const ordersJson = JSON.parse(JSON.stringify(orders))
   const me = JSON.parse(JSON.stringify(meData))
