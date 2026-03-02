@@ -62,18 +62,18 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                 open={showEditDialog}
                 onOpenChange={setShowEditDialog}
             />
-            <AssignToAudienceDialogContent
+            {/* <AssignToAudienceDialogContent
                 contact={contact}
                 onSubmitSuccess={onSubmitSuccess}
                 open={showAssignToAudienceDialog}
                 onOpenChange={setShowAssignToAudienceDialog}
-            />
-            <HideContactDialogContent
+            /> */}
+            {/* <HideContactDialogContent
                 contact={contact}
                 onSubmitSuccess={onSubmitSuccess}
                 open={showIgnoreDialog}
                 onOpenChange={setShowIgnoreDialog}
-            />
+            /> */}
         </>
     )
 }

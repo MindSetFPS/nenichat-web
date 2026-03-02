@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getBusinessFromUser } from '@/lib/user-auth';
 
 /**
  * POST handler for setting the current user's linked contact.
@@ -17,12 +18,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
+    const supabase = await createServerSupabaseClient();
+    const { business, error: authError } = await getBusinessFromUser(supabase);
+
+    if (authError || !business) {
+      return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
+
     // 1. Update the local contact repository
-    const user = await contactRepository.setMe(BigInt(userId));
+    const user = await contactRepository.setMe(business.id, userId);
 
     // 2. Link the contact ID to the Supabase profile
-    const supabase = await createServerSupabaseClient();
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
 
     if (authUser) {
       const { error: profileError } = await supabase

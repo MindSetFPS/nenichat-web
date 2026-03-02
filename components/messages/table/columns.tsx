@@ -21,10 +21,10 @@ export const columns: ColumnDef<IMessageWithSender>[] = [
         </Link>,
     },
     {
-        accessorKey: "text_content",
+        accessorKey: "content",
         header: "Mensaje",
         cell: ({ row }) => <div className="w-full text-wrap">
-            {row.original.text_content}
+            {row.original.content}
         </div>,
     },
     {

@@ -1,7 +1,8 @@
 'use server'
 
 import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
-import { requireAuth } from "@/lib/auth";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getBusinessFromUser } from "@/lib/user-auth";
 
 /**
  * Server action to fetch hidden contacts.
@@ -11,8 +12,14 @@ import { requireAuth } from "@/lib/auth";
  */
 export async function getHiddenContactsAction(offset: number = 0, limit: number = 10) {
     try {
-        await requireAuth();
-        const hiddenContacts = await contactRepository.getHiddenContacts(offset, limit);
+        const supabase = await createServerSupabaseClient();
+        const { business, error: authError } = await getBusinessFromUser(supabase);
+
+        if (authError || !business) {
+            throw new Error(authError || 'Unauthorized');
+        }
+
+        const hiddenContacts = await contactRepository.getHiddenContacts(business.id, offset, limit);
 
         // Serialize for client (ensure bigint or other non-serializable types are handled if necessary)
         // The Contact objects might have bigint IDs. Let's ensure they are strings or numbers.

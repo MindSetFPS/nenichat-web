@@ -15,13 +15,11 @@ export default function CheckWappConnectionButton({ container }: { container: an
             setLoading(true);
             const data = await getWappDevices(container.business_id) as { success?: boolean; devices?: Array<{ name: string; device: string }> };
 
-            console.log(data)
             if (data.success && data.devices && data.devices.length > 0) {
                 // If there are devices connected, just reload to reflect any new status, or maybe do nothing.
                 window.location.reload();
             } else {
                 // Devices empty means not connected, set status to deployed to show QR
-                console.log("setting deployed bc no devices")
                 const { error } = await supabase
                     .from('whatsapp-containers')
                     .update({ status: 'deployed', qr_code_url: null })
@@ -32,7 +30,6 @@ export default function CheckWappConnectionButton({ container }: { container: an
         } catch (err) {
             console.error(err);
             // Error means probably not connected or container broken, set generic deployed state
-            console.log(container.business_id)
             const { error } = await supabase
                 .from('whatsapp-containers')
                 .update({ status: 'deployed', qr_code_url: null })

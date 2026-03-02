@@ -33,7 +33,7 @@ export default function GroupChatView({
         <>
             <main className="flex-1 h-full overflow-y-auto p-4 flex-col space-y-4">
                 {messages.map((message) => {
-                    const isMe = message.sender_id === me?.id
+                    const isMe = message.sender_jid === me?.lid || message.sender_jid === me?.phone_number
                     const senderName = message.sender?.pushname || message.sender?.contact_name || message.sender?.phone_number || message.sender?.lid || "Unknown"
 
                     return (
@@ -59,13 +59,13 @@ export default function GroupChatView({
                                 )}
                             >
                                 {!isMe && (
-                                    <Link href={`/chats/${message.sender_id}`}>
+                                    <Link href={`/chats/${message.sender_jid}`}>
                                         <span className="text-xs font-bold">
                                             {senderName}
                                         </span>
                                     </Link>
                                 )}
-                                <p>{message.text_content}</p>
+                                <p>{message.content}</p>
                                 <span
                                     className={cn(
                                         "text-xs self-end",

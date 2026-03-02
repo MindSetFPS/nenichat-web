@@ -130,8 +130,6 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
 
             const data = await response.json();
 
-            console.log(data)
-
         } catch (error) {
             console.error('Error regenerating QR:', error);
             toast.error("No se pudo regenerar el QR", {
@@ -177,12 +175,12 @@ export default function WhatsAppSetupPage({ businessId, initialStep = 1, initial
 
     return (
         <div className="flex flex-col h-full overflow-y-scroll">
-            <main className="flex-1 w-full max-w-4xl mx-auto ">
+            <main className="flex-1 justify-center items-center w-full max-w-4xl mx-auto ">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="space-y-4"
+                    className="space-y-4 mt-2"
                 >
                     <Hero />
                     {/* <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-green-500/10 blur-[100px] rounded-full pointer-events-none" /> */}
