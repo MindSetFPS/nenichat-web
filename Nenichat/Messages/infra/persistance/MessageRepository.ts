@@ -15,12 +15,19 @@ export class MessageRepository implements IMessageRepository {
     if (!data) return data;
     return new Message(
       data.id,
-      data.chat_id,
-      data.sender_id,
-      data.text_content,
+      data.chat_id || data.chat_jid || '',
+      data.sender_id || data.sender_jid || '',
+      data.text_content || data.content || '',
+      data.timestamp || data.created_at || '',
+      data.is_from_me || false,
+      data.media_type || '',
+      data.filename || '',
+      data.url || '',
+      data.file_length || 0,
+      data.created_at || '',
+      data.updated_at || '',
       data.replied_to_message_id,
-      data.quoted_message_text,
-      data.created_at
+      data.quoted_message_text
     );
   }
 
@@ -34,7 +41,7 @@ export class MessageRepository implements IMessageRepository {
   }
 
   async save(message: Partial<IMessage>): Promise<IMessage> {
-    const { id, chat_id, sender_id, text_content, replied_to_message_id, quoted_message_text } = message;
+    const { id, chat_jid, sender_jid, content, replied_to_message_id, quoted_message_text } = message;
 
     if (!id) {
       throw new Error('Message ID must be provided to save a message.');
@@ -58,9 +65,9 @@ export class MessageRepository implements IMessageRepository {
         RETURNING *
       `,
         [
-          messageToUpdate.chat_id,
-          messageToUpdate.sender_id,
-          messageToUpdate.text_content,
+          messageToUpdate.chat_jid,
+          messageToUpdate.sender_jid,
+          messageToUpdate.content,
           messageToUpdate.replied_to_message_id,
           messageToUpdate.quoted_message_text,
           existingMessage.id,
@@ -72,8 +79,8 @@ export class MessageRepository implements IMessageRepository {
       return this.toMessage(result.rows[0]);
     } else {
       // Insert new message
-      if (!chat_id || !sender_id) {
-        throw new Error('chat_id and sender_id must be provided for a new message.');
+      if (!chat_jid || !sender_jid) {
+        throw new Error('chat_jid and sender_jid must be provided for a new message.');
       }
       const result = await this.pool.query(
         `
@@ -81,7 +88,7 @@ export class MessageRepository implements IMessageRepository {
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
       `,
-        [id, chat_id, sender_id, text_content || null, replied_to_message_id || null, quoted_message_text || null]
+        [id, chat_jid, sender_jid, content || null, replied_to_message_id || null, quoted_message_text || null]
       );
       if (!result || result.rows.length === 0) {
         throw new Error('Failed to save message.');
@@ -110,6 +117,7 @@ export class MessageRepository implements IMessageRepository {
         m.quoted_message_text,
         m.created_at,
         c.id as sender_contact_id,
+        c.business_id,
         c.contact_name, 
         c.pushname, 
         c.username, 
@@ -128,16 +136,24 @@ export class MessageRepository implements IMessageRepository {
     return result.rows.map((d) => {
       const message: IMessage = {
         id: d.id,
-        chat_id: d.chat_id,
-        sender_id: d.sender_id,
-        text_content: d.text_content,
+        chat_jid: d.chat_id,
+        sender_jid: d.sender_id,
+        content: d.text_content,
+        timestamp: d.created_at,
+        is_from_me: d.is_from_me || false,
+        media_type: d.media_type || '',
+        filename: d.filename || '',
+        url: d.url || '',
+        file_length: d.file_length || 0,
+        created_at: d.created_at,
+        updated_at: d.updated_at || d.created_at,
         replied_to_message_id: d.replied_to_message_id,
         quoted_message_text: d.quoted_message_text,
-        created_at: d.created_at,
       };
 
       const sender: IContact | undefined = d.sender_contact_id ? new Contact(
         d.sender_contact_id,
+        d.business_id,
         d.phone_number,
         d.lid,
         d.username,
@@ -172,6 +188,7 @@ export class MessageRepository implements IMessageRepository {
         m.quoted_message_text,
         m.created_at,
         c.id as sender_contact_id,
+        c.business_id,
         c.contact_name, 
         c.pushname, 
         c.username, 
@@ -191,16 +208,24 @@ export class MessageRepository implements IMessageRepository {
     return result.rows.map((d) => {
       const message: IMessage = {
         id: d.id,
-        chat_id: d.chat_id,
-        sender_id: d.sender_id,
-        text_content: d.text_content,
+        chat_jid: d.chat_id,
+        sender_jid: d.sender_id,
+        content: d.text_content,
+        timestamp: d.created_at,
+        is_from_me: d.is_from_me || false,
+        media_type: d.media_type || '',
+        filename: d.filename || '',
+        url: d.url || '',
+        file_length: d.file_length || 0,
+        created_at: d.created_at,
+        updated_at: d.updated_at || d.created_at,
         replied_to_message_id: d.replied_to_message_id,
         quoted_message_text: d.quoted_message_text,
-        created_at: d.created_at,
       };
 
       const sender: IContact | undefined = d.sender_contact_id ? new Contact(
         d.sender_contact_id,
+        d.business_id,
         d.phone_number,
         d.lid,
         d.username,
@@ -242,7 +267,7 @@ export class MessageRepository implements IMessageRepository {
    * @param chat_id 
    * @returns IMessage
    */
-  async getLastContactMessage(chat_id: BigInt): Promise<IMessage | null> {
+  async getLastContactMessage(chat_id: number): Promise<IMessage | null> {
     const result = await this.pool.query(
       'SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at DESC, id DESC LIMIT 1',
       [chat_id]

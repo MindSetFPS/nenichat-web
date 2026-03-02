@@ -11,5 +11,5 @@ export interface IMessageRepository {
   findByChatIdWithSender(chat_id: string, offset: number, limit: number): Promise<IMessageWithSender[]>;
   count(): Promise<number>;
   getMessageCountPerDay(interval: number): Promise<IMessagesReport[]>;
-  getLastContactMessage(chat_id: BigInt): Promise<IMessage | null>;
+  getLastContactMessage(chat_id: number): Promise<IMessage | null>;
 }

@@ -56,7 +56,6 @@ export class GoWappMessageRepository implements IMessageRepository {
         });
 
         if (!response.ok) {
-            console.log(response)
             const errorData = await response.json().catch(() => ({}));
             throw new Error("Request to " + this.baseUrl + path + " failed: " + errorData.message || `GoWapp API request failed with status ${response.status}`);
         }
@@ -106,9 +105,16 @@ export class GoWappMessageRepository implements IMessageRepository {
             apiMsg.chat_jid || apiMsg.phone || '',
             apiMsg.sender_jid || '',
             apiMsg.content || apiMsg.message || null,
+            apiMsg.timestamp || '',
+            apiMsg.is_from_me || false,
+            apiMsg.media_type || '',
+            apiMsg.filename || '',
+            apiMsg.url || '',
+            apiMsg.file_length || 0,
+            apiMsg.created_at || new Date().toISOString(),
+            apiMsg.updated_at || new Date().toISOString(),
             undefined,
-            undefined,
-            apiMsg.timestamp ? new Date(apiMsg.timestamp) : new Date()
+            undefined
         );
     }
 
@@ -130,15 +136,15 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @throws {Error} if chat_id is missing or sending fails.
      */
     async save(message: Partial<IMessage>): Promise<IMessage> {
-        if (!message.chat_id) {
-            throw new Error('chat_id is required to send a message');
+        if (!message.chat_jid) {
+            throw new Error('chat_jid is required to send a message');
         }
 
-        const jid = message.chat_id.includes('@') ? message.chat_id : this.integerToJid(Number(message.chat_id));
+        const jid = message.chat_jid.includes('@') ? message.chat_jid : this.integerToJid(Number(message.chat_jid));
 
         const payload = {
             phone: jid,
-            message: message.text_content || '',
+            message: message.content || '',
             reply_message_id: message.replied_to_message_id,
         };
 
@@ -151,14 +157,22 @@ export class GoWappMessageRepository implements IMessageRepository {
             throw new Error(`Failed to send message: ${response.message}`);
         }
 
+        const now = new Date().toISOString();
         return new Message(
             response.results.message_id,
-            message.chat_id,
-            message.sender_id || '0',
-            message.text_content || null,
+            message.chat_jid,
+            message.sender_jid || '0',
+            message.content || null,
+            now,
+            true,
+            '',
+            '',
+            '',
+            0,
+            now,
+            now,
             message.replied_to_message_id,
-            message.quoted_message_text,
-            new Date()
+            message.quoted_message_text
         );
     }
 
@@ -212,7 +226,6 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @returns {Promise<IMessageWithSender[]>} List of messages with sender data.
      */
     async findByChatIdWithSender(chat_id: string, offset: number, limit: number): Promise<IMessageWithSender[]> {
-        console.log("findByChatIdWithSender", chat_id, offset, limit);
         const messages = await this.findByChatId(chat_id, offset, limit);
         return messages.map(m => ({ ...m, sender: undefined }));
     }
