@@ -33,8 +33,18 @@ export async function POST(request: Request) {
 
             // If it's a known contact (phone_number), search by that column.
             // Otherwise, search by the lid column.
+            // Recently we received an already saved contact with a number formatted differently 
+            // than usual, so we had to adapt the code to find it.
+            // So numbers can be:
+            // xxxxxxxxxx@s.whatsapp.net
+            // xxxxxxxxxx:yy@s.whatsapp.net
+            // xxxxxxxxxx
             if (jidKind === 'contact') {
-                query.eq('phone_number', orderData.lid);
+                let searchNumber = orderData.lid;
+                if (orderData.lid.includes(':')) {
+                    searchNumber = orderData.lid.split(':')[0];
+                }
+                query.ilike('phone_number', `%${searchNumber}%`);
             } else {
                 // For 'lid' or fallback
                 query.eq('lid', orderData.lid);
