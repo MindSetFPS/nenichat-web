@@ -21,7 +21,7 @@ Example: {"suggestion": "Sure, let me check"}
 export function formatConversationContext(messages: IMessage[]): string {
     return [...messages]
         // .reverse() // messages come in newest-first, we want chronological
-        .map((m: IMessage) => `${m.sender_id !== m.chat_id ? 'Me' : 'Customer'}: ${m.text_content || ''}`)
+        .map((m: IMessage) => `${m.sender_jid !== m.chat_jid ? 'Me' : 'Customer'}: ${m.content || ''}`)
         .join('\n');
 }
 
