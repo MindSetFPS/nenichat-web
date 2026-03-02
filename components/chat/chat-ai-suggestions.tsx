@@ -92,7 +92,7 @@ export function ChatAiSuggestions({ lastMessages, onSuggestionClick, disabled, m
     // Fetch suggestions when lastMessages change, but only if the last message is from the customer
     useEffect(() => {
         const lastMessage = lastMessages?.[0];
-        const isFromCustomer = lastMessage && lastMessage.sender_id !== me?.id;
+        const isFromCustomer = lastMessage && (lastMessage.sender_jid !== me?.lid && lastMessage.sender_jid !== me?.phone_number);
         if (isFromCustomer) {
             // Logic to auto-fetch could go here if not provided by prop
         }
