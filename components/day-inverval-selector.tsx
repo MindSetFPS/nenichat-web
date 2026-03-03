@@ -20,7 +20,7 @@ export function DayIntervalSelector({
     ];
 
     return (
-        <ButtonGroup>
+        <ButtonGroup className="mb-2">
             {intervals.map((interval) => (
                 <Button
                     key={interval.value}

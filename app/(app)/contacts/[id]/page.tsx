@@ -51,8 +51,9 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
             <PageHeader title={plainContact.contact_name || plainContact.pushname || 'Unknown'}>
                 <ChatDropDownDialog contact={plainContact!} />
             </PageHeader>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 pt-4 overflow-y-auto" >
-                <Card className="space-y-2 md:col-span-2 h-full gap-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 pt-4" >
+
+                <div className="space-y-2 md:col-span-2 h-full gap-0">
                     <CardHeader className="px-2 py-0">
                         <CardTitle>Order History</CardTitle>
                     </CardHeader>
@@ -73,7 +74,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                                 updated_at: false,
                             }} />
                     </CardContent>
-                </Card>
+                </div>
 
                 <div className="md:col-span-1 md:col-start-3 space-y-4">
                     <Card >
