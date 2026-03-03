@@ -6,6 +6,7 @@ export interface IOrderRepository {
     getById(businessId: number, id: number): Promise<IOrder | null>;
     getAll(businessId: number): Promise<IOrder[]>;
     getByContactId(businessId: number, contactId: number): Promise<IOrder[]>;
+    getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]>;
     create(businessId: number, order: Omit<IOrder, 'id' | 'business_id' | 'created_at' | 'updated_at'> & { created_at?: Date }, items: Array<{ productId: string; quantity: number; unitPrice: number }>): Promise<IOrder>;
     update(businessId: number, id: number, updates: Partial<IOrder>): Promise<IOrder | null>;
     delete(businessId: number, id: number): Promise<boolean>;

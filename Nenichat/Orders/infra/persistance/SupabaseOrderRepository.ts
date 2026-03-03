@@ -109,6 +109,39 @@ export class SupabaseOrderRepository implements IOrderRepository {
     }
 
     /**
+     * Retrieves all orders for a specific phone number.
+     */
+    async getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]> {
+        const { data: contact, error: contactError } = await this.supabase
+            .from('contacts')
+            .select('id')
+            .eq('business_id', businessId)
+            .eq('phone_number', phoneNumber)
+            .single();
+
+        if (contactError) {
+            if (contactError.code === 'PGRST116') {
+                return [];
+            }
+            console.error("Error fetching contact by phone:", contactError);
+            throw contactError;
+        }
+
+        const { data, error } = await this.supabase
+            .from('orders')
+            .select('*')
+            .eq('business_id', businessId)
+            .eq('contact_id', contact.id)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Error fetching orders by phone:", error);
+            throw error;
+        }
+        return (data || []).map(row => this.mapToOrder(row));
+    }
+
+    /**
      * Creates a new order and its associated items.
      */
     async create(

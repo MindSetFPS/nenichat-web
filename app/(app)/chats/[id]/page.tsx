@@ -62,13 +62,15 @@ export default async function ChatPage({
       contactInfo = await contactRepository.findByLid(business.id, lid);
     }
 
-    if (!contactInfo) {
-      contactInfo = await contactRepository.save({
-        business_id: business.id,
-        is_user: false,
-        contact_name: chatData.name || null,
-        ...(isLid ? { lid: lid } : { phone_number: lid })
-      });
+    if (jidKind !== 'group') {
+      if (!contactInfo) {
+        contactInfo = await contactRepository.save({
+          business_id: business.id,
+          is_user: false,
+          contact_name: chatData.name || null,
+          ...(isLid ? { lid: lid } : { phone_number: lid })
+        });
+      }
     }
   }
 
@@ -104,8 +106,11 @@ export default async function ChatPage({
     const userIdSet = new Set(messages.map((message) => message.sender_jid))
     const userIdList = Array.from(userIdSet)
 
-    // 2. Loop through the list of users and query every order that belongs to that user
-    const ordersList = await Promise.all(userIdList.map((user) => orderRepository.getByContactId(business.id, Number(user))))
+    // 2. Remove elements that end in "@g.us"
+    const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
+
+    // 3. Loop through the list of users and query every order that belongs to that user
+    const ordersList = await Promise.all(filteredUserIdList.map((user) => orderRepository.getOrdersByPhone(business.id, user)))
     orders = ordersList.flat()
   } else {
     messages = await gowappMessageRepository.findByChatId(lid, 0, 10)
@@ -136,7 +141,7 @@ export default async function ChatPage({
         initialMessages={messagesJson.reverse()}
         me={me}
         orders={ordersJson}
-        isGroup={false} />
+        isGroup={chatData?.is_group} />
 
       <ChatControls
         // phone={contactJson?.phone}
