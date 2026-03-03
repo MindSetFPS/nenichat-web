@@ -6,13 +6,14 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { IProduct } from '@/Nenichat/Products/domain/IProduct';
+import { IProduct, IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
+import { useProductStore } from '@/stores/product-store';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ export function ProductForm({ product, businessId, onSuccess, onCancel }: Produc
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
   const productRepository = new SupabaseProductRepository(supabase);
+  const { addProduct, updateProduct, deleteProduct } = useProductStore();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -79,6 +81,7 @@ export function ProductForm({ product, businessId, onSuccess, onCancel }: Produc
       }
 
       await productRepository.delete(bId, product.id);
+      deleteProduct(product.id);
 
       toast('Success!', {
         description: 'Product deleted successfully.',
@@ -125,8 +128,10 @@ export function ProductForm({ product, businessId, onSuccess, onCancel }: Produc
       if (isEditMode) {
         resultProduct = await productRepository.update(bId, product.id, productData);
         if (!resultProduct) throw new Error('Failed to update product');
+        updateProduct(resultProduct as IProductWithUnitsSold);
       } else {
         resultProduct = await productRepository.create(bId, productData);
+        addProduct(resultProduct as IProductWithUnitsSold);
       }
 
       toast('Success!', {
