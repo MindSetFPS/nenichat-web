@@ -66,7 +66,7 @@ export function ContactForm({
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     className="col-span-3"
-                    disabled={isLoading}
+                    disabled={true}
                 />
             </div>
             <Button type="submit" disabled={isLoading}>

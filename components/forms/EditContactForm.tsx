@@ -27,7 +27,7 @@ export function EditContactForm({ contact, onSubmitSuccess }: EditContactFormPro
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ contact_name: data.contact_name }),
             });
 
             if (!response.ok) {

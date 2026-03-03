@@ -10,16 +10,21 @@ interface EditContactDialogContentProps {
 }
 
 export function EditContactDialog({ contact, onSubmitSuccess, open, onOpenChange }: EditContactDialogContentProps) {
+    const handleSubmitSuccess = () => {
+        onSubmitSuccess();
+        onOpenChange(false);
+    };
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Editar contacto</DialogTitle>
+                    <DialogTitle>Editar nombre del contacto</DialogTitle>
                     <DialogDescription>
-                        Actualiza la informacion del contacto.
+                        Actualiza el nombre del contacto.
                     </DialogDescription>
                 </DialogHeader>
-                <EditContactForm contact={contact} onSubmitSuccess={onSubmitSuccess} />
+                <EditContactForm contact={contact} onSubmitSuccess={handleSubmitSuccess} />
             </DialogContent>
         </Dialog>
     )
