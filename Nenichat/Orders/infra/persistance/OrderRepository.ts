@@ -52,6 +52,17 @@ export class OrderRepository implements IOrderRepository {
         return result.rows.map(this.mapRowToOrder);
     }
 
+    async getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]> {
+        const query = `
+            SELECT o.* FROM orders o
+            JOIN contacts c ON o.contact_id = c.id
+            WHERE c.phone = $1 AND o.business_id = $2
+            ORDER BY o.created_at DESC
+        `;
+        const result = await this.pool.query(query, [phoneNumber, businessId]);
+        return result.rows.map(this.mapRowToOrder);
+    }
+
     async create(businessId: number, orderData: Omit<IOrder, 'id' | 'business_id' | 'created_at' | 'updated_at'> & { created_at?: Date }, items: Array<{ productId: string; quantity: number; unitPrice: number }>): Promise<IOrder> {
         const client = await this.pool.connect();
         try {

@@ -377,6 +377,23 @@ export class ProductRepository implements IProductRepository {
       client.release();
     }
   }
+
+  async getProductSales(businessId: number, productId: string): Promise<{ quantity: number, created_at: Date }[]> {
+    const query = `
+      SELECT 
+        oi.quantity,
+        o.created_at
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      WHERE oi.product_id = $1 AND o.business_id = $2
+      ORDER BY o.created_at DESC
+    `;
+    const result = await this.pool.query(query, [productId, businessId]);
+    return result.rows.map(row => ({
+      quantity: parseFloat(row.quantity),
+      created_at: row.created_at
+    }));
+  }
 }
 
 export const productRepository = new ProductRepository(pool)

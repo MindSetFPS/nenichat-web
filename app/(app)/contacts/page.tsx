@@ -37,11 +37,14 @@ export default async function ContactsPage() {
 
     // contacts with newer messages first, contacts without messages last
     contactWithLastMessageTime.sort((a, b) => {
-        if (a.last_message_time && b.last_message_time) {
-            return b.last_message_time.getTime() - a.last_message_time.getTime();
-        } else if (a.last_message_time) {
+        const aTime = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
+        const bTime = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
+        
+        if (aTime && bTime) {
+            return bTime - aTime;
+        } else if (aTime) {
             return -1;
-        } else if (b.last_message_time) {
+        } else if (bTime) {
             return 1;
         } else {
             return 0;

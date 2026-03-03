@@ -223,7 +223,7 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
                                         response?.data.map((message) => (
                                             <TableRow
                                                 className="cursor-pointer"
-                                                onClick={() => router.push(`/chats/${message.chat_id}`)}
+                                                onClick={() => router.push(`/chats/${message.chat_jid}`)}
                                                 key={message.id}>
                                                 {columnVisibility.id && (
                                                     <TableCell>{message.sender?.id}</TableCell>
@@ -233,10 +233,10 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
                                                     <TableCell>{getContactIdentifier(message.sender!)}</TableCell>
                                                 )}
                                                 {columnVisibility.chat && (
-                                                    <TableCell>{String(message.chat_id)}</TableCell>
+                                                    <TableCell>{String(message.chat_jid)}</TableCell>
                                                 )}
                                                 {columnVisibility.message && (
-                                                    <TableCell className="max-w-full wrap-break-word whitespace-pre-wrap">{message.text_content}</TableCell>
+                                                    <TableCell className="max-w-full wrap-break-word whitespace-pre-wrap">{message.content}</TableCell>
                                                 )}
                                                 {columnVisibility.repliedTo && (
                                                     <TableCell>
