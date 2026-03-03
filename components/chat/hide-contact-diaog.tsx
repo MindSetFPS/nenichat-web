@@ -15,20 +15,31 @@ interface HideContactDialogContentProps {
 export function HideContactDialogContent({ contact, onSubmitSuccess, open, onOpenChange }: HideContactDialogContentProps) {
 
     const [isHidden, setIsHidden] = useState(false)
+    const [loading, setLoading] = useState(false)
+
     useEffect(() => {
-        isContactHidden().then(setIsHidden)
-    }, [])
+        if (open && contact.id) {
+            isContactHidden().then(setIsHidden)
+        }
+    }, [open, contact.id])
+
+    if (!contact.id) {
+        return null;
+    }
 
     async function hideContact() {
+        setLoading(true)
         const res = await fetch(`/api/contacts/${contact.id}/hide`, {
             method: 'POST',
         })
         if (res.ok) {
+            setIsHidden(true)
             onSubmitSuccess()
             onOpenChange(false)
         } else {
             console.error('Error hiding contact')
         }
+        setLoading(false)
     }
 
     async function isContactHidden() {
@@ -43,15 +54,18 @@ export function HideContactDialogContent({ contact, onSubmitSuccess, open, onOpe
     }
 
     async function unhideContact() {
+        setLoading(true)
         const res = await fetch(`/api/contacts/${contact.id}/hide`, {
             method: 'DELETE',
         })
         if (res.ok) {
+            setIsHidden(false)
             onSubmitSuccess()
             onOpenChange(false)
         } else {
             console.error('Error unhiding contact')
         }
+        setLoading(false)
     }
 
     function handleHideContact() {
@@ -77,7 +91,8 @@ export function HideContactDialogContent({ contact, onSubmitSuccess, open, onOpe
                     </DialogClose>
                     <Button
                         variant={isHidden ? "default" : "destructive"}
-                        onClick={handleHideContact}>
+                        onClick={handleHideContact}
+                        disabled={loading}>
                         {isHidden ? "Dejar de ignorar" : "Ignorar"}
                     </Button>
                 </DialogFooter>

@@ -160,6 +160,7 @@ export class MessageRepository implements IMessageRepository {
         d.pushname,
         d.contact_name,
         d.is_user,
+        d.is_hidden || false,
         d.sender_created_at,
         d.sender_updated_at
       ) : undefined;
@@ -232,6 +233,7 @@ export class MessageRepository implements IMessageRepository {
         d.pushname,
         d.contact_name,
         d.is_user,
+        d.is_hidden || false,
         d.sender_created_at,
         d.sender_updated_at
       ) : undefined;

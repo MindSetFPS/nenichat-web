@@ -29,6 +29,7 @@ export class ContactRepository implements IContactRepository {
       row.pushname,
       row.contact_name,
       row.is_user,
+      row.is_hidden || false,
       row.created_at,
       row.updated_at
     );
@@ -52,6 +53,7 @@ export class ContactRepository implements IContactRepository {
       row.pushname,
       row.contact_name,
       row.is_user,
+      row.is_hidden || false,
       row.created_at,
       row.updated_at
     );
@@ -72,6 +74,7 @@ export class ContactRepository implements IContactRepository {
       row.pushname,
       row.contact_name,
       row.is_user,
+      row.is_hidden || false,
       row.created_at,
       row.updated_at
     );
@@ -92,6 +95,7 @@ export class ContactRepository implements IContactRepository {
       row.pushname,
       row.contact_name,
       row.is_user,
+      row.is_hidden || false,
       row.created_at,
       row.updated_at
     );
@@ -136,6 +140,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.created_at,
           row.updated_at
         );
@@ -165,6 +170,7 @@ export class ContactRepository implements IContactRepository {
       row.pushname,
       row.contact_name,
       row.is_user,
+      row.is_hidden || false,
       row.created_at,
       row.updated_at
     );
@@ -281,6 +287,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.created_at,
           row.updated_at
         )
@@ -303,6 +310,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.created_at,
           row.updated_at
         )
@@ -332,6 +340,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.created_at,
           row.updated_at
         )
@@ -408,6 +417,7 @@ export class ContactRepository implements IContactRepository {
         row.pushname,
         row.contact_name,
         row.is_user,
+        row.is_hidden || false,
         row.created_at,
         row.updated_at
       );
@@ -567,6 +577,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.created_at,
           row.updated_at
         )
@@ -584,6 +595,7 @@ export class ContactRepository implements IContactRepository {
         c.pushname,
         c.contact_name,
         c.is_user,
+        c.is_hidden,
         c.created_at AS contact_created_at,
         c.updated_at AS contact_updated_at,
         m.id AS message_id,
@@ -602,11 +614,7 @@ export class ContactRepository implements IContactRepository {
        ) m ON c.id = m.chat_id
        WHERE m.rn = 1
        AND c.business_id = $1
-       AND NOT EXISTS (
-           SELECT 1 FROM hidden_contacts hc
-           WHERE hc.hidden_contact_id = c.id
-           AND hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE AND business_id = $1 LIMIT 1)
-       )
+       AND c.is_hidden = FALSE
        ORDER BY m.created_at DESC
        LIMIT $2 OFFSET $3`,
       [businessId, limit, offset]
@@ -623,6 +631,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.contact_created_at,
           row.contact_updated_at
         );
@@ -648,23 +657,15 @@ export class ContactRepository implements IContactRepository {
   public async hideContact(businessId: number, contactIdToHide: number): Promise<void> {
     const contactToHide = await this.findById(businessId, contactIdToHide);
     if (!contactToHide) throw new Error("Contact not found");
-    const me = await this.findMe(businessId);
-    if (!me) {
-      throw new Error('Current user not found');
-    }
     await this.pool.query(
-      'INSERT INTO hidden_contacts (user_contact_id, hidden_contact_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-      [me.id, contactIdToHide]
+      'UPDATE contacts SET is_hidden = TRUE WHERE id = $1',
+      [contactIdToHide]
     );
   }
 
   public async getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]> {
     const result = await this.pool.query(
-      `SELECT c.*
-       FROM contacts c
-       JOIN hidden_contacts hc ON c.id = hc.hidden_contact_id
-       WHERE hc.user_contact_id = (SELECT id FROM contacts WHERE is_user = TRUE AND business_id = $1 LIMIT 1)
-       LIMIT $2 OFFSET $3`,
+      `SELECT * FROM contacts WHERE business_id = $1 AND is_hidden = TRUE LIMIT $2 OFFSET $3`,
       [businessId, limit, offset]
     );
 
@@ -679,6 +680,7 @@ export class ContactRepository implements IContactRepository {
           row.pushname,
           row.contact_name,
           row.is_user,
+          row.is_hidden || false,
           row.created_at,
           row.updated_at
         )
@@ -688,27 +690,15 @@ export class ContactRepository implements IContactRepository {
   public async isContactHidden(businessId: number, contactId: number): Promise<boolean> {
     const contact = await this.findById(businessId, contactId);
     if (!contact) return false;
-    const me = await this.findMe(businessId);
-    if (!me) {
-      throw new Error('Current user not found');
-    }
-    const result = await this.pool.query(
-      'SELECT * FROM hidden_contacts WHERE hidden_contact_id = $1 AND user_contact_id = $2',
-      [contactId, me.id]
-    );
-    return result.rows.length > 0;
+    return contact.is_hidden;
   }
 
   public async unhideContact(businessId: number, contactIdToUnhide: number): Promise<void> {
     const contactToUnhide = await this.findById(businessId, contactIdToUnhide);
     if (!contactToUnhide) return;
-    const me = await this.findMe(businessId);
-    if (!me) {
-      throw new Error('Current user not found');
-    }
     await this.pool.query(
-      'DELETE FROM hidden_contacts WHERE hidden_contact_id = $1 AND user_contact_id = $2',
-      [contactIdToUnhide, me.id]
+      'UPDATE contacts SET is_hidden = FALSE WHERE id = $1',
+      [contactIdToUnhide]
     );
   }
 

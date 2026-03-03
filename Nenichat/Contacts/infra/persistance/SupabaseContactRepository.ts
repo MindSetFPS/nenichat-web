@@ -28,6 +28,7 @@ export class SupabaseContactRepository implements IContactRepository {
             data.pushname,
             data.contact_name,
             data.is_user,
+            data.is_hidden || false,
             new Date(data.created_at),
             new Date(data.updated_at)
         );
@@ -340,10 +341,6 @@ export class SupabaseContactRepository implements IContactRepository {
         // Approximation: Fetch recent messages to identify active chats.
         // This is inefficient for deep paging but standard for "recent chats" view.
 
-        // Get hidden contacts first
-        const hiddenContacts = await this.getHiddenContacts(businessId, 0, 1000); // Reasonable limit?
-        const hiddenIds = new Set(hiddenContacts.map(c => c.id));
-
         // Fetch distinct chat_ids from messages table ordered by created_at desc.
         // Not supported directly.
         // RPC 'get_conversations' would be ideal.
@@ -364,11 +361,6 @@ export class SupabaseContactRepository implements IContactRepository {
 
         for (const msg of (messages || [])) {
             if (chats.has(msg.chat_id)) continue;
-            if (hiddenIds.has(msg.chat_id)) continue;
-
-            // Verify business_id of contact (chat_id) by fetching? 
-            // Or rely on later fetch. 
-            // We'll filter later.
 
             chats.set(msg.chat_id, msg);
             chatOrder.push(msg.chat_id);
@@ -383,7 +375,8 @@ export class SupabaseContactRepository implements IContactRepository {
             .from('contacts')
             .select('*')
             .in('id', pagedChatIds)
-            .eq('business_id', businessId);
+            .eq('business_id', businessId)
+            .eq('is_hidden', false);
 
         if (contactsError) throw contactsError;
 
@@ -420,66 +413,43 @@ export class SupabaseContactRepository implements IContactRepository {
     }
 
     async hideContact(businessId: number, contactIdToHide: number): Promise<void> {
-        const me = await this.findMe(businessId);
-        if (!me) throw new Error("Current user not found for this business");
-
-        const { error } = await this.supabase.from("hidden_contacts")
-            .upsert(
-                { user_contact_id: me.id, hidden_contact_id: contactIdToHide },
-                { onConflict: 'user_contact_id, hidden_contact_id', ignoreDuplicates: true }
-            );
+        const { error } = await this.supabase.from("contacts")
+            .update({ is_hidden: true })
+            .eq("id", contactIdToHide)
+            .eq("business_id", businessId);
 
         if (error) throw error;
     }
 
     async getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]> {
-        const me = await this.findMe(businessId);
-        if (!me) return [];
-
         const { data, error } = await this.supabase
-            .from('hidden_contacts')
-            .select('hidden_contact_id')
-            .eq('user_contact_id', me.id)
+            .from('contacts')
+            .select('*')
+            .eq('business_id', businessId)
+            .eq('is_hidden', true)
             .range(offset, offset + limit - 1);
 
         if (error) throw error;
-
-        const ids = data?.map((r: any) => r.hidden_contact_id) || [];
-        if (ids.length === 0) return [];
-
-        const { data: contacts, error: cError } = await this.supabase
-            .from('contacts')
-            .select('*')
-            .in('id', ids)
-            .eq('business_id', businessId);
-
-        if (cError) throw cError;
-        return (contacts || []).map(this.mapToContact);
+        return (data || []).map(this.mapToContact);
     }
 
     async isContactHidden(businessId: number, contactId: number): Promise<boolean> {
-        const me = await this.findMe(businessId);
-        if (!me) return false;
-
         const { data, error } = await this.supabase
-            .from('hidden_contacts')
-            .select('id')
-            .eq('user_contact_id', me.id)
-            .eq('hidden_contact_id', contactId)
+            .from('contacts')
+            .select('is_hidden')
+            .eq('id', contactId)
+            .eq('business_id', businessId)
             .maybeSingle();
 
         if (error) throw error;
-        return !!data;
+        return data?.is_hidden || false;
     }
 
     async unhideContact(businessId: number, contactId: number): Promise<void> {
-        const me = await this.findMe(businessId);
-        if (!me) return;
-
-        await this.supabase.from('hidden_contacts')
-            .delete()
-            .eq('user_contact_id', me.id)
-            .eq('hidden_contact_id', contactId);
+        await this.supabase.from('contacts')
+            .update({ is_hidden: false })
+            .eq('id', contactId)
+            .eq('business_id', businessId);
     }
 
     async count(businessId: number): Promise<number> {

@@ -11,6 +11,7 @@ export class Contact implements IContact {
   pushname: string | null;
   username: string | null;
   is_user: boolean;
+  is_hidden: boolean;
 
   created_at: Date;
   updated_at: Date;
@@ -24,6 +25,7 @@ export class Contact implements IContact {
     pushname: string | null,
     contactName: string | null,
     is_user: boolean,
+    is_hidden: boolean,
     createdAt: Date,
     updatedAt: Date
   ) {
@@ -35,6 +37,7 @@ export class Contact implements IContact {
     this.pushname = pushname;
     this.contact_name = contactName;
     this.is_user = is_user;
+    this.is_hidden = is_hidden;
     this.created_at = createdAt;
     this.updated_at = updatedAt;
   }

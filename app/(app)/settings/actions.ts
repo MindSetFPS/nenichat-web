@@ -1,6 +1,6 @@
 'use server'
 
-import { contactRepository } from "@/Nenichat/Contacts/infra/persistance/ContactRepository";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
 
@@ -19,14 +19,24 @@ export async function getHiddenContactsAction(offset: number = 0, limit: number 
             throw new Error(authError || 'Unauthorized');
         }
 
+        const contactRepository = new SupabaseContactRepository(supabase);
         const hiddenContacts = await contactRepository.getHiddenContacts(business.id, offset, limit);
 
-        // Serialize for client (ensure bigint or other non-serializable types are handled if necessary)
-        // The Contact objects might have bigint IDs. Let's ensure they are strings or numbers.
-        return hiddenContacts.filter(c => c.id !== undefined && c.id !== null).map(contact => ({
-            ...contact,
-            id: contact.id!.toString()
-        }));
+        return hiddenContacts
+            .filter(c => c.id !== undefined && c.id !== null)
+            .map(contact => ({
+                id: contact.id,
+                business_id: contact.business_id,
+                phone_number: contact.phone_number,
+                lid: contact.lid,
+                username: contact.username,
+                pushname: contact.pushname,
+                contact_name: contact.contact_name,
+                is_user: contact.is_user,
+                is_hidden: contact.is_hidden,
+                created_at: contact.created_at instanceof Date ? contact.created_at.toISOString() : contact.created_at,
+                updated_at: contact.updated_at instanceof Date ? contact.updated_at.toISOString() : contact.updated_at,
+            }));
     } catch (error) {
         console.error('Error in getHiddenContactsAction:', error);
         throw new Error('Failed to fetch hidden contacts');

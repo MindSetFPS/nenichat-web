@@ -20,6 +20,7 @@ export class AudienceContactRepository implements IAudienceContactRepository {
       data.pushname,
       data.contact_name,
       data.is_user,
+      data.is_hidden || false,
       data.created_at,
       data.updated_at
     );

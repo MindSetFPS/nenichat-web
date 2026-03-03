@@ -2,11 +2,13 @@ import { RecentChats } from "@/components/chat/recent-chats";
 import Content from "@/components/layout/content";
 import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
 import { IChat } from "@/Nenichat/Chats/domain/IChat";
+import { getJidKind } from "@/Nenichat/Chats/domain/Jid";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyChats } from "@/components/chat/empty-chats";
 import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 
 export const metadata = {
   title: 'Chats',
@@ -40,6 +42,28 @@ export default async function ChatLayout({
     const wappChatRepository = new GoWappChatRepository(url, "admin", "admin")
     // contactsWithLastMessage = await contactRepository.getContactsWithLastMessage(0, 1000);
     contactsWithLastMessage = await wappChatRepository.list(0, 26)
+
+    // Filter out hidden contacts
+    const contactRepository = new SupabaseContactRepository(supabase);
+    const visibleJids: string[] = [];
+    
+    for (const chat of contactsWithLastMessage) {
+      const jidKind = getJidKind(chat.jid);
+      if (jidKind === 'group' || jidKind === 'unknown') {
+        visibleJids.push(chat.jid);
+        continue;
+      }
+      
+      const contact = jidKind === 'contact' 
+        ? await contactRepository.findByPhoneNumber(business.id, chat.jid)
+        : await contactRepository.findByLid(business.id, chat.jid);
+      
+      if (!contact || !contact.is_hidden) {
+        visibleJids.push(chat.jid);
+      }
+    }
+    
+    contactsWithLastMessage = contactsWithLastMessage.filter(chat => visibleJids.includes(chat.jid));
   } catch (error) {
   }
   const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)

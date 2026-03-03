@@ -92,13 +92,13 @@ export interface IContactRepository {
 
 
   /**
-   * updates a row in hidden_contacts table
+   * Sets the contact's is_hidden flag to true
    * @param contactIdToHide The ID of the contact to hide.
    */
   hideContact(businessId: number, contactIdToHide: number): Promise<void>;
 
   /**
-   * Retrieves a list of hidden contacts.
+   * Retrieves a list of contacts where is_hidden = true.
    * @param businessId The ID of the business.
    * @param offset The number of contacts to skip.
    * @param limit The maximum number of contacts to return.
@@ -107,14 +107,14 @@ export interface IContactRepository {
   getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]>;
 
   /**
-   * Retrieves a hidden contact by ID.
-   * @param contactId The ID of the contact to retrieve.
-   * @returns A promise that resolves to the hidden contact.
+   * Checks if a contact is hidden.
+   * @param contactId The ID of the contact to check.
+   * @returns A promise that resolves to true if the contact is hidden.
    */
   isContactHidden(businessId: number, contactId: number): Promise<boolean>;
 
   /**
-   * unhide a contact
+   * Sets the contact's is_hidden flag to false
    * @param contactId The ID of the contact to unhide.
    */
   unhideContact(businessId: number, contactId: number): Promise<void>;

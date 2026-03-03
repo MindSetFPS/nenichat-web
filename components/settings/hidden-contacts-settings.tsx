@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/spinner"
 import ContactAvatar from "@/components/contact-avatar"
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 import { getHiddenContactsAction } from "@/app/(app)/settings/actions"
-import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 
 /**
  * @function HiddenContactsSettings
@@ -15,6 +15,8 @@ import Link from "next/link"
 export function HiddenContactsSettings() {
     const [contacts, setContacts] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
+    const searchParams = useSearchParams()
 
     useEffect(() => {
         async function fetchContacts() {
@@ -29,6 +31,12 @@ export function HiddenContactsSettings() {
         }
         fetchContacts()
     }, [])
+
+    function handleContactClick(chatJid: string) {
+        const newParams = new URLSearchParams(searchParams.toString())
+        newParams.delete('settings')
+        router.push(`/chats/${chatJid}?${newParams.toString()}`)
+    }
 
     if (loading) {
         return (
@@ -53,26 +61,37 @@ export function HiddenContactsSettings() {
                 </div>
             ) : (
                 <div className="grid gap-2">
-                    {contacts.map((contact) => (
-                        <Link
-                            key={contact.id}
-                            href={`/chats/${contact.id}`}
-                            className='flex items-center gap-4 p-3 rounded-2xl hover:bg-accent/50 transition-colors border border-transparent hover:border-border'
-                        >
-                            <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                                <ContactAvatar seed={getContactIdentifier(contact)!} />
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                    <AvatarImage src="https://github.com/shadcn.png" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                                <p className="font-bold text-sm truncate">
-                                    {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
-                                </p>
-                                <p className="text-xs text-muted-foreground">Ver chat</p>
+                    {contacts.map((contact) => {
+                        let chatJid: string | null = null;
+                        if (contact.lid) {
+                            chatJid = contact.lid;
+                        } else if (contact.phone_number) {
+                            chatJid = contact.phone_number.includes('@') 
+                                ? contact.phone_number 
+                                : `${contact.phone_number}@s.whatsapp.net`;
+                        }
+                        if (!chatJid) return null;
+                        return (
+                            <div
+                                key={contact.id}
+                                onClick={() => handleContactClick(chatJid!)}
+                                className='flex items-center gap-4 p-3 rounded-2xl hover:bg-accent/50 transition-colors border border-transparent hover:border-border cursor-pointer'
+                            >
+                                <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
+                                    <ContactAvatar seed={getContactIdentifier(contact)!} />
+                                    <AvatarFallback className="bg-primary/10 text-primary">
+                                        <AvatarImage src="https://github.com/shadcn.png" />
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-sm truncate">
+                                        {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">Ver chat</p>
+                                </div>
                             </div>
-                        </Link>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

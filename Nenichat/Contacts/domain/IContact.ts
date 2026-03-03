@@ -7,6 +7,7 @@ export interface IContact {
   pushname: string | null;
   contact_name: string | null;
   is_user: boolean;
+  is_hidden: boolean;
 
   created_at: Date;
   updated_at: Date;

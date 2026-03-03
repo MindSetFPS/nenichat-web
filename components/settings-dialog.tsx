@@ -95,6 +95,8 @@ export function SettingsDialog() {
             if (section && sections.some(s => s.id === section)) {
                 setActiveSection(section)
             }
+        } else {
+            setOpen(false)
         }
     }, [searchParams])
 
