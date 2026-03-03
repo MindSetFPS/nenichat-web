@@ -1,10 +1,13 @@
-import { MessagesChart } from "@/components/home/messages-chart";
 import { OrdersTotalValueChart } from "@/components/home/orders-total-chart";
 import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
-import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
 import { OrderProductChart } from "@/components/home/product-orders-chart";
 import BusinessSummary from "@/components/home/business-summary";
-import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
+import { RecentOrdersFeed } from "@/components/home/recent-orders-feed";
+import { MonthlyGoalCard } from "@/components/home/monthly-goal-card";
+import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api";
+import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
+import { RecentConversations } from "@/components/home/recent-conversations";
+import { MessageSquare } from "lucide-react";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
 import { PageHeader } from "@/components/ui/page-header";
 import Content from "@/components/layout/content";
@@ -12,6 +15,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CreateBusinessSection } from "@/components/forms/create-business-section";
 import { requireAuth } from "@/lib/auth";
 import { WelcomePage } from "@/components/home/welcome-page";
+import { Card } from "@/components/ui/card";
+import { ActionRequiredCard } from "@/components/home/action-required-card";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -59,6 +64,22 @@ export default async function Page() {
   const ordersCountByDayOfWeek: any[] = await orderRepository.getOrdersCountByDayOfWeek(business.id);
   const ordersToday: any[] = await orderRepository.getOrdersCountByDate(business.id, new Date());
 
+  const containerRepository = new SupabaseContainerRepository(supabase);
+  const containerData = await containerRepository.getContainerByBusinessId(business.id);
+
+  let recentConversations: any[] = [];
+  if (containerData && containerData.status === "connected") {
+    try {
+      // Maintaining the same URL logic as in chats/layout.tsx
+      let url = "http://192.168.1.64" + "/api/user" + "/" + business.id;
+      const wappChatRepository = new GoWappChatRepository(url, "admin", "admin");
+      const chats = await wappChatRepository.list(0, 10);
+      recentConversations = JSON.parse(JSON.stringify(chats));
+    } catch (error) {
+      console.error("Failed to fetch recent conversations:", error);
+    }
+  }
+
   if (orders.length === 0) {
     return (
       <WelcomePage />
@@ -66,20 +87,102 @@ export default async function Page() {
   }
 
   return (
-    <Content className="p-4 scroll-auto overflow-y-auto">
-      <PageHeader title="Buenos días" />
-      <div className="flex flex-col gap-4">
+    <Content className="p-4 md:p-8 bg-gray-50/50 dark:bg-zinc-950/50 scroll-auto overflow-y-auto">
+      {/* Dynamic Header with Greeting */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
+            Buenos días, {user.email?.split('@')[0]} 👋
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Aquí está lo que está pasando con tu negocio hoy.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {/* Quick Stats or Actions could go here */}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-8">
+        {/* Rewarding Stats Section */}
         <BusinessSummary
           totalRevenue={totalRevenue}
           totalOrders={plainOrders.length}
           activeOrders={activeOrders}
           totalOrdersValue={totalOrdersValue}
         />
-        <DailyOrdersChart data={ordersToday} />
-        <OrdersByDayChart data={ordersCountByDayOfWeek} />
-        <MessagesChart data={messagesPerDay} />
-        <OrdersTotalValueChart data={orderTotalsPerDay} />
-        <OrderProductChart data={ordersCountByDateInterval} />
+
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Main Business Analysis - Spans 2 columns */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="border-none shadow-md overflow-hidden bg-white dark:bg-zinc-900/50">
+              <div className="p-6 pb-0">
+                <h3 className="font-semibold text-lg">Growth Analysis</h3>
+                <p className="text-sm text-muted-foreground">Historical order value trends</p>
+              </div>
+              <div className="p-6">
+                <OrdersTotalValueChart data={orderTotalsPerDay} />
+              </div>
+            </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-32 h-32 text-primary">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                  </svg>
+                </div>
+                <div className="p-6">
+                  <MonthlyGoalCard currentRevenue={Math.floor(totalRevenue)} goalRevenue={20000} />
+                </div>
+              </Card>
+
+              <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50 flex flex-col h-full max-h-[400px]">
+                <div className="p-6 pb-2">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Live Activity
+                  </h3>
+                </div>
+                <div className="px-6 pb-6 overflow-y-auto flex-1 scrollbar-hide">
+                  <RecentOrdersFeed orders={plainOrders} />
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Side "Pulse" Column - Interaction Hub */}
+          <div className="space-y-6">
+            <ActionRequiredCard activeOrders={activeOrders} />
+
+            <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
+              <div className="p-6 pb-0 mb-2">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  Conversaciones
+                </h3>
+                <p className="text-sm text-muted-foreground">Últimos mensajes de clientes</p>
+              </div>
+              <div className="p-6 pt-2">
+                <RecentConversations chats={recentConversations} />
+              </div>
+            </Card>
+
+            <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
+              <div className="p-6 pb-0">
+                <h3 className="font-semibold text-sm">Distribución por producto</h3>
+              </div>
+              <div className="p-6">
+                <OrderProductChart data={ordersCountByDateInterval} />
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
     </Content>
   );

@@ -602,13 +602,21 @@ export class ContactRepository implements IContactRepository {
         m.chat_id,
         m.sender_id,
         m.text_content,
+        m.timestamp,
+        m.is_from_me,
+        m.media_type,
+        m.filename,
+        m.url,
+        m.file_length,
         m.replied_to_message_id,
         m.quoted_message_text,
-        m.created_at AS message_created_at
+        m.created_at AS message_created_at,
+        m.updated_at AS message_updated_at
        FROM contacts c
        JOIN (
            SELECT
-               id, chat_id, sender_id, text_content, replied_to_message_id, quoted_message_text, created_at,
+               id, chat_id, sender_id, text_content, timestamp, is_from_me, media_type, filename, url, file_length,
+               replied_to_message_id, quoted_message_text, created_at, updated_at,
                ROW_NUMBER() OVER (PARTITION BY chat_id ORDER BY created_at DESC) as rn
            FROM messages
        ) m ON c.id = m.chat_id
@@ -641,9 +649,16 @@ export class ContactRepository implements IContactRepository {
           row.chat_id,
           row.sender_id,
           row.text_content,
+          row.timestamp,
+          row.is_from_me,
+          row.media_type,
+          row.filename,
+          row.url,
+          row.file_length,
+          row.message_created_at,
+          row.message_updated_at,
           row.replied_to_message_id,
-          row.quoted_message_text,
-          row.message_created_at
+          row.quoted_message_text
         );
 
         return {
