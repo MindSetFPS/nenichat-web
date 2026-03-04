@@ -11,6 +11,7 @@ import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/Sup
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { IOrderRepository } from "@/Nenichat/Orders/domain/IOrderRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
+import { OrdersTableClient } from "./orders-table-client";
 
 export const dynamic = 'force-dynamic';
 
@@ -61,20 +62,8 @@ export default async function OrdersPage() {
             <PageHeader title="Ventas">
                 <CreateOrderButton />
             </PageHeader>
-            <DataTable
-                columns={columns}
-                data={plainOrders}
-                searchInputColumnId="id"
-                showDateSelector={true}
-                showSearchInput={false}
-                visibleColumns={{
-                    "updated_at": false,
-                    "status": false,
-                    "payment_method": false,
-                    "refunded_amount": false,
-                    "notes": false,
-                    "amount_paid": false,
-                }}
+            <OrdersTableClient
+                orders={plainOrders}
             />
         </>
     );

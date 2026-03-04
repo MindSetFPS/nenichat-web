@@ -48,7 +48,8 @@ interface DataTableProps<TData, TValue> {
     dateFilterColumnId?: string,
     selectedDateDefault?: "today" | "this-week" | "this-month" | "this-year" | "all-time" | null,
     getRowId?: (row: TData) => string,
-    onRowSelectionChange?: (selection: RowSelectionState) => void
+    onRowSelectionChange?: (selection: RowSelectionState) => void,
+    onRowClick?: (row: TData) => void,
 }
 
 export function DataTable<TData, TValue>({
@@ -66,6 +67,7 @@ export function DataTable<TData, TValue>({
     selectedDateDefault = "today",
     getRowId: getRowId,
     onRowSelectionChange: setExternalRowSelection,
+    onRowClick,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -229,7 +231,12 @@ export function DataTable<TData, TValue>({
                     {
                         table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                                <TableRow 
+                                    key={row.id} 
+                                    data-state={row.getIsSelected() && "selected"}
+                                    onClick={() => onRowClick?.(row.original)}
+                                    className={onRowClick ? "cursor-pointer hover:bg-muted/50" : undefined}
+                                >
                                     {
                                         row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>

@@ -24,7 +24,10 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         cell: ({ row }) => {
             return (
                 <Link
-                    className="hover:underline w-1 text-blue-400 text-xs" href={`/orders/${row.original.id}`}>
+                    className="hover:underline w-1 text-blue-400 text-xs" 
+                    href={`/orders/${row.original.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
                     #{row.original.id}
                 </Link>
             );
@@ -41,7 +44,9 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
             return (
                 <div className="flex flex-col gap-1">
                     <Link href={`/contacts/${row.original.contact_id}`}
-                        className="hover:underline text-blue-400 w-min text-xs md:text-sm font-medium">
+                        className="hover:underline text-blue-400 w-min text-xs md:text-sm font-medium"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         {row.original.contact_name || `#${row.original.contact_id}`}
                     </Link>
                     <div className="flex flex-col text-xs text-muted-foreground whitespace-nowrap">
