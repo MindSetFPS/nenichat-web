@@ -80,7 +80,7 @@ export function WhatsAppSettings() {
         const status = container.status as container_states
 
         if (status === 'connected') {
-            return <WappConnected container={container} />
+            return <WappConnected container={container} businessId={businessId} />
         }
 
         if (status === 'error') {
