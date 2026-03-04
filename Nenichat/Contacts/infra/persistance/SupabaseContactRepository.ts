@@ -99,30 +99,36 @@ export class SupabaseContactRepository implements IContactRepository {
             throw new Error("Business ID is required for saving a contact");
         }
 
-        const contactData: any = {
-            ...contact,
-            updated_at: new Date().toISOString(),
-        };
-
-        if (!contact.id && !contact.created_at) {
-            contactData.created_at = new Date().toISOString();
-        }
-
-        // Use upsert to handle race conditions gracefully.
-        // We conflict on 'id' if provided, otherwise on 'phone_number' or 'lid'.
-        // This requires the database to have unique constraints on these columns.
-        let onConflict = 'id';
-        if (!contact.id) {
+        // To handle the "no unique constraint" error (42P10), we find the existing ID first
+        // if it's not provided, then we can always upsert on the 'id' (Primary Key).
+        let existingId = contact.id;
+        if (!existingId && contact.business_id) {
+            let existing: IContact | null = null;
             if (contact.phone_number) {
-                onConflict = 'phone_number';
+                existing = await this.findByPhoneNumber(contact.business_id, contact.phone_number);
             } else if (contact.lid) {
-                onConflict = 'lid';
+                existing = await this.findByLid(contact.business_id, contact.lid);
+            }
+            if (existing) {
+                existingId = existing.id;
             }
         }
 
+        const contactData: any = {
+            ...contact,
+            id: existingId,
+            updated_at: new Date().toISOString(),
+        };
+
+        if (!existingId && !contact.created_at) {
+            contactData.created_at = new Date().toISOString();
+        }
+
+        // We now always upsert on 'id'. If lid/phone match an existing record, 
+        // we've already retrieved the correct ID above.
         const { data, error } = await this.supabase
             .from("contacts")
-            .upsert(contactData, { onConflict })
+            .upsert(contactData, { onConflict: 'id' })
             .select()
             .single();
 
@@ -137,29 +143,13 @@ export class SupabaseContactRepository implements IContactRepository {
     async saveBatch(contacts: Partial<IContact>[]): Promise<void> {
         if (contacts.length === 0) return;
 
-        const contactsData = contacts.map(contact => ({
-            ...contact,
-            updated_at: new Date().toISOString(),
-            created_at: contact.created_at ? contact.created_at.toISOString() : undefined // Let DB handle default if undefined, but batch insert might need explicit or default handling if not all rows have it? Supabase handles defaults.
-        }));
+        // For batch operations, if we can't guarantee a unique constraint on lid/phone, 
+        // we should ideally use an RPC or process them one by one/in chunks with mapped IDs.
+        // Since Supabase upsert requires a matching constraint for the 'onConflict' target,
+        // and 'lid' is missing it, we'll process these individually or use phone_number where available.
 
-        // split into phone and lid based upserts if necessary, but Supabase upsert takes 'onConflict'.
-        // Postgres repo splits them. We can do the same.
-        const phoneContacts = contactsData.filter(c => c.phone_number);
-        const lidContacts = contactsData.filter(c => c.lid && !c.phone_number);
-
-        if (phoneContacts.length > 0) {
-            const { error } = await this.supabase
-                .from("contacts")
-                .upsert(phoneContacts, { onConflict: 'phone_number' }); // Provided business_id is part of constraint? No, logic assumes phone unique globally or we rely on constraints. Original SQL used ON CONFLICT (phone_number).
-            if (error) throw error;
-        }
-
-        if (lidContacts.length > 0) {
-            const { error } = await this.supabase
-                .from("contacts")
-                .upsert(lidContacts, { onConflict: 'lid' });
-            if (error) throw error;
+        for (const contact of contacts) {
+            await this.save(contact);
         }
     }
 
