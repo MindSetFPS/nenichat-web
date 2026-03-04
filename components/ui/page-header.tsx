@@ -15,7 +15,7 @@ interface PageHeaderProps {
  */
 export function PageHeader({ title, children, className, leftContent }: PageHeaderProps) {
     return (
-        <div className={cn("flex items-center justify-between h-8 w-full", className)}>
+        <div className={cn("flex items-center justify-between w-full", title || leftContent || children ? "h-8" : "", className)}>
             <div className="flex items-center overflow-hidden gap-2">
                 {leftContent ? (
                     leftContent
