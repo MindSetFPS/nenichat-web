@@ -73,18 +73,18 @@ export function AppSidebar() {
             icon: TrendingUp,
             label: 'Rentabilidad'
         },
-        {
-            id: 'campaigns',
-            href: '/campaigns',
-            icon: SendIcon,
-            label: 'Campañas'
-        },
-        {
-            id: 'audiences',
-            href: '/audiences',
-            icon: MailIcon,
-            label: 'Audiencias'
-        },
+        // {
+        //     id: 'campaigns',
+        //     href: '/campaigns',
+        //     icon: SendIcon,
+        //     label: 'Campañas'
+        // },
+        // {
+        //     id: 'audiences',
+        //     href: '/audiences',
+        //     icon: MailIcon,
+        //     label: 'Audiencias'
+        // },
         {
             id: 'shipments',
             href: '/shipments',

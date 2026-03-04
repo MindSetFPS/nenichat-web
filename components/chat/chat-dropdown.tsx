@@ -46,9 +46,9 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                         <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
                             Editar contacto
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
+                        {/* <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
                             Asignar a audiencia
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         {contact.id && (
                             <DropdownMenuItem onSelect={() => setShowIgnoreDialog(true)}>
                                 Ignorar contacto
