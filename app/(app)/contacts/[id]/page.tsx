@@ -81,7 +81,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                         <CardHeader>
                             <div className="flex justify-between align-middle items-center  ">
                                 <CardTitle>Profile</CardTitle>
-                                <Link href={`/chats/${plainContact.id}`}>
+                                <Link href={`/chats/${plainContact.phone_number || plainContact.lid}`}>
                                     <Button>
                                         <Mail />
                                     </Button>
