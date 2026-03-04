@@ -12,4 +12,6 @@ export interface IMessageRepository {
   count(): Promise<number>;
   getMessageCountPerDay(interval: number): Promise<IMessagesReport[]>;
   getLastContactMessage(chat_id: number): Promise<IMessage | null>;
+  getLastContactMessageByPhone(phone_number: string): Promise<IMessage | null>;
+  getLastContactMessageByLid(lid: string): Promise<IMessage | null>;
 }

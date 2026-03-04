@@ -190,4 +190,36 @@ export class SupabaseMessageRepository implements IMessageRepository {
         }
         return data ? this.mapToMessage(data) : null;
     }
+
+    async getLastContactMessageByPhone(phone_number: string): Promise<IMessage | null> {
+        const { data, error } = await this.supabase
+            .from("messages")
+            .select("*")
+            .or(`chat_id.eq.${phone_number},chat_jid.eq.${phone_number}`)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Error fetching last contact message by phone:", error);
+            throw error;
+        }
+        return data ? this.mapToMessage(data) : null;
+    }
+
+    async getLastContactMessageByLid(lid: string): Promise<IMessage | null> {
+        const { data, error } = await this.supabase
+            .from("messages")
+            .select("*")
+            .or(`chat_id.eq.${lid},chat_jid.eq.${lid}`)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Error fetching last contact message by lid:", error);
+            throw error;
+        }
+        return data ? this.mapToMessage(data) : null;
+    }
 }

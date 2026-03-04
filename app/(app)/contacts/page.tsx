@@ -18,20 +18,39 @@ export default async function ContactsPage() {
 
     const contactRepository = new SupabaseContactRepository(supabase);
     // const messageRepository = new SupabaseMessageRepository(supabase);
-    const messageRepository = new GoWappMessageRepository("http://192.168.1.64" + "/api/user/" + business.id) // i think this isnt working
+    const messageRepository = new GoWappMessageRepository("http://192.168.1.64" + "/api/user/" + business.id, "admin", "admin")
 
     // get all the contacts from contacts table
-    let contacts = await contactRepository.list(business.id, 0, 100);
+    const result = await contactRepository.list(business.id, 0, 100);
+    const contacts = Array.isArray(result) ? result : [];
     let contactWithLastMessageTime = [];
 
     // get the last message time for each contact
     for (let contact of contacts) {
-        const lastMessage = await messageRepository.getLastContactMessage(contact.id!);
-        if (lastMessage) {
-            contactWithLastMessageTime.push({
-                ...contact,
-                last_message_time: lastMessage.created_at
-            });
+        try {
+            let lastMessage = null;
+
+            // Try in order of importance for the API: phone_number, lid, then id (only for database repositories)
+            if (contact.phone_number) {
+                lastMessage = await messageRepository.getLastContactMessageByPhone(contact.phone_number);
+            }
+
+            if (!lastMessage && contact.lid) {
+                lastMessage = await messageRepository.getLastContactMessageByLid(contact.lid);
+            }
+
+            if (!lastMessage && contact.id) {
+                lastMessage = await messageRepository.getLastContactMessage(contact.id);
+            }
+
+            if (lastMessage) {
+                contactWithLastMessageTime.push({
+                    ...contact,
+                    last_message_time: lastMessage.created_at
+                });
+            }
+        } catch {
+            // Silently skip if query fails to avoid browser console or overlay errors
         }
     }
 
@@ -39,7 +58,7 @@ export default async function ContactsPage() {
     contactWithLastMessageTime.sort((a, b) => {
         const aTime = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
         const bTime = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
-        
+
         if (aTime && bTime) {
             return bTime - aTime;
         } else if (aTime) {
@@ -64,6 +83,7 @@ export default async function ContactsPage() {
                 columns={columns}
                 data={newContactsJson}
                 searchInputColumnId="phone_number"
+                selectedDateDefault="all-time"
             // note: this searches in the phone_number column, if it does not have, it will not match
             // so this component would need global search to provide better results
             />

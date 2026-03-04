@@ -276,6 +276,22 @@ export class MessageRepository implements IMessageRepository {
     );
     return result.rows.length > 0 ? this.toMessage(result.rows[0]) : null;
   }
+
+  async getLastContactMessageByPhone(phone_number: string): Promise<IMessage | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM messages WHERE chat_id = $1 OR chat_jid = $1 ORDER BY created_at DESC, id DESC LIMIT 1',
+      [phone_number]
+    );
+    return result.rows.length > 0 ? this.toMessage(result.rows[0]) : null;
+  }
+
+  async getLastContactMessageByLid(lid: string): Promise<IMessage | null> {
+    const result = await this.pool.query(
+      'SELECT * FROM messages WHERE chat_id = $1 OR chat_jid = $1 ORDER BY created_at DESC, id DESC LIMIT 1',
+      [lid]
+    );
+    return result.rows.length > 0 ? this.toMessage(result.rows[0]) : null;
+  }
 }
 
 export const messageRepository = new MessageRepository(pool);

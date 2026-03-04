@@ -14,6 +14,8 @@ export const dateIntervalFilter: FilterFn<any> = (row, columnId, value) => {
     const rowDate = new Date(rowValue);
     const now = new Date();
 
+    if (value === "all-time") return true;
+
     switch (value) {
         case "today":
             return rowDate.toDateString() === now.toDateString();

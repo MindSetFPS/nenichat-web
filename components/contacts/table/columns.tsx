@@ -6,6 +6,7 @@ import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import Link from "next/link";
+import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
 
 export const columns: ColumnDef<IContact & { last_message_time?: string }>[] = [
     {
@@ -40,6 +41,7 @@ export const columns: ColumnDef<IContact & { last_message_time?: string }>[] = [
     },
     {
         accessorKey: "created_at",
+        filterFn: dateIntervalFilter,
         header: "Creado",
         cell: ({ row }) => {
             return (

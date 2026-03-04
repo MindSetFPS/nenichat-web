@@ -57,7 +57,8 @@ export class GoWappMessageRepository implements IMessageRepository {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error("Request to " + this.baseUrl + path + " failed: " + errorData.message || `GoWapp API request failed with status ${response.status}`);
+            const errorMessage = errorData.message || errorData.error || `Status ${response.status}`;
+            throw new Error(`GoWapp API: ${errorMessage}`);
         }
 
         return response.json();
@@ -253,7 +254,39 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @returns {Promise<IMessage | null>} The last message or null.
      */
     async getLastContactMessage(chat_id: number): Promise<IMessage | null> {
-        const messages = await this.findByChatId(this.integerToJid(chat_id), 0, 1);
-        return messages.length > 0 ? messages[0] : null;
+        // The GoWapp API does not support querying by internal database ID.
+        // It only supports phone numbers (JIDs) or LIDs.
+        return null;
+    }
+
+
+    /**
+     * Retrieves the last message sent by phone number.
+     * @param {string} phone_number - The phone number or JID.
+     * @returns {Promise<IMessage | null>} The last message or null.
+     */
+    async getLastContactMessageByPhone(phone_number: string): Promise<IMessage | null> {
+        try {
+            const jid = phone_number.includes('@') ? phone_number : `${phone_number}@s.whatsapp.net`;
+            const messages = await this.findByChatId(jid, 0, 1);
+            return messages.length > 0 ? messages[0] : null;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves the last message sent by LID.
+     * @param {string} lid - The LID.
+     * @returns {Promise<IMessage | null>} The last message or null.
+     */
+    async getLastContactMessageByLid(lid: string): Promise<IMessage | null> {
+        try {
+            const jid = lid.includes('@') ? lid : `${lid}@lid`;
+            const messages = await this.findByChatId(jid, 0, 1);
+            return messages.length > 0 ? messages[0] : null;
+        } catch {
+            return null;
+        }
     }
 }
