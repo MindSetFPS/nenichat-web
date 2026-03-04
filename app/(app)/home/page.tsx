@@ -88,6 +88,8 @@ export default async function Page() {
 
   return (
     <Content className="p-4 md:p-8 bg-gray-50/50 dark:bg-zinc-950/50 scroll-auto overflow-y-auto">
+      <PageHeader />
+
       {/* Dynamic Header with Greeting */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>

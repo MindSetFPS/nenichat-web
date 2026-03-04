@@ -51,7 +51,7 @@ export default function PaymentStatusDropdown({ order }: PaymentStatusDropdownPr
                 <SelectValue placeholder={status} />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="unpaid">Pendiente de pago</SelectItem>
+                <SelectItem value="unpaid">Pago pendiente</SelectItem>
                 <SelectItem value="partial">Pagado parcialmente</SelectItem>
                 <SelectItem value="paid">Pagado</SelectItem>
                 <SelectItem value="refunded">Reembolsado</SelectItem>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 import { format } from "date-fns";
 import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
@@ -51,29 +51,34 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
     return (
         <>
-            <PageHeader title={`Orden #${order.id}`} />
-            <div className="md:hidden ml-16">
-                <DropdownMenuDialog orderId={orderId} />
-            </div>
-            <div className="hidden md:flex items-center justify-end gap-2">
-                <EditOrderButton orderId={order.id} />
-                <DeleteOrderButton orderId={order.id} />
-            </div>
+            <PageHeader
+                title={`Orden #${order.id}`}
+                leftContent={<BackButton className="md:hidden" />}
+            >
+                <div className="hidden md:flex items-center gap-2">
+                    <PaymentStatusDropdown order={JSON.parse(JSON.stringify(order))} />
+                    <OrderStatusDropdown order={JSON.parse(JSON.stringify(order))} />
+                </div>
+                <div className="hidden md:flex items-center justify-end gap-2">
+                    <EditOrderButton orderId={order.id} />
+                    <DeleteOrderButton orderId={order.id} />
+                </div>
+                <div className="md:hidden">
+                    <DropdownMenuDialog orderId={orderId} />
+                </div>
+            </PageHeader>
 
-            <div className="container w-full h-full space-y-2">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Link href="/orders">
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                        </Link>
+            <div className="container w-full h-full space-y-2 mt-2 md:mt-0">
+                <div className="flex md:hidden items-center gap-2 w-full">
+                    <div className="">
                         <PaymentStatusDropdown order={JSON.parse(JSON.stringify(order))} />
+                    </div>
+                    <div className="">
                         <OrderStatusDropdown order={JSON.parse(JSON.stringify(order))} />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-2 mt-2">
                     <div className="md:col-span-2 py-0 gap-2">
                         <Table className="bg-card">
                             <TableHeader>
@@ -119,7 +124,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
                     <Card className="">
                         <CardHeader>
-                            <CardTitle>Customer</CardTitle>
+                            <CardTitle>Cliente</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {contact ? (
@@ -139,16 +144,16 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
                     <Card className="md:col-start-3">
                         <CardHeader>
-                            <CardTitle>Payment Details</CardTitle>
+                            <CardTitle>Detalles del pago</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Method</div>
+                                    <div className="text-sm font-medium text-gray-500">Método</div>
                                     <div className="capitalize">{order.payment_method || 'N/A'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Amount Paid</div>
+                                    <div className="text-sm font-medium text-gray-500">Cantidad</div>
                                     <div>${Number(order.amount_paid).toFixed(2)}</div>
                                 </div>
                                 {Number(order.refunded_amount) > 0 && (
@@ -174,13 +179,13 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
                     <Card className="md:col-span-1 md:col-start-3">
                         <CardHeader>
-                            <CardTitle>Shipping Address</CardTitle>
+                            <CardTitle>Dirección de envío</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {order.shipping_address ? (
                                 <p className="whitespace-pre-wrap">{order.shipping_address}</p>
                             ) : (
-                                <p className="text-gray-500 italic">No shipping address provided</p>
+                                <p className="text-gray-500 italic">Sin direcciones</p>
                             )}
                         </CardContent>
                     </Card>
