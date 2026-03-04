@@ -97,7 +97,7 @@ export default async function Page() {
             Buenos días, {user.email?.split('@')[0]} 👋
           </h1>
           <p className="text-muted-foreground mt-1">
-            Aquí está lo que está pasando con tu negocio hoy.
+            Aquí está lo que está pasando en {business.name} hoy.
           </p>
         </div>
         <div className="flex gap-2">
