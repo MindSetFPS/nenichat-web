@@ -17,6 +17,8 @@ import { requireAuth } from "@/lib/auth";
 import { WelcomePage } from "@/components/home/welcome-page";
 import { Card } from "@/components/ui/card";
 import { ActionRequiredCard } from "@/components/home/action-required-card";
+import { OutstandingPaymentsCard } from "@/components/home/outstanding-payments-card";
+import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -63,6 +65,26 @@ export default async function Page() {
   const ordersCountByDateInterval: any[] = await orderRepository.getProductOrdersByDateInterval(business.id, 14);
   const ordersCountByDayOfWeek: any[] = await orderRepository.getOrdersCountByDayOfWeek(business.id);
   const ordersToday: any[] = await orderRepository.getOrdersCountByDate(business.id, new Date());
+
+  const outstandingOrders = plainOrders.filter(
+    (order: any) => order.payment_status === 'unpaid' || order.payment_status === 'partial'
+  );
+
+  const contactRepository = new SupabaseContactRepository(supabase);
+  
+  const outstandingPayments = await Promise.all(
+    outstandingOrders.map(async (order: any) => {
+      let contact = null;
+      if (order.contact_id) {
+        const foundContact = await contactRepository.findById(business.id, order.contact_id);
+        contact = foundContact ? JSON.parse(JSON.stringify(foundContact)) : null;
+      }
+      return {
+        ...order,
+        contact,
+      };
+    })
+  );
 
   const containerRepository = new SupabaseContainerRepository(supabase);
   const containerData = await containerRepository.getContainerByBusinessId(business.id);
@@ -160,6 +182,8 @@ export default async function Page() {
 
           {/* Side "Pulse" Column - Interaction Hub */}
           <div className="space-y-6">
+            <OutstandingPaymentsCard payments={outstandingPayments} />
+
             <ActionRequiredCard activeOrders={activeOrders} />
 
             <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
