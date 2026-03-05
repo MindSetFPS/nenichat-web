@@ -14,7 +14,8 @@ export class AudienceContactRepository implements IAudienceContactRepository {
     return new Contact(
       data.id,
       data.business_id,
-      data.phone_number,
+      data.phone_number_id ?? null,
+      data.phone_number ?? null,  // resolved via JOIN with phone_numbers
       data.lid,
       data.username,
       data.pushname,
@@ -28,23 +29,25 @@ export class AudienceContactRepository implements IAudienceContactRepository {
 
   async findByAudienceId(businessId: number, audienceId: number): Promise<IContact[]> {
     const result = await this.pool.query(`
-      SELECT c.*
+      SELECT c.*, pn.phone_number
       FROM contacts c
+      LEFT JOIN phone_numbers pn ON pn.id = c.phone_number_id
       JOIN audience_contacts ac ON c.id = ac.contact_id
       WHERE ac.audience_id = $1 AND c.business_id = $2
     `, [audienceId, businessId]);
-    return result.rows.map(this.toContact);
+    return result.rows.map((r) => this.toContact(r));
   }
 
   async findAvailableContacts(businessId: number, audienceId: number): Promise<IContact[]> {
     const result = await this.pool.query(`
-      SELECT c.*
+      SELECT c.*, pn.phone_number
       FROM contacts c
+      LEFT JOIN phone_numbers pn ON pn.id = c.phone_number_id
       LEFT JOIN audience_contacts ac ON c.id = ac.contact_id AND ac.audience_id = $1
       WHERE ac.contact_id IS NULL AND c.business_id = $2
       ORDER BY c.created_at DESC
     `, [audienceId, businessId]);
-    return result.rows.map(this.toContact);
+    return result.rows.map((r) => this.toContact(r));
   }
 
   async findByContactId(businessId: number, contactId: number): Promise<IAudience[]> {

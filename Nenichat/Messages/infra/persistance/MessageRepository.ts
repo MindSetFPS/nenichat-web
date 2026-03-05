@@ -118,16 +118,18 @@ export class MessageRepository implements IMessageRepository {
         m.created_at,
         c.id as sender_contact_id,
         c.business_id,
+        c.phone_number_id,
         c.contact_name, 
         c.pushname, 
         c.username, 
-        c.phone_number,
+        pn.phone_number,
         c.lid,
         c.is_user,
         c.created_at as sender_created_at,
         c.updated_at as sender_updated_at
       FROM messages m
       LEFT JOIN contacts c ON m.sender_id = c.id
+      LEFT JOIN phone_numbers pn ON pn.id = c.phone_number_id
       ORDER BY m.created_at DESC, m.id DESC 
       LIMIT $1 OFFSET $2`,
       [limit, offset]
@@ -154,7 +156,8 @@ export class MessageRepository implements IMessageRepository {
       const sender: IContact | undefined = d.sender_contact_id ? new Contact(
         d.sender_contact_id,
         d.business_id,
-        d.phone_number,
+        d.phone_number_id ?? null,
+        d.phone_number ?? null,
         d.lid,
         d.username,
         d.pushname,
@@ -190,16 +193,18 @@ export class MessageRepository implements IMessageRepository {
         m.created_at,
         c.id as sender_contact_id,
         c.business_id,
+        c.phone_number_id,
         c.contact_name, 
         c.pushname, 
         c.username, 
-        c.phone_number,
+        pn.phone_number,
         c.lid,
         c.is_user,
         c.created_at as sender_created_at,
         c.updated_at as sender_updated_at
       FROM messages m
       LEFT JOIN contacts c ON m.sender_id = c.id
+      LEFT JOIN phone_numbers pn ON pn.id = c.phone_number_id
       WHERE m.chat_id = $1
       ORDER BY m.created_at DESC, m.id DESC 
       LIMIT $2 OFFSET $3`,
@@ -227,7 +232,8 @@ export class MessageRepository implements IMessageRepository {
       const sender: IContact | undefined = d.sender_contact_id ? new Contact(
         d.sender_contact_id,
         d.business_id,
-        d.phone_number,
+        d.phone_number_id ?? null,
+        d.phone_number ?? null,
         d.lid,
         d.username,
         d.pushname,

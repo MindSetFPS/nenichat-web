@@ -4,6 +4,12 @@ export class Contact implements IContact {
   id: number | null;
   business_id: number;
 
+  /** FK to the global phone_numbers table. */
+  phone_number_id: number | null;
+  /**
+   * Virtual field — resolved via JOIN with phone_numbers.
+   * Not persisted directly in the contacts table.
+   */
   phone_number: string | null;
   lid: string | null;
 
@@ -19,7 +25,8 @@ export class Contact implements IContact {
   constructor(
     id: number | null,
     businessId: number,
-    phone_number: string | null,
+    phoneNumberId: number | null,
+    phoneNumber: string | null,
     lid: string | null,
     username: string | null,
     pushname: string | null,
@@ -31,7 +38,8 @@ export class Contact implements IContact {
   ) {
     this.id = id;
     this.business_id = businessId;
-    this.phone_number = phone_number;
+    this.phone_number_id = phoneNumberId;
+    this.phone_number = phoneNumber;
     this.lid = lid;
     this.username = username;
     this.pushname = pushname;

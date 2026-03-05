@@ -112,20 +112,20 @@ export class SupabaseOrderRepository implements IOrderRepository {
      * Retrieves all orders for a specific phone number.
      */
     async getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]> {
+        // Resolve contact via the global phone_numbers table JOIN
         const { data: contact, error: contactError } = await this.supabase
             .from('contacts')
-            .select('id')
+            .select('id, phone_numbers!inner(phone_number)')
             .eq('business_id', businessId)
-            .eq('phone_number', phoneNumber)
-            .single();
+            .eq('phone_numbers.phone_number', phoneNumber)
+            .maybeSingle();
 
         if (contactError) {
-            if (contactError.code === 'PGRST116') {
-                return [];
-            }
             console.error("Error fetching contact by phone:", contactError);
             throw contactError;
         }
+
+        if (!contact) return [];
 
         const { data, error } = await this.supabase
             .from('orders')
@@ -155,21 +155,25 @@ export class SupabaseOrderRepository implements IOrderRepository {
         // If no contact_id but lid is provided, try to resolve it from the contacts table
         if (!contactId && orderData.lid) {
             const jidKind = getJidKind(orderData.lid);
-            const query = this.supabase
-                .from('contacts')
-                .select('id')
-                .eq('business_id', businessId);
 
             if (jidKind === 'contact') {
-                query.eq('phone_number', orderData.lid);
+                // Resolve by phone number via the global phone_numbers JOIN
+                const { data: contactByPhone } = await this.supabase
+                    .from('contacts')
+                    .select('id, phone_numbers!inner(phone_number)')
+                    .eq('business_id', businessId)
+                    .eq('phone_numbers.phone_number', orderData.lid)
+                    .maybeSingle();
+                if (contactByPhone) contactId = contactByPhone.id;
             } else {
-                query.eq('lid', orderData.lid);
-            }
-
-            const { data: contact } = await query.maybeSingle();
-
-            if (contact) {
-                contactId = contact.id;
+                // Resolve by WhatsApp lid
+                const { data: contactByLid } = await this.supabase
+                    .from('contacts')
+                    .select('id')
+                    .eq('business_id', businessId)
+                    .eq('lid', orderData.lid)
+                    .maybeSingle();
+                if (contactByLid) contactId = contactByLid.id;
             }
         }
 

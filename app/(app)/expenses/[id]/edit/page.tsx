@@ -33,6 +33,7 @@ export default async function EditExpensePage({ params }: { params: Promise<{ id
             <PageHeader title="Editar Gasto" />
             <ExpenseForm
                 categories={categories}
+                businessId={business.id}
                 initialData={{
                     id: plainExpense.id,
                     category_id: plainExpense.category_id,

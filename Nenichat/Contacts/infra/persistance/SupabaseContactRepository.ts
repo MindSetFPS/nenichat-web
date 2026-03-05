@@ -7,6 +7,12 @@ import IContactWithLastMessage from "../../app/dtos/IContactWithLastMessage";
 import { Message } from "@/Nenichat/Messages/domain/Message";
 import { getJidKind } from "../../../Chats/domain/Jid";
 
+/**
+ * Supabase select string that always JOINs phone_numbers so the virtual
+ * `phone_number` string field is available on every row.
+ */
+const CONTACT_SELECT = "*, phone_numbers(phone_number)";
+
 export class SupabaseContactRepository implements IContactRepository {
     private _supabase: SupabaseClient;
 
@@ -18,11 +24,16 @@ export class SupabaseContactRepository implements IContactRepository {
         return this._supabase;
     }
 
+    /**
+     * Maps a database row (with optional joined phone_numbers) to a Contact domain object.
+     */
     private mapToContact(data: any): Contact {
         return new Contact(
             data.id,
             data.business_id,
-            data.phone_number,
+            data.phone_number_id ?? null,
+            // phone_numbers is the joined object from Supabase; fall back gracefully.
+            data.phone_numbers?.phone_number ?? null,
             data.lid,
             data.username,
             data.pushname,
@@ -34,10 +45,30 @@ export class SupabaseContactRepository implements IContactRepository {
         );
     }
 
+    /**
+     * Looks up or creates a row in the global `phone_numbers` table and returns its id.
+     * @param phoneNumber The phone number string to look up or insert.
+     * @returns The id of the phone_numbers row.
+     */
+    private async getOrCreatePhoneNumberId(phoneNumber: string): Promise<number> {
+        // Upsert: insert if not exists, return the id regardless.
+        const { data, error } = await this.supabase
+            .from("phone_numbers")
+            .upsert({ phone_number: phoneNumber }, { onConflict: "phone_number" })
+            .select("id")
+            .single();
+
+        if (error) {
+            console.error("Error upserting phone_number:", error);
+            throw error;
+        }
+        return data.id;
+    }
+
     async findById(businessId: number, id: number): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select("*")
+            .select(CONTACT_SELECT)
             .eq("business_id", businessId)
             .eq("id", id)
             .maybeSingle();
@@ -52,13 +83,15 @@ export class SupabaseContactRepository implements IContactRepository {
     async findByPhoneNumber(businessId: number, phoneNumber: string): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select("*")
+            // Use !inner to ensure filtering by phone_numbers.phone_number correctly filters the root contacts rows.
+            // Documentation: https://postgrest.org/en/stable/references/api/resource_embedding.html#horizontal-filtering
+            .select("*, phone_numbers!inner(phone_number)")
             .eq("business_id", businessId)
-            .eq("phone_number", phoneNumber)
+            .eq("phone_numbers.phone_number", phoneNumber)
             .maybeSingle();
 
         if (error) {
-            console.error("Error fetching contact by phone number:", error);
+            console.error("Error fetching contact by phone number:", JSON.stringify(error, null, 2));
             throw error;
         }
         return data ? this.mapToContact(data) : null;
@@ -67,7 +100,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async findByLid(businessId: number, lid: string): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select("*")
+            .select(CONTACT_SELECT)
             .eq("business_id", businessId)
             .eq("lid", lid)
             .maybeSingle();
@@ -82,10 +115,10 @@ export class SupabaseContactRepository implements IContactRepository {
     async findMe(businessId: number): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select("*")
+            .select(CONTACT_SELECT)
             .eq("business_id", businessId)
             .eq("is_user", true)
-            .maybeSingle(); // Use maybeSingle to avoid error if multiple (though unexpected) or none
+            .maybeSingle();
 
         if (error) {
             console.error("Error fetching 'me' contact:", error);
@@ -99,13 +132,24 @@ export class SupabaseContactRepository implements IContactRepository {
             throw new Error("Business ID is required for saving a contact");
         }
 
-        // To handle the "no unique constraint" error (42P10), we find the existing ID first
-        // if it's not provided, then we can always upsert on the 'id' (Primary Key).
+        // Resolve phone_number_id from the global phone_numbers table if we have a phone string.
+        let phoneNumberId = contact.phone_number_id ?? null;
+        if (!phoneNumberId && contact.phone_number) {
+            phoneNumberId = await this.getOrCreatePhoneNumberId(contact.phone_number);
+        }
+
+        // Find existing contact by phone_number_id or lid if no id provided.
         let existingId = contact.id;
         if (!existingId && contact.business_id) {
             let existing: IContact | null = null;
-            if (contact.phone_number) {
-                existing = await this.findByPhoneNumber(contact.business_id, contact.phone_number);
+            if (phoneNumberId) {
+                const { data } = await this.supabase
+                    .from("contacts")
+                    .select(CONTACT_SELECT)
+                    .eq("business_id", contact.business_id)
+                    .eq("phone_number_id", phoneNumberId)
+                    .maybeSingle();
+                if (data) existing = this.mapToContact(data);
             } else if (contact.lid) {
                 existing = await this.findByLid(contact.business_id, contact.lid);
             }
@@ -114,9 +158,12 @@ export class SupabaseContactRepository implements IContactRepository {
             }
         }
 
+        // Build the persistable row — exclude virtual `phone_number` string.
+        const { phone_number: _virtual, ...rest } = contact as any;
         const contactData: any = {
-            ...contact,
+            ...rest,
             id: existingId,
+            phone_number_id: phoneNumberId,
             updated_at: new Date().toISOString(),
         };
 
@@ -124,12 +171,10 @@ export class SupabaseContactRepository implements IContactRepository {
             contactData.created_at = new Date().toISOString();
         }
 
-        // We now always upsert on 'id'. If lid/phone match an existing record, 
-        // we've already retrieved the correct ID above.
         const { data, error } = await this.supabase
             .from("contacts")
-            .upsert(contactData, { onConflict: 'id' })
-            .select()
+            .upsert(contactData, { onConflict: "id" })
+            .select(CONTACT_SELECT)
             .single();
 
         if (error) {
@@ -143,11 +188,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async saveBatch(contacts: Partial<IContact>[]): Promise<void> {
         if (contacts.length === 0) return;
 
-        // For batch operations, if we can't guarantee a unique constraint on lid/phone, 
-        // we should ideally use an RPC or process them one by one/in chunks with mapped IDs.
-        // Since Supabase upsert requires a matching constraint for the 'onConflict' target,
-        // and 'lid' is missing it, we'll process these individually or use phone_number where available.
-
+        // Process individually to handle phone_number_id resolution correctly.
         for (const contact of contacts) {
             await this.save(contact);
         }
@@ -156,48 +197,40 @@ export class SupabaseContactRepository implements IContactRepository {
     async list(businessId: number, offset: number, limit: number): Promise<IContact[]> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select("*")
+            .select(CONTACT_SELECT)
             .eq("business_id", businessId)
             .order("created_at", { ascending: false })
             .range(offset, offset + limit - 1);
 
         if (error) throw error;
-        return (data || []).map(this.mapToContact);
+        return (data || []).map((d) => this.mapToContact(d));
     }
 
     async findMergeCandidates(businessId: number, offset: number, limit: number): Promise<{ contacts: IContact[]; total: number }> {
-        // Supabase doesn't support OR across different columns easily with simple query builder for (a IS NULL OR b IS NULL) AND business_id = x.
-        // We can use .or().
-
-        // Logic: business_id = $1 AND (phone_number IS NULL OR lid IS NULL)
-
+        // A merge candidate is a contact missing either phone_number_id or lid.
         const { data, error, count } = await this.supabase
             .from("contacts")
-            .select("*", { count: 'exact' })
+            .select(CONTACT_SELECT, { count: "exact" })
             .eq("business_id", businessId)
-            .or('phone_number.is.null,lid.is.null')
+            .or("phone_number_id.is.null,lid.is.null")
             .order("created_at", { ascending: false })
             .range(offset, offset + limit - 1);
 
         if (error) throw error;
 
         return {
-            contacts: (data || []).map(this.mapToContact),
-            total: count || 0
+            contacts: (data || []).map((d) => this.mapToContact(d)),
+            total: count || 0,
         };
     }
 
     async mergeContacts(businessId: number, primaryContactId: number, secondaryContactIds: number[]): Promise<void> {
-        // NOTE: Client-side implementation without transaction atomicity.
-        // Ideally should be an RPC.
-
         const primaryContact = await this.findById(businessId, primaryContactId);
         if (!primaryContact) throw new Error("Primary contact not found or unauthorized");
 
-        // Fetch secondaries
         const { data: secondaries, error: fetchError } = await this.supabase
             .from("contacts")
-            .select("*")
+            .select(CONTACT_SELECT)
             .in("id", secondaryContactIds)
             .eq("business_id", businessId);
 
@@ -206,53 +239,57 @@ export class SupabaseContactRepository implements IContactRepository {
             throw new Error("One or more secondary contacts not found");
         }
 
-        // Update related tables
-        const tablesToUpdate = ['audience_contacts', 'messages', 'recipients'];
-        // 'messages' needs both sender_id and chat_id updates.
+        const secondaryContacts = secondaries.map((d: any) => this.mapToContact(d));
 
-        // Update audience_contacts
-        await this.supabase.from('audience_contacts')
+        // Re-assign related records
+        await this.supabase.from("audience_contacts")
             .update({ contact_id: primaryContactId })
-            .in('contact_id', secondaryContactIds);
+            .in("contact_id", secondaryContactIds);
 
-        // Update messages sender_id
-        await this.supabase.from('messages')
+        await this.supabase.from("messages")
             .update({ sender_id: primaryContactId })
-            .in('sender_id', secondaryContactIds);
+            .in("sender_id", secondaryContactIds);
 
-        // Update messages chat_id
-        await this.supabase.from('messages')
+        await this.supabase.from("messages")
             .update({ chat_id: primaryContactId })
-            .in('chat_id', secondaryContactIds);
+            .in("chat_id", secondaryContactIds);
 
-        // Update recipients
-        await this.supabase.from('recipients')
+        await this.supabase.from("recipients")
             .update({ contact_id: primaryContactId })
-            .in('contact_id', secondaryContactIds);
+            .in("contact_id", secondaryContactIds);
 
-        // Merge logic
-        let mergedData: any = { ...primaryContact };
+        // Merge fields from secondaries into primary (first value wins)
+        let mergedPhoneNumberId = primaryContact.phone_number_id;
+        let mergedLid = primaryContact.lid;
+        let mergedUsername = primaryContact.username;
+        let mergedPushname = primaryContact.pushname;
+        let mergedContactName = primaryContact.contact_name;
+        let mergedIsUser = primaryContact.is_user;
 
-        for (const sec of secondaries) {
-            if (!mergedData.phone_number && sec.phone_number) mergedData.phone_number = sec.phone_number;
-            if (!mergedData.lid && sec.lid) mergedData.lid = sec.lid;
-            if (!mergedData.username && sec.username) mergedData.username = sec.username;
-            if (!mergedData.pushname && sec.pushname) mergedData.pushname = sec.pushname;
-            if (!mergedData.contact_name && sec.contact_name) mergedData.contact_name = sec.contact_name;
-            if (sec.is_user) mergedData.is_user = true;
-            // Dates logic simplified: keep primary's or update? Original kept min created, max updated.
+        for (const sec of secondaryContacts) {
+            if (!mergedPhoneNumberId && sec.phone_number_id) mergedPhoneNumberId = sec.phone_number_id;
+            if (!mergedLid && sec.lid) mergedLid = sec.lid;
+            if (!mergedUsername && sec.username) mergedUsername = sec.username;
+            if (!mergedPushname && sec.pushname) mergedPushname = sec.pushname;
+            if (!mergedContactName && sec.contact_name) mergedContactName = sec.contact_name;
+            if (sec.is_user) mergedIsUser = true;
         }
 
-        // Update primary
-        await this.supabase.from('contacts').update(mergedData).eq('id', primaryContactId);
+        await this.supabase.from("contacts").update({
+            phone_number_id: mergedPhoneNumberId,
+            lid: mergedLid,
+            username: mergedUsername,
+            pushname: mergedPushname,
+            contact_name: mergedContactName,
+            is_user: mergedIsUser,
+        }).eq("id", primaryContactId);
 
-        // Delete secondaries
-        await this.supabase.from('contacts').delete().in('id', secondaryContactIds);
+        await this.supabase.from("contacts").delete().in("id", secondaryContactIds);
     }
 
     async getOrCreateContact(businessId: number, contactId: string): Promise<IContact> {
         const jidKind = getJidKind(contactId);
-        const isLid = jidKind === 'lid' || !contactId.startsWith("521");
+        const isLid = jidKind === "lid" || !contactId.startsWith("521");
         let contact: IContact | null = null;
 
         if (isLid) {
@@ -267,26 +304,28 @@ export class SupabaseContactRepository implements IContactRepository {
 
         const newContact: Partial<IContact> = {
             business_id: businessId,
-            is_user: false
+            is_user: false,
         };
-        if (isLid) newContact.lid = contactId;
-        else newContact.phone_number = contactId;
+        if (isLid) {
+            newContact.lid = contactId;
+        } else {
+            // `save()` will resolve phone_number_id automatically
+            newContact.phone_number = contactId;
+        }
 
         return this.save(newContact);
     }
 
     async setMe(businessId: number, userId: number): Promise<IContact> {
-        // Set all others to false
-        await this.supabase.from('contacts')
+        await this.supabase.from("contacts")
             .update({ is_user: false })
-            .eq('business_id', businessId)
-            .eq('is_user', true);
+            .eq("business_id", businessId)
+            .eq("is_user", true);
 
-        // Set this one to true
-        const { data, error } = await this.supabase.from('contacts')
+        const { data, error } = await this.supabase.from("contacts")
             .update({ is_user: true })
-            .eq('id', userId)
-            .select()
+            .eq("id", userId)
+            .select(CONTACT_SELECT)
             .single();
 
         if (error) throw error;
@@ -294,108 +333,91 @@ export class SupabaseContactRepository implements IContactRepository {
     }
 
     async findRecentContacts(businessId: number, limit: number): Promise<IContact[]> {
-        // Complex query: contacts with most recent messages.
-        // Approximation: fetch recent distinct messages, then fetch contacts.
-
-        // We need to group by sender_id (or chat_id depending on meaning) and order by max created_at.
-        // Supabase JS doesn't support group by + order by aggregation easily without RPC.
-        // Fallback: Fetch messages ordered by date, distinct on client/DB?
-
-        // We can create a view or RPC, but constrained to client-side:
         const { data: messages, error } = await this.supabase
-            .from('messages')
-            .select('sender_id')
-            .order('created_at', { ascending: false })
-            .limit(limit * 5); // Fetch more to account for duplicates
+            .from("messages")
+            .select("sender_id")
+            .order("created_at", { ascending: false })
+            .limit(limit * 5);
 
         if (error) throw error;
 
-        const distinctSenderIds = Array.from(new Set(messages?.map((m: any) => m.sender_id))).slice(0, limit);
+        const distinctSenderIds = Array.from(
+            new Set(messages?.map((m: any) => m.sender_id))
+        ).slice(0, limit);
 
         if (distinctSenderIds.length === 0) return [];
 
         const { data: contacts, error: contactsError } = await this.supabase
-            .from('contacts')
-            .select('*')
-            .in('id', distinctSenderIds)
-            .eq('business_id', businessId);
+            .from("contacts")
+            .select(CONTACT_SELECT)
+            .in("id", distinctSenderIds)
+            .eq("business_id", businessId);
 
         if (contactsError) throw contactsError;
 
-        // Re-sort to match message order
-        const contactMap = new Map(contacts.map(c => [c.id, c]));
-        return distinctSenderIds.map(id => contactMap.get(id)).filter(Boolean).map(this.mapToContact);
+        const contactMap = new Map(contacts.map((c: any) => [c.id, c]));
+        return distinctSenderIds
+            .map((id) => contactMap.get(id))
+            .filter(Boolean)
+            .map((d: any) => this.mapToContact(d));
     }
 
     async getContactsWithLastMessage(businessId: number, offset: number, limit: number): Promise<IContactWithLastMessage[]> {
-        // Approximation: Fetch recent messages to identify active chats.
-        // This is inefficient for deep paging but standard for "recent chats" view.
-
-        // Fetch distinct chat_ids from messages table ordered by created_at desc.
-        // Not supported directly.
-        // RPC 'get_conversations' would be ideal.
-        // Without RPC: Fetch messages, client-side distinct. 
-        // Issue: pagination is on "conversations", but we seek on "messages".
-        // We might overfetch.
-
         const { data: messages, error } = await this.supabase
-            .from('messages')
-            .select('*, chat_id')
-            .order('created_at', { ascending: false })
-            .limit((offset + limit) * 10); // Heuristic multiplier
+            .from("messages")
+            .select("*, chat_id")
+            .order("created_at", { ascending: false })
+            .limit((offset + limit) * 10);
 
         if (error) throw error;
 
         const chats = new Map<number, any>();
         const chatOrder: number[] = [];
 
-        for (const msg of (messages || [])) {
+        for (const msg of messages || []) {
             if (chats.has(msg.chat_id)) continue;
-
             chats.set(msg.chat_id, msg);
             chatOrder.push(msg.chat_id);
         }
 
-        // Apply pagination
         const pagedChatIds = chatOrder.slice(offset, offset + limit);
-
         if (pagedChatIds.length === 0) return [];
 
         const { data: contactsData, error: contactsError } = await this.supabase
-            .from('contacts')
-            .select('*')
-            .in('id', pagedChatIds)
-            .eq('business_id', businessId)
-            .eq('is_hidden', false);
+            .from("contacts")
+            .select(CONTACT_SELECT)
+            .in("id", pagedChatIds)
+            .eq("business_id", businessId)
+            .eq("is_hidden", false);
 
         if (contactsError) throw contactsError;
 
         const result: IContactWithLastMessage[] = [];
         for (const chatId of pagedChatIds) {
             const contactData = contactsData?.find((c: any) => c.id === chatId);
-            if (!contactData) continue; // Might belong to another business or deleted
+            if (!contactData) continue;
 
             const msgData = chats.get(chatId);
             const lastMessage = new Message(
                 msgData.id,
-                msgData.chat_id || msgData.chat_jid || '',
-                msgData.sender_id || msgData.sender_jid || '',
+                msgData.chat_id || msgData.chat_jid || "",
+                msgData.sender_id || msgData.sender_jid || "",
                 msgData.text_content || msgData.content || null,
-                msgData.timestamp || msgData.created_at || '',
+                msgData.timestamp || msgData.created_at || "",
                 msgData.is_from_me || false,
-                msgData.media_type || '',
-                msgData.filename || '',
-                msgData.url || '',
+                msgData.media_type || "",
+                msgData.filename || "",
+                msgData.url || "",
                 msgData.file_length || 0,
-                msgData.created_at || '',
-                msgData.updated_at || msgData.created_at || '',
+                msgData.created_at || "",
+                msgData.updated_at || msgData.created_at || "",
                 msgData.replied_to_message_id,
                 msgData.quoted_message_text
             );
 
             result.push({
                 ...this.mapToContact(contactData),
-                last_message: lastMessage
+                last_message: lastMessage,
             });
         }
 
@@ -413,22 +435,22 @@ export class SupabaseContactRepository implements IContactRepository {
 
     async getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]> {
         const { data, error } = await this.supabase
-            .from('contacts')
-            .select('*')
-            .eq('business_id', businessId)
-            .eq('is_hidden', true)
+            .from("contacts")
+            .select(CONTACT_SELECT)
+            .eq("business_id", businessId)
+            .eq("is_hidden", true)
             .range(offset, offset + limit - 1);
 
         if (error) throw error;
-        return (data || []).map(this.mapToContact);
+        return (data || []).map((d) => this.mapToContact(d));
     }
 
     async isContactHidden(businessId: number, contactId: number): Promise<boolean> {
         const { data, error } = await this.supabase
-            .from('contacts')
-            .select('is_hidden')
-            .eq('id', contactId)
-            .eq('business_id', businessId)
+            .from("contacts")
+            .select("is_hidden")
+            .eq("id", contactId)
+            .eq("business_id", businessId)
             .maybeSingle();
 
         if (error) throw error;
@@ -436,34 +458,41 @@ export class SupabaseContactRepository implements IContactRepository {
     }
 
     async unhideContact(businessId: number, contactId: number): Promise<void> {
-        await this.supabase.from('contacts')
+        await this.supabase.from("contacts")
             .update({ is_hidden: false })
-            .eq('id', contactId)
-            .eq('business_id', businessId);
+            .eq("id", contactId)
+            .eq("business_id", businessId);
     }
 
     async count(businessId: number): Promise<number> {
         const { count, error } = await this.supabase
             .from("contacts")
-            .select("*", { count: 'exact', head: true })
+            .select("*", { count: "exact", head: true })
             .eq("business_id", businessId);
 
         if (error) {
-            console.error("Error counting contacts:", error);
+            console.error("Error counting contacts:", JSON.stringify(error, null, 2));
             throw error;
         }
         return count || 0;
     }
 
     async search(businessId: number, query: string, limit: number): Promise<IContact[]> {
+        // Search by contact_name, pushname (stored on contacts), or the resolved phone_number
+        // We filter on phone_numbers.phone_number via the join using the Supabase filter syntax.
         const { data, error } = await this.supabase
             .from("contacts")
-            .select("*")
+            .select(CONTACT_SELECT)
             .eq("business_id", businessId)
-            .or(`contact_name.ilike.%${query}%,phone_number.ilike.%${query}%,pushname.ilike.%${query}%`)
+            .or(
+                `contact_name.ilike.%${query}%,pushname.ilike.%${query}%,phone_numbers.phone_number.ilike.%${query}%`
+            )
             .limit(limit);
 
-        if (error) throw error;
-        return (data || []).map(this.mapToContact);
+        if (error) {
+            console.error("Error searching contacts:", JSON.stringify(error, null, 2));
+            throw error;
+        }
+        return (data || []).map((d) => this.mapToContact(d));
     }
 }
