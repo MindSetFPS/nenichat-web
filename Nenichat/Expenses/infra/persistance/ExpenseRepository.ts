@@ -227,4 +227,37 @@ export class ExpenseRepository implements IExpenseRepository {
             total: parseFloat(row.total)
         }));
     }
+
+    private mapRowToCategory(row: any): any {
+        return {
+            id: row.id,
+            business_id: row.business_id,
+            name: row.name,
+            description: row.description,
+            color: row.color,
+            is_active: row.is_active,
+            created_at: new Date(row.created_at),
+            updated_at: new Date(row.updated_at)
+        };
+    }
+
+    async getAllCategories(): Promise<any[]> {
+        const query = `
+            SELECT * FROM expense_categories 
+            WHERE is_active = true 
+            ORDER BY name ASC
+        `;
+        const result = await this.pool.query(query);
+        return result.rows.map(this.mapRowToCategory);
+    }
+
+    async getCategoryById(businessId: number, id: number): Promise<any | null> {
+        const query = 'SELECT * FROM expense_categories WHERE id = $1 AND business_id = $2';
+        const result = await this.pool.query(query, [id, businessId]);
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+        return this.mapRowToCategory(result.rows[0]);
+    }
 }

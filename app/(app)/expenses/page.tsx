@@ -20,6 +20,8 @@ export default async function ExpensesPage() {
 
     const expenseRepository = new SupabaseExpenseRepository(supabase);
     const expenses = await expenseRepository.getAll(business.id);
+
+    console.log(expenses)
     const plainExpenses = JSON.parse(JSON.stringify(expenses));
 
     if (plainExpenses.length === 0) {
@@ -43,17 +45,14 @@ export default async function ExpensesPage() {
             </PageHeader>
 
             <div className="overflow-y-auto h-full">
-                {
-                    plainExpenses.length === 0 &&
-                    <DataTable
-                        columns={columns}
-                        searchInputColumnId="description"
-                        visibleColumns={{
-                            "notes": false,
-                        }}
-                        data={plainExpenses}
-                    />
-                }
+                <DataTable
+                    columns={columns}
+                    searchInputColumnId="description"
+                    visibleColumns={{
+                        "notes": false,
+                    }}
+                    data={plainExpenses}
+                />
             </div>
         </>
     );

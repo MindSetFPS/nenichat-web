@@ -20,7 +20,6 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        // Validate required fields
         if (!body.category_id || !body.amount || !body.description) {
             return NextResponse.json(
                 { error: 'Missing required fields: category_id, amount, description' },
@@ -36,7 +35,7 @@ export async function POST(request: Request) {
             payment_method: body.payment_method || null,
             receipt_url: body.receipt_url || null,
             notes: body.notes || null,
-            expense_date: body.expense_date ? new Date(body.expense_date) : new Date()
+            expense_date: body.expense_date || new Date().toISOString().split('T')[0]
         });
 
         return NextResponse.json(expense, { status: 201 });

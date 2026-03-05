@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { IExpense, IExpenseWithCategory } from '../../domain/IExpense';
+import { IExpenseCategory } from '../../domain/IExpenseCategory';
 import { IExpenseRepository } from '../../domain/IExpenseRepository';
 import { supabase as importedSupabase } from "@/lib/supabase";
 
@@ -94,7 +95,17 @@ export class SupabaseExpenseRepository implements IExpenseRepository {
     async create(businessId: number, expense: Omit<IExpense, 'id' | 'business_id' | 'created_at' | 'updated_at'>): Promise<IExpense> {
         const { data, error } = await this.supabase
             .from('expenses')
-            .insert({ ...expense, business_id: businessId })
+            .insert({
+                category_id: expense.category_id,
+                amount: expense.amount,
+                description: expense.description,
+                vendor: expense.vendor,
+                payment_method: expense.payment_method,
+                receipt_url: expense.receipt_url,
+                notes: expense.notes,
+                expense_date: expense.expense_date,
+                business_id: businessId
+            })
             .select()
             .single();
 
@@ -204,5 +215,41 @@ export class SupabaseExpenseRepository implements IExpenseRepository {
             date: new Date(date),
             total
         })).sort((a, b) => a.date.getTime() - b.date.getTime());
+    }
+
+    private mapToCategory(data: any): IExpenseCategory {
+        return {
+            id: data.id,
+            business_id: data.business_id,
+            name: data.name,
+            description: data.description,
+            color: data.color,
+            is_active: data.is_active,
+            created_at: new Date(data.created_at),
+            updated_at: new Date(data.updated_at)
+        };
+    }
+
+    async getAllCategories(): Promise<IExpenseCategory[]> {
+        const { data, error } = await this.supabase
+            .from('expense_categories')
+            .select('*')
+            .eq('is_active', true)
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        return (data || []).map(this.mapToCategory);
+    }
+
+    async getCategoryById(businessId: number, id: number): Promise<IExpenseCategory | null> {
+        const { data, error } = await this.supabase
+            .from('expense_categories')
+            .select('*')
+            .eq('business_id', businessId)
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data ? this.mapToCategory(data) : null;
     }
 }

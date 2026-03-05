@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { SupabaseExpenseCategoryRepository } from "@/Nenichat/Expenses/infra/persistance/SupabaseExpenseCategoryRepository";
 
 export const dynamic = 'force-dynamic';
 
@@ -25,16 +24,15 @@ export default async function EditExpensePage({ params }: { params: Promise<{ id
         notFound();
     }
 
-    const categoryRepository = new SupabaseExpenseCategoryRepository(supabase);
-    const categories = await categoryRepository.getAll(business.id);
+    const categories = await expenseRepository.getAllCategories();
 
-    // Serialize for client component
     const plainExpense = JSON.parse(JSON.stringify(expense));
 
     return (
         <>
             <PageHeader title="Editar Gasto" />
             <ExpenseForm
+                categories={categories}
                 initialData={{
                     id: plainExpense.id,
                     category_id: plainExpense.category_id,

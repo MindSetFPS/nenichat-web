@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/select";
 import { IExpenseCategory } from "@/Nenichat/Expenses/domain/IExpenseCategory";
 import { Loader2 } from "lucide-react";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 interface ExpenseFormProps {
+    categories: IExpenseCategory[];
     initialData?: {
         id?: number;
         category_id: number;
@@ -28,12 +30,13 @@ interface ExpenseFormProps {
         expense_date: string;
     };
     onSubmit?: () => void;
+    businessId: number;
 }
 
-export function ExpenseForm({ initialData, onSubmit }: ExpenseFormProps) {
+export function ExpenseForm({ categories, initialData, onSubmit, businessId }: ExpenseFormProps) {
     const router = useRouter();
+    const supabase = createBrowserSupabaseClient();
     const [loading, setLoading] = useState(false);
-    const [categories, setCategories] = useState<IExpenseCategory[]>([]);
     const [formData, setFormData] = useState({
         category_id: initialData?.category_id?.toString() || "",
         amount: initialData?.amount?.toString() || "",
@@ -44,43 +47,36 @@ export function ExpenseForm({ initialData, onSubmit }: ExpenseFormProps) {
         expense_date: initialData?.expense_date || new Date().toISOString().split('T')[0]
     });
 
-    useEffect(() => {
-        // Fetch expense categories
-        fetch('/api/expense-categories')
-            .then(res => res.json())
-            .then(data => setCategories(data))
-            .catch(err => console.error('Error fetching categories:', err));
-    }, []);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const url = initialData?.id
-                ? `/api/expenses/${initialData.id}`
-                : '/api/expenses/create';
+            const data = {
+                category_id: parseInt(formData.category_id),
+                amount: parseFloat(formData.amount),
+                description: formData.description,
+                vendor: formData.vendor || null,
+                payment_method: formData.payment_method || null,
+                receipt_url: null,
+                notes: formData.notes || null,
+                expense_date: formData.expense_date,
+                business_id: businessId
+            };
 
-            const method = initialData?.id ? 'PUT' : 'POST';
+            if (initialData?.id) {
+                const { error } = await supabase
+                    .from('expenses')
+                    .update(data)
+                    .eq('id', initialData.id);
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    category_id: parseInt(formData.category_id),
-                    amount: parseFloat(formData.amount),
-                    description: formData.description,
-                    vendor: formData.vendor || null,
-                    payment_method: formData.payment_method || null,
-                    notes: formData.notes || null,
-                    expense_date: formData.expense_date
-                }),
-            });
+                if (error) throw error;
+            } else {
+                const { error } = await supabase
+                    .from('expenses')
+                    .insert(data);
 
-            if (!response.ok) {
-                throw new Error('Failed to save expense');
+                if (error) throw error;
             }
 
             if (onSubmit) {
@@ -106,13 +102,12 @@ export function ExpenseForm({ initialData, onSubmit }: ExpenseFormProps) {
         setLoading(true);
 
         try {
-            const response = await fetch(`/api/expenses/${initialData.id}`, {
-                method: 'DELETE',
-            });
+            const { error } = await supabase
+                .from('expenses')
+                .delete()
+                .eq('id', initialData.id);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete expense');
-            }
+            if (error) throw error;
 
             router.push('/expenses');
             router.refresh();

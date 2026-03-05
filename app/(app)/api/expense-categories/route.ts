@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseExpenseCategoryRepository } from '@/Nenichat/Expenses/infra/persistance/SupabaseExpenseCategoryRepository';
+import { SupabaseExpenseRepository } from '@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
 
 /**
@@ -15,10 +15,10 @@ export async function GET() {
         return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
     }
 
-    const categoryRepository = new SupabaseExpenseCategoryRepository(supabase);
+    const expenseRepository = new SupabaseExpenseRepository(supabase);
 
     try {
-        const categories = await categoryRepository.getAll(business.id);
+        const categories = await expenseRepository.getAllCategories();
         return NextResponse.json(categories);
     } catch (error: any) {
         console.error('Error fetching expense categories:', error);

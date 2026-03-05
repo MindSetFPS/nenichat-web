@@ -1,4 +1,5 @@
 import { IExpense, IExpenseWithCategory } from './IExpense';
+import { IExpenseCategory } from './IExpenseCategory';
 
 /**
  * @interface IExpenseRepository
@@ -63,4 +64,14 @@ export interface IExpenseRepository {
         date: Date;
         total: number;
     }>>;
+
+    /**
+     * Get all expense categories
+     */
+    getAllCategories(): Promise<IExpenseCategory[]>;
+
+    /**
+     * Get expense category by ID
+     */
+    getCategoryById(businessId: number, id: number): Promise<IExpenseCategory | null>;
 }
