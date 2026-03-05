@@ -7,6 +7,7 @@ import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { OrderForm, OrderFormValues } from "./order-form";
 import { useProductStore } from "@/stores/product-store";
 import { IProduct } from "@/Nenichat/Products/domain/IProduct";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 interface CreateOrderFormProps {
     contacts?: IContact[];
@@ -30,7 +31,8 @@ export function CreateOrderForm({
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
-    const { products, fetchProducts } = useProductStore();
+    const { products, fetchProducts, updateProduct } = useProductStore();
+    const supabase = createBrowserSupabaseClient();
 
     let activeProducts: IProduct[];
 
@@ -76,6 +78,28 @@ export function CreateOrderForm({
             }
 
             toast.success("Order created successfully");
+
+            // Update product stock (Client-side implementation)
+            for (const item of values.items) {
+                const product = products.find(p => p.id === item.productId);
+                if (product) {
+                    const newStock = product.stock - item.quantity;
+                    const { error: stockError } = await supabase
+                        .from('products')
+                        .update({ stock: newStock })
+                        .eq('id', product.id);
+
+                    if (!stockError) {
+                        updateProduct({
+                            ...product,
+                            stock: newStock
+                        });
+                    } else {
+                        console.error(`Failed to update stock for product ${product.id}:`, stockError);
+                    }
+                }
+            }
+
             onSubmit?.();
             router.push("/orders");
         } catch (error) {

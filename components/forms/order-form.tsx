@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -149,6 +150,23 @@ export function OrderForm({
         });
     };
 
+    const validateStock = () => {
+        for (const item of items) {
+            const product = products.find(p => p.id === item.productId);
+            if (product && item.quantity > product.stock) {
+                toast.error(`Stock insuficiente para ${product.name}. Disponible: ${product.stock}`);
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateStock()) return;
+        await handleSubmit(e);
+    };
+
     // Determine display contact
     const displayContact = contacts ? contacts.find(c => {
         if (contactId) return String(c.id) === contactId;
@@ -170,7 +188,7 @@ export function OrderForm({
     const effectiveShowContactSelect = (!contactId && !lid) && contacts && contacts.length > 0;
 
     return (
-        <form onSubmit={handleSubmit} className={cn("@container md:grid grid-cols-1 md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4 p-0 pb-2", className)}>
+        <form onSubmit={handleFormSubmit} className={cn("@container md:grid grid-cols-1 md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4 p-0 pb-2", className)}>
             <Card className="col-span-2 @md:col-span-1 pt-3 pb-1">
                 <CardHeader className="px-2">
                     <CardTitle>Cliente y estado</CardTitle>
@@ -284,8 +302,8 @@ export function OrderForm({
                                     </SelectTrigger>
                                     <SelectContent>
                                         {products.map((p) => (
-                                            <SelectItem key={p.id} value={p.id}>
-                                                {p.name} (${p.price})
+                                            <SelectItem key={p.id} value={p.id} disabled={p.stock <= 0}>
+                                                {p.name} (${p.price}) - Stock: {p.stock}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
