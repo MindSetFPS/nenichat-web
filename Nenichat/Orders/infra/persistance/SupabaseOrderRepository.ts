@@ -106,12 +106,21 @@ export class SupabaseOrderRepository implements IOrderRepository {
      * Retrieves all orders for a specific phone number.
      */
     async getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]> {
+        // Clean JID to get only the phone number part
+        let searchNumber = phoneNumber;
+        if (searchNumber.includes('@')) {
+            searchNumber = searchNumber.split('@')[0];
+        }
+        if (searchNumber.includes(':')) {
+            searchNumber = searchNumber.split(':')[0];
+        }
+
         // Resolve contact via the global phone_numbers table JOIN
         const { data: contact, error: contactError } = await this.supabase
             .from('contacts')
             .select('id, phone_numbers!inner(phone_number)')
             .eq('business_id', businessId)
-            .eq('phone_numbers.phone_number', phoneNumber)
+            .eq('phone_numbers.phone_number', searchNumber)
             .maybeSingle();
 
         if (contactError) {

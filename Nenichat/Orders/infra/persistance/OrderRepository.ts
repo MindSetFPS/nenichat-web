@@ -53,13 +53,21 @@ export class OrderRepository implements IOrderRepository {
     }
 
     async getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]> {
+        let searchNumber = phoneNumber;
+        if (searchNumber.includes('@')) {
+            searchNumber = searchNumber.split('@')[0];
+        }
+        if (searchNumber.includes(':')) {
+            searchNumber = searchNumber.split(':')[0];
+        }
+
         const query = `
             SELECT o.* FROM orders o
             JOIN contacts c ON o.contact_id = c.id
             WHERE c.phone = $1 AND o.business_id = $2
             ORDER BY o.created_at DESC
         `;
-        const result = await this.pool.query(query, [phoneNumber, businessId]);
+        const result = await this.pool.query(query, [searchNumber, businessId]);
         return result.rows.map(this.mapRowToOrder);
     }
 
