@@ -120,23 +120,64 @@ export class OrderRepository implements IOrderRepository {
         }
     }
 
-    async update(businessId: number, id: number, updates: Partial<IOrder>): Promise<IOrder | null> {
-        const fields = Object.keys(updates)
-            .map((key, index) => `"${key}" = $${index + 3}`)
-            .join(', ');
-        const values = Object.values(updates);
+    async update(businessId: number, id: number, updates: Partial<IOrder>, items?: Array<{ productId: string; quantity: number; unitPrice: number; totalPrice?: number }>): Promise<IOrder | null> {
+        const client = await this.pool.connect();
+        try {
+            await client.query('BEGIN');
 
-        if (fields.length === 0) {
-            return this.getById(businessId, id);
+            const fields = Object.keys(updates)
+                .map((key, index) => `"${key}" = $${index + 3}`)
+                .join(', ');
+            const values = Object.values(updates);
+
+            let updatedOrderRow = null;
+
+            if (fields.length > 0) {
+                const query = `UPDATE orders SET ${fields}, updated_at = NOW() WHERE id = $1 AND business_id = $2 RETURNING *`;
+                const result = await client.query(query, [id, businessId, ...values]);
+                if (result.rows.length === 0) {
+                    await client.query('ROLLBACK');
+                    return null;
+                }
+                updatedOrderRow = result.rows[0];
+            } else {
+                const result = await client.query('SELECT * FROM orders WHERE id = $1 AND business_id = $2', [id, businessId]);
+                if (result.rows.length === 0) {
+                    await client.query('ROLLBACK');
+                    return null;
+                }
+                updatedOrderRow = result.rows[0];
+            }
+
+            if (items && items.length > 0) {
+                // Delete existing items - Using order_items as per existing PG repo code
+                await client.query('DELETE FROM order_items WHERE order_id = $1', [id]);
+
+                // Recreate all items
+                for (const item of items) {
+                    const itemQuery = `
+                      INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price)
+                      VALUES ($1, $2, $3, $4, $5)
+                    `;
+                    const itemValues = [
+                        id,
+                        item.productId,
+                        item.quantity,
+                        item.unitPrice,
+                        item.totalPrice || (item.quantity * item.unitPrice)
+                    ];
+                    await client.query(itemQuery, itemValues);
+                }
+            }
+
+            await client.query('COMMIT');
+            return this.mapRowToOrder(updatedOrderRow);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
         }
-
-        const query = `UPDATE orders SET ${fields}, updated_at = NOW() WHERE id = $1 AND business_id = $2 RETURNING *`;
-        const result = await this.pool.query(query, [id, businessId, ...values]);
-
-        if (result.rows.length === 0) {
-            return null;
-        }
-        return this.mapRowToOrder(result.rows[0]);
     }
 
     async getOrderTotalPerDay(businessId: number, interval: number): Promise<IOrdersReport[]> {

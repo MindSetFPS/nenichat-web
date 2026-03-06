@@ -288,15 +288,23 @@ export class SupabaseContactRepository implements IContactRepository {
 
     async getOrCreateContact(businessId: number, contactId: string): Promise<IContact> {
         const jidKind = getJidKind(contactId);
-        const isLid = jidKind === "lid" || !contactId.startsWith("521");
+        const isLid = jidKind === "lid";
         let contact: IContact | null = null;
+        let cleanId = contactId;
+
+        if (jidKind === 'contact') {
+            if (cleanId.includes('@')) {
+                cleanId = cleanId.split('@')[0];
+            }
+            if (cleanId.includes(':')) {
+                cleanId = cleanId.split(':')[0];
+            }
+        }
 
         if (isLid) {
             contact = await this.findByLid(businessId, contactId);
-        }
-
-        if (!contact && !isLid) {
-            contact = await this.findByPhoneNumber(businessId, contactId);
+        } else {
+            contact = await this.findByPhoneNumber(businessId, cleanId);
         }
 
         if (contact) return contact;
@@ -309,7 +317,7 @@ export class SupabaseContactRepository implements IContactRepository {
             newContact.lid = contactId;
         } else {
             // `save()` will resolve phone_number_id automatically
-            newContact.phone_number = contactId;
+            newContact.phone_number = cleanId;
         }
 
         return this.save(newContact);

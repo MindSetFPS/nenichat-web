@@ -11,11 +11,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const supabase = await createServerSupabaseClient();
     const { business, error: authError } = await getBusinessFromUser(supabase);
-    const orderRepository = new SupabaseOrderRepository(supabase);
-
     if (authError || !business) {
         return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
     }
+
+    const orderRepository = new SupabaseOrderRepository(supabase);
 
     try {
         const body = await request.json();
@@ -44,36 +44,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             }
         }
 
-        // Update order details
-        const updatedOrder = await orderRepository.update(business.id, orderId, updates);
+        // Update order and its items via repository
+        const updatedOrder = await orderRepository.update(business.id, orderId, updates, items);
 
         if (!updatedOrder) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-        }
-
-        // we need to find what to add, what do delete and what to ignore
-        // but wait, maybe items is still the same, but the quantity changed, or the unit price, or the total price.
-        // in such case, we need to update the items as well
-        // we kind of already did that for audiences, but right now im to lazy so we delete everything an recreate it
-
-        let clientOrderProducts = items as any[];
-
-        // if you leave clientOrderProducts empty, we do notin
-        if (clientOrderProducts && clientOrderProducts.length > 0) {
-            // Delete existing items
-            await supabase.from('orders_products').delete().eq('order_id', orderId);
-
-            // Recreate all items
-            const newItems = clientOrderProducts.map(item => ({
-                order_id: orderId,
-                product_id: item.productId,
-                quantity: item.quantity,
-                unit_price: item.unitPrice,
-                total_price: item.totalPrice || (item.quantity * item.unitPrice),
-            }));
-
-            const { error: itemsError } = await supabase.from('orders_products').insert(newItems);
-            if (itemsError) throw itemsError;
         }
 
         return NextResponse.json({
@@ -95,14 +70,14 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     const supabase = await createServerSupabaseClient();
     const { business, error: authError } = await getBusinessFromUser(supabase);
-    const orderRepository = new SupabaseOrderRepository(supabase);
-
     if (authError || !business) {
         return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
     }
 
+    const orderRepository = new SupabaseOrderRepository(supabase);
+
     try {
-        const result = await orderRepository.delete(business.id, orderId);
+        await orderRepository.delete(business.id, orderId);
         return NextResponse.json({ message: 'Order deleted successfully' });
     } catch (error) {
         console.error('Error deleting order:', error);

@@ -4,7 +4,7 @@ import { IOrderRepository } from "../../domain/IOrderRepository";
 import { IOrderItemWithProduct } from "../../domain/IOrderItemWithProduct";
 import { IOrdersReport } from "../../domain/IOrdersReport";
 import { Order } from "../../domain/Order";
-import { getJidKind } from "../../../Chats/domain/Jid";
+import { SupabaseContactRepository } from "../../../Contacts/infra/persistance/SupabaseContactRepository";
 
 /**
  * Implementation of IOrderRepository using Supabase.
@@ -146,29 +146,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
         let contactId = orderData.contact_id;
 
-        // If no contact_id but lid is provided, try to resolve it from the contacts table
+        // If no contact_id but lid is provided, resolve/create it via ContactRepository
         if (!contactId && orderData.lid) {
-            const jidKind = getJidKind(orderData.lid);
-
-            if (jidKind === 'contact') {
-                // Resolve by phone number via the global phone_numbers JOIN
-                const { data: contactByPhone } = await this.supabase
-                    .from('contacts')
-                    .select('id, phone_numbers!inner(phone_number)')
-                    .eq('business_id', businessId)
-                    .eq('phone_numbers.phone_number', orderData.lid)
-                    .maybeSingle();
-                if (contactByPhone) contactId = contactByPhone.id;
-            } else {
-                // Resolve by WhatsApp lid
-                const { data: contactByLid } = await this.supabase
-                    .from('contacts')
-                    .select('id')
-                    .eq('business_id', businessId)
-                    .eq('lid', orderData.lid)
-                    .maybeSingle();
-                if (contactByLid) contactId = contactByLid.id;
-            }
+            const contactRepository = new SupabaseContactRepository(this.supabase);
+            const contact = await contactRepository.getOrCreateContact(businessId, orderData.lid);
+            contactId = contact.id;
         }
 
         const { data: newOrder, error: orderError } = await this.supabase
@@ -220,7 +202,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
     /**
      * Updates an existing order.
      */
-    async update(businessId: number, id: number, updates: Partial<IOrder>): Promise<IOrder | null> {
+    async update(businessId: number, id: number, updates: Partial<IOrder>, items?: Array<{ productId: string; quantity: number; unitPrice: number; totalPrice?: number }>): Promise<IOrder | null> {
         const { data, error } = await this.supabase
             .from('orders')
             .update({
@@ -239,6 +221,38 @@ export class SupabaseOrderRepository implements IOrderRepository {
             console.error("Error updating order:", error);
             throw error;
         }
+
+        if (items && items.length > 0) {
+            // Delete existing items
+            const { error: itemsDeleteError } = await this.supabase
+                .from('orders_products')
+                .delete()
+                .eq('order_id', id);
+
+            if (itemsDeleteError) {
+                console.error("Error deleting order products on update:", itemsDeleteError);
+                throw itemsDeleteError;
+            }
+
+            // Recreate all items
+            const orderItems = items.map(item => ({
+                order_id: id,
+                product_id: item.productId,
+                quantity: item.quantity,
+                unit_price: item.unitPrice,
+                total_price: item.totalPrice || (item.quantity * item.unitPrice)
+            }));
+
+            const { error: itemsInsertError } = await this.supabase
+                .from('orders_products')
+                .insert(orderItems);
+
+            if (itemsInsertError) {
+                console.error("Error recreating order items on update:", itemsInsertError);
+                throw itemsInsertError;
+            }
+        }
+
         return this.mapToOrder(data);
     }
 
@@ -246,15 +260,27 @@ export class SupabaseOrderRepository implements IOrderRepository {
      * Deletes an order by its ID.
      */
     async delete(businessId: number, id: number): Promise<boolean> {
-        const { error } = await this.supabase
+        // 1. Delete associated products first to avoid foreign key constraint violations
+        const { error: itemsError } = await this.supabase
+            .from('orders_products')
+            .delete()
+            .eq('order_id', id);
+
+        if (itemsError) {
+            console.error("Error deleting order products:", itemsError);
+            throw itemsError;
+        }
+
+        // 2. Delete the order itself
+        const { error: orderError } = await this.supabase
             .from('orders')
             .delete()
             .eq('business_id', businessId)
             .eq('id', id);
 
-        if (error) {
-            console.error("Error deleting order:", error);
-            throw error;
+        if (orderError) {
+            console.error("Error deleting order:", orderError);
+            throw orderError;
         }
         return true;
     }
@@ -292,7 +318,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
         const aggregation: Record<string, number> = {};
         data?.forEach((order: any) => {
-            order.order_items?.forEach((item: any) => {
+            order.orders_products?.forEach((item: any) => {
                 const name = item.products?.name || 'Unknown Product';
                 aggregation[name] = (aggregation[name] || 0) + Number(item.quantity);
             });
@@ -329,7 +355,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
         const aggregation: Record<string, number> = {};
         data?.forEach((order: any) => {
             const dateStr = new Date(order.created_at).toISOString().split('T')[0];
-            const quantity = order.order_items?.reduce((sum: number, item: any) => sum + Number(item.quantity), 0) || 0;
+            const quantity = order.orders_products?.reduce((sum: number, item: any) => sum + Number(item.quantity), 0) || 0;
             aggregation[dateStr] = (aggregation[dateStr] || 0) + quantity;
         });
 
