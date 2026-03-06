@@ -26,38 +26,44 @@ export async function POST(request: Request) {
         // Resolve contactId from lid if not provided
         if (!contactId && orderData.lid) {
             const jidKind = getJidKind(orderData.lid);
-            const query = supabase
-                .from('contacts')
-                .select('id')
-                .eq('business_id', business.id);
 
-            // If it's a known contact (phone_number), search by that column.
-            // Otherwise, search by the lid column.
-            // Recently we received an already saved contact with a number formatted differently 
-            // than usual, so we had to adapt the code to find it.
-            // So numbers can be:
-            // xxxxxxxxxx@s.whatsapp.net
-            // xxxxxxxxxx:yy@s.whatsapp.net
-            // xxxxxxxxxx
             if (jidKind === 'contact') {
                 let searchNumber = orderData.lid;
                 if (orderData.lid.includes(':')) {
                     searchNumber = orderData.lid.split(':')[0];
                 }
-                query.ilike('phone_number', `%${searchNumber}%`);
+
+                // Use the new join-based query for phone numbers
+                const { data: contact, error: contactError } = await supabase
+                    .from('contacts')
+                    .select('id, phone_numbers!inner(phone_number)')
+                    .eq('business_id', business.id)
+                    .ilike('phone_numbers.phone_number', `%${searchNumber}%`)
+                    .maybeSingle();
+
+                if (contactError) {
+                    console.error("Error finding contact by phone: ", contactError);
+                    return NextResponse.json({ error: 'Failed to find contact' }, { status: 500 });
+                }
+                if (contact) {
+                    contactId = contact.id;
+                }
             } else {
-                // For 'lid' or fallback
-                query.eq('lid', orderData.lid);
-            }
+                // For 'lid'
+                const { data: contact, error: contactError } = await supabase
+                    .from('contacts')
+                    .select('id')
+                    .eq('business_id', business.id)
+                    .eq('lid', orderData.lid)
+                    .maybeSingle();
 
-            const { data: contact, error: contactError } = await query.maybeSingle();
-
-            if (contactError) {
-                console.error("Error finding contact: ", contactError)
-                return NextResponse.json({ error: 'Failed to find contact' }, { status: 500 });
-            }
-            if (contact) {
-                contactId = contact.id;
+                if (contactError) {
+                    console.error("Error finding contact by lid: ", contactError);
+                    return NextResponse.json({ error: 'Failed to find contact' }, { status: 500 });
+                }
+                if (contact) {
+                    contactId = contact.id;
+                }
             }
         }
 
