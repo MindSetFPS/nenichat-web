@@ -1,4 +1,3 @@
-import { supabase as importedSupabase } from "@/lib/supabase";
 import { IContainerRepository } from "../../Domain/IContainerRepository";
 import { SupabaseClient } from "@supabase/supabase-js";
 
@@ -9,13 +8,8 @@ export class SupabaseContainerRepository implements IContainerRepository {
 
     private _supabase: SupabaseClient;
 
-    constructor(supabase?: SupabaseClient) {
-        if (supabase) {
-            this._supabase = supabase;
-        } else {
-            // Fallback to the imported singleton if no client is provided
-            this._supabase = importedSupabase;
-        }
+    constructor(supabase: SupabaseClient) {
+        this._supabase = supabase;
     }
 
     get supabase(): SupabaseClient {

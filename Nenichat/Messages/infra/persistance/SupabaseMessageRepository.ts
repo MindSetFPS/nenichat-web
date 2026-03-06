@@ -1,4 +1,3 @@
-import { supabase as importedSupabase } from "@/lib/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { IMessage } from "../../domain/IMessage";
 import { IMessageRepository } from "../../domain/IMessageRepository";
@@ -14,10 +13,10 @@ export class SupabaseMessageRepository implements IMessageRepository {
 
     /**
      * Initializes a new instance of the SupabaseMessageRepository.
-     * @param supabase Optional Supabase client instance. If not provided, the default imported client is used.
+     * @param supabase Supabase client instance.
      */
-    constructor(supabase?: SupabaseClient) {
-        this._supabase = supabase || importedSupabase;
+    constructor(supabase: SupabaseClient) {
+        this._supabase = supabase;
     }
 
     /**

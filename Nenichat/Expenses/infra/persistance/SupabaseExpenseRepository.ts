@@ -2,13 +2,12 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { IExpense, IExpenseWithCategory } from '../../domain/IExpense';
 import { IExpenseCategory } from '../../domain/IExpenseCategory';
 import { IExpenseRepository } from '../../domain/IExpenseRepository';
-import { supabase as importedSupabase } from "@/lib/supabase";
 
 export class SupabaseExpenseRepository implements IExpenseRepository {
     private _supabase: SupabaseClient;
 
-    constructor(supabase?: SupabaseClient) {
-        this._supabase = supabase || importedSupabase;
+    constructor(supabase: SupabaseClient) {
+        this._supabase = supabase;
     }
 
     get supabase(): SupabaseClient {

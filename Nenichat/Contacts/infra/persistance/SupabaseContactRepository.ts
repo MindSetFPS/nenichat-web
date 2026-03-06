@@ -1,4 +1,3 @@
-import { supabase as importedSupabase } from "@/lib/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { IContact } from "../../domain/IContact";
 import { IContactRepository } from "../../domain/IContactRepository";
@@ -16,8 +15,8 @@ const CONTACT_SELECT = "*, phone_numbers(phone_number)";
 export class SupabaseContactRepository implements IContactRepository {
     private _supabase: SupabaseClient;
 
-    constructor(supabase?: SupabaseClient) {
-        this._supabase = supabase || importedSupabase;
+    constructor(supabase: SupabaseClient) {
+        this._supabase = supabase;
     }
 
     get supabase(): SupabaseClient {

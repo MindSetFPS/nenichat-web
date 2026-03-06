@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Loader2, QrCode, CheckCircle2, AlertCircle, RefreshCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
-import { supabase } from "@/lib/supabase"
-import { useEffect } from "react"
+import { createBrowserSupabaseClient } from "@/lib/supabase/client"
+import { useEffect, useMemo } from "react"
 import QrCodeSetupInstructions from "./qr-code-setup-instructions"
 import Hero from "./hero"
 import CheckWappAuthButton from "./check-wapp-auth-button"
@@ -25,6 +25,7 @@ interface WhatsAppSetupPageProps {
  * @returns {JSX.Element} The WhatsApp setup page.
  */
 export default function WhatsAppSetupPage({ businessId, initialStep = 1, initialQrCode = null, initialQrCodeUpdatedAt = null }: WhatsAppSetupPageProps) {
+    const supabase = useMemo(() => createBrowserSupabaseClient(), [])
     const [isLoading, setIsLoading] = useState(false)
     const [step, setStep] = useState(initialStep)
     const [qrCode, setQrCode] = useState<string | null>(initialQrCode)

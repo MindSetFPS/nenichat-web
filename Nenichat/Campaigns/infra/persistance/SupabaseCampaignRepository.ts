@@ -2,13 +2,12 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { ICampaign } from '../../domain/ICampaign';
 import { ICampaignRepository } from '../../domain/ICampaignRepository';
 import { Campaign } from '../../domain/Campaign';
-import { supabase as importedSupabase } from "@/lib/supabase";
 
 export class SupabaseCampaignRepository implements ICampaignRepository {
     private _supabase: SupabaseClient;
 
-    constructor(supabase?: SupabaseClient) {
-        this._supabase = supabase || importedSupabase;
+    constructor(supabase: SupabaseClient) {
+        this._supabase = supabase;
     }
 
     get supabase(): SupabaseClient {

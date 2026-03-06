@@ -1,4 +1,3 @@
-import { supabase as importedSupabase } from "@/lib/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { IOrder } from "../../domain/IOrder";
 import { IOrderRepository } from "../../domain/IOrderRepository";
@@ -13,13 +12,8 @@ import { getJidKind } from "../../../Chats/domain/Jid";
 export class SupabaseOrderRepository implements IOrderRepository {
     private _supabase: SupabaseClient;
 
-    constructor(supabase?: SupabaseClient) {
-        if (supabase) {
-            this._supabase = supabase;
-        } else {
-            // Fallback to the imported singleton if no client is provided
-            this._supabase = importedSupabase;
-        }
+    constructor(supabase: SupabaseClient) {
+        this._supabase = supabase;
     }
 
     get supabase(): SupabaseClient {

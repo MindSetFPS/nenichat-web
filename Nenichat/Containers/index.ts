@@ -3,7 +3,6 @@ import { SupabaseContainerRepository } from "./Infrastructure/Supabase/SupabaseC
 
 // Registry/Factories for ease of use
 export const containerService = new DokployContainerService();
-export const containerRepository = new SupabaseContainerRepository();
 
 export * from "./Domain/IContainerService";
 export * from "./Domain/IContainerRepository";
