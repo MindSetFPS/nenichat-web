@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { AlertCircle, User, Phone } from "lucide-react";
 import Link from "next/link";
+import { useContactStore } from "@/stores/contact-store";
+import { useEffect } from "react";
 
 interface OutstandingPayment {
     id: number;
@@ -19,6 +21,17 @@ interface OutstandingPaymentsCardProps {
 }
 
 export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardProps) {
+    const setContacts = useContactStore((state) => state.setContacts);
+
+    useEffect(() => {
+        const contacts = payments
+            .map(p => p.contact)
+            .filter((c): c is IContact => c !== null);
+        if (contacts.length > 0) {
+            setContacts(contacts);
+        }
+    }, [payments, setContacts]);
+
     if (payments.length === 0) return null;
 
     const totalOutstanding = payments.reduce((acc, order) => {

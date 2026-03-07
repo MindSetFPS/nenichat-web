@@ -5,12 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
 import ContactAvatar from '@/components/contact-avatar'
-import IContactWithLastMessage from '@/Nenichat/Contacts/app/dtos/IContactWithLastMessage'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
 import { useIsMobile } from '@/hooks/use-mobile'
 import { PageHeader } from '../ui/page-header'
 import { IChat } from '@/Nenichat/Chats/domain/IChat'
+import { useContactStore } from '@/stores/contact-store'
+import { useMemo } from 'react'
 
 interface RecentChatsProps {
     contacts: string
@@ -23,7 +24,7 @@ interface RecentChatsProps {
  * On mobile, it's hidden when viewing a chat and shown when on the chats list.
  * 
  * @param {RecentChatsProps} props - Component props
- * @param {string} props.contacts - JSON string of contacts with last messages
+ * @param {string} props.contacts - JSON string of chats with last messages
  * @returns {JSX.Element} The rendered RecentChats component.
  */
 export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
@@ -32,6 +33,20 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
     const isMobile = useIsMobile()
     const chats: IChat[] = (JSON.parse(contactsJson) as IChat[])
         .filter(chat => chat.jid !== 'status@broadcast')
+    const getContact = useContactStore((state) => state.getContact)
+
+    // Filter out hidden contacts using cached contacts
+    const visibleChats = useMemo(() => {
+        return chats.filter(chat => {
+            const contact = getContact(chat.jid);
+            return !contact?.is_hidden;
+        });
+    }, [chats, getContact])
+
+    const getContactName = (chat: IChat): string => {
+        const contact = getContact(chat.jid);
+        return contact ? String(getContactIdentifier(contact)) : (chat.name || '');
+    }
 
     // Check if we're viewing a specific chat (has an ID after /chats/)
     const isViewingChat = pathname.match(/^\/chats\/[^/]+$/)
@@ -58,7 +73,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                 <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Buscar" />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-none">
-                {chats.map((chat: IChat) => (
+                {visibleChats.map((chat: IChat) => (
                     <div
                         key={chat.jid}
                         className={`p-3 hover:bg-accent/40 cursor-pointer transition-colors group ${isActive(`/chats/${chat.jid}`) ? 'bg-accent/40' : ''}`}
@@ -74,7 +89,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-center mb-0.5">
                                     <span className="text-sm font-medium truncate">
-                                        {chat.name}
+                                        {getContactName(chat)}
                                     </span>
                                     <span className="text-[10px] text-muted-foreground">
                                         {(() => {

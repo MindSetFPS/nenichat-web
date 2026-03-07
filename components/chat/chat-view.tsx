@@ -14,6 +14,7 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { useContactStore } from "@/stores/contact-store"
 
 // Union type for timeline items
 type TimelineItem =
@@ -39,6 +40,13 @@ export default function ChatView({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const isMobile = useIsMobile()
+  const setContact = useContactStore((state) => state.setContact)
+
+  useEffect(() => {
+    if (contact) {
+      setContact(contact);
+    }
+  }, [contact, setContact])
 
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {

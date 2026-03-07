@@ -111,6 +111,62 @@ export class SupabaseContactRepository implements IContactRepository {
         return data ? this.mapToContact(data) : null;
     }
 
+    async findByPhoneNumberOrLid(businessId: number, phoneOrLid: string): Promise<IContact | null> {
+        const normalizedPhone = phoneOrLid.replace(/[^\d]/g, '');
+
+        console.log(`[SUPABASE] Fetching contact from DB: ${phoneOrLid} (normalized: ${normalizedPhone})`);
+
+        if (!/\d/.test(phoneOrLid) || phoneOrLid === normalizedPhone) {
+            const byLid = await this.findByLid(businessId, phoneOrLid);
+            if (byLid) return byLid;
+        }
+
+        if (normalizedPhone) {
+            const byPhone = await this.findByPhoneNumber(businessId, normalizedPhone);
+            if (byPhone) return byPhone;
+        }
+
+        return null;
+    }
+
+    async findBatchByPhoneOrLid(
+        businessId: number,
+        lookups: { value: string; is_lid: boolean }[]
+    ): Promise<IContact[]> {
+        if (lookups.length === 0) return [];
+
+        console.log(`[SUPABASE] Batch fetching contacts from DB: ${lookups.length} lookups`, lookups);
+
+        const lids = lookups.filter((l) => l.is_lid).map((l) => l.value);
+        const phones = lookups.filter((l) => !l.is_lid).map((l) => l.value.replace(/[^\d]/g, ''));
+
+        const results: IContact[] = [];
+
+        if (lids.length > 0) {
+            const { data: lidData, error: lidError } = await this.supabase
+                .from("contacts")
+                .select(CONTACT_SELECT)
+                .eq("business_id", businessId)
+                .in("lid", lids);
+
+            if (lidError) throw lidError;
+            if (lidData) {
+                results.push(...lidData.map((d) => this.mapToContact(d)));
+            }
+        }
+
+        if (phones.length > 0) {
+            for (const phone of phones) {
+                const contact = await this.findByPhoneNumber(businessId, phone);
+                if (contact) {
+                    results.push(contact);
+                }
+            }
+        }
+
+        return results;
+    }
+
     async findMe(businessId: number): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
