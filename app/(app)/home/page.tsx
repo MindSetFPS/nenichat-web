@@ -71,7 +71,7 @@ export default async function Page() {
   );
 
   const contactRepository = new SupabaseContactRepository(supabase);
-  
+
   const outstandingPayments = await Promise.all(
     outstandingOrders.map(async (order: any) => {
       let contact = null;
@@ -143,8 +143,8 @@ export default async function Page() {
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-none shadow-md overflow-hidden bg-white dark:bg-zinc-900/50">
               <div className="p-6 pb-0">
-                <h3 className="font-semibold text-lg">Growth Analysis</h3>
-                <p className="text-sm text-muted-foreground">Historical order value trends</p>
+                <h3 className="font-semibold text-lg">Análisis de Crecimiento</h3>
+                <p className="text-sm text-muted-foreground">Tendencias históricas del valor de los pedidos</p>
               </div>
               <div className="p-6">
                 <OrdersTotalValueChart data={orderTotalsPerDay} />
@@ -170,7 +170,7 @@ export default async function Page() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                     </span>
-                    Live Activity
+                    Actividad en Vivo
                   </h3>
                 </div>
                 <div className="px-6 pb-6 overflow-y-auto flex-1 scrollbar-hide">

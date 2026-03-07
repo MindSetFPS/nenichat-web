@@ -54,9 +54,9 @@ export function CreateCampaignDialog() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create campaign");
+        throw new Error(errorData.error || "Error al crear la campaña");
       }
-      toast.success("Campaign created successfully!");
+      toast.success("¡Campaña creada con éxito!");
       setOpen(false);
       router.refresh();
     } catch (error: any) {

@@ -85,35 +85,35 @@ export default function BusinessSummary({
     return (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-                title="Total Revenue"
+                title="Ingresos Totales"
                 value={totalRevenue}
                 icon={<DollarSign className="h-5 w-5" />}
-                description="Revenue from paid orders"
+                description="Ingresos de pedidos pagados"
                 trend="+12.5%"
                 isCurrency
                 delay={0.1}
             />
             <StatCard
-                title="Total Orders"
+                title="Pedidos Totales"
                 value={totalOrders}
                 icon={<ShoppingBag className="h-5 w-5" />}
-                description="Total completed transactions"
+                description="Transacciones totales completadas"
                 trend="+8.2%"
                 delay={0.2}
             />
             <StatCard
-                title="Active Orders"
+                title="Pedidos Activos"
                 value={activeOrders}
                 icon={<Activity className="h-5 w-5" />}
-                description="Orders currently in progress"
+                description="Pedidos actualmente en curso"
                 className={activeOrders > 0 ? "ring-2 ring-primary/20" : ""}
                 delay={0.3}
             />
             <StatCard
-                title="Average Value"
+                title="Valor Promedio"
                 value={totalOrders > 0 ? totalRevenue / totalOrders : 0}
                 icon={<TrendingUp className="h-5 w-5" />}
-                description="Average revenue per order"
+                description="Ingreso promedio por pedido"
                 isCurrency
                 delay={0.4}
             />

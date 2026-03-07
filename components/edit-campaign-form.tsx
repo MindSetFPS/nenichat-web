@@ -42,10 +42,10 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update campaign");
+        throw new Error(errorData.error || "Error al actualizar la campaña");
       }
 
-      toast.success("Campaign updated successfully!");
+      toast.success("¡Campaña actualizada con éxito!");
       router.push("/campaigns");
       router.refresh();
     } catch (error: any) {
@@ -68,10 +68,10 @@ export function EditCampaignForm({ campaign }: EditCampaignFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to execute campaign");
+        throw new Error(errorData.error || "Error al ejecutar la campaña");
       }
 
-      toast.success("Campaign execution initiated!");
+      toast.success("¡Ejecución de campaña iniciada!");
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);

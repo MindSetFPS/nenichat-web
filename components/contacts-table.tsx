@@ -125,7 +125,7 @@ export function ContactsTable({
         try {
             const response = await fetch(`${endpoint}?page=${page}&pageSize=${size}`);
             if (!response.ok) {
-                throw new Error("Failed to fetch contacts");
+                throw new Error("Error al obtener los contactos");
             }
             const data: IContactResponse = await response.json();
             setResponse(data);
@@ -145,13 +145,13 @@ export function ContactsTable({
         return (
             <div className="flex items-center w-full justify-between mb-0 space-y-2 space-x-2">
                 <div className="flex gap-2 w-full">
-                    <Input className="w-full min-w-40" type="text" placeholder="Search contacts" />
+                    <Input className="w-full min-w-40" type="text" placeholder="Buscar contactos" />
                 </div>
                 {headerActions}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button className="p-2 mb-2" variant="outline">
-                            Columns
+                            Columnas
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -170,7 +170,7 @@ export function ContactsTable({
                                 setColumnVisibility((prev) => ({ ...prev, name: value }))
                             }
                         >
-                            Name
+                            Nombre
                         </DropdownMenuCheckboxItem>
 
                         <DropdownMenuCheckboxItem
@@ -179,7 +179,7 @@ export function ContactsTable({
                                 setColumnVisibility((prev) => ({ ...prev, phoneNumber: value }))
                             }
                         >
-                            Phone Number
+                            Teléfono
                         </DropdownMenuCheckboxItem>
                         <DropdownMenuCheckboxItem
                             checked={columnVisibility.lid}
@@ -195,7 +195,7 @@ export function ContactsTable({
                                 setColumnVisibility((prev) => ({ ...prev, username: value }))
                             }
                         >
-                            Username
+                            Usuario
                         </DropdownMenuCheckboxItem>
                         <DropdownMenuCheckboxItem
                             checked={columnVisibility.pushname}
@@ -203,7 +203,7 @@ export function ContactsTable({
                                 setColumnVisibility((prev) => ({ ...prev, pushname: value }))
                             }
                         >
-                            Pushname
+                            Nombre de WhatsApp
                         </DropdownMenuCheckboxItem>
                         <DropdownMenuCheckboxItem
                             checked={columnVisibility.createdAt}
@@ -211,7 +211,7 @@ export function ContactsTable({
                                 setColumnVisibility((prev) => ({ ...prev, createdAt: value }))
                             }
                         >
-                            Created At
+                            Creado el
                         </DropdownMenuCheckboxItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -248,12 +248,12 @@ export function ContactsTable({
                                     </TableHead>
                                 )}
                                 {columnVisibility.id && <TableHead>id</TableHead>}
-                                {columnVisibility.name && <TableHead>Name</TableHead>}
-                                {columnVisibility.phoneNumber && <TableHead>Phone Number</TableHead>}
+                                {columnVisibility.name && <TableHead>Nombre</TableHead>}
+                                {columnVisibility.phoneNumber && <TableHead>Teléfono</TableHead>}
                                 {columnVisibility.lid && <TableHead>LID</TableHead>}
-                                {columnVisibility.username && <TableHead>Username</TableHead>}
-                                {columnVisibility.pushname && <TableHead>Pushname</TableHead>}
-                                {columnVisibility.createdAt && <TableHead>Created At</TableHead>}
+                                {columnVisibility.username && <TableHead>Usuario</TableHead>}
+                                {columnVisibility.pushname && <TableHead>Nombre de WhatsApp</TableHead>}
+                                {columnVisibility.createdAt && <TableHead>Creado el</TableHead>}
                             </TableRow>
                         </TableHeader>
                         <TableBody>

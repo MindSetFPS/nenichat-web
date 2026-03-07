@@ -111,9 +111,9 @@ export function SettingsDialog() {
                 </SidebarMenuButton>
             </DialogTrigger>
             <DialogContent className="overflow-hidden p-0 h-[90dvh] max-w-[95vw] md:max-w-[750px] lg:max-w-[900px] rounded-3xl">
-                <DialogTitle className="sr-only">Settings</DialogTitle>
+                <DialogTitle className="sr-only">Ajustes</DialogTitle>
                 <DialogDescription className="sr-only">
-                    Customize your settings here.
+                    Personaliza tus ajustes aquí.
                 </DialogDescription>
                 <SidebarProvider className="items-start" style={{ minHeight: 0, height: '100%' }}>
                     <Sidebar

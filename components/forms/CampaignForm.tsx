@@ -113,7 +113,7 @@ export function CampaignForm({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 py-4 mb-2 pb-0">
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="name" className="text-right">Name</Label>
+        <Label htmlFor="name" className="text-right">Nombre</Label>
         <Input
           id="name"
           value={name}
@@ -123,7 +123,7 @@ export function CampaignForm({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="description" className="text-right">Description</Label>
+        <Label htmlFor="description" className="text-right">Descripción</Label>
         <Textarea
           id="description"
           value={description}
@@ -133,7 +133,7 @@ export function CampaignForm({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="message" className="text-right">Message</Label>
+        <Label htmlFor="message" className="text-right">Mensaje</Label>
         <Textarea
           id="message"
           value={message}
@@ -143,11 +143,11 @@ export function CampaignForm({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="audiences" className="text-right">Audiences</Label>
+        <Label htmlFor="audiences" className="text-right">Audiencias</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" className="col-span-3" disabled={isEditingDisabled}>
-              Select Audiences ({selectedAudienceIds.length})
+              Seleccionar audiencias ({selectedAudienceIds.length})
             </Button>
           </PopoverTrigger>
           <PopoverContent>
@@ -169,7 +169,7 @@ export function CampaignForm({
       </div>
 
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="enabled" className="text-right">Enabled</Label>
+        <Label htmlFor="enabled" className="text-right">Habilitada</Label>
         <Switch
           id="enabled"
           checked={enabled}

@@ -33,7 +33,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     const { business, error: authError } = await getBusinessFromUser(supabase);
 
     if (authError || !business) {
-        return <div>Unauthorized</div>;
+        return <div>No autorizado</div>;
     }
 
     const orderRepository = new SupabaseOrderRepository(supabase);
@@ -93,7 +93,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                                 {items.map((item: IOrderItemWithProduct) => (
                                     <TableRow key={item.id} className="border-none border-0">
                                         <TableCell className="font-medium">
-                                            {item.product_name || <span className="text-gray-400 italic">Unknown Product</span>}
+                                            {item.product_name || <span className="text-gray-400 italic">Producto desconocido</span>}
                                         </TableCell>
                                         <TableCell className="text-right">{item.quantity}</TableCell>
                                         <TableCell className="text-right">${Number(item.unit_price).toFixed(2)}</TableCell>
@@ -109,7 +109,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                                 {
                                     order.shipping_cost > 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={3} className="text-right font-medium">Shipping</TableCell>
+                                            <TableCell colSpan={3} className="text-right font-medium">Envío</TableCell>
                                             <TableCell className="text-right font-medium">${Number(order.shipping_cost).toFixed(2)}</TableCell>
                                         </TableRow>
                                     )
@@ -129,15 +129,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                         <CardContent className="space-y-4">
                             {contact ? (
                                 <>
-                                    <div className="font-medium text-lg">{contact.contact_name || contact.pushname || 'Unknown Name'}</div>
+                                    <div className="font-medium text-lg">{contact.contact_name || contact.pushname || 'Nombre desconocido'}</div>
                                     <div className="text-sm text-gray-500">{contact.phone_number}</div>
                                     {contact.username && <div className="text-sm text-gray-500">@{contact.username}</div>}
                                     <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline text-sm block mt-2">
-                                        View Profile
+                                        Ver perfil
                                     </Link>
                                 </>
                             ) : (
-                                <div className="text-gray-500 italic">No customer attached</div>
+                                <div className="text-gray-500 italic">Sin cliente asociado</div>
                             )}
                         </CardContent>
                     </Card>
@@ -158,7 +158,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                                 </div>
                                 {Number(order.refunded_amount) > 0 && (
                                     <div>
-                                        <div className="text-sm font-medium text-gray-500">Refunded</div>
+                                        <div className="text-sm font-medium text-gray-500">Reembolsado</div>
                                         <div className="text-red-600">-${Number(order.refunded_amount).toFixed(2)}</div>
                                     </div>
                                 )}
@@ -169,7 +169,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     {order.notes && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>Notes</CardTitle>
+                                <CardTitle>Notas</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-gray-700 whitespace-pre-wrap">{order.notes}</p>
@@ -185,33 +185,33 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                             {order.shipping_address ? (
                                 <p className="whitespace-pre-wrap">{order.shipping_address}</p>
                             ) : (
-                                <p className="text-gray-500 italic">Sin direcciones</p>
+                                <p className="text-gray-500 italic">Sin dirección</p>
                             )}
                         </CardContent>
                     </Card>
 
                     <Card className="md:col-span-1 md:col-start-3">
                         <CardHeader>
-                            <CardTitle>Timeline</CardTitle>
+                            <CardTitle>Línea de tiempo</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <div className="text-sm font-medium text-gray-500">Created</div>
+                                <div className="text-sm font-medium text-gray-500">Creado</div>
                                 <div>{order.created_at && !isNaN(order.created_at.getTime()) ? format(order.created_at, "PPpp") : 'N/A'}</div>
                             </div>
                             <div>
-                                <div className="text-sm font-medium text-gray-500">Last Updated</div>
+                                <div className="text-sm font-medium text-gray-500">Última actualización</div>
                                 <div>{order.updated_at && !isNaN(order.updated_at.getTime()) ? format(order.updated_at, "PPpp") : 'N/A'}</div>
                             </div>
                             {order.completed_at && (
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Completed</div>
+                                    <div className="text-sm font-medium text-gray-500">Completado</div>
                                     <div>{format(new Date(order.completed_at), "PPpp")}</div>
                                 </div>
                             )}
                             {order.cancelled_at && (
                                 <div>
-                                    <div className="text-sm font-medium text-gray-500">Cancelled</div>
+                                    <div className="text-sm font-medium text-gray-500">Cancelado</div>
                                     <div>{format(new Date(order.cancelled_at), "PPpp")}</div>
                                 </div>
                             )}

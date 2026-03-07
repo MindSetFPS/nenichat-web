@@ -88,10 +88,10 @@ export function AudiencesTable({
                                 />
                             </TableHead>
                         )}
-                        <TableHead>Name</TableHead>
-                        <TableHead>Description</TableHead>
-                        {showCreatedAt && <TableHead>Created At</TableHead>}
-                        {showActions && <TableHead className="text-right">Actions</TableHead>}
+                        <TableHead>Nombre</TableHead>
+                        <TableHead>Descripción</TableHead>
+                        {showCreatedAt && <TableHead>Creado el</TableHead>}
+                        {showActions && <TableHead className="text-right">Acciones</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -124,7 +124,7 @@ export function AudiencesTable({
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="h-8 w-8 p-0">
-                                                <span className="sr-only">Open menu</span>
+                                                <span className="sr-only">Abrir menú</span>
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -135,7 +135,7 @@ export function AudiencesTable({
                                                     onDeleteClick(audience);
                                                 }}
                                             >
-                                                Delete
+                                                Eliminar
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>

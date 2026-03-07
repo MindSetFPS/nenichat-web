@@ -57,7 +57,7 @@ export function OrderForm({
     onSubmit,
     contacts,
     isLoading = false,
-    submitLabel = "Save Order",
+    submitLabel = "Guardar Pedido",
     className,
     contact: initialContact,
     products,
@@ -195,11 +195,11 @@ export function OrderForm({
                 </CardHeader>
                 <CardContent className="space-y-4 px-2">
                     <div className="space-y-2">
-                        <Label>Customer</Label>
+                        <Label>Cliente</Label>
                         {effectiveShowContactSelect ? (
                             <Select value={contactId} onValueChange={setContactId}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select a customer" />
+                                    <SelectValue placeholder="Seleccionar un cliente" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {contacts.map((contact) => (
@@ -219,28 +219,28 @@ export function OrderForm({
                                 ) : contactId || lid ? (
                                     <span className="font-medium">{contactId || lid}</span>
                                 ) : (
-                                    <span className="text-sm text-muted-foreground">No contact selected</span>
+                                    <span className="text-sm text-muted-foreground">Sin contacto seleccionado</span>
                                 )}
                                 {/* Allow clearing selection if it wasn't an initial mandated contact? For now keep simple like original */}
                                 {(contactId || lid) && !initialValues?.contactId && !initialValues?.lid && !initialContact && (
-                                    <Button variant="ghost" size="sm" onClick={() => { setContactId(""); setLid(""); }} type="button">Change</Button>
+                                    <Button variant="ghost" size="sm" onClick={() => { setContactId(""); setLid(""); }} type="button">Cambiar</Button>
                                 )}
                             </div>
                         )}
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Status</Label>
+                        <Label>Estado</Label>
                         <Select value={status} onValueChange={setStatus}>
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="processing">Processing</SelectItem>
-                                <SelectItem value="shipped">Shipped</SelectItem>
-                                <SelectItem value="delivered">Delivered</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                                <SelectItem value="pending">Pendiente</SelectItem>
+                                <SelectItem value="processing">Procesando</SelectItem>
+                                <SelectItem value="shipped">Enviado</SelectItem>
+                                <SelectItem value="delivered">Entregado</SelectItem>
+                                <SelectItem value="cancelled">Cancelado</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -262,7 +262,7 @@ export function OrderForm({
                                     <Input
                                         value={shippingAddress}
                                         onChange={(e) => setShippingAddress(e.target.value)}
-                                        placeholder="Enter address"
+                                        placeholder="Ingresar dirección"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -284,7 +284,7 @@ export function OrderForm({
                     <CardTitle>Productos</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={addItem}>
                         <Plus className="w-4 h-4 mr-2" />
-                        Add Item
+                        Agregar artículo
                     </Button>
                 </CardHeader>
                 <CardContent className="space-y-4 px-2">
@@ -298,7 +298,7 @@ export function OrderForm({
                                     onValueChange={(val) => updateItem(index, "productId", val)}
                                 >
                                     <SelectTrigger className="w-full my-0.5">
-                                        <SelectValue placeholder="Select product" />
+                                        <SelectValue placeholder="Seleccionar producto" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {products.map((p) => (
@@ -364,13 +364,13 @@ export function OrderForm({
                             <Label>Método de pago</Label>
                             <Select value={paymentMethod} defaultValue="cash" onValueChange={setPaymentMethod}>
                                 <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select method" />
+                                    <SelectValue placeholder="Seleccionar método" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="cash">Cash</SelectItem>
-                                    <SelectItem value="card">Card</SelectItem>
-                                    <SelectItem value="transfer">Transfer</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
+                                    <SelectItem value="cash">Efectivo</SelectItem>
+                                    <SelectItem value="card">Tarjeta</SelectItem>
+                                    <SelectItem value="transfer">Transferencia</SelectItem>
+                                    <SelectItem value="other">Otro</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -382,10 +382,10 @@ export function OrderForm({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="unpaid">Unpaid</SelectItem>
-                                    <SelectItem value="partial">Partial</SelectItem>
-                                    <SelectItem value="paid">Paid</SelectItem>
-                                    <SelectItem value="refunded">Refunded</SelectItem>
+                                    <SelectItem value="unpaid">No pagado</SelectItem>
+                                    <SelectItem value="partial">Parcial</SelectItem>
+                                    <SelectItem value="paid">Pagado</SelectItem>
+                                    <SelectItem value="refunded">Reembolsado</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -420,7 +420,7 @@ export function OrderForm({
                     Cancelar
                 </Button>
                 <Button type="submit" disabled={isLoading || totalAmount === 0} >
-                    {isLoading ? "Saving..." : submitLabel}
+                    {isLoading ? "Guardando..." : submitLabel}
                 </Button>
             </div>
         </form>

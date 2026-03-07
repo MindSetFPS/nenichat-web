@@ -13,7 +13,7 @@ export default async function ContactsPage() {
     const { business, error: authError } = await getBusinessFromUser(supabase);
 
     if (authError || !business) {
-        return <div>Unauthorized</div>;
+        return <div>No autorizado</div>;
     }
 
     const contactRepository = new SupabaseContactRepository(supabase);

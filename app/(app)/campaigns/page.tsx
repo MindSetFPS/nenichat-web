@@ -15,7 +15,7 @@ export default async function CampaignsPage() {
   const supabase = await createServerSupabaseClient();
   const { business, error: authError } = await getBusinessFromUser(supabase);
 
-  if (authError || !business) return <div>Unauthorized</div>;
+  if (authError || !business) return <div>No autorizado</div>;
 
   const campaignRepository = new SupabaseCampaignRepository(supabase);
   const allCampaigns: ICampaign[] = await campaignRepository.list(business.id, 0, 100);
@@ -26,8 +26,8 @@ export default async function CampaignsPage() {
       <>
         <PageHeader />
         <EmptyList
-          title="No Campaigns"
-          description="It looks like you haven't created any campaigns. Start by creating one!"
+          title="Sin campañas"
+          description="Parece que no has creado ninguna campaña. ¡Empieza creando una!"
           action={<CreateCampaignDialog />}
           icon={<CalendarDays className="w-12 h-12 text-primary" />}
         />
@@ -80,30 +80,30 @@ export default async function CampaignsPage() {
 
   return (
     <>
-      <PageHeader title="Campaigns">
+      <PageHeader title="Campañas">
         {allCampaigns.length > 0 && <CreateCampaignDialog />}
       </PageHeader>
 
       <div className="overflow-y-auto h-full">
         {allCampaigns.length === 0 ? (
           <EmptyList
-            title="No Campaigns"
-            description="It looks like you haven't created any campaigns. Start by creating one!"
+            title="Sin campañas"
+            description="Parece que no has creado ninguna campaña. ¡Empieza creando una!"
             action={<CreateCampaignDialog />}
             icon={<CalendarDays className="w-12 h-12 text-primary" />}
           />
         ) : (
           <>
-            <p>To make it work correctly we need to:
-              1. Randomize the message to avoid spam filters.
-              2. Only send message to currently engaged users (they have talked in previous 24 hours.
-              3. Time limits and randomization to avoid being marked as spam.
+            <p>Para que funcione correctamente necesitamos:
+              1. Aleatorizar el mensaje para evitar los filtros de spam.
+              2. Solo enviar mensajes a usuarios activos (que hayan hablado en las últimas 24 horas).
+              3. Límites de tiempo y aleatorización para evitar ser marcado como spam.
             </p>
-            <CampaignSection title="Upcoming Campaigns" campaigns={futureCampaigns} />
-            <CampaignSection title="Today's Campaigns" campaigns={todayCampaigns} />
-            <CampaignSection title="This Week's Campaigns" campaigns={thisWeekCampaigns} />
-            <CampaignSection title="This Month's Campaigns" campaigns={thisMonthCampaigns} />
-            <CampaignSection title="Older Campaigns" campaigns={olderCampaigns} />
+            <CampaignSection title="Campañas próximas" campaigns={futureCampaigns} />
+            <CampaignSection title="Campañas de hoy" campaigns={todayCampaigns} />
+            <CampaignSection title="Campañas de esta semana" campaigns={thisWeekCampaigns} />
+            <CampaignSection title="Campañas de este mes" campaigns={thisMonthCampaigns} />
+            <CampaignSection title="Campañas anteriores" campaigns={olderCampaigns} />
           </>
         )}
       </div>

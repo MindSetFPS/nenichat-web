@@ -35,7 +35,7 @@ export default function AudiencesPage() {
         body: JSON.stringify({ name, description }),
       });
       if (!response.ok) {
-        throw new Error("Failed to create audience");
+        throw new Error("Error al crear la audiencia");
       }
       setIsCreateDialogOpen(false);
       getAudiences().then((audiences) => {
@@ -53,7 +53,7 @@ export default function AudiencesPage() {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Failed to delete audience");
+        throw new Error("Error al eliminar la audiencia");
       }
       setIsDeleteDialogOpen(false);
       setSelectedAudience(null);
@@ -72,7 +72,7 @@ export default function AudiencesPage() {
     )
   }
 
-  const createAudienceButton = <Button onClick={() => setIsCreateDialogOpen(true)}>Create Audience</Button>
+  const createAudienceButton = <Button onClick={() => setIsCreateDialogOpen(true)}>Crear audiencia</Button>
 
   if (audiences.length === 0) {
     return (
@@ -80,8 +80,8 @@ export default function AudiencesPage() {
         <PageHeader />
         <EmptyList
           action={createAudienceButton}
-          description="Start building your audiences by creating your first audience."
-          title="No audiences found"
+          description="Comienza a construir tus audiencias creando tu primera audiencia."
+          title="No se encontraron audiencias"
           icon={<MailIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />} />
       </>
     )
@@ -89,7 +89,7 @@ export default function AudiencesPage() {
 
   return (
     <>
-      <PageHeader title="Audiences">
+      <PageHeader title="Audiencias">
         {audiences.length > 0 && createAudienceButton}
       </PageHeader>
 

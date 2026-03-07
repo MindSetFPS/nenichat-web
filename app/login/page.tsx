@@ -35,7 +35,7 @@ export default function LoginPage() {
                 router.refresh();
             }
         } catch (err) {
-            setError('An unexpected error occurred');
+            setError('Ocurrió un error inesperado');
         } finally {
             setLoading(false);
         }
@@ -44,16 +44,16 @@ export default function LoginPage() {
     return (
         <Card className="space-y-2">
             <CardHeader className="space-y-2 text-center">
-                <CardTitle>Welcome back</CardTitle>
+                <CardTitle>¡Bienvenido de nuevo!</CardTitle>
                 <CardDescription>
-                    Sign in to your account to continue
+                    Inicia sesión en tu cuenta para continuar
                 </CardDescription>
             </CardHeader>
 
             <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">Correo electrónico</Label>
                         <Input
                             id="email"
                             type="email"
@@ -66,7 +66,7 @@ export default function LoginPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">Contraseña</Label>
                         <Input
                             id="password"
                             type="password"
@@ -89,14 +89,14 @@ export default function LoginPage() {
                         className="w-full"
                         disabled={loading}
                     >
-                        {loading ? 'Signing in...' : 'Sign in'}
+                        {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
                     </Button>
                 </form>
             </CardContent>
             <div className="text-center text-sm">
-                <span className="text-muted-foreground">Don't have an account? </span>
+                <span className="text-muted-foreground">¿No tienes una cuenta? </span>
                 <Link href="/signup" className="text-primary hover:underline">
-                    Sign up
+                    Regístrate
                 </Link>
             </div>
         </Card>

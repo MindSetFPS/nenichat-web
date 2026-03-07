@@ -74,10 +74,10 @@ export function CreateOrderForm({
             });
 
             if (!response.ok) {
-                throw new Error("Failed to create order");
+                throw new Error("Error al crear el pedido");
             }
 
-            toast.success("Order created successfully");
+            toast.success("Pedido creado con éxito");
 
             // Update product stock (Client-side implementation)
             for (const item of values.items) {
@@ -104,7 +104,7 @@ export function CreateOrderForm({
             router.push("/orders");
         } catch (error) {
             console.error(error);
-            toast.error("Failed to create order");
+            toast.error("Error al crear el pedido");
         } finally {
             setLoading(false);
         }
