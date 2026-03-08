@@ -18,10 +18,6 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         const { items, ...orderData } = body;
-
-        console.log("request body: ", body)
-
-
         let contactId = orderData.contact_id;
 
         // Resolve contactId from lid if not provided

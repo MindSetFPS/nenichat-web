@@ -21,7 +21,6 @@ export default async function ExpensesPage() {
     const expenseRepository = new SupabaseExpenseRepository(supabase);
     const expenses = await expenseRepository.getAll(business.id);
 
-    console.log(expenses)
     const plainExpenses = JSON.parse(JSON.stringify(expenses));
 
     if (plainExpenses.length === 0) {

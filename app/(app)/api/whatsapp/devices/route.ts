@@ -45,7 +45,6 @@ export async function GET(request: NextRequest) {
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data)
             const devices = data.results || [];
             if (devices.length > 0) {
                 const { error } = await supabase.from('whatsapp-containers')

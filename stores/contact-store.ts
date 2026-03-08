@@ -34,7 +34,8 @@ export const useContactStore = create<ContactState>((set, get) => ({
             return contactsByPhone.get(normalized);
         }
 
-        return contactsByLid.get(phoneOrLid) || contactsByPhone.get(normalized);
+        let contact = contactsByLid.get(phoneOrLid) || contactsByPhone.get(normalized);
+        return contact
     },
 
     setContact: (contact: IContact) => {
@@ -95,7 +96,7 @@ export const useContactStore = create<ContactState>((set, get) => ({
 
         set({ isLoading: true, error: null });
 
-        console.log(`[CLIENT] Fetching contact from API: ${phoneOrLid}`);
+        // console.log(`[CLIENT] Fetching contact from API: ${phoneOrLid}`);
 
         try {
             const normalized = normalizePhone(phoneOrLid);
@@ -121,9 +122,9 @@ export const useContactStore = create<ContactState>((set, get) => ({
 
             if (contact) {
                 get().setContact(contact);
-                console.log(`[CLIENT] Contact found: ${contact.contact_name || contact.pushname || contact.phone_number || contact.lid}`);
+                // console.log(`[CLIENT] Contact found: ${contact.contact_name || contact.pushname || contact.phone_number || contact.lid}`);
             } else {
-                console.log(`[CLIENT] Contact not found: ${phoneOrLid}`);
+                // console.log(`[CLIENT] Contact not found: ${phoneOrLid}`);
             }
 
             set({ isLoading: false });
@@ -152,11 +153,11 @@ export const useContactStore = create<ContactState>((set, get) => ({
         });
 
         if (toFetch.length === 0) {
-            console.log(`[CLIENT] All ${phoneOrLids.length} contacts already cached`);
+            // console.log(`[CLIENT] All ${phoneOrLids.length} contacts already cached`);
             return;
         }
 
-        console.log(`[CLIENT] Fetching ${toFetch.length} contacts from API`, toFetch);
+        // console.log(`[CLIENT] Fetching ${toFetch.length} contacts from API`, toFetch);
 
         const user = useUserStore.getState().user;
         if (!user?.business_id) {
@@ -185,7 +186,7 @@ export const useContactStore = create<ContactState>((set, get) => ({
 
             const contacts: IContact[] = await response.json();
             get().setContacts(contacts);
-            console.log(`[CLIENT] Fetched ${contacts.length} contacts from API`);
+            // console.log(`[CLIENT] Fetched ${contacts.length} contacts from API`);
 
             set({ isLoading: false });
         } catch (error) {

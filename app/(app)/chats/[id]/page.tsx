@@ -97,6 +97,8 @@ export default async function ChatPage({
     }
   )
 
+  let groupSenderContactsJson = '[]'
+
   if (chatData?.is_group) {
     // A group chat is still a contact that we can name
     messages = await gowappMessageRepository.findByChatIdWithSender(jid, 0, 100)
@@ -108,7 +110,17 @@ export default async function ChatPage({
     // 2. Remove elements that end in "@g.us"
     const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
 
-    // 3. Loop through the list of users and query every order that belongs to that user
+    // 3. Fetch contacts for group message senders
+    const contactLookups: { value: string; is_lid: boolean }[] = filteredUserIdList.map((user) => ({
+      value: user,
+      is_lid: user.includes('@lid'),
+    }))
+    if (contactLookups.length > 0) {
+      const groupSenderContacts = await contactRepository.findBatchByPhoneOrLid(business.id, contactLookups)
+      groupSenderContactsJson = JSON.stringify(groupSenderContacts)
+    }
+
+    // 4. Loop through the list of users and query every order that belongs to that user
     const ordersList = await Promise.all(filteredUserIdList.map((user) => orderRepository.getOrdersByPhone(business.id, user)))
     orders = ordersList.flat()
   } else {
@@ -140,7 +152,8 @@ export default async function ChatPage({
         initialMessages={messagesJson.reverse()}
         me={me}
         orders={ordersJson}
-        isGroup={chatData?.is_group} />
+        isGroup={chatData?.is_group}
+        groupSenderContacts={groupSenderContactsJson} />
 
       <ChatControls
         // phone={contactJson?.phone}

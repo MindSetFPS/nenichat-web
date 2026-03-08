@@ -114,7 +114,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async findByPhoneNumberOrLid(businessId: number, phoneOrLid: string): Promise<IContact | null> {
         const normalizedPhone = phoneOrLid.replace(/[^\d]/g, '');
 
-        console.log(`[SUPABASE] Fetching contact from DB: ${phoneOrLid} (normalized: ${normalizedPhone})`);
+        // console.log(`[SUPABASE] Fetching contact from DB: ${phoneOrLid} (normalized: ${normalizedPhone})`);
 
         if (!/\d/.test(phoneOrLid) || phoneOrLid === normalizedPhone) {
             const byLid = await this.findByLid(businessId, phoneOrLid);
@@ -135,13 +135,13 @@ export class SupabaseContactRepository implements IContactRepository {
     ): Promise<IContact[]> {
         if (lookups.length === 0) return [];
 
-        console.log(`[SUPABASE] Batch fetching contacts from DB: ${lookups.length} lookups`, lookups);
+        // console.log(`[SUPABASE] Batch fetching contacts from DB: ${lookups.length} lookups`, lookups);
 
         const lids = lookups.filter((l) => l.is_lid).map((l) => l.value);
         const phones = lookups.filter((l) => !l.is_lid).map((l) => l.value.replace(/[^\d]/g, ''));
 
-        console.log("lookups:", lookups)
-        console.log("phones:", phones)
+        // console.log("lookups:", lookups)
+        // console.log("phones:", phones)
 
         const results: IContact[] = [];
 

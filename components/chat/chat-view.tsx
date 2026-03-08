@@ -27,6 +27,7 @@ interface ChatViewProps {
   isGroup: boolean,
   orders: Order[],
   contact?: IContact
+  groupSenderContacts?: string
 }
 
 export default function ChatView({
@@ -35,9 +36,21 @@ export default function ChatView({
   isGroup,
   orders,
   contact,
+  groupSenderContacts,
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const setContacts = useContactStore((state) => state.setContacts)
+
+  useEffect(() => {
+    if (groupSenderContacts) {
+      const contacts = JSON.parse(groupSenderContacts) as IContact[];
+      if (contacts.length > 0) {
+        console.log(`[CHAT_VIEW] Hydrating store with ${contacts.length} group sender contacts`);
+        setContacts(contacts);
+      }
+    }
+  }, [groupSenderContacts, setContacts])
   const router = useRouter()
   const isMobile = useIsMobile()
   const setContact = useContactStore((state) => state.setContact)
@@ -87,6 +100,31 @@ export default function ChatView({
     return Object.entries(grouped).map(([date, items]) => ({ date, items }))
   }, [timelineItems]) // Re-run this logic only when timelineItems changes
 
+  // Pre-calculate which messages should show avatar (consecutive same sender = hide avatar)
+  const messageAvatarVisibility = useMemo(() => {
+    const visibility: Record<number, boolean> = {}
+    let prevSenderJid: string | undefined
+    let prevIsFromMe: boolean | undefined
+
+    timelineItems.forEach((item, index) => {
+      console.log(item)
+      if (item.type !== 'message') {
+        visibility[index] = true
+        return
+      }
+      const msg = item.data as IMessageWithSender
+      const currentSender = msg.is_from_me ? 'me' : msg.sender_jid
+
+      // Show avatar if: different sender, different "me" status, or it's an order
+      const showAvatar = prevSenderJid !== currentSender || prevIsFromMe !== msg.is_from_me
+      visibility[index] = showAvatar
+
+      prevSenderJid = currentSender
+      prevIsFromMe = msg.is_from_me
+    })
+    return visibility
+  }, [timelineItems])
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -129,21 +167,27 @@ export default function ChatView({
               index={groupIndex}
             />
             <div className="space-y-1">
-              {group.items.map((item, itemIndex) => (
-                item.type === 'message' ? (
-                  <Message
-                    message={item.data as IMessageWithSender}
-                    isMe={(item.data as IMessageWithSender).is_from_me}
-                    key={`message-${itemIndex}`}
-                  />
-                ) : (
-                  <OrderMessage
-                    order={item.data as Order}
-                    key={`order-${itemIndex}`}
-                    isGroup={isGroup}
-                  />
+              {group.items.map((item, itemIndex) => {
+                const globalIndex = timelineItems.indexOf(item)
+                const showAvatar = isGroup && messageAvatarVisibility[globalIndex]
+                return (
+                  item.type === 'message' ? (
+                    <Message
+                      message={item.data as IMessageWithSender}
+                      isMe={(item.data as IMessageWithSender).is_from_me}
+                      isGroup={isGroup}
+                      showAvatar={showAvatar}
+                      key={`message-${itemIndex}`}
+                    />
+                  ) : (
+                    <OrderMessage
+                      order={item.data as Order}
+                      key={`order-${itemIndex}`}
+                      isGroup={isGroup}
+                    />
+                  )
                 )
-              ))}
+              })}
             </div>
           </div>
         ))}

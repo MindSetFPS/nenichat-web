@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-// import { IContact } from "@/Nenichat/Contacts/domain/IContact" // Removed unused import
 import { Button } from "../ui/button"
 import {
     Accordion,
@@ -24,30 +23,39 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import ContactAvatar from "../contact-avatar"
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 import Link from "next/link"
+import { useContactStore } from "@/stores/contact-store"
 
 
 interface MessageProps {
     message: IMessageWithSender
     isMe: boolean
+    isGroup?: boolean
+    showAvatar?: boolean
 }
 
-export default function Message({ message, isMe }: MessageProps) {
+export default function Message({ message, isMe, isGroup = false, showAvatar = true }: MessageProps) {
     const [open, setOpen] = useState(false)
+    const getContact = useContactStore((state) => state.getContact)
+    const senderContact = getContact(message.sender_jid) || message.sender_jid // maybe we should save the contact? 
+
+    // Show avatar only in group chats, for first message in consecutive sequence
+    const shouldShowAvatar = isGroup && showAvatar && senderContact && !isMe
+    // Show placeholder in group chats for consecutive messages from same sender
+    const shouldShowPlaceholder = isGroup && !showAvatar && !isMe
 
     return (
         <div className="flex gap-2">
-            {
-                message.sender && !isMe ?
-                    <Avatar className="h-8 w-8">
-                        <ContactAvatar seed={getContactIdentifier(message.sender!)!} />
-                        <AvatarFallback>{getContactIdentifier(message.sender!)!.substring(0, 2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    : <></>
-            }
+            {shouldShowAvatar && (
+                <Avatar className="h-8 w-8">
+                    <ContactAvatar seed={getContactIdentifier(senderContact)!} />
+                    <AvatarFallback>{getContactIdentifier(senderContact)!.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+            )}
+            {shouldShowPlaceholder && <div className="h-8 w-8" />}
             <div
                 key={message.id}
                 className={cn(
-                    "flex flex-row w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity",
+                    "flex flex-row w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity break-all",
                     isMe
                         ? "ml-auto text-primary rounded-tr-none px-1 py-0"
                         : "bg-muted rounded-tl-none"
@@ -56,10 +64,10 @@ export default function Message({ message, isMe }: MessageProps) {
                 <Accordion type="single" collapsible className="p-0">
                     <AccordionItem value="item-1" className="p-0">
                         {
-                            message.sender && !isMe ?
+                            senderContact && !isMe && isGroup && showAvatar ?
                                 <Link href={`/chats/${message.sender_jid}`}>
                                     <span className="text-xs font-bold">
-                                        {getContactIdentifier(message.sender!)}
+                                        {getContactIdentifier(senderContact)}
                                     </span>
                                 </Link>
                                 : <></>
@@ -67,12 +75,12 @@ export default function Message({ message, isMe }: MessageProps) {
 
                         {!isMe ? (
                             <AccordionTrigger className="items-center p-0">
-                                <p className="text-sm py-2">
+                                <p className="text-sm py-2 break-words">
                                     {message.content}
                                 </p>
                             </AccordionTrigger>
                         ) : (
-                            <p className="text-sm py-2">
+                            <p className="text-sm py-2 break-words">
                                 {message.content}
                             </p>
                         )}
