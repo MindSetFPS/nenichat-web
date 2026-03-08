@@ -67,7 +67,7 @@ export default async function ChatPage({
         contactInfo = await contactRepository.save({
           business_id: business.id,
           is_user: false,
-          contact_name: chatData.name || null,
+          pushname: chatData.name || null,
           ...(isLid ? { lid: lid } : { phone_number: lid })
         });
       }

@@ -4,13 +4,13 @@ import { IContactRepository } from "../../domain/IContactRepository";
 import { Contact } from "../../domain/Contact";
 import IContactWithLastMessage from "../../app/dtos/IContactWithLastMessage";
 import { Message } from "@/Nenichat/Messages/domain/Message";
-import { getJidKind } from "../../../Chats/domain/Jid";
+import { getJidKind, isJid, jidIsGroup, jidIsLid, jidToNumeric } from "../../../Chats/domain/Jid";
 
 /**
  * Supabase select string that always JOINs phone_numbers so the virtual
  * `phone_number` string field is available on every row.
  */
-const CONTACT_SELECT = "*, phone_numbers(phone_number)";
+const ALL_ROWS_AND_JOIN_PHONE_NUMBER = "*, phone_numbers(phone_number)";
 
 export class SupabaseContactRepository implements IContactRepository {
     private _supabase: SupabaseClient;
@@ -67,7 +67,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async findById(businessId: number, id: number): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .eq("business_id", businessId)
             .eq("id", id)
             .maybeSingle();
@@ -99,7 +99,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async findByLid(businessId: number, lid: string): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .eq("business_id", businessId)
             .eq("lid", lid)
             .maybeSingle();
@@ -140,12 +140,15 @@ export class SupabaseContactRepository implements IContactRepository {
         const lids = lookups.filter((l) => l.is_lid).map((l) => l.value);
         const phones = lookups.filter((l) => !l.is_lid).map((l) => l.value.replace(/[^\d]/g, ''));
 
+        console.log("lookups:", lookups)
+        console.log("phones:", phones)
+
         const results: IContact[] = [];
 
         if (lids.length > 0) {
             const { data: lidData, error: lidError } = await this.supabase
                 .from("contacts")
-                .select(CONTACT_SELECT)
+                .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
                 .eq("business_id", businessId)
                 .in("lid", lids);
 
@@ -170,7 +173,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async findMe(businessId: number): Promise<IContact | null> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .eq("business_id", businessId)
             .eq("is_user", true)
             .maybeSingle();
@@ -189,7 +192,7 @@ export class SupabaseContactRepository implements IContactRepository {
 
         // Resolve phone_number_id from the global phone_numbers table if we have a phone string.
         let phoneNumberId = contact.phone_number_id ?? null;
-        if (!phoneNumberId && contact.phone_number) {
+        if (!phoneNumberId && contact.phone_number && !isJid(contact.phone_number)) {
             phoneNumberId = await this.getOrCreatePhoneNumberId(contact.phone_number);
         }
 
@@ -200,7 +203,7 @@ export class SupabaseContactRepository implements IContactRepository {
             if (phoneNumberId) {
                 const { data } = await this.supabase
                     .from("contacts")
-                    .select(CONTACT_SELECT)
+                    .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
                     .eq("business_id", contact.business_id)
                     .eq("phone_number_id", phoneNumberId)
                     .maybeSingle();
@@ -229,7 +232,7 @@ export class SupabaseContactRepository implements IContactRepository {
         const { data, error } = await this.supabase
             .from("contacts")
             .upsert(contactData, { onConflict: "id" })
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .single();
 
         if (error) {
@@ -252,7 +255,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async list(businessId: number, offset: number, limit: number): Promise<IContact[]> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .eq("business_id", businessId)
             .order("created_at", { ascending: false })
             .range(offset, offset + limit - 1);
@@ -265,7 +268,7 @@ export class SupabaseContactRepository implements IContactRepository {
         // A merge candidate is a contact missing either phone_number_id or lid.
         const { data, error, count } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT, { count: "exact" })
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER, { count: "exact" })
             .eq("business_id", businessId)
             .or("phone_number_id.is.null,lid.is.null")
             .order("created_at", { ascending: false })
@@ -285,7 +288,7 @@ export class SupabaseContactRepository implements IContactRepository {
 
         const { data: secondaries, error: fetchError } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .in("id", secondaryContactIds)
             .eq("business_id", businessId);
 
@@ -344,17 +347,12 @@ export class SupabaseContactRepository implements IContactRepository {
 
     async getOrCreateContact(businessId: number, contactId: string): Promise<IContact> {
         const jidKind = getJidKind(contactId);
-        const isLid = jidKind === "lid";
+        const isLid = jidIsLid(contactId) || jidIsGroup(contactId);
         let contact: IContact | null = null;
         let cleanId = contactId;
 
         if (jidKind === 'contact') {
-            if (cleanId.includes('@')) {
-                cleanId = cleanId.split('@')[0];
-            }
-            if (cleanId.includes(':')) {
-                cleanId = cleanId.split(':')[0];
-            }
+            cleanId = jidToNumeric(cleanId);
         }
 
         if (isLid) {
@@ -388,7 +386,7 @@ export class SupabaseContactRepository implements IContactRepository {
         const { data, error } = await this.supabase.from("contacts")
             .update({ is_user: true })
             .eq("id", userId)
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .single();
 
         if (error) throw error;
@@ -412,7 +410,7 @@ export class SupabaseContactRepository implements IContactRepository {
 
         const { data: contacts, error: contactsError } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .in("id", distinctSenderIds)
             .eq("business_id", businessId);
 
@@ -448,7 +446,7 @@ export class SupabaseContactRepository implements IContactRepository {
 
         const { data: contactsData, error: contactsError } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .in("id", pagedChatIds)
             .eq("business_id", businessId)
             .eq("is_hidden", false);
@@ -499,7 +497,7 @@ export class SupabaseContactRepository implements IContactRepository {
     async getHiddenContacts(businessId: number, offset: number, limit: number): Promise<IContact[]> {
         const { data, error } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .eq("business_id", businessId)
             .eq("is_hidden", true)
             .range(offset, offset + limit - 1);
@@ -545,7 +543,7 @@ export class SupabaseContactRepository implements IContactRepository {
         // We filter on phone_numbers.phone_number via the join using the Supabase filter syntax.
         const { data, error } = await this.supabase
             .from("contacts")
-            .select(CONTACT_SELECT)
+            .select(ALL_ROWS_AND_JOIN_PHONE_NUMBER)
             .eq("business_id", businessId)
             .or(
                 `contact_name.ilike.%${query}%,pushname.ilike.%${query}%,phone_numbers.phone_number.ilike.%${query}%`

@@ -35,8 +35,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             const lookups: { value: string; is_lid: boolean }[] = []
             for (const chat of chats) {
                 const jidKind = getJidKind(chat.jid)
-                if (jidKind !== 'group' && jidKind !== 'unknown') {
-                    lookups.push({ value: chat.jid, is_lid: jidKind === 'lid' })
+                if (jidKind !== 'unknown') {
+                    lookups.push({ value: chat.jid, is_lid: jidKind === 'lid' || jidKind === 'group' })
                 }
             }
 

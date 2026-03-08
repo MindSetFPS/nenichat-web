@@ -117,7 +117,7 @@ export default function ChatView({
             )}
           </div>
         </div>
-        {contact && <ChatDropDownDialog contact={contact} />}
+        {contact && <ChatDropDownDialog contact={contact} isGroup={isGroup} />}
       </div>
 
       <div className="px-4 space-y-4">
