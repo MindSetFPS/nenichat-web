@@ -11,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { PageHeader } from '../ui/page-header'
 import { IChat } from '@/Nenichat/Chats/domain/IChat'
 import { useContactStore } from '@/stores/contact-store'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 
 interface RecentChatsProps {
     contacts: string
@@ -31,9 +31,23 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
     const pathname = usePathname()
     const router = useRouter()
     const isMobile = useIsMobile()
-    const chats: IChat[] = (JSON.parse(contactsJson) as IChat[])
-        .filter(chat => chat.jid !== 'status@broadcast')
+
+    const chats: IChat[] = useMemo(() => {
+        return (JSON.parse(contactsJson) as IChat[])
+            .filter(chat => chat.jid !== 'status@broadcast')
+    }, [contactsJson])
+
     const getContact = useContactStore((state) => state.getContact)
+    const fetchContacts = useContactStore((state) => state.fetchContacts)
+    const contactsByPhone = useContactStore((state) => state.contactsByPhone)
+    const contactsByLid = useContactStore((state) => state.contactsByLid)
+
+    useEffect(() => {
+        const jids = chats.map(chat => chat.jid)
+        if (jids.length > 0) {
+            fetchContacts(jids)
+        }
+    }, [chats, fetchContacts])
 
     // Filter out hidden contacts using cached contacts
     const visibleChats = useMemo(() => {
@@ -41,11 +55,14 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
             const contact = getContact(chat.jid);
             return !contact?.is_hidden;
         });
-    }, [chats, getContact])
+    }, [chats, getContact, contactsByPhone, contactsByLid])
 
     const getContactName = (chat: IChat): string => {
         const contact = getContact(chat.jid);
-        return contact ? String(getContactIdentifier(contact)) : (chat.name || '');
+        if (contact && contact.contact_name) {
+            return contact.contact_name;
+        }
+        return chat.name || (contact ? String(getContactIdentifier(contact)) : '');
     }
 
     // Check if we're viewing a specific chat (has an ID after /chats/)

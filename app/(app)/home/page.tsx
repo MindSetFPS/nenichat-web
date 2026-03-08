@@ -142,10 +142,6 @@ export default async function Page() {
           {/* Main Business Analysis - Spans 2 columns */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="border-none shadow-md overflow-hidden bg-white dark:bg-zinc-900/50">
-              <div className="p-6 pb-0">
-                <h3 className="font-semibold text-lg">Análisis de Crecimiento</h3>
-                <p className="text-sm text-muted-foreground">Tendencias históricas del valor de los pedidos</p>
-              </div>
               <div className="p-6">
                 <OrdersTotalValueChart data={orderTotalsPerDay} />
               </div>
@@ -159,7 +155,7 @@ export default async function Page() {
                   </svg>
                 </div>
                 <div className="p-6">
-                  <MonthlyGoalCard currentRevenue={Math.floor(totalRevenue)} goalRevenue={20000} />
+                  <MonthlyGoalCard currentRevenue={Math.floor(totalRevenue)} goalRevenue={10000} />
                 </div>
               </Card>
 

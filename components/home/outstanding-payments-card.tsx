@@ -2,10 +2,11 @@
 
 import { Card } from "@/components/ui/card";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { AlertCircle, User, Phone } from "lucide-react";
+import { AlertCircle, User, Clock } from "lucide-react";
 import Link from "next/link";
 import { useContactStore } from "@/stores/contact-store";
 import { useEffect } from "react";
+import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 
 interface OutstandingPayment {
     id: number;
@@ -52,21 +53,20 @@ export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardPro
             <div className="p-6 pt-2">
                 <div className="mb-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
                     <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-                        Total pendiente: 
+                        Total pendiente:
                         <span className="ml-2 text-lg font-bold">
-                            ${totalOutstanding.toLocaleString('es-AR')}
+                            ${totalOutstanding.toLocaleString('es-MX')}
                         </span>
                     </p>
                 </div>
                 <div className="space-y-3 max-h-[300px] overflow-y-auto">
                     {payments.map((order) => {
                         const outstanding = Number(order.total_amount) - Number(order.amount_paid);
-                        const customerName = order.contact?.contact_name || order.contact?.username || order.contact?.pushname || 'Cliente sin nombre';
                         const customerPhone = order.contact?.phone_number || 'Sin teléfono';
                         const contactHref = order.contact?.id ? `/contacts/${order.contact.id}` : '#';
 
                         return (
-                            <Link 
+                            <Link
                                 key={order.id}
                                 href={contactHref}
                                 className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer"
@@ -75,13 +75,13 @@ export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardPro
                                     <div className="flex items-center gap-1.5 mb-1">
                                         <User className="h-3 w-3 text-muted-foreground" />
                                         <span className="font-medium text-sm truncate">
-                                            {customerName}
+                                            {getContactIdentifier(order.contact!)}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
-                                        <Phone className="h-3 w-3 text-muted-foreground" />
+                                        <Clock className="h-3 w-3 text-muted-foreground" />
                                         <span className="text-xs text-muted-foreground truncate">
-                                            {customerPhone}
+                                            {new Date(order.created_at).toLocaleDateString('es-MX')}
                                         </span>
                                     </div>
                                 </div>
