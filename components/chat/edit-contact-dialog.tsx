@@ -7,9 +7,10 @@ interface EditContactDialogContentProps {
     onSubmitSuccess: () => void;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    isGroup?: boolean;
 }
 
-export function EditContactDialog({ contact, onSubmitSuccess, open, onOpenChange }: EditContactDialogContentProps) {
+export function EditContactDialog({ contact, onSubmitSuccess, open, onOpenChange, isGroup }: EditContactDialogContentProps) {
     const handleSubmitSuccess = () => {
         onSubmitSuccess();
         onOpenChange(false);
@@ -19,9 +20,9 @@ export function EditContactDialog({ contact, onSubmitSuccess, open, onOpenChange
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Editar nombre del contacto</DialogTitle>
+                    <DialogTitle>{isGroup ? "Editar nombre del grupo" : "Editar nombre del contacto"}</DialogTitle>
                     <DialogDescription>
-                        Actualiza el nombre del contacto.
+                        {isGroup ? "Actualiza el nombre del grupo." : "Actualiza el nombre del contacto."}
                     </DialogDescription>
                 </DialogHeader>
                 <EditContactForm contact={contact} onSubmitSuccess={handleSubmitSuccess} />

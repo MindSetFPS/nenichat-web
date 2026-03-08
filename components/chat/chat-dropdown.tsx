@@ -19,9 +19,10 @@ import { EditContactDialog } from "./edit-contact-dialog"
 
 interface ChatDropDownDialogProps {
     contact: IContact;
+    isGroup?: boolean;
 }
 
-export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
+export function ChatDropDownDialog({ contact, isGroup }: ChatDropDownDialogProps) {
     const [showEditDialog, setShowEditDialog] = useState(false)
     const [showAssignToAudienceDialog, setShowAssignToAudienceDialog] = useState(false)
     const [showIgnoreDialog, setShowIgnoreDialog] = useState(false)
@@ -44,14 +45,14 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                 <DropdownMenuContent className="w-40" align="end">
                     <DropdownMenuGroup>
                         <DropdownMenuItem onSelect={() => setShowEditDialog(true)}>
-                            Editar contacto
+                            {isGroup ? "Editar grupo" : "Editar contacto"}
                         </DropdownMenuItem>
                         {/* <DropdownMenuItem onSelect={() => setShowAssignToAudienceDialog(true)}>
                             Asignar a audiencia
                         </DropdownMenuItem> */}
                         {contact.id && (
                             <DropdownMenuItem onSelect={() => setShowIgnoreDialog(true)}>
-                                Ignorar contacto
+                                {isGroup ? "Ignorar grupo" : "Ignorar contacto"}
                             </DropdownMenuItem>
                         )}
                     </DropdownMenuGroup>
@@ -63,6 +64,7 @@ export function ChatDropDownDialog({ contact }: ChatDropDownDialogProps) {
                 onSubmitSuccess={onSubmitSuccess}
                 open={showEditDialog}
                 onOpenChange={setShowEditDialog}
+                isGroup={isGroup}
             />
             {/* <AssignToAudienceDialogContent
                 contact={contact}
