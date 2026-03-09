@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { IContact } from '@/Nenichat/Contacts/domain/IContact';
 import { useUserStore } from './user-store';
+import { jidIsGroup } from '@/Nenichat/Chats/domain/Jid';
 
 interface ContactState {
     contactsByPhone: Map<string, IContact>;
@@ -29,13 +30,20 @@ export const useContactStore = create<ContactState>((set, get) => ({
     getContact: (phoneOrLid: string) => {
         const { contactsByPhone, contactsByLid } = get();
 
+        // Group JIDs (e.g. 123456789@g.us) must be looked up by lid.
+        // normalizePhone strips the @g.us suffix, causing them to be
+        // misidentified as phone numbers and missed in contactsByLid.
+        if (jidIsGroup(phoneOrLid)) {
+            return contactsByLid.get(phoneOrLid);
+        }
+
         const normalized = normalizePhone(phoneOrLid);
         if (normalized !== phoneOrLid) {
             return contactsByPhone.get(normalized);
         }
 
-        let contact = contactsByLid.get(phoneOrLid) || contactsByPhone.get(normalized);
-        return contact
+        const contact = contactsByLid.get(phoneOrLid) || contactsByPhone.get(normalized);
+        return contact;
     },
 
     setContact: (contact: IContact) => {
@@ -141,6 +149,10 @@ export const useContactStore = create<ContactState>((set, get) => ({
         const { contactsByPhone, contactsByLid } = get();
 
         const normalized = phoneOrLids.map((p) => {
+            // Group JIDs (e.g. 123456789@g.us) are always LIDs.
+            if (jidIsGroup(p)) {
+                return { original: p, normalized: p, isLid: true };
+            }
             const n = normalizePhone(p);
             return n === p ? { original: p, normalized: p, isLid: true } : { original: p, normalized: n, isLid: false };
         });
