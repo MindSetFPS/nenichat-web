@@ -71,8 +71,8 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
     <>
       <PageHeader title="Editar producto" />
       <div className="overflow-y-auto mt-2">
-        <ChartBarLabel data={sales} />
         <ProductForm product={plainProduct} businessId={business.id} />
+        <ChartBarLabel data={sales} />
       </div>
     </>
   );

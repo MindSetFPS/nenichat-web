@@ -36,10 +36,9 @@ interface ChartProps {
 
 export function ChartBarLabel({ data }: ChartProps) {
     return (
-        <Card>
+        <div className="mt-8 mx-16">
             <CardHeader>
                 <CardTitle>Historial de ventas</CardTitle>
-                <CardDescription>2024</CardDescription>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig}>
@@ -80,6 +79,6 @@ export function ChartBarLabel({ data }: ChartProps) {
                     {/* Showing total visitors for the last 6 months */}
                 </div>
             </CardFooter>
-        </Card>
+        </div>
     )
 }
