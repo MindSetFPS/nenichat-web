@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useContactStore } from "@/stores/contact-store";
 import { useEffect } from "react";
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { differenceInDays } from "date-fns";
 
 interface OutstandingPayment {
     id: number;
@@ -64,6 +65,7 @@ export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardPro
                         const outstanding = Number(order.total_amount) - Number(order.amount_paid);
                         const customerPhone = order.contact?.phone_number || 'Sin teléfono';
                         const contactHref = order.contact?.id ? `/contacts/${order.contact.id}` : '#';
+                        const daysSincePurchase = differenceInDays(new Date(), new Date(order.created_at));
 
                         return (
                             <Link
@@ -81,7 +83,7 @@ export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardPro
                                     <div className="flex items-center gap-1.5">
                                         <Clock className="h-3 w-3 text-muted-foreground" />
                                         <span className="text-xs text-muted-foreground truncate">
-                                            {new Date(order.created_at).toLocaleDateString('es-MX')}
+                                            {daysSincePurchase} {daysSincePurchase === 1 ? 'día' : 'días'} desde la compra
                                         </span>
                                     </div>
                                 </div>
