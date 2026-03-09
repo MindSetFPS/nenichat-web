@@ -48,6 +48,19 @@ export function jidToNumeric(jid: string): string {
 }
 
 /**
+ * Converts a phone number to a WhatsApp JID by appending the suffix.
+ * If the input is already a JID, returns it as-is.
+ * @param phoneNumber - The phone number (e.g. "521234567890")
+ * @returns The full JID (e.g. "521234567890@s.whatsapp.net")
+ */
+export function phoneNumberToJid(phoneNumber: string): string {
+    if (phoneNumber.includes('@')) {
+        return phoneNumber;
+    }
+    return `${phoneNumber}@s.whatsapp.net`;
+}
+
+/**
  * Checks if a string is a formatted WhatsApp JID.
  */
 export function isJid(jid: string): boolean {
