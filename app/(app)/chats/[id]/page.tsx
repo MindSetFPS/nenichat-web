@@ -56,7 +56,7 @@ export default async function ChatPage({
     const isLid = jidIsLid(jid) || jidIsGroup(jid)
 
     if (jidIsPhoneNumber(jid)) {
-      contactInfo = await contactRepository.findByPhoneNumber(business.id, jid);
+      contactInfo = await contactRepository.findByPhoneNumber(business.id, jidToNumeric(jid));
     } else {
       contactInfo = await contactRepository.findByLid(business.id, jid);
     }
@@ -67,7 +67,7 @@ export default async function ChatPage({
           business_id: business.id,
           is_user: false,
           pushname: chatData.name || null,
-          ...(isLid ? { lid: jid } : { phone_number: jid })
+          ...(isLid ? { lid: jid } : { phone_number: jidToNumeric(jid) })
         });
       }
     }
