@@ -33,6 +33,7 @@ import {
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useUserStore } from "@/stores/user-store"
+import { useBusinessStore } from "@/stores/business-store"
 
 export function NavUser({
     user: initialUser,
@@ -46,16 +47,20 @@ export function NavUser({
     const supabase = createBrowserSupabaseClient()
     const router = useRouter()
     const { user, supabaseUser, isLoading, fetchUser } = useUserStore()
+    const { business, fetchBusiness } = useBusinessStore()
 
     useEffect(() => {
         fetchUser()
-    }, [fetchUser])
+        fetchBusiness()
+    }, [fetchUser, fetchBusiness])
 
     const userData = {
-        name: user?.pushname || user?.username || supabaseUser?.user_metadata?.full_name || supabaseUser?.email?.split("@")[0] || initialUser.name,
+        name: user?.pushname || user?.username || supabaseUser?.user_metadata?.display_name || supabaseUser?.email?.split("@")[0] || initialUser.name,
         email: supabaseUser?.email || initialUser.email,
         avatar: user?.avatar_url || supabaseUser?.user_metadata?.avatar_url || initialUser.avatar,
     }
+
+    const businessName = business?.name || null
 
     async function handleLogout() {
         await supabase.auth.signOut()
@@ -73,12 +78,12 @@ export function NavUser({
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-4 w-4">
-                                <AvatarImage src={userData.avatar} alt={userData.name} />
+                                <AvatarImage src={business?.business_logo_url || userData.avatar} alt={userData.name} />
                                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium">{userData.name}</span>
-                                <span className="truncate text-xs">{userData.email}</span>
+                                <span className="truncate font-medium">{businessName || userData.name}</span>
+                                <span className="truncate text-xs">{businessName ? userData.name : userData.email}</span>
                             </div>
                             <ChevronsUpDown className="" />
                         </SidebarMenuButton>
@@ -92,12 +97,12 @@ export function NavUser({
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage src={userData.avatar} alt={userData.name} />
+                                    <AvatarImage src={business?.business_logo_url || userData.avatar} alt={userData.name} />
                                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-medium">{userData.name}</span>
-                                    <span className="truncate text-xs">{userData.email}</span>
+                                    <span className="truncate font-medium">{businessName || userData.name}</span>
+                                    <span className="truncate text-xs">{businessName ? userData.name : userData.email}</span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>

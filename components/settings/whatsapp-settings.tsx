@@ -10,6 +10,7 @@ import WappError from '../wapp/wapp-error'
 import WappPause from '../wapp/wapp-pause'
 import WappConnected from '../wapp/wapp-connected'
 import WappBusinessMissing from '../wapp/wapp-business-missing'
+import { useBusinessStore } from '@/stores/business-store'
 
 /**
  * @function WhatsAppSettings
@@ -17,38 +18,31 @@ import WappBusinessMissing from '../wapp/wapp-business-missing'
  */
 export function WhatsAppSettings() {
     const [loading, setLoading] = useState(true)
-    const [businessId, setBusinessId] = useState<number | null>(null)
     const [container, setContainer] = useState<any>(null)
     const supabase = createBrowserSupabaseClient()
     const searchParams = useSearchParams()
     const reconnect = searchParams.get('reconnect') === 'true'
+    
+    const { business, isLoading: businessLoading, fetchBusiness } = useBusinessStore()
 
     useEffect(() => {
-        async function fetchData() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
-                if (!user) return
+        fetchBusiness()
+    }, [fetchBusiness])
 
-                // 1. Get business
-                const { data: businesses } = await supabase
-                    .from('business')
-                    .select('id')
-                    .eq('owner_id', user.id)
-                    .limit(1)
-
-                if (!businesses || businesses.length === 0) {
+    useEffect(() => {
+        async function fetchContainer() {
+            if (!business?.id) {
+                if (!businessLoading) {
                     setLoading(false)
-                    return
                 }
+                return
+            }
 
-                const bId = businesses[0].id
-                setBusinessId(bId)
-
-                // 2. Get container
+            try {
                 const { data: containers } = await supabase
                     .from('whatsapp-containers')
                     .select('*')
-                    .eq('business_id', bId)
+                    .eq('business_id', business.id)
                     .limit(1)
 
                 if (containers && containers.length > 0) {
@@ -61,10 +55,10 @@ export function WhatsAppSettings() {
             }
         }
 
-        fetchData()
-    }, [supabase])
+        fetchContainer()
+    }, [business, businessLoading, supabase])
 
-    if (loading) {
+    if (loading || businessLoading) {
         return (
             <div className="flex items-center justify-center p-12">
                 <Spinner className="h-8 w-8 text-primary" />
@@ -72,7 +66,7 @@ export function WhatsAppSettings() {
         )
     }
 
-    if (!businessId) {
+    if (!business?.id) {
         return <WappBusinessMissing />
     }
 
@@ -80,7 +74,7 @@ export function WhatsAppSettings() {
         const status = container.status as container_states
 
         if (status === 'connected') {
-            return <WappConnected container={container} businessId={businessId} />
+            return <WappConnected container={container} businessId={business.id} />
         }
 
         if (status === 'error') {
@@ -93,7 +87,7 @@ export function WhatsAppSettings() {
 
         if (status === 'deployed') {
             return <WhatsAppSetupPage
-                businessId={businessId.toString()}
+                businessId={business.id.toString()}
                 initialStep={2}
                 initialQrCode={container.qr_code}
                 initialQrCodeUpdatedAt={container.qr_code_updated_at}
@@ -102,5 +96,5 @@ export function WhatsAppSettings() {
     }
 
     // Default setup flow
-    return <WhatsAppSetupPage businessId={businessId.toString()} />
+    return <WhatsAppSetupPage businessId={business.id.toString()} />
 }
