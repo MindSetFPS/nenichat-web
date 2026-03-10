@@ -7,6 +7,7 @@ import Message from "./message"
 import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
 import { Order } from "@/Nenichat/Orders/domain/Order"
+import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithProduct"
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import ChatHeader from "./chat-header"
 import { ChatDropDownDialog } from "./chat-dropdown"
@@ -19,7 +20,7 @@ import { useContactStore } from "@/stores/contact-store"
 // Union type for timeline items
 type TimelineItem =
   | { type: 'message'; data: IMessageWithSender }
-  | { type: 'order'; data: Order }
+  | { type: 'order'; data: Order & { items?: IOrderItemWithProduct[] } }
 
 interface ChatViewProps {
   initialMessages: IMessageWithSender[]
@@ -183,6 +184,7 @@ export default function ChatView({
                   ) : (
                     <OrderMessage
                       order={item.data as Order}
+                      items={(item.data as Order & { items?: IOrderItemWithProduct[] }).items}
                       key={`order-${itemIndex}`}
                       isGroup={isGroup}
                     />

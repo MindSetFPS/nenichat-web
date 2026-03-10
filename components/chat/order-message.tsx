@@ -4,14 +4,16 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Order } from "@/Nenichat/Orders/domain/Order"
 import { formatCurrency, getPaymentStatusColor, getStatusColor, cn } from "@/lib/utils"
-import { Package, Truck, CreditCard, Receipt, FileText, ChevronRight } from "lucide-react"
+import { Package, Truck, CreditCard, Receipt, FileText, ChevronRight, ShoppingBag } from "lucide-react"
+import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithProduct"
 
 interface OrderMessageProps {
     order: Order,
     isGroup: boolean
+    items?: IOrderItemWithProduct[]
 }
 
-export default function OrderMessage({ order, isGroup }: OrderMessageProps) {
+export default function OrderMessage({ order, isGroup, items = [] }: OrderMessageProps) {
     return (
         <Link
             href={`/orders/${order.id}`}
@@ -71,6 +73,33 @@ export default function OrderMessage({ order, isGroup }: OrderMessageProps) {
                     <div className="pt-2 border-t border-border/50 flex gap-1.5 items-start text-[10px] text-muted-foreground/90">
                         <FileText className="size-3 mt-0.5 shrink-0 opacity-60" />
                         <p className="line-clamp-1 leading-tight">{order.notes}</p>
+                    </div>
+                )}
+
+                {/* Products */}
+                {items.length > 0 && (
+                    <div className="pt-2 border-t border-border/50">
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground mb-1.5">
+                            <ShoppingBag className="size-3" />
+                            <span className="font-medium uppercase tracking-wider">Productos</span>
+                        </div>
+                        <div className="space-y-1">
+                            {items.slice(0, 3).map((item, idx) => (
+                                <div key={idx} className="flex justify-between text-[11px]">
+                                    <span className="text-foreground truncate flex-1 mr-2">
+                                        {item.quantity}x {item.product_name || 'Producto'}
+                                    </span>
+                                    <span className="text-muted-foreground shrink-0">
+                                        {formatCurrency(item.total_price)}
+                                    </span>
+                                </div>
+                            ))}
+                            {items.length > 3 && (
+                                <div className="text-[10px] text-muted-foreground/70">
+                                    +{items.length - 3} más
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

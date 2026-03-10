@@ -131,6 +131,13 @@ export default async function ChatPage({
     }
   }
 
+  const ordersWithItems = await Promise.all(
+    orders.map(async (order) => {
+      const items = await orderRepository.getItems(business.id, order.id)
+      return { ...order, items }
+    })
+  )
+
   // if the last message belongs to a customer, then check in database if there is suggestions and 
   // include themn in te response.
   // if there is not suggestion, generate them. 
@@ -138,7 +145,7 @@ export default async function ChatPage({
 
   const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
   const messagesJson = JSON.parse(JSON.stringify(messages))
-  const ordersJson = JSON.parse(JSON.stringify(orders))
+  const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
   const me = JSON.parse(JSON.stringify(meData))
   const suggestionsJson = JSON.parse(JSON.stringify(suggestions))
 
