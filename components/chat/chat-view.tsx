@@ -27,6 +27,7 @@ interface ChatViewProps {
   isGroup: boolean,
   orders: Order[],
   contact?: IContact
+  chatName?: string
   groupSenderContacts?: string
 }
 
@@ -36,6 +37,7 @@ export default function ChatView({
   isGroup,
   orders,
   contact,
+  chatName,
   groupSenderContacts,
 }: ChatViewProps) {
   const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
@@ -107,7 +109,6 @@ export default function ChatView({
     let prevIsFromMe: boolean | undefined
 
     timelineItems.forEach((item, index) => {
-      console.log(item)
       if (item.type !== 'message') {
         visibility[index] = true
         return
@@ -151,7 +152,7 @@ export default function ChatView({
             {isGroup ? (
               <h1 className="text-lg md:text-2xl font-bold">{contact ? getContactIdentifier(contact) : "Unknown"}</h1>
             ) : (
-              <ChatHeader contact={contact!} />
+              <ChatHeader contact={contact!} chatName={chatName} />
             )}
           </div>
         </div>

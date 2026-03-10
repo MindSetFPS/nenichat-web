@@ -149,6 +149,7 @@ export default async function ChatPage({
     <div className="h-full grid grid-rows-[1fr_auto]">
       <ChatView
         contact={contactJson}
+        chatName={chatData?.name}
         initialMessages={messagesJson.reverse()}
         me={me}
         orders={ordersJson}

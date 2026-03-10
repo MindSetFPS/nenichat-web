@@ -4,14 +4,13 @@ import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
 import { CreateOrderButton } from "@/components/orders/create-order-button";
-import { DataTable } from "@/components/data-table";
-import { columns } from "@/components/orders/table/columns";
 import { PageHeader } from "@/components/ui/page-header";
 import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { IOrderRepository } from "@/Nenichat/Orders/domain/IOrderRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
 import { OrdersTableClient } from "./orders-table-client";
+import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api";
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +22,11 @@ export default async function OrdersPage() {
         return <div>{authError || "No tienes un negocio o no estás autorizado"}</div>;
     }
 
-    let orderRepository: IOrderRepository;
+    const orderRepository: IOrderRepository = new SupabaseOrderRepository(supabase);
     const contactRepository = new SupabaseContactRepository(supabase);
 
-    orderRepository = new SupabaseOrderRepository(supabase);
+    const gowappBaseUrl = "http://192.168.1.64/api/user/" + business.id
+    const gowappChatRepository = new GoWappChatRepository(gowappBaseUrl, "admin", "admin")
 
     let orders: OrderWithContactName[] = await orderRepository.getAll(business.id);
 
@@ -34,7 +34,20 @@ export default async function OrdersPage() {
         if (order.contact_id) {
             const contact = await contactRepository.findById(business.id, Number(order.contact_id));
             if (contact) {
-                order.contact_name = getContactIdentifier(contact)!;
+                let chatName: string | null = null;
+                
+                // Try to get chat name from GoWapp as fallback
+                if (contact.phone_number) {
+                    const jid = contact.phone_number + "@s.whatsapp.net"
+                    const chat = await gowappChatRepository.findById(jid)
+                    chatName = chat?.name || null
+                } else if (contact.lid) {
+                    const chat = await gowappChatRepository.findById(contact.lid)
+                    chatName = chat?.name || null
+                }
+
+                // Priority: contact.contact_name > chatName > getContactIdentifier(contact)
+                order.contact_name = contact.contact_name || chatName || getContactIdentifier(contact) || "Unknown"
             }
         }
         order.items = await orderRepository.getItems(business.id, order.id);

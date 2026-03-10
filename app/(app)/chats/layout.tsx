@@ -54,6 +54,7 @@ async function RecentChatsWrapper({ isConnected }: { isConnected: boolean }) {
   }
 
   const contactsWithLastMessage = await ChatListLoader()
+  console.log(contactsWithLastMessage)
   const contactsWithLastMessageJSON = JSON.stringify(contactsWithLastMessage)
 
   return (
