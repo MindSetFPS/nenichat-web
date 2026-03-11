@@ -20,14 +20,14 @@ import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithPr
 export const dynamic = 'force-dynamic';
 
 interface OrderDetailPageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ orderNumber: string }>;
 }
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
-    const { id } = await params;
-    const orderId = parseInt(id);
+    const { orderNumber } = await params;
+    const orderNum = parseInt(orderNumber);
 
-    if (isNaN(orderId)) notFound()
+    if (isNaN(orderNum)) notFound()
 
     const supabase = await createServerSupabaseClient();
     const { business, error: authError } = await getBusinessFromUser(supabase);
@@ -39,10 +39,10 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     const orderRepository = new SupabaseOrderRepository(supabase);
     const contactRepository = new SupabaseContactRepository(supabase);
 
-    const order = await orderRepository.getById(business.id, orderId);
+    const order = await orderRepository.getByOrderNumber(business.id, orderNum);
     if (!order) notFound()
 
-    const items = await orderRepository.getItems(business.id, orderId);
+    const items = await orderRepository.getItems(business.id, order.id);
 
     let contact = null;
     if (order.contact_id) {
@@ -52,7 +52,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     return (
         <>
             <PageHeader
-                title={`Orden #${order.id}`}
+                title={`Orden #${order.order_number}`}
                 leftContent={<BackButton className="md:hidden" />}
             >
                 <div className="hidden md:flex items-center gap-2">
@@ -60,11 +60,11 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     <OrderStatusDropdown order={JSON.parse(JSON.stringify(order))} />
                 </div>
                 <div className="hidden md:flex items-center justify-end gap-2">
-                    <EditOrderButton orderId={order.id} />
-                    <DeleteOrderButton orderId={order.id} />
+                    <EditOrderButton orderId={order.order_number} />
+                    <DeleteOrderButton orderId={order.order_number} />
                 </div>
                 <div className="md:hidden">
-                    <DropdownMenuDialog orderId={orderId} />
+                    <DropdownMenuDialog orderId={order.order_number} />
                 </div>
             </PageHeader>
 

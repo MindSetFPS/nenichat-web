@@ -49,7 +49,7 @@ export function RecentOrdersFeed({ orders }: { orders: IOrder[] }) {
                         </div>
                         <div>
                             <p className="font-medium text-sm">
-                                Pedido #{order.id}
+                                Pedido #{order.order_number}
                             </p>
                             <p className="text-xs text-muted-foreground">
                                 {formatDistanceToNow(new Date(order.created_at), { addSuffix: true, locale: es })}

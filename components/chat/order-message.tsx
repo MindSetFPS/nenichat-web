@@ -16,7 +16,7 @@ interface OrderMessageProps {
 export default function OrderMessage({ order, isGroup, items = [] }: OrderMessageProps) {
     return (
         <Link
-            href={`/orders/${order.id}`}
+            href={`/orders/${order.order_number}`}
             className={cn(
                 "block group relative overflow-hidden transition-all hover:shadow-md hover:border-primary/20",
                 "rounded-lg border bg-card text-card-foreground shadow-sm", // Rounded-lg for slightly tighter corners
@@ -28,7 +28,7 @@ export default function OrderMessage({ order, isGroup, items = [] }: OrderMessag
             <div className="flex items-center justify-between border-b bg-muted/30 px-3 py-2 text-[11px] font-medium text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                     <Package className="size-3" />
-                    #{order.id}
+                    #{order.order_number}
                 </span>
                 <Badge variant="outline" className={cn("px-1.5 py-0 text-[10px] h-4 leading-none uppercase tracking-wider border", getStatusColor(order.status))}>
                     {order.status}

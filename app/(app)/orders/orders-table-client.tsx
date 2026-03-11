@@ -13,14 +13,14 @@ export function OrdersTableClient({ orders }: OrdersTableClientProps) {
     const router = useRouter();
 
     const handleRowClick = (order: OrderWithContactName) => {
-        router.push(`/orders/${order.id}`);
+        router.push(`/orders/${order.order_number}`);
     };
 
     return (
         <DataTable
             columns={columns}
             data={orders}
-            searchInputColumnId="id"
+            searchInputColumnId="order_number"
             showDateSelector={true}
             showSearchInput={false}
             visibleColumns={{

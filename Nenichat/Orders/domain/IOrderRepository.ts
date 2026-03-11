@@ -4,6 +4,7 @@ import { IOrdersReport } from './IOrdersReport';
 
 export interface IOrderRepository {
     getById(businessId: number, id: number): Promise<IOrder | null>;
+    getByOrderNumber(businessId: number, orderNumber: number): Promise<IOrder | null>;
     getAll(businessId: number): Promise<IOrder[]>;
     getByContactId(businessId: number, contactId: number): Promise<IOrder[]>;
     getOrdersByPhone(businessId: number, phoneNumber: string): Promise<IOrder[]>;

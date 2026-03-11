@@ -61,8 +61,8 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                         orders.map((order) => (
                             <TableRow key={order.id}>
                                 <TableCell className="font-medium">
-                                    <Link href={`/orders/${order.id}`} className="hover:underline text-blue-600">
-                                        #{order.id}
+                                    <Link href={`/orders/${order.order_number}`} className="hover:underline text-blue-600">
+                                        #{order.order_number}
                                     </Link>
                                 </TableCell>
                                 <TableCell>{format(new Date(order.created_at), "MMM d, yyyy")}</TableCell>

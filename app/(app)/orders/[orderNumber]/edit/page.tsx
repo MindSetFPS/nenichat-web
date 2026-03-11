@@ -9,14 +9,14 @@ import { getBusinessFromUser } from "@/lib/user-auth";
 export const dynamic = 'force-dynamic';
 
 interface EditOrderPageProps {
-    params: Promise<{ id: string }>;
+    params: Promise<{ orderNumber: string }>;
 }
 
 export default async function EditOrderPage({ params }: EditOrderPageProps) {
-    const { id } = await params;
-    const orderId = parseInt(id);
+    const { orderNumber } = await params;
+    const orderNum = parseInt(orderNumber);
 
-    if (isNaN(orderId)) notFound();
+    if (isNaN(orderNum)) notFound();
 
     const supabase = await createServerSupabaseClient();
     const { business, error: authError } = await getBusinessFromUser(supabase);
@@ -29,11 +29,11 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
     const contactRepository = new SupabaseContactRepository(supabase);
 
     // Fetch order
-    const order = await orderRepository.getById(business.id, orderId);
+    const order = await orderRepository.getByOrderNumber(business.id, orderNum);
     if (!order) notFound();
 
     // Fetch order items with product info
-    const items = await orderRepository.getItems(business.id, orderId);
+    const items = await orderRepository.getItems(business.id, order.id);
 
     // Fetch all contacts for selection
     const contacts = await contactRepository.list(business.id, 0, 100);
@@ -59,12 +59,12 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
 
     return (
         <>
-            <PageHeader title={`Editar Orden #${orderId}`} />
+            <PageHeader title={`Editar Orden #${order.order_number}`} />
             <div className="overflow-scroll">
                 <EditOrderForm
                     contacts={plainContacts}
                     contact={plainContact}
-                    orderId={orderId}
+                    orderId={order.id}
                     initialData={{
                         status: plainOrder.status,
                         paymentMethod: plainOrder.payment_method,

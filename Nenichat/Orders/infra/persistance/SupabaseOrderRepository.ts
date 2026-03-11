@@ -29,6 +29,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
         return new Order(
             data.id,
             data.business_id,
+            data.order_number || 0,
             data.contact_id,
             parseFloat(data.total_amount),
             parseFloat(data.shipping_cost),
@@ -62,6 +63,27 @@ export class SupabaseOrderRepository implements IOrderRepository {
                 return null;
             }
             console.error("Error fetching order by ID:", error);
+            throw error;
+        }
+        return this.mapToOrder(data);
+    }
+
+    /**
+     * Retrieves an order by its order_number (business-scoped).
+     */
+    async getByOrderNumber(businessId: number, orderNumber: number): Promise<IOrder | null> {
+        const { data, error } = await this.supabase
+            .from('orders')
+            .select('*')
+            .eq('business_id', businessId)
+            .eq('order_number', orderNumber)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') {
+                return null;
+            }
+            console.error("Error fetching order by order number:", error);
             throw error;
         }
         return this.mapToOrder(data);

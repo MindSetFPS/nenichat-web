@@ -24,11 +24,11 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         cell: ({ row }) => {
             return (
                 <Link
-                    className="hover:underline w-1 text-blue-400 text-xs" 
-                    href={`/orders/${row.original.id}`}
+                    className="hover:underline w-1 text-blue-400 text-xs"
+                    href={`/orders/${row.original.order_number}`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    #{row.original.id}
+                    #{row.original.order_number}
                 </Link>
             );
         },
