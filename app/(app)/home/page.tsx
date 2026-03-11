@@ -47,10 +47,19 @@ export default async function Page() {
   }
 
   const orderRepository = new SupabaseOrderRepository(supabase);
+  const containerRepository = new SupabaseContainerRepository(supabase);
+  const containerData = await containerRepository.getContainerByBusinessId(business.id);
 
   const messagesPerDay: any[] = []; //await messageRepository.getMessageCountPerDay(business.id, 14);
   const orders: any[] = await orderRepository.getAll(business.id);
   const plainOrders = JSON.parse(JSON.stringify(orders));
+
+  if (orders.length === 0) {
+    return (
+      <WelcomePage isWhatsAppConnected={containerData?.status === "connected"} />
+    );
+  }
+
   const orderTotalsPerDay: any[] = await orderRepository.getOrderTotalPerDay(business.id, 14);
 
   const totalRevenue = plainOrders.reduce((acc: number, order: any) => {
@@ -86,9 +95,6 @@ export default async function Page() {
     })
   );
 
-  const containerRepository = new SupabaseContainerRepository(supabase);
-  const containerData = await containerRepository.getContainerByBusinessId(business.id);
-
   let recentConversations: any[] = [];
   if (containerData && containerData.status === "connected") {
     try {
@@ -102,11 +108,6 @@ export default async function Page() {
     }
   }
 
-  if (orders.length === 0) {
-    return (
-      <WelcomePage />
-    );
-  }
 
   return (
     <Content className="p-4 md:p-8 bg-gray-50/50 dark:bg-zinc-950/50 scroll-auto overflow-y-auto">

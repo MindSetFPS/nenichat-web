@@ -1,13 +1,17 @@
 "use client";
 
 import { motion } from "motion/react";
-import { MessageSquare, ShoppingBag, ArrowRight, Zap, Users } from "lucide-react";
+import { MessageSquare, ShoppingBag, ArrowRight, Zap, Users, Check } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "../ui/page-header";
 import Content from "@/components/layout/content";
 
 
-export function WelcomePage() {
+interface WelcomePageProps {
+    isWhatsAppConnected?: boolean;
+}
+
+export function WelcomePage({ isWhatsAppConnected = false }: WelcomePageProps) {
     const container = {
         hidden: { opacity: 0 },
         show: {
@@ -62,20 +66,32 @@ export function WelcomePage() {
                     >
 
                         {/* Connect WhatsApp Card */}
-                        <Link href="/wapp" className="group">
-                            <div className="h-full p-6 rounded-2xl bg-white/50 dark:bg-zinc-900/50 border border-gray-200/50 dark:border-zinc-800/50 hover:border-primary/20 hover:bg-white/80 dark:hover:bg-zinc-900/80 transition-all duration-300 shadow-sm hover:shadow-md backdrop-blur-sm relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <ArrowRight className="w-5 h-5 text-primary" />
+                        {isWhatsAppConnected ? (
+                            <div className="h-full p-6 rounded-2xl bg-green-500/10 border border-green-500/20 dark:bg-green-900/10 dark:border-green-900/20 shadow-sm backdrop-blur-sm relative overflow-hidden">
+                                <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center mb-4">
+                                    <Check className="w-6 h-6 text-green-600 dark:text-green-400" />
                                 </div>
-                                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                                    <MessageSquare className="w-6 h-6 text-green-600 dark:text-green-400" />
-                                </div>
-                                <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">Enlazar WhatsApp</h3>
+                                <h3 className="text-lg font-semibold mb-2 text-green-700 dark:text-green-400">WhatsApp Conectado</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Enlaza tu cuenta de WhatsApp para empezar a recibir mensajes directamente aquí.
+                                    Ya puedes recibir mensajes de tus clientes.
                                 </p>
                             </div>
-                        </Link>
+                        ) : (
+                            <Link href="/wapp" className="group">
+                                <div className="h-full p-6 rounded-2xl bg-white/50 dark:bg-zinc-900/50 border border-gray-200/50 dark:border-zinc-800/50 hover:border-primary/20 hover:bg-white/80 dark:hover:bg-zinc-900/80 transition-all duration-300 shadow-sm hover:shadow-md backdrop-blur-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <ArrowRight className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <MessageSquare className="w-6 h-6 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">Enlazar WhatsApp</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Enlaza tu cuenta de WhatsApp para empezar a recibir mensajes directamente aquí.
+                                    </p>
+                                </div>
+                            </Link>
+                        )}
 
                         {/* Create Order Card */}
                         <Link href="/orders/new" className="group">
