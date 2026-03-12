@@ -17,6 +17,7 @@ export class OrderRepository implements IOrderRepository {
         return new Order(
             parseInt(row.id),
             parseInt(row.business_id),
+            parseInt(row.order_number) || 0,
             row.contact_id ? parseInt(row.contact_id) : null,
             parseFloat(row.total_amount),
             parseFloat(row.shipping_cost),
@@ -36,6 +37,14 @@ export class OrderRepository implements IOrderRepository {
 
     async getById(businessId: number, id: number): Promise<IOrder | null> {
         const result = await this.pool.query('SELECT * FROM orders WHERE id = $1 AND business_id = $2', [id, businessId]);
+        if (result.rows.length === 0) {
+            return null;
+        }
+        return this.mapRowToOrder(result.rows[0]);
+    }
+
+    async getByOrderNumber(businessId: number, orderNumber: number): Promise<IOrder | null> {
+        const result = await this.pool.query('SELECT * FROM orders WHERE order_number = $1 AND business_id = $2', [orderNumber, businessId]);
         if (result.rows.length === 0) {
             return null;
         }

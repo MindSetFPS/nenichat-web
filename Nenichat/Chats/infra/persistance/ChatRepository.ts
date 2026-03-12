@@ -80,6 +80,10 @@ export class ChatRepository implements IChatRepository {
 
     return result.rows.map((d) => this.toChat(d));
   }
+
+  checkPhone(phone: string): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
 }
 
 export const chatRepository = new ChatRepository(pool);
