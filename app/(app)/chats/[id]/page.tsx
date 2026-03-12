@@ -36,40 +36,67 @@ export default async function ChatPage({
     return notFound();
   }
 
+  const jidKind = getJidKind(jid);
   let chatData = null;
   try {
+    // Attempt to find the chat session in GoWapp.
+    // NOTE: For new contacts or people we haven't messaged yet, this might return null.
+    // We don't 404 immediately because we want to allow starting a new conversation.
     chatData = await gowappChatRepository.findById(jid)
-    if (!chatData) {
-      return notFound();
-    }
   } catch (e) {
     console.error(`Error finding chat ${jid}:`, e);
-    return notFound();
   }
 
   const meData = await contactRepository.findMe(business.id)
 
-  // retrieve contact info with lid or phone number
+  // Retrieve contact info from our local CRM database as a fallback
   let contactInfo = null;
-  if (chatData) {
-    const jidKind = getJidKind(jid);
-    const isLid = jidIsLid(jid) || jidIsGroup(jid)
+  const isLid = jidIsLid(jid) || jidIsGroup(jid)
 
-    if (jidIsPhoneNumber(jid)) {
-      contactInfo = await contactRepository.findByPhoneNumber(business.id, jidToNumeric(jid));
-    } else {
-      contactInfo = await contactRepository.findByLid(business.id, jid);
+  if (jidIsPhoneNumber(jid)) {
+    contactInfo = await contactRepository.findByPhoneNumber(business.id, jidToNumeric(jid));
+  } else if (jidIsLid(jid) || jidIsGroup(jid)) {
+    contactInfo = await contactRepository.findByLid(business.id, jid);
+  }
+
+  // If we don't have chat data and it's an unknown JID, and we don't have contact info, then 404
+  if (!chatData && jidKind === 'unknown' && !contactInfo) {
+    return notFound();
+  }
+
+  // If the chat session doesn't exist in GoWapp yet (new interaction)
+  if (!chatData) {
+    // SECURITY/DATA INTEGRITY: If it's a completely new number (not in CRM and no chat history),
+    // verify it actually exists on WhatsApp to prevent URL typos from creating "garbage" contacts.
+    if (!contactInfo && (jidIsPhoneNumber(jid) || jidIsLid(jid))) {
+      const exists = await gowappChatRepository.checkPhone(jid);
+      if (!exists) {
+        return notFound();
+      }
     }
 
-    if (jidKind !== 'unknown') {
-      if (!contactInfo) {
-        contactInfo = await contactRepository.save({
-          business_id: business.id,
-          is_user: false,
-          pushname: chatData.name || null,
-          ...(isLid ? { lid: jid } : { phone_number: jidToNumeric(jid) })
-        });
-      }
+    // Create a local placeholder for the UI so the page can render
+    chatData = {
+      jid: jid,
+      name: contactInfo?.pushname || contactInfo?.username || jidToNumeric(jid),
+      last_message_time: new Date(),
+      ephemeral_expiration: 0,
+      is_group: jidIsGroup(jid),
+      created_at: new Date(),
+      updated_at: new Date(),
+    }
+  }
+
+  // If we have a valid JID and it's not already in our CRM, save it now.
+  // This ensures the contact exists for orders, tags, etc. even before the first message.
+  if (jidKind !== 'unknown') {
+    if (!contactInfo) {
+      contactInfo = await contactRepository.save({
+        business_id: business.id,
+        is_user: false,
+        pushname: chatData.name || null,
+        ...(isLid ? { lid: jid } : { phone_number: jidToNumeric(jid) })
+      });
     }
   }
 
@@ -99,34 +126,43 @@ export default async function ChatPage({
 
   let groupSenderContactsJson = '[]'
 
-  if (chatData?.is_group) {
-    // A group chat is still a contact that we can name
-    messages = await gowappMessageRepository.findByChatIdWithSender(jid, 0, 100)
+  try {
+    if (chatData?.is_group) {
+      // Group Chat Logic: Fetch messages and identify unique senders to look up their CRM contacts
+      messages = await gowappMessageRepository.findByChatIdWithSender(jid, 0, 100)
 
-    // 1. Create a list of unique users that have sent a message
-    const userIdSet = new Set(messages.map((message) => message.sender_jid))
-    const userIdList = Array.from(userIdSet)
+      // 1. Create a list of unique users that have sent a message
+      const userIdSet = new Set(messages.map((message) => message.sender_jid))
+      const userIdList = Array.from(userIdSet)
 
-    // 2. Remove elements that end in "@g.us"
-    const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
+      // 2. Remove elements that end in "@g.us"
+      const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
 
-    // 3. Fetch contacts for group message senders
-    const contactLookups: { value: string; is_lid: boolean }[] = filteredUserIdList.map((user) => ({
-      value: user,
-      is_lid: user.includes('@lid'),
-    }))
-    if (contactLookups.length > 0) {
-      const groupSenderContacts = await contactRepository.findBatchByPhoneOrLid(business.id, contactLookups)
-      groupSenderContactsJson = JSON.stringify(groupSenderContacts)
+      // 3. Fetch contacts for group message senders
+      const contactLookups: { value: string; is_lid: boolean }[] = filteredUserIdList.map((user) => ({
+        value: user,
+        is_lid: user.includes('@lid'),
+      }))
+      if (contactLookups.length > 0) {
+        const groupSenderContacts = await contactRepository.findBatchByPhoneOrLid(business.id, contactLookups)
+        groupSenderContactsJson = JSON.stringify(groupSenderContacts)
+      }
+
+      // 4. Fetch orders for all group participants
+      const ordersList = await Promise.all(filteredUserIdList.map((user) => orderRepository.getOrdersByPhone(business.id, user)))
+      orders = ordersList.flat()
+    } else {
+      // Direct Chat Logic: Fetch standard conversation history
+      messages = await gowappMessageRepository.findByChatId(jid, 0, 10)
+      if (contactInfo && contactInfo.id) {
+        orders = await orderRepository.getByContactId(business.id, contactInfo.id)
+      }
     }
-
-    // 4. Loop through the list of users and query every order that belongs to that user
-    const ordersList = await Promise.all(filteredUserIdList.map((user) => orderRepository.getOrdersByPhone(business.id, user)))
-    orders = ordersList.flat()
-  } else {
-    messages = await gowappMessageRepository.findByChatId(jid, 0, 10)
-    // orders = await orderRepository.getByContactId(business.id, numericId)
-    if (contactInfo && contactInfo.id) {
+  } catch (e) {
+    console.error(`Error fetching messages for chat ${jid}:`, e);
+    // If fetching fails (e.g. chat doesn't exist in backend yet), we still want to show the page with empty history.
+    messages = []
+    if (!chatData?.is_group && contactInfo && contactInfo.id) {
       orders = await orderRepository.getByContactId(business.id, contactInfo.id)
     }
   }

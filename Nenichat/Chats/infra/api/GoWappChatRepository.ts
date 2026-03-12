@@ -118,6 +118,22 @@ export class GoWappChatRepository implements IChatRepository {
         return null;
     }
 
+    /**
+     * Checks if a phone number/JID exists on WhatsApp.
+     * @param {string} jid - The JID to check.
+     * @returns {Promise<boolean>} True if it exists on WhatsApp.
+     */
+    async checkPhone(jid: string): Promise<boolean> {
+        try {
+            const phone = jid.split('@')[0];
+            const response = await this.request<any>(`/user/check?phone=${phone}`);
+            return response.code === 'SUCCESS' && response.results?.on_whatsapp === true;
+        } catch (e) {
+            console.error(`Error checking phone ${jid}:`, e);
+            return false;
+        }
+    }
+
     async getDevices() {
         const response = await this.request<any>('/devices');
         if (response.code === 'SUCCESS' && response.results?.data) {
