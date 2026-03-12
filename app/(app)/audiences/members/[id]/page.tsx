@@ -149,6 +149,7 @@ export default function AudienceMembersPage() {
               columns={columns}
               getRowId={(row) => String(row.id)}
               showSelectColumn={showSelectColumn}
+              selectedDateDefault="all-time"
               data={audienceMembers}
             />
           </>

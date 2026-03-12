@@ -65,7 +65,6 @@ export function AudiencesTable({
                 onSelectionChange([...selectedAudiences, audience]);
             } else {
                 let d = selectedAudiences.filter((a) => String(a.id) !== String(audience.id))
-                console.log("filter", d)
                 onSelectionChange(d);
             }
         }

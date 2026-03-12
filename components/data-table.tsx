@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
     searchInputColumnId = "id",
     showColumnsVisibilityDropdown = true,
     rowSelection: externalRowSelection,
-    showSelectColumn: showSelectColumn,
+    showSelectColumn: showSelectColumn = false,
     showDateSelector: showDateSelector,
     dateFilterColumnId = "created_at",
     selectedDateDefault = "today",
@@ -146,12 +146,19 @@ export function DataTable<TData, TValue>({
     })
 
     useEffect(() => {
-        table.getColumn("select")?.toggleVisibility(showSelectColumn);
-    }, [showSelectColumn])
+        if (!showSelectColumn) return;
+        const column = table.getAllColumns().find(col => col.id === "select");
+        if (column) {
+            column.toggleVisibility(true);
+        }
+    }, [showSelectColumn, table])
 
     useEffect(() => {
-        table.getColumn(dateFilterColumnId)?.setFilterValue(selectedDate)
-    }, [selectedDate])
+        const column = table.getAllColumns().find(col => col.id === dateFilterColumnId);
+        if (column) {
+            column.setFilterValue(selectedDate);
+        }
+    }, [selectedDate, dateFilterColumnId, table])
 
     return (
         <>
@@ -231,8 +238,8 @@ export function DataTable<TData, TValue>({
                     {
                         table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow 
-                                    key={row.id} 
+                                <TableRow
+                                    key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={() => onRowClick?.(row.original)}
                                     className={onRowClick ? "cursor-pointer hover:bg-muted/50" : undefined}

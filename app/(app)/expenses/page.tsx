@@ -47,6 +47,8 @@ export default async function ExpensesPage() {
                 <DataTable
                     columns={columns}
                     searchInputColumnId="description"
+                    dateFilterColumnId="expense_date"
+                    selectedDateDefault="all-time"
                     visibleColumns={{
                         "notes": false,
                     }}

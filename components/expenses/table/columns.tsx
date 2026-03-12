@@ -7,10 +7,12 @@ import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
 import { IExpenseWithCategory } from "@/Nenichat/Expenses/domain/IExpense";
 import { ArrowUpDown, Trash2 } from "lucide-react";
+import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
 
 export const columns: ColumnDef<IExpenseWithCategory>[] = [
     {
         accessorKey: "expense_date",
+        filterFn: dateIntervalFilter,
         header: ({ column }) => (
             <Button
                 className="w-min p-0"
