@@ -162,108 +162,112 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className={`flex items-center mb-0 ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
-                {showDateSelector &&
-                    <DayIntervalSelector
-                        selectedInterval={selectedDate}
-                        onIntervalChange={setSelectedDate}
-                    />
-                }
-                {showSearchInput &&
-                    <Input
-                        placeholder="Filtrar"
-                        value={
-                            filterMode === "global"
-                                ? (globalFilter ?? "")
-                                : (table.getColumn(searchInputColumnId)?.getFilterValue() as string) ?? ""
-                        }
-                        onChange={(event) => {
-                            if (filterMode === "global") {
-                                setGlobalFilter(event.target.value);
-                            } else {
-                                table.getColumn(searchInputColumnId)?.setFilterValue(event.target.value);
-                            }
-                        }}
-                        className="max-w-sm"
-                    />
-                }
-                {showColumnsVisibilityDropdown &&
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Columnas
-                                <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter(
-                                    (column) => column.getCanHide()
-                                )
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) => column.toggleVisibility(value as boolean)}
-                                        >
-                                            {(column.id).replace("_", " ").charAt(0).toUpperCase() + (column.id).replace("_", " ").slice(1)}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })
-                            }
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                }
-            </div>
-            <Table className="mb-0">
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} className="sticky top-0 z-10 bg-background text-left w-min">
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {
-                        table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                    onClick={() => onRowClick?.(row.original)}
-                                    className={onRowClick ? "cursor-pointer hover:bg-muted/50" : undefined}
-                                >
-                                    {
-                                        row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </TableCell>
-                                        ))
-                                    }
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )
+            <div className="space-y-2">
+                <div className={`flex items-center ${showSearchInput || showColumnsVisibilityDropdown ? "py-2" : ""} space-x-2`}>
+                    {showDateSelector &&
+                        <DayIntervalSelector
+                            selectedInterval={selectedDate}
+                            onIntervalChange={setSelectedDate}
+                        />
                     }
-                </TableBody>
-            </Table>
-            <div className="flex items-center justify-center md:justify-end space-x-2 pt-2 sticky bottom-0">
+                    {showSearchInput &&
+                        <Input
+                            placeholder="Filtrar"
+                            value={
+                                filterMode === "global"
+                                    ? (globalFilter ?? "")
+                                    : (table.getColumn(searchInputColumnId)?.getFilterValue() as string) ?? ""
+                            }
+                            onChange={(event) => {
+                                if (filterMode === "global") {
+                                    setGlobalFilter(event.target.value);
+                                } else {
+                                    table.getColumn(searchInputColumnId)?.setFilterValue(event.target.value);
+                                }
+                            }}
+                            className="max-w-sm"
+                        />
+                    }
+                    {showColumnsVisibilityDropdown &&
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="ml-auto">
+                                    Columnas
+                                    <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {table
+                                    .getAllColumns()
+                                    .filter(
+                                        (column) => column.getCanHide()
+                                    )
+                                    .map((column) => {
+                                        return (
+                                            <DropdownMenuCheckboxItem
+                                                key={column.id}
+                                                checked={column.getIsVisible()}
+                                                onCheckedChange={(value) => column.toggleVisibility(value as boolean)}
+                                            >
+                                                {(column.id).replace("_", " ").charAt(0).toUpperCase() + (column.id).replace("_", " ").slice(1)}
+                                            </DropdownMenuCheckboxItem>
+                                        )
+                                    })
+                                }
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    }
+                </div>
+                <div className="overflow-auto">
+                    <Table className="mb-0">
+                        <TableHeader className="sticky top-0 z-10 bg-background">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => (
+                                        <TableHead key={header.id} className="text-left w-min">
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {
+                                table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow
+                                            key={row.id}
+                                            data-state={row.getIsSelected() && "selected"}
+                                            onClick={() => onRowClick?.(row.original)}
+                                            className={onRowClick ? "cursor-pointer hover:bg-muted/50" : undefined}
+                                        >
+                                            {
+                                                row.getVisibleCells().map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                    </TableCell>
+                                                ))
+                                            }
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                                            No results.
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
+            <div className="flex items-center justify-center md:justify-end space-x-2 pt-2">
                 <Button
                     variant="outline"
                     size="sm"
