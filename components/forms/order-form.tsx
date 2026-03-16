@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { ContactSelectorCombobox } from "@/components/contact-selector-combobox";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -71,6 +71,21 @@ export function OrderForm({
     // Order Details
     const [contactId, setContactId] = useState<string>(initialValues?.contactId || (initialContact ? String(initialContact.id) : ""));
     const [lid, setLid] = useState<string>(initialValues?.lid || (initialContact?.lid ? initialContact.lid : ""));
+    const [selectedContact, setSelectedContact] = useState<IContact | undefined>(initialContact);
+
+    // Find initial contact from contacts array if we have contactId or lid but no initialContact
+    useEffect(() => {
+        if (!initialContact && contacts.length > 0 && (contactId || lid)) {
+            const found = contacts.find(c => 
+                (contactId && String(c.id) === contactId) || 
+                (lid && (c.lid === lid || c.phone_number === lid))
+            );
+            if (found) {
+                setSelectedContact(found);
+            }
+        }
+    }, [contacts, contactId, lid, initialContact]);
+
     const [status, setStatus] = useState(initialValues?.status || "pending");
 
     // Items
@@ -167,26 +182,6 @@ export function OrderForm({
         await handleSubmit(e);
     };
 
-    // Determine display contact
-    const displayContact = contacts ? contacts.find(c => {
-        if (contactId) return String(c.id) === contactId;
-        if (lid) return c.lid === lid || c.phone_number === lid;
-        return false;
-    }) : null;
-    const showContactSelect = contacts && contacts.length > 0 && !contactId && !lid && !initialContact;
-    // Determine if we should show the select or the display box. 
-    // If we have a selected contactId, show the display box (which might be loading).
-    // If we don't have a selected contactId, show the select.
-
-    // Correction on logic:
-    // If `contactId` is set, we show the display box (unless we want to allow changing it easily, but the original UI seemed to lock it or show it in a specific way).
-    // The original UI logic:
-    // const showContactSelect = contacts && contacts.length > 0 && !initialContactId && !initialContact;
-    // Here we use internal state `contactId`.
-
-    // Let's refine `showContactSelect` to mimic original behavior but also allow selecting if nothing is selected.
-    const effectiveShowContactSelect = (!contactId && !lid) && contacts && contacts.length > 0;
-
     return (
         <form onSubmit={handleFormSubmit} className={cn("@container md:grid grid-cols-1 md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4 p-0 pb-2", className)}>
             <Card className="col-span-2 @md:col-span-1 pt-3 pb-1">
@@ -196,37 +191,21 @@ export function OrderForm({
                 <CardContent className="space-y-4 px-2">
                     <div className="space-y-2">
                         <Label>Cliente</Label>
-                        {effectiveShowContactSelect ? (
-                            <Select value={contactId} onValueChange={setContactId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccionar un cliente" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {contacts.map((contact) => (
-                                        <SelectItem key={contact.id} value={String(contact.id)}>
-                                            {contact.contact_name || contact.pushname || contact.phone_number}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <div className="p-3 border rounded-md bg-muted/50 flex justify-between items-center">
-                                {displayContact ? (
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{getContactIdentifier(displayContact)}</span>
-                                        <span className="text-sm text-muted-foreground">{displayContact.phone_number}</span>
-                                    </div>
-                                ) : contactId || lid ? (
-                                    <span className="font-medium">{contactId || lid}</span>
-                                ) : (
-                                    <span className="text-sm text-muted-foreground">Sin contacto seleccionado</span>
-                                )}
-                                {/* Allow clearing selection if it wasn't an initial mandated contact? For now keep simple like original */}
-                                {(contactId || lid) && !initialValues?.contactId && !initialValues?.lid && !initialContact && (
-                                    <Button variant="ghost" size="sm" onClick={() => { setContactId(""); setLid(""); }} type="button">Cambiar</Button>
-                                )}
-                            </div>
-                        )}
+                        <ContactSelectorCombobox
+                            contacts={contacts}
+                            value={selectedContact ?? (contactId || lid)}
+                            onChange={(contact) => {
+                                setSelectedContact(contact)
+                                if (contact) {
+                                    setContactId(String(contact.id || ""))
+                                    setLid(contact.lid || "")
+                                } else {
+                                    setContactId("")
+                                    setLid("")
+                                }
+                            }}
+                            placeholder="Seleccionar cliente..."
+                        />
                     </div>
 
                     <div className="space-y-2">

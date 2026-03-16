@@ -36,7 +36,8 @@ interface MessageProps {
 export default function Message({ message, isMe, isGroup = false, showAvatar = true }: MessageProps) {
     const [open, setOpen] = useState(false)
     const getContact = useContactStore((state) => state.getContact)
-    const senderContact = getContact(message.sender_jid) || message.sender_jid // maybe we should save the contact? 
+    const senderContact = getContact(message.sender_jid)
+    const senderContactValue = typeof senderContact === 'object' ? senderContact : undefined
 
     // Show avatar only in group chats, for first message in consecutive sequence
     const shouldShowAvatar = isGroup && showAvatar && senderContact && !isMe
@@ -105,6 +106,7 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                         </div>
                                         <CreateOrderForm
                                             onSubmit={() => setOpen(false)}
+                                            contact={senderContactValue}
                                             lid={String(message.sender_jid)}
                                             createdAt={new Date(message.created_at)}
                                         />

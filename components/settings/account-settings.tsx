@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import { User } from "@supabase/supabase-js"
-import { ProfileSelectorCombobox } from "./profile-selector-combobox"
+import { ContactSelectorCombobox } from "@/components/contact-selector-combobox"
 
 import { useUserStore } from "@/stores/user-store"
 
@@ -187,19 +187,19 @@ function ProfileSelector({ onUserSelected }: { onUserSelected: () => void }) {
         fetchContacts()
     }, [debouncedSearchTerm])
 
-    const handleSelectContact = async (contactId: string) => {
+    const handleSelectContact = async (contact: IContact) => {
         await fetch('/api/profile/set-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userId: contactId }),
+            body: JSON.stringify({ userId: contact.id }),
         })
         onUserSelected()
     }
 
     return (
-        <ProfileSelectorCombobox
+        <ContactSelectorCombobox
             contacts={contacts}
             onSearch={setSearchTerm}
             onSelectContact={handleSelectContact}

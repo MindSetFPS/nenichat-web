@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { OrderForm, OrderFormValues } from "./order-form";
 import { useProductStore } from "@/stores/product-store";
+import { useContactStore } from "@/stores/contact-store";
 import { IProduct } from "@/Nenichat/Products/domain/IProduct";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
@@ -20,7 +21,7 @@ interface CreateOrderFormProps {
 }
 
 export function CreateOrderForm({
-    contacts,
+    contacts: providedContacts,
     contactId,
     lid,
     contact,
@@ -30,9 +31,31 @@ export function CreateOrderForm({
 }: CreateOrderFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [contacts, setContacts] = useState<IContact[]>(providedContacts || []);
 
     const { products, fetchProducts, updateProduct } = useProductStore();
+    const { setContacts: setStoreContacts } = useContactStore();
     const supabase = createBrowserSupabaseClient();
+
+    useEffect(() => {
+        const loadContacts = async () => {
+            if (providedContacts) {
+                setContacts(providedContacts);
+                setStoreContacts(providedContacts);
+                return;
+            }
+            try {
+                const response = await fetch('/api/contacts?pageSize=100');
+                const data = await response.json();
+                const fetchedContacts = data.data || [];
+                setContacts(fetchedContacts);
+                setStoreContacts(fetchedContacts);
+            } catch (error) {
+                console.error("Failed to load contacts:", error);
+            }
+        };
+        loadContacts();
+    }, [providedContacts, setStoreContacts]);
 
     let activeProducts: IProduct[];
 
@@ -112,7 +135,7 @@ export function CreateOrderForm({
 
     return (
         <OrderForm
-            contacts={contacts || []}
+            contacts={contacts}
             onSubmit={handleSubmit}
             isLoading={loading}
             submitLabel="Crear Orden"
