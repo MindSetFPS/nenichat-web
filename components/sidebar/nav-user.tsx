@@ -33,7 +33,7 @@ import {
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useUserStore } from "@/stores/user-store"
-import { useBusinessStore } from "@/stores/business-store"
+import { useBusiness } from "@/components/providers/business-context"
 
 export function NavUser({
     user: initialUser,
@@ -47,12 +47,11 @@ export function NavUser({
     const supabase = createBrowserSupabaseClient()
     const router = useRouter()
     const { user, supabaseUser, isLoading, fetchUser } = useUserStore()
-    const { business, fetchBusiness } = useBusinessStore()
+    const business = useBusiness()
 
     useEffect(() => {
         fetchUser()
-        fetchBusiness()
-    }, [fetchUser, fetchBusiness])
+    }, [fetchUser])
 
     const userData = {
         name: user?.pushname || user?.username || supabaseUser?.user_metadata?.display_name || supabaseUser?.email?.split("@")[0] || initialUser.name,

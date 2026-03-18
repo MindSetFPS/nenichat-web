@@ -10,7 +10,7 @@ import WappError from '../wapp/wapp-error'
 import WappPause from '../wapp/wapp-pause'
 import WappConnected from '../wapp/wapp-connected'
 import WappBusinessMissing from '../wapp/wapp-business-missing'
-import { useBusinessStore } from '@/stores/business-store'
+import { useBusiness } from '@/components/providers/business-context'
 
 /**
  * @function WhatsAppSettings
@@ -23,18 +23,12 @@ export function WhatsAppSettings() {
     const searchParams = useSearchParams()
     const reconnect = searchParams.get('reconnect') === 'true'
     
-    const { business, isLoading: businessLoading, fetchBusiness } = useBusinessStore()
-
-    useEffect(() => {
-        fetchBusiness()
-    }, [fetchBusiness])
+    const business = useBusiness()
 
     useEffect(() => {
         async function fetchContainer() {
             if (!business?.id) {
-                if (!businessLoading) {
-                    setLoading(false)
-                }
+                setLoading(false)
                 return
             }
 
@@ -56,9 +50,9 @@ export function WhatsAppSettings() {
         }
 
         fetchContainer()
-    }, [business, businessLoading, supabase])
+    }, [business, supabase])
 
-    if (loading || businessLoading) {
+    if (loading) {
         return (
             <div className="flex items-center justify-center p-12">
                 <Spinner className="h-8 w-8 text-primary" />

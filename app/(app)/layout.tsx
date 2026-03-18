@@ -1,14 +1,17 @@
+import { redirect } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import "@/styles/globals.css"
 import { AppLayout } from "@/components/layout/app-layout"
 import { requireAuth } from "@/lib/auth"
 import { ContactInitializer } from "@/components/contact-initializer"
+import { BusinessProvider } from "@/components/providers/business-context"
 import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { getBusinessFromUser } from "@/lib/user-auth"
 import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
 import { getJidKind } from "@/Nenichat/Chats/domain/Jid"
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
+import { Business } from "@/stores/business-store"
 
 interface RootLayoutProps {
     children: React.ReactNode
@@ -17,14 +20,16 @@ interface RootLayoutProps {
 export default async function RootLayout({ children }: RootLayoutProps) {
     await requireAuth()
 
+    let business: Business | null = null
     let contactsData: IContact[] = []
 
     try {
         const supabase = await createServerSupabaseClient()
-        const { business, error: authError } = await getBusinessFromUser(supabase)
+        const { business: fetchedBusiness, error: authError } = await getBusinessFromUser(supabase)
+        business = fetchedBusiness
 
         if (authError || !business) {
-            console.error('Error getting business:', authError)
+            redirect('/home')
         } else {
             // Get WhatsApp credentials and fetch chats
             const wappUrl = "http://192.168.1.64/api/user/" + business.id
@@ -61,11 +66,13 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                         enableSystem
                         disableTransitionOnChange
                     >
-                        <ContactInitializer contacts={JSON.parse(JSON.stringify(contactsData))}>
-                            <AppLayout>
-                                {children}
-                            </AppLayout>
-                        </ContactInitializer>
+                        <BusinessProvider business={business}>
+                            <ContactInitializer contacts={JSON.parse(JSON.stringify(contactsData))}>
+                                <AppLayout>
+                                    {children}
+                                </AppLayout>
+                            </ContactInitializer>
+                        </BusinessProvider>
                     </ThemeProvider>
                 </body>
             </html>

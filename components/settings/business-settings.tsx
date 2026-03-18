@@ -1,28 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
 import { BusinessForm } from "@/components/forms/business-form"
-import { Spinner } from "@/components/ui/spinner"
-import { useBusinessStore } from "@/stores/business-store"
+import { useBusiness } from "@/components/providers/business-context"
 
 /**
  * @function BusinessSettings
  * @description Renders the business info settings view using the BusinessForm.
  */
 export function BusinessSettings() {
-    const { business, isLoading, fetchBusiness } = useBusinessStore()
-
-    useEffect(() => {
-        fetchBusiness()
-    }, [fetchBusiness])
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center p-12">
-                <Spinner className="h-8 w-8 text-primary" />
-            </div>
-        )
-    }
+    const business = useBusiness()
 
     return (
         <div className="space-y-4">
