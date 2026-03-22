@@ -138,13 +138,11 @@ export default async function ChatPage({
       // 2. Remove elements that end in "@g.us"
       const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
 
-      // 3. Fetch contacts for group message senders
-      const contactLookups: { value: string; is_lid: boolean }[] = filteredUserIdList.map((user) => ({
-        value: user,
-        is_lid: user.includes('@lid'),
-      }))
-      if (contactLookups.length > 0) {
-        const groupSenderContacts = await contactRepository.findBatchByPhoneOrLid(business.id, contactLookups)
+      // 3. Fetch (or create) contacts for group message senders
+      if (filteredUserIdList.length > 0) {
+        const groupSenderContacts = await Promise.all(
+          filteredUserIdList.map((jid) => contactRepository.getOrCreateContact(business.id, jid))
+        )
         groupSenderContactsJson = JSON.stringify(groupSenderContacts)
       }
 
@@ -153,7 +151,7 @@ export default async function ChatPage({
       orders = ordersList.flat()
     } else {
       // Direct Chat Logic: Fetch standard conversation history
-      messages = await gowappMessageRepository.findByChatId(jid, 0, 10)
+      messages = await gowappMessageRepository.findByChatId(jid, 0, 30)
       if (contactInfo && contactInfo.id) {
         orders = await orderRepository.getByContactId(business.id, contactInfo.id)
       }
