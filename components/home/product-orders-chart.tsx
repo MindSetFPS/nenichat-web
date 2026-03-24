@@ -1,4 +1,5 @@
 "use client"
+import { format, parseISO } from "date-fns"
 
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
 import {
@@ -34,7 +35,7 @@ export function OrderProductChart({ data }: { data: { date: string; quantity: nu
                         tickLine={false}
                         tickMargin={10}
                         axisLine={false}
-                        tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        tickFormatter={(value) => format(parseISO(value), "MMM d")}
                     />
                     <ChartTooltip
                         cursor={false}

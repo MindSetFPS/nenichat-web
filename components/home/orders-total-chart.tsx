@@ -7,6 +7,7 @@ import {
     ChartTooltipContent,
 } from "@/components/ui/chart";
 import { IOrdersReport } from "@/Nenichat/Orders/domain/IOrdersReport";
+import { format, parseISO } from "date-fns";
 
 interface OrdersTotalChartProps {
     data: IOrdersReport[];
@@ -33,7 +34,7 @@ export function OrdersTotalValueChart({ data }: OrdersTotalChartProps) {
                             tickLine={false}
                             tickMargin={10}
                             axisLine={false}
-                            tickFormatter={(value) => new Date(value).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}
+                            tickFormatter={(value) => format(parseISO(value), "MMM d")}
                         />
 
                         <Bar dataKey="total" radius={8} fill="var(--color-total)">
