@@ -5,6 +5,7 @@ import { Activity, DollarSign, ShoppingBag, TrendingUp } from "lucide-react";
 import { motion } from "motion/react";
 import { AnimatedCounter } from "../ui/animated-counter";
 import { cn } from "@/lib/utils";
+import { DailyOrdersChart } from "./orders-pie-chart";
 
 interface StatCardProps {
     title: string;
@@ -73,12 +74,14 @@ export default function BusinessSummary({
     totalRevenue,
     totalOrders,
     activeOrders,
-    totalOrdersValue
+    totalOrdersValue,
+    ordersToday
 }: {
     totalRevenue: number;
     totalOrders: number;
     activeOrders: number;
     totalOrdersValue: number;
+    ordersToday: any[];
 }) {
     if (totalOrders === 0) return null;
 
@@ -106,17 +109,18 @@ export default function BusinessSummary({
                 value={activeOrders}
                 icon={<Activity className="h-5 w-5" />}
                 description="Pedidos actualmente en curso"
-                className={activeOrders > 0 ? "ring-2 ring-primary/20" : ""}
                 delay={0.3}
             />
-            <StatCard
+            {/* <StatCard
                 title="Valor Promedio"
                 value={totalOrders > 0 ? totalRevenue / totalOrders : 0}
                 icon={<TrendingUp className="h-5 w-5" />}
                 description="Ingreso promedio por pedido"
                 isCurrency
                 delay={0.4}
-            />
+            /> */}
+
+            <DailyOrdersChart data={ordersToday} />
         </div>
     );
 }

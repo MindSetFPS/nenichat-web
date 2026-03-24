@@ -19,6 +19,8 @@ import { Card } from "@/components/ui/card";
 import { ActionRequiredCard } from "@/components/home/action-required-card";
 import { OutstandingPaymentsCard } from "@/components/home/outstanding-payments-card";
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
+import Greeting from "@/components/home/greeting";
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -113,20 +115,7 @@ export default async function Page() {
     <Content className="p-4 md:p-8 bg-gray-50/50 dark:bg-zinc-950/50 scroll-auto overflow-y-auto">
       <PageHeader />
 
-      {/* Dynamic Header with Greeting */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
-            Buenos días, {user.email?.split('@')[0]} 👋
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Aquí está lo que está pasando en {business.name} hoy.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {/* Quick Stats or Actions could go here */}
-        </div>
-      </div>
+      <Greeting user={user} business={business} />
 
       <div className="flex flex-col gap-8">
         {/* Rewarding Stats Section */}
@@ -135,6 +124,7 @@ export default async function Page() {
           totalOrders={plainOrders.length}
           activeOrders={activeOrders}
           totalOrdersValue={totalOrdersValue}
+          ordersToday={ordersToday}
         />
 
         {/* Bento Grid Layout */}
@@ -160,6 +150,8 @@ export default async function Page() {
                 </div>
               </Card>
 
+              <OrderProductChart data={ordersCountByDateInterval} />
+
               <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50 flex flex-col h-full max-h-[400px]">
                 <div className="p-6 pb-2">
                   <h3 className="font-semibold text-lg flex items-center gap-2">
@@ -177,10 +169,10 @@ export default async function Page() {
             </div>
           </div>
 
+
           {/* Side "Pulse" Column - Interaction Hub */}
           <div className="space-y-6">
             <OutstandingPaymentsCard payments={outstandingPayments} />
-
             <ActionRequiredCard activeOrders={activeOrders} />
 
             <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
@@ -191,19 +183,12 @@ export default async function Page() {
                 </h3>
                 <p className="text-sm text-muted-foreground">Últimos mensajes de clientes</p>
               </div>
+
               <div className="p-6 pt-2">
                 <RecentConversations chats={recentConversations} />
               </div>
             </Card>
 
-            <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
-              <div className="p-6 pb-0">
-                <h3 className="font-semibold text-sm">Distribución por producto</h3>
-              </div>
-              <div className="p-6">
-                <OrderProductChart data={ordersCountByDateInterval} />
-              </div>
-            </Card>
           </div>
         </div>
       </div>

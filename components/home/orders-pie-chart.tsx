@@ -16,6 +16,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
+import { cn } from "@/lib/utils"
 
 const COLORS = [
     "var(--chart-1)",
@@ -56,15 +57,16 @@ export function DailyOrdersChart({ data }: OrdersPieChartProps) {
     })
 
     return (
-        <Card className="flex flex-col">
+        <Card
+            className="flex flex-col overflow-hidden border-none shadow-md bg-white dark:bg-zinc-900/50 backdrop-blur-sm"
+        >
             <CardHeader className="items-center pb-0">
                 <CardTitle>Ventas del día</CardTitle>
-                <CardDescription>{date}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 pb-0">
                 <ChartContainer
                     config={chartConfig}
-                    className=" mx-auto aspect-square max-h-[350px]"
+                    className="mx-auto max-h-[350px]"
                 >
                     <BarChart
                         accessibilityLayer
@@ -100,14 +102,14 @@ export function DailyOrdersChart({ data }: OrdersPieChartProps) {
                                 position="insideLeft"
                                 offset={8}
                                 className="fill-(--color-label)"
-                                fontSize={18}
+                                fontSize={16}
                             />
                             <LabelList
                                 dataKey="value"
                                 position="right"
                                 offset={8}
                                 className="fill-foreground"
-                                fontSize={28}
+                                fontSize={20}
                             />
                         </Bar>
                     </BarChart>
