@@ -100,7 +100,12 @@ export function CreateOrderForm({
                 throw new Error("Error al crear el pedido");
             }
 
-            toast.success("Pedido creado con éxito");
+            toast.success("Pedido creado con éxito", {
+                action: {
+                    label: "Ver todos los pedidos",
+                    onClick: () => router.push(`/orders`),
+                },
+            });
 
             // Update product stock (Client-side implementation)
             for (const item of values.items) {
@@ -124,7 +129,6 @@ export function CreateOrderForm({
             }
 
             onSubmit?.();
-            router.push("/orders");
         } catch (error) {
             console.error(error);
             toast.error("Error al crear el pedido");
