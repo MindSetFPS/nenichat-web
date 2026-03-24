@@ -41,7 +41,6 @@ export default function ChatView({
   chatName,
   groupSenderContacts,
 }: ChatViewProps) {
-  const [messages, setMessages] = useState<IMessageWithSender[]>(initialMessages)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const setContacts = useContactStore((state) => state.setContacts)
 
@@ -67,7 +66,7 @@ export default function ChatView({
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
     const items: TimelineItem[] = [
-      ...messages.map(msg => ({ type: 'message' as const, data: msg })),
+      ...initialMessages.map(msg => ({ type: 'message' as const, data: msg })),
       ...orders.map(order => ({ type: 'order' as const, data: order }))
     ]
 
@@ -77,7 +76,7 @@ export default function ChatView({
       const dateB = new Date(b.data.created_at).getTime()
       return dateA - dateB
     })
-  }, [messages, orders])
+  }, [initialMessages, orders])
 
   // Group timeline items (messages/orders) by their date
   const groupedTimeline = useMemo(() => {
@@ -133,7 +132,7 @@ export default function ChatView({
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages, orders])
+  }, [initialMessages, orders])
 
   return (
     <main className="flex h-full flex-col overflow-y-auto space-y-2">

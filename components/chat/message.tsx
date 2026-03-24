@@ -25,6 +25,8 @@ import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identi
 import Link from "next/link"
 import { useContactStore } from "@/stores/contact-store"
 
+import { useRouter } from "next/navigation"
+
 
 interface MessageProps {
     message: IMessageWithSender
@@ -35,7 +37,9 @@ interface MessageProps {
 
 export default function Message({ message, isMe, isGroup = false, showAvatar = true }: MessageProps) {
     const [open, setOpen] = useState(false)
+    const router = useRouter()
     const getContact = useContactStore((state) => state.getContact)
+
     const senderContact = getContact(message.sender_jid)
     const senderContactValue = typeof senderContact === 'object' ? senderContact : undefined
 
@@ -105,7 +109,10 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                             <span className="text-muted-foreground text-sm block">{new Date(message.created_at).toLocaleString()}</span>
                                         </div>
                                         <CreateOrderForm
-                                            onSubmit={() => setOpen(false)}
+                                            onSubmit={() => {
+                                                setOpen(false)
+                                                router.refresh()
+                                            }}
                                             contact={senderContactValue}
                                             lid={String(message.sender_jid)}
                                             createdAt={new Date(message.created_at)}
