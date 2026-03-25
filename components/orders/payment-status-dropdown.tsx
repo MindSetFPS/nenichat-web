@@ -29,6 +29,7 @@ export default function PaymentStatusDropdown({ order }: PaymentStatusDropdownPr
                 },
                 body: JSON.stringify({
                     payment_status: newStatus,
+                    total_amount: order.total_amount,
                 }),
             });
 

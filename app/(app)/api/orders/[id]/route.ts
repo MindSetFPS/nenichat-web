@@ -44,6 +44,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             }
         }
 
+        // If payment_status is 'paid', ensure amount_paid matches total_amount
+        if (updates.payment_status === 'paid' && updates.total_amount !== undefined) {
+            updates.amount_paid = updates.total_amount;
+        }
+
+
         // Update order and its items via repository
         const updatedOrder = await orderRepository.update(business.id, orderId, updates, items);
 
