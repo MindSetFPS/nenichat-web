@@ -48,7 +48,7 @@ export default function PaymentStatusDropdown({ order }: PaymentStatusDropdownPr
 
     return (
         <Select value={status} onValueChange={handleStatusChange}>
-            <SelectTrigger className={cn(getPaymentStatusColor(status), "rounded-full text-xs py-0 h-6! font-bold ")}>
+            <SelectTrigger className={cn(getPaymentStatusColor(status), "cursor-pointer rounded-full text-xs py-0 h-6! font-bold ")}>
                 <SelectValue placeholder={status} />
             </SelectTrigger>
             <SelectContent>

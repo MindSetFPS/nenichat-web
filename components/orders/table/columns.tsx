@@ -8,6 +8,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
 import { getPaymentStatusColor } from "@/lib//utils";
 import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
+import PaymentStatusDropdown from "../payment-status-dropdown";
 
 export const columns: ColumnDef<OrderWithContactName>[] = [
     {
@@ -114,11 +115,10 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
         accessorKey: "payment_status",
         header: "Pago",
         cell: ({ row }) => {
-            const paymentStatus = row.original.payment_status;
             return (
-                <Badge className={getPaymentStatusColor(paymentStatus)} variant="outline">
-                    {paymentStatus}
-                </Badge>
+                <div className="text-right w-min text-xs">
+                    <PaymentStatusDropdown order={row.original} />
+                </div>
             );
         },
     },

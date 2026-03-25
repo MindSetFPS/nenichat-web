@@ -6,7 +6,6 @@ import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/Sup
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { DeleteOrderButton } from "@/components/orders/delete-order-button";
 import { EditOrderButton } from "@/components/orders/edit-order-button";
 import { DropdownMenuDialog } from "@/components/orders/dropdown";
