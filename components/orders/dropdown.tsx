@@ -19,15 +19,15 @@ import { DeleteOrderDialogContent } from "./delete-order-dialog-content"
 
 interface DropdownMenuDialogProps {
     orderId: number;
+    orderNumber: number;
 }
 
-export function DropdownMenuDialog({ orderId }: DropdownMenuDialogProps) {
+export function DropdownMenuDialog({ orderId, orderNumber }: DropdownMenuDialogProps) {
     const [showNewDialog, setShowNewDialog] = useState(false)
 
     return (
         <>
             <DropdownMenu modal={false}>
-
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" aria-label="Open menu" size="icon-sm">
                         <MoreVerticalIcon />
@@ -38,7 +38,7 @@ export function DropdownMenuDialog({ orderId }: DropdownMenuDialogProps) {
                     <DropdownMenuLabel>Opciones de orden</DropdownMenuLabel>
                     <DropdownMenuGroup>
                         <DropdownMenuItem>
-                            <Link href={`/orders/${orderId}/edit`} className="w-full">
+                            <Link href={`/orders/${orderNumber}/edit`} className="w-full">
                                 Editar orden
                             </Link>
                         </DropdownMenuItem>

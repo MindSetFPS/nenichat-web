@@ -60,10 +60,10 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 </div>
                 <div className="hidden md:flex items-center justify-end gap-2">
                     <EditOrderButton orderId={order.order_number} />
-                    <DeleteOrderButton orderId={order.order_number} />
+                    <DeleteOrderButton orderId={order.id} />
                 </div>
                 <div className="md:hidden">
-                    <DropdownMenuDialog orderId={order.order_number} />
+                    <DropdownMenuDialog orderId={order.id} orderNumber={order.order_number} />
                 </div>
             </PageHeader>
 

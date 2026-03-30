@@ -12,9 +12,9 @@ export function DeleteOrderDialogContent({ orderId }: DeleteOrderDialogContentPr
     return (
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Delete Order</DialogTitle>
+                <DialogTitle>Eliminar Orden</DialogTitle>
                 <DialogDescription>
-                    Are you sure you want to delete this order?
+                    ¿Estás seguro de que quieres eliminar esta orden?
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
