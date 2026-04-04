@@ -9,6 +9,7 @@ import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/Sup
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import ChatView from "@/components/chat/chat-view"
 import ChatControls from "@/components/chat/chat-controls"
+import BrowserChatView from "@/components/chat/browser-chat-view"
 
 export default async function ChatPage({
   params: paramsPromise
@@ -103,102 +104,101 @@ export default async function ChatPage({
   // todo: setMe() we currently does not have a way to tell the app what is my profile
   let messages: IMessageWithSender[] = []
   let orders: any[] = []
-  let suggestions: any[] = []
-
-  suggestions.push(
-    {
-      id: 1,
-      chat_id: params.id,
-      message_id: "",
-      suggestion: "Hello",
-      is_selected: false,
-      created_at: new Date(),
-    },
-    {
-      id: 2,
-      chat_id: params.id,
-      message_id: "",
-      suggestion: "Hi",
-      is_selected: false,
-      created_at: new Date(),
-    }
-  )
-
   let groupSenderContactsJson = '[]'
 
-  try {
-    if (chatData?.is_group) {
-      // Group Chat Logic: Fetch messages and identify unique senders to look up their CRM contacts
-      messages = await gowappMessageRepository.findByChatIdWithSender(jid, 0, 100)
+  const me = JSON.parse(JSON.stringify(meData))
+  const suggestions = [
+    { id: 1, chat_id: params.id, message_id: "", suggestion: "Hello", is_selected: false, created_at: new Date() },
+    { id: 2, chat_id: params.id, message_id: "", suggestion: "Hi", is_selected: false, created_at: new Date() }
+  ]
+  const suggestionsJson = JSON.parse(JSON.stringify(suggestions))
 
-      // 1. Create a list of unique users that have sent a message
-      const userIdSet = new Set(messages.map((message) => message.sender_jid))
-      const userIdList = Array.from(userIdSet)
-
-      // 2. Remove elements that end in "@g.us"
-      const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
-
-      // 3. Fetch (or create) contacts for group message senders
-      if (filteredUserIdList.length > 0) {
-        const groupSenderContacts = await Promise.all(
-          filteredUserIdList.map((jid) => contactRepository.getOrCreateContact(business.id, jid))
-        )
-        groupSenderContactsJson = JSON.stringify(groupSenderContacts)
-      }
-
-      // 4. Fetch orders for all group participants
-      const ordersList = await Promise.all(filteredUserIdList.map((user) => orderRepository.getOrdersByPhone(business.id, user)))
-      orders = ordersList.flat()
-    } else {
-      // Direct Chat Logic: Fetch standard conversation history
+  if (!chatData?.is_group) {
+    try {
       messages = await gowappMessageRepository.findByChatId(jid, 0, 30)
-      if (contactInfo && contactInfo.id) {
+      if (contactInfo?.id) {
         orders = await orderRepository.getByContactId(business.id, contactInfo.id)
       }
+    } catch (e) {
+      console.error(`Error fetching messages for chat ${jid}:`, e);
     }
+
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => ({
+        ...order,
+        items: await orderRepository.getItems(business.id, order.id)
+      }))
+    )
+
+    const messagesJson = JSON.parse(JSON.stringify(messages))
+    const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
+    const mostRecentMessages = messagesJson.reverse().slice(-10)
+
+    return (
+      <div className="h-full grid grid-rows-[1fr_auto]">
+        <ChatView
+          initialMessages={messagesJson}
+          orders={ordersJson}
+          jid={jid}
+          isGroup={false}
+          me={me}
+        />
+
+        <ChatControls
+          lastMessages={mostRecentMessages}
+          me={me}
+          suggestions={suggestionsJson}
+        />
+      </div>
+    )
+  }
+
+  try {
+    messages = await gowappMessageRepository.findByChatIdWithSender(jid, 0, 100)
+
+    const userIdSet = new Set(messages.map((message) => message.sender_jid))
+    const userIdList = Array.from(userIdSet)
+    const filteredUserIdList = userIdList.filter((user) => !user.endsWith("@g.us"))
+
+    groupSenderContactsJson = '[]'
+    if (filteredUserIdList.length > 0) {
+      const groupSenderContacts = await Promise.all(
+        filteredUserIdList.map((jid) => contactRepository.getOrCreateContact(business.id, jid))
+      )
+      groupSenderContactsJson = JSON.stringify(groupSenderContacts)
+    }
+
+    const ordersList = await Promise.all(
+      filteredUserIdList.map((user) => orderRepository.getOrdersByPhone(business.id, user))
+    )
+    orders = ordersList.flat()
   } catch (e) {
     console.error(`Error fetching messages for chat ${jid}:`, e);
-    // If fetching fails (e.g. chat doesn't exist in backend yet), we still want to show the page with empty history.
-    messages = []
-    if (!chatData?.is_group && contactInfo && contactInfo.id) {
-      orders = await orderRepository.getByContactId(business.id, contactInfo.id)
-    }
   }
 
   const ordersWithItems = await Promise.all(
-    orders.map(async (order) => {
-      const items = await orderRepository.getItems(business.id, order.id)
-      return { ...order, items }
-    })
+    orders.map(async (order) => ({
+      ...order,
+      items: await orderRepository.getItems(business.id, order.id)
+    }))
   )
 
-  // if the last message belongs to a customer, then check in database if there is suggestions and 
-  // include themn in te response.
-  // if there is not suggestion, generate them. 
-  // also, the message should not belong to hidden contacts, othetwise it would be a waste of tokens
-
-  const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
   const messagesJson = JSON.parse(JSON.stringify(messages))
   const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
-  const me = JSON.parse(JSON.stringify(meData))
-  const suggestionsJson = JSON.parse(JSON.stringify(suggestions))
-
-  let mostRecentMessages = messagesJson.reverse()
-  mostRecentMessages = mostRecentMessages.slice(-10)
+  const mostRecentMessages = messagesJson.reverse().slice(-10)
+  const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
 
   return (
     <div className="h-full grid grid-rows-[1fr_auto]">
       <ChatView
-        contact={contactJson}
         chatName={chatData?.name}
         initialMessages={messagesJson.reverse()}
         me={me}
         orders={ordersJson}
-        isGroup={chatData?.is_group}
+        isGroup={true}
         groupSenderContacts={groupSenderContactsJson} />
 
       <ChatControls
-        // phone={contactJson?.phone}
         lastMessages={mostRecentMessages}
         me={me}
         suggestions={suggestionsJson}

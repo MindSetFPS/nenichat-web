@@ -11,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { PageHeader } from '../ui/page-header'
 import { IChat } from '@/Nenichat/Chats/domain/IChat'
 import { useContactStore } from '@/stores/contact-store'
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 
 interface RecentChatsProps {
     contacts: string
@@ -38,16 +38,8 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
     }, [contactsJson])
 
     const getContact = useContactStore((state) => state.getContact)
-    const fetchContacts = useContactStore((state) => state.fetchContacts)
     const contactsByPhone = useContactStore((state) => state.contactsByPhone)
     const contactsByLid = useContactStore((state) => state.contactsByLid)
-
-    useEffect(() => {
-        const jids = chats.map(chat => chat.jid)
-        if (jids.length > 0) {
-            fetchContacts(jids)
-        }
-    }, [chats, fetchContacts])
 
     // Filter out hidden contacts using cached contacts
     const visibleChats = useMemo(() => {

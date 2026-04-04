@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useRef, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
 import Message from "./message"
 import OrderMessage from "./order-message"
@@ -13,7 +14,6 @@ import ChatHeader from "./chat-header"
 import { ChatDropDownDialog } from "./chat-dropdown"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
 import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
 import { useContactStore } from "@/stores/contact-store"
 
@@ -24,10 +24,10 @@ type TimelineItem =
 
 interface ChatViewProps {
   initialMessages: IMessageWithSender[]
-  me: IContact | null,
+  me?: IContact | null,
   isGroup: boolean,
   orders: Order[],
-  contact?: IContact
+  jid?: string,
   chatName?: string
   groupSenderContacts?: string
 }
@@ -37,7 +37,7 @@ export default function ChatView({
   me,
   isGroup,
   orders,
-  contact,
+  jid,
   chatName,
   groupSenderContacts,
 }: ChatViewProps) {
@@ -53,15 +53,22 @@ export default function ChatView({
       }
     }
   }, [groupSenderContacts, setContacts])
+
   const router = useRouter()
   const isMobile = useIsMobile()
   const setContact = useContactStore((state) => state.setContact)
+  const getContact = useContactStore((state) => state.getContact)
+
+  const contact = jid ? getContact(jid) : null
 
   useEffect(() => {
-    if (contact) {
-      setContact(contact);
+    if (jid) {
+      const contact = getContact(jid)
+      if (contact) {
+        setContact(contact)
+      }
     }
-  }, [contact, setContact])
+  }, [jid, getContact, setContact])
 
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
