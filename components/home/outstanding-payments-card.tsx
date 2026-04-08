@@ -6,7 +6,7 @@ import { AlertCircle, User, Clock } from "lucide-react";
 import Link from "next/link";
 import { useContactStore } from "@/stores/contact-store";
 import { useEffect } from "react";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 import { differenceInDays } from "date-fns";
 
 interface OutstandingPayment {
@@ -77,7 +77,7 @@ export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardPro
                                     <div className="flex items-center gap-1.5 mb-1">
                                         <User className="h-3 w-3 text-muted-foreground" />
                                         <span className="font-medium text-sm truncate">
-                                            {getContactIdentifier(order.contact!)}
+                                            {getContactName(order.contact!)}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-1.5">

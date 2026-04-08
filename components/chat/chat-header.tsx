@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import ContactAvatar from "../contact-avatar";
 import Link from "next/link";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 
 interface ChatHeaderProps {
     contact: IContact;
@@ -10,9 +10,9 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({ contact, chatName }: ChatHeaderProps) {
-    const contactName = contact 
-        ? (contact.contact_name || chatName || getContactIdentifier(contact) || "Unknown") 
-        : "Unknown"
+    console.log("contact", contact)
+    console.log("chatName", chatName)
+    const contactName = getContactName(contact, chatName ? { name: chatName } as any : null) || "Unknown"
 
     return (
         <div className="flex items-center justify-between w-full">

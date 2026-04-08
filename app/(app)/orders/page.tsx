@@ -1,7 +1,7 @@
 import { Package } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
 import { CreateOrderButton } from "@/components/orders/create-order-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -46,8 +46,8 @@ export default async function OrdersPage() {
                     chatName = chat?.name || null
                 }
 
-                // Priority: contact.contact_name > chatName > getContactIdentifier(contact)
-                order.contact_name = contact.contact_name || chatName || getContactIdentifier(contact) || "Unknown"
+                // Priority: contact.contact_name > chatName > pushname > phone_number > lid
+                order.contact_name = getContactName(contact, chatName ? { name: chatName } as any : null) || "Unknown"
             }
         }
         order.items = await orderRepository.getItems(business.id, order.id);

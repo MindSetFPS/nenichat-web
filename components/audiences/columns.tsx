@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { Checkbox } from "@/components/ui/checkbox";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
 
 export const columns: ColumnDef<IContact>[] = [
     {

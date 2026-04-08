@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { getContactIdentifier } from '@/Nenichat/Contacts/app/get-contact-identifier'
+import { getContactName } from '@/Nenichat/Contacts/app/get-contact-name'
 import ContactAvatar from '@/components/contact-avatar'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
@@ -49,13 +49,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
         });
     }, [chats, getContact, contactsByPhone, contactsByLid])
 
-    const getContactName = (chat: IChat): string => {
-        const contact = getContact(chat.jid);
-        if (contact && contact.contact_name) {
-            return contact.contact_name;
-        }
-        return chat.name || (contact ? String(getContactIdentifier(contact)) : '');
-    }
+
 
     // Check if we're viewing a specific chat (has an ID after /chats/)
     const isViewingChat = pathname.match(/^\/chats\/[^/]+$/)
@@ -90,7 +84,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                     >
                         <div className="flex items-center gap-3">
                             <Avatar className="size-6 lg:size-8 shrink-0">
-                                <ContactAvatar seed={getContactIdentifier(chat.jid.toString())!} />
+                                <ContactAvatar seed={getContactName(chat.jid.toString())!} />
                                 <AvatarFallback>
                                     <AvatarImage src="https://github.com/shadcn.png" />
                                 </AvatarFallback>
@@ -98,7 +92,7 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-center mb-0.5">
                                     <span className="text-sm font-medium truncate">
-                                        {getContactName(chat)}
+                                        {getContactName(getContact(chat.jid), chat)}
                                     </span>
                                     <span className="text-[10px] text-muted-foreground">
                                         {(() => {

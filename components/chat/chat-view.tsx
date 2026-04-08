@@ -14,7 +14,7 @@ import ChatHeader from "./chat-header"
 import { ChatDropDownDialog } from "./chat-dropdown"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
 import { useContactStore } from "@/stores/contact-store"
 
 // Union type for timeline items
@@ -30,45 +30,41 @@ interface ChatViewProps {
   jid?: string,
   chatName?: string
   groupSenderContacts?: string
+  initialContact?: IContact | null
 }
 
 export default function ChatView({
   initialMessages,
-  me,
   isGroup,
   orders,
   jid,
   chatName,
   groupSenderContacts,
+  initialContact,
 }: ChatViewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const setContacts = useContactStore((state) => state.setContacts)
+  const setContact = useContactStore((state) => state.setContact)
 
   useEffect(() => {
+    // Hydrate group sender contacts
     if (groupSenderContacts) {
       const contacts = JSON.parse(groupSenderContacts) as IContact[];
       if (contacts.length > 0) {
-        console.log(`[CHAT_VIEW] Hydrating store with ${contacts.length} group sender contacts`);
         setContacts(contacts);
       }
     }
-  }, [groupSenderContacts, setContacts])
+    // Hydrate the single contact for 1-on-1 chats
+    if (initialContact) {
+      setContact(initialContact);
+    }
+  }, [groupSenderContacts, initialContact, setContacts, setContact])
 
   const router = useRouter()
   const isMobile = useIsMobile()
-  const setContact = useContactStore((state) => state.setContact)
   const getContact = useContactStore((state) => state.getContact)
 
-  const contact = jid ? getContact(jid) : null
-
-  useEffect(() => {
-    if (jid) {
-      const contact = getContact(jid)
-      if (contact) {
-        setContact(contact)
-      }
-    }
-  }, [jid, getContact, setContact])
+  const contact = initialContact || (jid ? getContact(jid) : null)
 
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
@@ -157,7 +153,7 @@ export default function ChatView({
           )}
           <div className="flex-1">
             {isGroup ? (
-              <h1 className="text-lg md:text-2xl font-bold">{contact ? getContactIdentifier(contact) : "Unknown"}</h1>
+              <h1 className="text-lg md:text-2xl font-bold">{getContactName(contact) || "Unknown"}</h1>
             ) : (
               <ChatHeader contact={contact!} chatName={chatName} />
             )}

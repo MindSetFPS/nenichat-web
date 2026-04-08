@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Spinner } from "@/components/ui/spinner"
 import ContactAvatar from "@/components/contact-avatar"
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
 import { getHiddenContactsAction } from "@/app/(app)/settings/actions"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -78,14 +78,14 @@ export function HiddenContactsSettings() {
                                 className='flex items-center gap-4 p-3 rounded-2xl hover:bg-accent/50 transition-colors border border-transparent hover:border-border cursor-pointer'
                             >
                                 <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                                    <ContactAvatar seed={getContactIdentifier(contact)!} />
+                                    <ContactAvatar seed={getContactName(contact)!} />
                                     <AvatarFallback className="bg-primary/10 text-primary">
                                         <AvatarImage src="https://github.com/shadcn.png" />
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-bold text-sm truncate">
-                                        {contact.contact_name || contact.pushname || contact.phone_number || contact.lid}
+                                        {getContactName(contact)}
                                     </p>
                                     <p className="text-xs text-muted-foreground">Ver chat</p>
                                 </div>

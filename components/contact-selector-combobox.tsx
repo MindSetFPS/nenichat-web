@@ -17,7 +17,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
-import { getContactDisplayName, getContactPhone } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { getContactName, getContactPhone } from "@/Nenichat/Contacts/app/get-contact-name"
 import { normalizeContact, type ContactIdentifier } from "@/Nenichat/Contacts/app/contact-utils"
 import { useContactStore } from "@/stores/contact-store"
 
@@ -291,7 +291,7 @@ export function ContactSelectorCombobox({
                 >
                     {selectedContact ? (
                         <span className="truncate flex items-center gap-2">
-                            <span className="font-medium">{getContactDisplayName(selectedContact)}</span>
+                            <span className="font-medium">{getContactName(selectedContact)}</span>
                             {getContactPhone(selectedContact) && (
                                 <span className="text-xs text-muted-foreground font-normal">
                                     {getContactPhone(selectedContact)}
@@ -344,10 +344,10 @@ export function ContactSelectorCombobox({
                                     />
                                     <div className="flex flex-col flex-1 min-w-0">
                                         <span className="font-bold text-sm truncate">
-                                            {contact.pushname || contact.contact_name || "Sin nombre"}
+                                            {getContactName(contact) || "Sin nombre"}
                                         </span>
                                         <span className="text-xs text-muted-foreground truncate">
-                                            {contact.phone_number ?? contact.lid}
+                                            {getContactPhone(contact)}
                                         </span>
                                     </div>
                                 </CommandItem>

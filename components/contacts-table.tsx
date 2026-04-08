@@ -24,7 +24,7 @@ import { Pagination } from "./ui/pagination";
 import { EmptyList } from "./empty-list";
 import { UsersIcon } from "lucide-react";
 import { Input } from "./ui/input";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 
 interface IContactResponse {
     data: IContact[];
@@ -273,7 +273,7 @@ export function ContactsTable({
                                     {columnVisibility.name && (
                                         <TableCell>
                                             <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:underline">
-                                                {getContactIdentifier(contact)}
+                                                {getContactName(contact)}
                                             </Link>
                                         </TableCell>
                                     )}

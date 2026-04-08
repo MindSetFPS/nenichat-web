@@ -21,7 +21,7 @@ import {
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import ContactAvatar from "../contact-avatar"
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier"
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
 import Link from "next/link"
 import { useContactStore } from "@/stores/contact-store"
 
@@ -52,8 +52,8 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
         <div className="flex gap-2">
             {shouldShowAvatar && (
                 <Avatar className="h-8 w-8">
-                    <ContactAvatar seed={getContactIdentifier(senderContact)!} />
-                    <AvatarFallback>{getContactIdentifier(senderContact)!.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <ContactAvatar seed={getContactName(senderContact)!} />
+                    <AvatarFallback>{getContactName(senderContact)!.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
             )}
             {shouldShowPlaceholder && <div className="h-8 w-8" />}
@@ -72,7 +72,7 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                             senderContact && !isMe && isGroup && showAvatar ?
                                 <Link href={`/chats/${message.sender_jid}`}>
                                     <span className="text-xs font-bold">
-                                        {getContactIdentifier(senderContact)}
+                                        {getContactName(senderContact)}
                                     </span>
                                 </Link>
                                 : <></>

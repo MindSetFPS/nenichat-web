@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 import Link from "next/link";
 import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
 
@@ -15,7 +15,7 @@ export const columns: ColumnDef<IContact & { last_message_time?: string }>[] = [
         cell: ({ row }) => {
             return (
                 <Link href={`/contacts/${row.original.id}`} className="w-min text-right text-blue-400 hover:underline text-wrap">
-                    {getContactIdentifier(row.original)}
+                    {getContactName(row.original)}
                 </Link>
             );
         },

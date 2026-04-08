@@ -22,7 +22,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { EmptyList } from "@/components/empty-list";
 import { MessageSquare } from "lucide-react";
-import { getContactIdentifier } from "@/Nenichat/Contacts/app/get-contact-identifier";
+import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 import { SetContactAsUserDropdown } from "@/components/messages/set-contact-as-user-dropdown";
 import { Contact } from "@/Nenichat/Contacts/domain/Contact";
 
@@ -230,7 +230,7 @@ export function MessagesTable({ page = 1, pageSize = 20, me }: MessagesTableProp
                                                 )}
                                                 { }
                                                 {columnVisibility.sender && (
-                                                    <TableCell>{getContactIdentifier(message.sender!)}</TableCell>
+                                                    <TableCell>{getContactName(message.sender!)}</TableCell>
                                                 )}
                                                 {columnVisibility.chat && (
                                                     <TableCell>{String(message.chat_jid)}</TableCell>
