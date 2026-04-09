@@ -133,6 +133,7 @@ export default async function ChatPage({
     const messagesJson = JSON.parse(JSON.stringify(messages))
     const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
     const mostRecentMessages = messagesJson.reverse().slice(-10)
+    const contactJson = JSON.parse(JSON.stringify(contactInfo))
 
     return (
       <div className="h-full grid grid-rows-[1fr_auto]">
@@ -142,6 +143,7 @@ export default async function ChatPage({
           jid={jid}
           isGroup={false}
           me={me}
+          initialContact={contactJson}
         />
 
         <ChatControls
@@ -196,6 +198,8 @@ export default async function ChatPage({
         me={me}
         orders={ordersJson}
         isGroup={true}
+        jid={jid}
+        initialContact={contactJson}
         groupSenderContacts={groupSenderContactsJson} />
 
       <ChatControls
