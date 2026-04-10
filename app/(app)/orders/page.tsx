@@ -30,29 +30,59 @@ export default async function OrdersPage() {
 
     let orders: OrderWithContactName[] = await orderRepository.getAll(business.id);
 
-    orders = await Promise.all(orders.map(async order => {
-        if (order.contact_id) {
-            const contact = await contactRepository.findById(business.id, Number(order.contact_id));
-            if (contact) {
-                let chatName: string | null = null;
-                
-                // Try to get chat name from GoWapp as fallback
-                if (contact.phone_number) {
-                    const jid = contact.phone_number + "@s.whatsapp.net"
-                    const chat = await gowappChatRepository.findById(jid)
-                    chatName = chat?.name || null
-                } else if (contact.lid) {
-                    const chat = await gowappChatRepository.findById(contact.lid)
-                    chatName = chat?.name || null
+    // 1. Fetch WhatsApp chats once to avoid redundant API calls per order
+    let chatMap = new Map<string, any>();
+    try {
+        const chats = await gowappChatRepository.list(0, 100);
+        chats.forEach(chat => {
+            chatMap.set(chat.jid, chat);
+        });
+    } catch (e) {
+        console.error("Error fetching chats from GoWapp:", e);
+    }
+
+    // 2. Local cache for contacts to avoid redundant DB lookups
+    const contactCache = new Map<number, any>();
+
+    // 3. Process orders in batches to avoid overwhelming the network/cache stack.
+    // When many concurrent 'fetch' calls occur (even nested in Promise.all), Next.js internal 
+    // memoization and Data Cache can hit stack size limits (RangeError). 
+    // Batching ensures concurrency stays at a manageable level.
+    const BATCH_SIZE = 50;
+    for (let i = 0; i < orders.length; i += BATCH_SIZE) {
+        // Create a slice for the current batch
+        const batch = orders.slice(i, i + BATCH_SIZE);
+        
+        // Process each batch concurrently
+        await Promise.all(batch.map(async order => {
+            // Resolve contact information if present
+            if (order.contact_id) {
+                // Use the local cache to avoid multiple DB lookups for the same contact
+                let contact = contactCache.get(Number(order.contact_id));
+                if (!contact) {
+                    contact = await contactRepository.findById(business.id, Number(order.contact_id));
+                    if (contact) contactCache.set(Number(order.contact_id), contact);
                 }
 
-                // Priority: contact.contact_name > chatName > pushname > phone_number > lid
-                order.contact_name = getContactName(contact, chatName ? { name: chatName } as any : null) || "Unknown"
+                if (contact) {
+                    let chatName: string | null = null;
+                    
+                    // Attempt to resolve the chat name from the pre-fetched WhatsApp chat list
+                    const jid = contact.phone_number ? contact.phone_number + "@s.whatsapp.net" : contact.lid;
+                    if (jid) {
+                        const chat = chatMap.get(jid);
+                        chatName = chat?.name || null;
+                    }
+                    
+                    // Resolve final display name (Priority: Manual name > WhatsApp name > Phone/LID)
+                    order.contact_name = getContactName(contact, chatName ? { name: chatName } as any : null) || "Unknown"
+                }
             }
-        }
-        order.items = await orderRepository.getItems(business.id, order.id);
-        return order;
-    }));
+            
+            // Fetch order line items for table display
+            order.items = await orderRepository.getItems(business.id, order.id);
+        }));
+    }
 
     const plainOrders = JSON.parse(JSON.stringify(orders));
 
