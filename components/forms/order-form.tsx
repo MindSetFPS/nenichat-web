@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -64,27 +64,19 @@ export function OrderForm({
 }: OrderFormProps) {
     const isMobile = useIsMobile();
 
-    useEffect(() => {
-        setIsShippingEnabled(!isMobile);
-    }, [isMobile]);
-
     // Order Details
     const [contactId, setContactId] = useState<string>(initialValues?.contactId || (initialContact ? String(initialContact.id) : ""));
     const [lid, setLid] = useState<string>(initialValues?.lid || (initialContact?.lid ? initialContact.lid : ""));
-    const [selectedContact, setSelectedContact] = useState<IContact | undefined>(initialContact);
-
-    // Find initial contact from contacts array if we have contactId or lid but no initialContact
-    useEffect(() => {
-        if (!initialContact && contacts.length > 0 && (contactId || lid)) {
-            const found = contacts.find(c => 
-                (contactId && String(c.id) === contactId) || 
+    const [selectedContact, setSelectedContact] = useState<IContact | undefined>(() => {
+        if (initialContact) return initialContact;
+        if (contacts.length > 0 && (contactId || lid)) {
+            return contacts.find(c =>
+                (contactId && String(c.id) === contactId) ||
                 (lid && (c.lid === lid || c.phone_number === lid))
             );
-            if (found) {
-                setSelectedContact(found);
-            }
         }
-    }, [contacts, contactId, lid, initialContact]);
+        return undefined;
+    });
 
     const [status, setStatus] = useState(initialValues?.status || "pending");
 
@@ -92,7 +84,7 @@ export function OrderForm({
     const [items, setItems] = useState<OrderItemRow[]>(initialValues?.items || []);
 
     // Shipping
-    const [isShippingEnabled, setIsShippingEnabled] = useState(isMobile);
+    const [isShippingEnabled, setIsShippingEnabled] = useState(!isMobile);
     const [shippingAddress, setShippingAddress] = useState(initialValues?.shippingAddress || "");
     const [shippingCost, setShippingCost] = useState(initialValues?.shippingCost || 0);
 
@@ -138,15 +130,18 @@ export function OrderForm({
     const itemsTotal = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
     const totalAmount = itemsTotal + shippingCost;
 
-    useEffect(() => {
-        if (paymentStatus === "paid") {
+    const effectivePaymentStatus = totalAmount === amountPaid && totalAmount > 0 ? "paid" : paymentStatus;
+
+    const handlePaymentStatusChange = (newStatus: string) => {
+        setPaymentStatus(newStatus);
+        if (newStatus === "paid") {
             setAmountPaid(totalAmount);
         }
+    };
 
-        if (totalAmount == amountPaid && totalAmount > 0) {
-            setPaymentStatus("paid");
-        }
-    }, [paymentStatus, totalAmount]);
+    const handleAmountPaidChange = (newAmount: number) => {
+        setAmountPaid(newAmount);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -156,7 +151,7 @@ export function OrderForm({
             status,
             paymentMethod,
             amountPaid,
-            paymentStatus,
+            paymentStatus: effectivePaymentStatus,
             notes,
             shippingAddress,
             shippingCost,
@@ -267,11 +262,15 @@ export function OrderForm({
                     </Button>
                 </CardHeader>
                 <CardContent className="space-y-4 px-2">
+                    <div className="flex gap-x-2 gap-y-2 pb-0 last:border-0">
+                        <Label className="w-full">Producto</Label>
+                        <Label className="w-14">Cantidad</Label>
+                        <Label className="w-14"> </Label>
+                    </div>
                     {items.map((item, index) => (
                         <div key={index}
-                            className="flex items-end place-items-start border-b gap-x-2 gap-y-2 pb-4 last:border-0">
-                            <div className="w-full space-y-2">
-                                <Label>Producto</Label>
+                            className="flex items-end place-items-start gap-x-2 gap-y-2 pb-0 last:border-0">
+                            <div className="w-full space-y-2 min-w-0">
                                 <Select
                                     value={item.productId}
                                     onValueChange={(val) => updateItem(index, "productId", val)}
@@ -281,8 +280,10 @@ export function OrderForm({
                                     </SelectTrigger>
                                     <SelectContent>
                                         {products.map((p) => (
-                                            <SelectItem key={p.id} value={p.id} disabled={p.stock <= 0}>
-                                                {p.name} (${p.price}) - Stock: {p.stock}
+                                            <SelectItem key={p.id} value={p.id} disabled={p.stock <= 0} className="max-w-[calc(100vw-4rem)] md:max-w-md">
+                                                <span className="truncate">
+                                                    {p.name} (${p.price}) - {p.stock} unidades
+                                                </span>
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -290,7 +291,6 @@ export function OrderForm({
                             </div>
 
                             <div className="space-y-2 max-w-14 mb-0.5">
-                                <Label>Cantidad</Label>
                                 <Input
                                     type="number"
                                     min="1"
@@ -356,7 +356,7 @@ export function OrderForm({
 
                         <div className="space-y-2 w-full">
                             <Label>Estado de pago</Label>
-                            <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                            <Select value={effectivePaymentStatus} onValueChange={handlePaymentStatusChange}>
                                 <SelectTrigger className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
@@ -370,13 +370,13 @@ export function OrderForm({
                         </div>
 
                         {
-                            paymentStatus === "partial" && (
+                            effectivePaymentStatus === "partial" && (
                                 <div className="space-y-2 w-full">
                                     <Label>Importe pagado</Label>
                                     <Input
                                         type="number"
                                         value={amountPaid}
-                                        onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
+                                        onChange={(e) => handleAmountPaidChange(parseFloat(e.target.value) || 0)}
                                     />
                                 </div>
                             )
