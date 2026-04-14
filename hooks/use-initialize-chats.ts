@@ -23,7 +23,7 @@
 
 import { useEffect } from 'react';
 import { useChatStore } from '@/stores/chat-store';
-import { useBusiness } from '@/hooks/useBusiness';
+import { useBusiness } from '@/hooks/use-business';
 
 export function useInitializeChats() {
     const { fetchChats, isLoaded, isLoading } = useChatStore();
