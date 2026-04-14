@@ -32,9 +32,9 @@ export function CampaignForm({
 }: CampaignFormProps) {
 
   // task data
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [message, setMessage] = useState("");
+  const [name, setName] = useState(initialData?.name || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [message, setMessage] = useState(initialData?.message || "");
   const [enabled, setEnabled] = useState(initialData?.enabled || false);
 
   // schedule data
@@ -46,36 +46,21 @@ export function CampaignForm({
 
   // audience data
   const [audiences, setAudiences] = useState<IAudience[]>([]);
-  const [selectedAudienceIds, setSelectedAudienceIds] = useState<number[]>([]);
+  const [selectedAudienceIds, setSelectedAudienceIds] = useState<number[]>(initialData?.audienceIds || []);
 
   useEffect(() => {
-    if (initialData) {
-      setName(initialData.name || "");
-      setDescription(initialData.description || "");
-      setMessage(initialData.message || "");
-      setRunAt(initialData.run_at ? new Date(initialData.run_at) : new Date());
-      setSelectedAudienceIds(initialData.audienceIds || []);
-      setInterval(initialData.interval);
-      setDayOfMonth(initialData.day_of_month);
-      setDayOfWeek(initialData.day_of_week);
-      setFrequencyType(initialData.frequency_type || 'once');
-      setEnabled(initialData.enabled || false);
-    } else {
-      setName("");
-      setDescription("");
-      setMessage("");
-      setRunAt(new Date());
-      setSelectedAudienceIds([]);
-    }
-  }, [initialData]);
-
-  useEffect(() => {
+    let ignore = false;
     const fetchAudiences = async () => {
       const response = await fetch("/api/audiences");
       const data = await response.json();
-      setAudiences(data);
+      if (!ignore) {
+        setAudiences(data);
+      }
     };
     fetchAudiences();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

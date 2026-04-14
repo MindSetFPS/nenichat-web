@@ -1,6 +1,6 @@
 import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
 import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
-import { EditCampaignForm } from '@/components/edit-campaign-form';
+import { EditCampaignForm } from '@/components/forms/edit-campaign-form';
 import { cronToStr } from '@/Nenichat/Shared/domain/cron-to-string-converter';
 import { PageHeader } from '@/components/ui/page-header';
 import { createServerSupabaseClient } from '@/lib/supabase/server';

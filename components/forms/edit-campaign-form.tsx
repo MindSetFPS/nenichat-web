@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CampaignForm } from "./forms/CampaignForm";
+import { CampaignForm } from "./campaign-form";
 import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
 import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
 import { Button } from "@/components/ui/button"; // Import Button component

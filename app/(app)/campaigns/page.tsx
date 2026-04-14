@@ -1,7 +1,7 @@
 import { CalendarDays } from "lucide-react";
 import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
 import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
-import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
+import { CreateCampaignDialog } from "@/components/create-campaign-dialog";
 import { EmptyList } from "@/components/empty-list";
 import { PageHeader } from "@/components/ui/page-header";
 import { CampaignSection } from "@/components/campaigns/campaign-section";
