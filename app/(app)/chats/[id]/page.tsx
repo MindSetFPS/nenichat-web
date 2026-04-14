@@ -9,7 +9,6 @@ import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/Sup
 import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import ChatView from "@/components/chat/chat-view"
 import ChatControls from "@/components/chat/chat-controls"
-import BrowserChatView from "@/components/chat/browser-chat-view"
 
 export default async function ChatPage({
   params: paramsPromise
@@ -136,7 +135,7 @@ export default async function ChatPage({
     const contactJson = JSON.parse(JSON.stringify(contactInfo))
 
     return (
-      <div className="h-full grid grid-rows-[1fr_auto]">
+      <div className="h-dvh flex flex-col">
         <ChatView
           initialMessages={messagesJson}
           orders={ordersJson}
@@ -191,10 +190,10 @@ export default async function ChatPage({
   const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
 
   return (
-    <div className="h-full grid grid-rows-[1fr_auto]">
+    <div className="h-dvh flex flex-col">
       <ChatView
         chatName={chatData?.name}
-        initialMessages={messagesJson.reverse()}
+        initialMessages={messagesJson}
         me={me}
         orders={ordersJson}
         isGroup={true}

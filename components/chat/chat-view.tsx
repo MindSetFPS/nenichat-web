@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
@@ -42,23 +42,20 @@ export default function ChatView({
   groupSenderContacts,
   initialContact,
 }: ChatViewProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const setContacts = useContactStore((state) => state.setContacts)
   const setContact = useContactStore((state) => state.setContact)
 
   useEffect(() => {
-    // Hydrate group sender contacts
     if (groupSenderContacts) {
       const contacts = JSON.parse(groupSenderContacts) as IContact[];
       if (contacts.length > 0) {
         setContacts(contacts);
       }
     }
-    // Hydrate the single contact for 1-on-1 chats
     if (initialContact) {
       setContact(initialContact);
     }
-  }, [groupSenderContacts, initialContact, setContacts, setContact])
+  }, [])
 
   const router = useRouter()
   const isMobile = useIsMobile()
@@ -73,11 +70,11 @@ export default function ChatView({
       ...orders.map(order => ({ type: 'order' as const, data: order }))
     ]
 
-    // Sort by created_at timestamp
+    // Sort by created_at timestamp (newest first for flex-col-reverse)
     return items.sort((a, b) => {
       const dateA = new Date(a.data.created_at).getTime()
       const dateB = new Date(b.data.created_at).getTime()
-      return dateA - dateB
+      return dateB - dateA
     })
   }, [initialMessages, orders])
 
@@ -101,8 +98,11 @@ export default function ChatView({
     }, {} as Record<string, TimelineItem[]>) // The initial value is an empty object
 
     // Convert the grouped object { "date": [items] } into an array [{ date, items }]
-    // This format is easier to map over when rendering the UI
-    return Object.entries(grouped).map(([date, items]) => ({ date, items }))
+    // Sort items within each group oldest-first
+    return Object.entries(grouped).map(([date, items]) => ({ 
+      date, 
+      items: items.sort((a, b) => new Date(a.data.created_at).getTime() - new Date(b.data.created_at).getTime())
+    }))
   }, [timelineItems]) // Re-run this logic only when timelineItems changes
 
   // Pre-calculate which messages should show avatar (consecutive same sender = hide avatar)
@@ -129,17 +129,9 @@ export default function ChatView({
     return visibility
   }, [timelineItems])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [initialMessages, orders])
-
   return (
-    <main className="flex h-full flex-col overflow-y-auto space-y-2">
-      <div className="flex items-center justify-between py-2 bg-stone-50 dark:bg-neutral-900 sticky border-b top-0 z-30 px-2">
+    <main className="flex flex-col h-full overflow-hidden">
+      <div className="shrink-0 flex items-center justify-between py-2 bg-stone-50 dark:bg-neutral-900 border-b px-2">
         <div className="flex items-center gap-2 flex-1">
           {isMobile && (
             <Button
@@ -162,7 +154,7 @@ export default function ChatView({
         {contact && <ChatDropDownDialog contact={contact} isGroup={isGroup} />}
       </div>
 
-      <div className="px-4 space-y-4">
+      <div className="flex-1 overflow-y-auto flex flex-col-reverse px-4 space-y-4">
         {groupedTimeline.map((group, groupIndex) => (
           <div key={groupIndex}>
             <DateSeparator
@@ -197,7 +189,6 @@ export default function ChatView({
           </div>
         ))}
       </div>
-      <div ref={messagesEndRef} />
     </main>
   )
 }
