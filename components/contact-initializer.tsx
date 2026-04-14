@@ -40,7 +40,7 @@ import { useEffect } from 'react';
 import { useChatStore } from '@/stores/chat-store';
 import { useContactStore } from '@/stores/contact-store';
 import { getJidKind } from '@/Nenichat/Chats/domain/Jid';
-import { useBusiness } from '@/hooks/useBusiness';
+import { useBusiness } from '@/hooks/use-business';
 
 interface ContactInitializerProps {
     children: React.ReactNode;
