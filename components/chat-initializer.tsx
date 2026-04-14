@@ -26,7 +26,7 @@
 
 'use client';
 
-import { useInitializeChats } from '@/hooks/useInitializeChats';
+import { useInitializeChats } from '@/hooks/use-initialize-chats';
 
 interface ChatInitializerProps {
     children: React.ReactNode;
