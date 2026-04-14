@@ -99,8 +99,8 @@ export default function ChatView({
 
     // Convert the grouped object { "date": [items] } into an array [{ date, items }]
     // Sort items within each group oldest-first
-    return Object.entries(grouped).map(([date, items]) => ({ 
-      date, 
+    return Object.entries(grouped).map(([date, items]) => ({
+      date,
       items: items.sort((a, b) => new Date(a.data.created_at).getTime() - new Date(b.data.created_at).getTime())
     }))
   }, [timelineItems]) // Re-run this logic only when timelineItems changes
@@ -154,7 +154,7 @@ export default function ChatView({
         {contact && <ChatDropDownDialog contact={contact} isGroup={isGroup} />}
       </div>
 
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse px-4 space-y-4">
+      <div className="flex-1 overflow-y-auto flex flex-col-reverse p-2 space-y-4">
         {groupedTimeline.map((group, groupIndex) => (
           <div key={groupIndex}>
             <DateSeparator
