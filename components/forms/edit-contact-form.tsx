@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ContactForm } from "./ContactForm";
+import { ContactForm } from "./contact-form";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { useContactStore } from "@/stores/contact-store";
 
 interface EditContactFormProps {
     contact: IContact;
@@ -14,6 +15,7 @@ interface EditContactFormProps {
 export function EditContactForm({ contact, onSubmitSuccess }: EditContactFormProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const { setContact } = useContactStore();
 
     const handleSubmit = async (data: {
         phone_number: string;
@@ -34,6 +36,9 @@ export function EditContactForm({ contact, onSubmitSuccess }: EditContactFormPro
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Failed to update contact");
             }
+
+            const updatedContact: IContact = await response.json();
+            setContact(updatedContact);
 
             toast.success("Contact updated successfully!");
             onSubmitSuccess();

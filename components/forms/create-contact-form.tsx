@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ContactForm } from "./ContactForm";
+import { ContactForm } from "./contact-form";
 
 export function CreateContactForm() {
     const router = useRouter();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,18 +22,8 @@ export function ContactForm({
     isLoading,
     submitButtonText,
 }: ContactFormProps) {
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [contactName, setContactName] = useState("");
-
-    useEffect(() => {
-        if (initialData) {
-            setPhoneNumber(initialData.phone_number || "");
-            setContactName(initialData.contact_name || "");
-        } else {
-            setPhoneNumber("");
-            setContactName("");
-        }
-    }, [initialData]);
+    const [phoneNumber, setPhoneNumber] = useState(initialData?.phone_number || "");
+    const [contactName, setContactName] = useState(initialData?.contact_name || "");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
