@@ -45,3 +45,7 @@ next-env.d.ts
 .open-next/
 .VSCodeCounter
 data
+
+/home/daniel/Documents/projects/Nenichat/nenichat-web/Nenichat/Messages/infra/persistance/MessageRepository.ts
+/home/daniel/Documents/projects/Nenichat/nenichat-web/Nenichat/Messages/infra/persistance/SupabaseMessageRepository.ts
+Nenichat/Orders/infra/persistance/OrderRepository.ts

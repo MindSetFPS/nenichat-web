@@ -18,14 +18,17 @@ This file contains essential information for agentic coding agents working on th
 
 ### Running Single Tests
 ```bash
-# Run specific test file
-npm test -- repository/__tests__/ProductRepository.test.ts
+# Run specific test file (use -- to pass arguments to Jest)
+npm test -- --testPathPattern=ProductRepository
 
 # Run tests in watch mode
 npm test -- --watch
 
 # Run tests with coverage
 npm test -- --coverage
+
+# Run specific test name
+npm test -- --testNamePattern="should return all products"
 ```
 
 ## Project Structure
@@ -110,7 +113,7 @@ export function Button({ variant = "default", size = "default", children }: Butt
 - Functions: camelCase (e.g., `formatCurrency`, `requireAuth`)
 - Variables: camelCase with descriptive names
 - Constants: UPPER_SNAKE_CASE for global constants
-- Files: kebab-case for components, PascalCase for utilities
+- Files: kebab-case
 
 ```typescript
 // Constants
@@ -125,6 +128,53 @@ export function getProductImageUrl(path: string): string {
 export function ProductTable({ products }: ProductTableProps) {
     // implementation
 }
+```
+
+### React Styling
+
+
+# You Might Not Need an Effect
+
+Effects are an **escape hatch** from React. They let you synchronize with external systems. If there is no external system involved, you shouldn't need an Effect.
+
+## Quick Reference
+
+| Situation | DON'T | DO |
+|-----------|-------|-----|
+| Derived state from props/state | `useState` + `useEffect` | Calculate during render |
+| Expensive calculations | `useEffect` to cache | `useMemo` |
+| Reset state on prop change | `useEffect` with `setState` | `key` prop |
+| User event responses | `useEffect` watching state | Event handler directly |
+| Notify parent of changes | `useEffect` calling `onChange` | Call in event handler |
+| Fetch data | `useEffect` without cleanup | `useEffect` with cleanup OR framework |
+
+## When You DO Need Effects
+
+- Synchronizing with **external systems** (non-React widgets, browser APIs)
+- **Subscriptions** to external stores (use `useSyncExternalStore` when possible)
+- **Analytics/logging** that runs because component displayed
+- **Data fetching** with proper cleanup (or use framework's built-in mechanism)
+
+## When You DON'T Need Effects
+
+1. **Transforming data for rendering** - Calculate at top level, re-runs automatically
+2. **Handling user events** - Use event handlers, you know exactly what happened
+3. **Deriving state** - Just compute it: `const fullName = firstName + ' ' + lastName`
+4. **Chaining state updates** - Calculate all next state in the event handler
+
+## Decision Tree
+
+```
+Need to respond to something?
+├── User interaction (click, submit, drag)?
+│   └── Use EVENT HANDLER
+├── Component appeared on screen?
+│   └── Use EFFECT (external sync, analytics)
+├── Props/state changed and need derived value?
+│   └── CALCULATE DURING RENDER
+│       └── Expensive? Use useMemo
+└── Need to reset state when prop changes?
+    └── Use KEY PROP on component
 ```
 
 ### Error Handling
@@ -249,3 +299,10 @@ describe('ProductRepository', () => {
 - Tailwind CSS v4 with custom CSS variables for theming
 - TypeScript strict mode enabled
 - ESLint with Next.js core web vitals configuration
+- Environment variables: Create `.env.local` for local development
+- Database queries use parameterized queries to prevent SQL injection
+
+### Environment Variables
+- Create `.env.local` file for local development
+- Required variables typically include database connection strings, API keys, and Supabase credentials
+- Never commit `.env.local` or any file containing secrets to version control
