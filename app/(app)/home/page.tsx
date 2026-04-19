@@ -19,7 +19,6 @@ import { Card } from "@/components/ui/card";
 import { ActionRequiredCard } from "@/components/home/action-required-card";
 import { OutstandingPaymentsCard } from "@/components/home/outstanding-payments-card";
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
-import { DailyOrdersChart } from "@/components/home/orders-pie-chart";
 import Greeting from "@/components/home/greeting";
 
 export const dynamic = 'force-dynamic';
