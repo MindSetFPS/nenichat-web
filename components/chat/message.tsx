@@ -26,6 +26,7 @@ import Link from "next/link"
 import { useContactStore } from "@/stores/contact-store"
 
 import { useRouter } from "next/navigation"
+import { countTokens } from "@/lib/token-count"
 
 
 interface MessageProps {
@@ -62,7 +63,7 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                 className={cn(
                     "flex flex-row w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity break-all",
                     isMe
-                        ? "ml-auto text-primary rounded-tr-none px-1 py-0"
+                        ? "ml-auto pl-2 pb-2 text-primary rounded-tr-none"
                         : "bg-muted rounded-tl-none"
                 )}
             >
@@ -79,15 +80,20 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                         }
 
                         {!isMe ? (
-                            <AccordionTrigger className="items-center p-0">
-                                <p className="text-sm py-2 break-words">
-                                    {message.content}
-                                </p>
+                            <AccordionTrigger className="items-center p-0 no-underline hover:no-underline">
+                                <div className="flex flex-col items-start">
+                                    <p className="text-sm py-2 break-words whitespace-pre-wrap">
+                                        {message.content}
+                                    </p>
+                                </div>
                             </AccordionTrigger>
                         ) : (
-                            <p className="text-sm py-2 break-words">
-                                {message.content}
-                            </p>
+                            <>
+                                <p className="text-sm py-2 break-words whitespace-pre-wrap">
+                                    {message.content}
+                                </p>
+
+                            </>
                         )}
 
                         <AccordionContent>
@@ -121,12 +127,15 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                 </Sheet>
                             </div>
                         </AccordionContent>
+                        <span className="block text-[0.6rem] text-muted-foreground">
+                            {countTokens(message.content || "")} tokens
+                        </span>
                     </AccordionItem>
                 </Accordion>
 
                 <span
                     className={cn(
-                        "text-[0.5rem] self-end",
+                        "text-[0.5rem] self-end whitespace-nowrap",
                         isMe
                             ? "text-primary/70"
                             : "text-muted-foreground"
