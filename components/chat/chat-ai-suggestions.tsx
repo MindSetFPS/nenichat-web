@@ -114,13 +114,16 @@ export function ChatAiSuggestions({ lastMessages, onSuggestionClick, disabled, m
                 <div className="flex items-center gap-1">
                     <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 rounded-full hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                        size="default"
+                        className="hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
                         onClick={handleReload}
                         disabled={disabled || isLoadingSuggestions || !hasMessages}
                         title="Recargar sugerencias"
                     >
                         <RotateCw className={cn("w-3.5 h-3.5", isLoadingSuggestions && "animate-spin")} />
+                        <span>
+                            {isLoadingSuggestions ? "Analizando..." : "Analizar chat"}
+                        </span>
                     </Button>
                     <Button
                         variant="ghost"
