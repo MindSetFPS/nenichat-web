@@ -1,6 +1,6 @@
 import { chatSuggestionRepository } from '../infra/persistance/ChatSuggestionRepository';
 import { IChatSuggestion } from '../domain/IChatSuggestion';
-import { formatConversationContext, generateManySuggestions } from '@/lib/suggestions';
+import { generateManySuggestions } from '@/Nenichat/Suggestions/app/generate-suggestions';
 
 /**
  * Creates a new chat suggestion and saves it to the database
@@ -17,8 +17,7 @@ export async function createChatSuggestion(
   isSelected: boolean = false
 ): Promise<IChatSuggestion> {
 
-  const prompt = formatConversationContext(messages)
-  const suggestions = await generateManySuggestions(prompt)
+  const suggestions = await generateManySuggestions(messages)
 
   return await chatSuggestionRepository.create({
     chat_id: chatId,
