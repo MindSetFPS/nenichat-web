@@ -9,13 +9,14 @@ import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
 import { Order } from "@/Nenichat/Orders/domain/Order"
 import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithProduct"
-import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
+import type { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
 import ChatHeader from "./chat-header"
 import { ChatDropDownDialog } from "./chat-dropdown"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
 import { useContactStore } from "@/stores/contact-store"
+import { useMessageStore } from "@/stores/message-store"
 
 // Union type for timeline items
 type TimelineItem =
@@ -44,6 +45,8 @@ export default function ChatView({
 }: ChatViewProps) {
   const setContacts = useContactStore((state) => state.setContacts)
   const setContact = useContactStore((state) => state.setContact)
+  const setMessages = useMessageStore((state) => state.setMessages)
+  const storedMessages = useMessageStore((state) => jid ? state.messagesByChat[jid] : undefined)
 
   useEffect(() => {
     if (groupSenderContacts) {
@@ -55,6 +58,10 @@ export default function ChatView({
     if (initialContact) {
       setContact(initialContact);
     }
+    if (jid) {
+      setMessages(jid, initialMessages);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const router = useRouter()
@@ -63,10 +70,12 @@ export default function ChatView({
 
   const contact = initialContact || (jid ? getContact(jid) : null)
 
+  const messages = storedMessages ?? initialMessages
+
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
     const items: TimelineItem[] = [
-      ...initialMessages.map(msg => ({ type: 'message' as const, data: msg })),
+      ...messages.map((msg: IMessageWithSender) => ({ type: 'message' as const, data: msg })),
       ...orders.map(order => ({ type: 'order' as const, data: order }))
     ]
 
@@ -76,7 +85,7 @@ export default function ChatView({
       const dateB = new Date(b.data.created_at).getTime()
       return dateB - dateA
     })
-  }, [initialMessages, orders])
+  }, [messages, orders])
 
   // Group timeline items (messages/orders) by their date
   const groupedTimeline = useMemo(() => {

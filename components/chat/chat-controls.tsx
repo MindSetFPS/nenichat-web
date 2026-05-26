@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { ChatAiSuggestions } from "./chat-ai-suggestions";
 import { IChatSuggestion } from "@/Nenichat/ChatSuggestions/domain/IChatSuggestion";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { useMessageStore } from "@/stores/message-store";
+import type { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender";
 
 interface ChatControlsProps {
     phone?: string;
@@ -24,6 +26,7 @@ interface ChatControlsProps {
 export default function ChatControls({ phone, lastMessages, me, suggestions }: ChatControlsProps) {
     const [newMessage, setNewMessage] = useState("")
     const [isSending, setIsSending] = useState(false)
+    const addMessage = useMessageStore((state) => state.addMessage)
 
     /**
      * Handles sending a message.
@@ -42,6 +45,10 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
             });
 
             if (response.ok) {
+                const data = await response.json();
+                if (data.message) {
+                    addMessage(phone, data.message as IMessageWithSender);
+                }
                 setNewMessage("");
                 toast.success("Message sent");
             } else {

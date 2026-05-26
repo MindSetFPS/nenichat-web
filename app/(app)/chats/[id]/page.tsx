@@ -146,6 +146,7 @@ export default async function ChatPage({
         />
 
         <ChatControls
+          phone={jid}
           lastMessages={mostRecentMessages}
           me={me}
           suggestions={suggestionsJson}
@@ -202,6 +203,7 @@ export default async function ChatPage({
         groupSenderContacts={groupSenderContactsJson} />
 
       <ChatControls
+        phone={jid}
         lastMessages={mostRecentMessages}
         me={me}
         suggestions={suggestionsJson}
