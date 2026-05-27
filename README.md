@@ -4,56 +4,74 @@ Nenichat es una plataforma que permite a los comercios y restaurantes gestionar 
 Convierte los mensajes entrantes en datos de ventas.
 En la versión gratis, puedes conectar tu whatsapp a Nenichat, y dentro de cada chat puedes crear productos, ordenes manualmente, ver estatus, ver estadisticas de tus clientes y tus ventas.
 
-Neni Flow es la versión premium de Nenichat, que te permite automatizar totalmente el flujo de comercio: desde el primer mensaje hasta la confirmacion del pago, sin intervención humana.
-Neni Flow no está disponible actualmente, pero lo estará pronto.
+> **Estado:** Pre-lanzamiento. Construyendo hacia MVP.
 
-Neni Chat currently has two monetization models:
+---
 
-1. Neni Flow credits: pay a fixed amount: $99mxn for 50 credits, $249mxn for 175 credits, $499mxn for 500 credits. A credit is consumed when a sale is made.
-2. Neni Chat Premium: pay a montly subscription of $2499 mxn and get premium features like unlimited conversations and 5 extra users (for your team).
+## 🎯 Launch Priorities
 
-## Todo:
+### 🔴 P1 — Core Product (must ship for launch)
 
-- Show a QR code expiration coundown in the frontend
-- Make a retry scanning qr code button
-- Protect QR code images
-- Optimize sql queries: a lot of stuff is making the same queries every time a component is rendered
+| Estado | Item |
+|--------|------|
+| ⬜ | **WhatsApp container workflow** — Crear, desplegar, escanear QR, conectar dispositivo |
+| ⬜ | **Fix critical bugs** — Profile API (datos falsos), contact sync (roto), IPs hardcodeadas |
+| ⬜ | **Order management** — CRUD orders, estatus, items |
+| ⬜ | **Product catalog** — CRUD productos, inventario |
+| ⬜ | **Contact + chat management** — Conversaciones, enviar mensajes |
+| ⬜ | **Subscription billing (Stripe)** — Ingresos recurrentes $2,499/mes |
+| ⬜ | **Auth + multi-tenancy** — Login, registro, aislamiento de negocios |
+| ⬜ | **ToS & Privacy pages** — Requisito legal |
+| ⬜ | **Sentry / error monitoring** — Poder debuggear en producción |
+
+### 🟡 P2 — Value Amplifiers (post-launch)
+
+| Estado | Item |
+|--------|------|
+| ⬜ | **MercadoPago Connect (OAuth)** — Dueños conectan su MP con un click → links de pago |
+| ⬜ | **Payment auto-detection webhook** — Cliente paga → orden se actualiza sola |
+| ⬜ | **Send payment link via WhatsApp** — Un tap desde la orden → link en el chat |
+| ⬜ | **Chat with your business (NL→SQL analytics)** — Pregunta en lenguaje natural: *"¿qué día de la semana es más rentable?"*, *"¿cuál es mi producto más vendido?"*, *"¿qué productos tienen menor ROI?"* |
+| ⬜ | **Profitability dashboard** — Ingresos vs gastos, márgenes, desglose diario |
+| ⬜ | **Campaign management** — Mensajes masivos a audiencias |
+| ⬜ | **Expense tracking** — Registrar y categorizar gastos |
+| ⬜ | **QR polish** — Countdown visual, botón reintentar, URLs firmadas |
+| ⬜ | **AI chat suggestions** — Sugerencias de respuesta vía Ollama |
+
+### 🟢 P3 — Nice to Have
+
+| Estado | Item |
+|--------|------|
+| ⬜ | **Neni Flow auto-responder** — AI autónomo. Mantener "próximamente" |
+| ⬜ | **Admin panel** — Gestionar usuarios/negocios (Stripe + Supabase dashboard por ahora) |
+| ⬜ | **Email notifications** — WhatsApp es el canal por ahora |
+| ⬜ | **Onboarding wizard** — Setup guiado |
+| ⬜ | **Password reset** — Soporte manual para early adopters |
+| ⬜ | **Data export (CSV)** | 
+| ⬜ | **Multi-language (EN)** — Mercado MX es Spanish-only |
+| ⬜ | **Performance tuning** — Cuando el tráfico lo demande |
+| ⬜ | **UI polish / animations** — Funcional > bonito para MVP |
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Development Commands
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server on port 5102 |
+| `npm run build` | Production build (OpenNext Cloudflare) |
+| `npm run lint` | ESLint |
+| `npm run test` | Jest |
+| `npm run start` | Start production server on port 5101 |
+| `npm run deploy` | Build + deploy to Cloudflare Workers |
+| `npm run preview` | Preview Cloudflare build locally |
+| `npm run cf-typegen` | Generate Cloudflare env types |
 
