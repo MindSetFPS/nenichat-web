@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Check, Crown, MessageSquare, Star, Users } from "lucide-react";
+import { Crown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { PricingFeatureItem } from "@/components/marketing/pricing-feature-item";
 
 export default function PricingSection() {
     return (
@@ -21,7 +22,7 @@ export default function PricingSection() {
                         <span className="text-primary">y crece con Nenichat.</span>
                     </h1>
                     <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-12">
-                        Usa nuestras herramientas de administración gratis siempre, y automatiza tus ventas con Neni Flow solo cuando tú quieras, con recargas desde $99 pesos.                    </p>
+                        Usa nuestras herramientas de administración gratis siempre, y automatiza tus ventas con Neni Flow.                    </p>
                 </div>
             </section>
 
@@ -44,39 +45,21 @@ export default function PricingSection() {
                                 Ideal para organizar el caos, dejar la libreta y verte profesional ante tus clientes.<br /> Tú contestas, nosotros organizamos.
                             </p>
                             <ul className="space-y-3">
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Catálogo Digital <strong>ilimitado</strong></span>
-                                </li>
-                                {/* <li className="flex items-start gap-3 text-sm">
-                                            <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                            <span>"Neni Link" para Bio (con carrito)</span>
-                                        </li> */}
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Crea pedidos manualmente</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Estadísticas de tus productos y ventas</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Calcula tu rentabilidad</span>
-                                </li>
-
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>(Proximamente) Link en Bio</span>
-                                </li>
-                                {/* <li className="flex items-start gap-3 text-sm">
-                                            <Zap className="h-5 w-5 text-yellow-500 shrink-0" />
-                                            <span><strong>Validación de Transferencias (OCR)</strong><br /><span className="text-xs text-muted-foreground">30 al mes (luego pide recarga)</span></span>
-                                        </li> */}
-                                {/* <li className="flex items-start gap-3 text-sm text-muted-foreground">
-                                            <Shield className="h-5 w-5 shrink-0" />
-                                            <span>Recibos con "⚡ Powered by NeniChat"</span>
-                                        </li> */}
+                                <PricingFeatureItem>
+                                    Catálogo Digital <strong>ilimitado</strong>
+                                </PricingFeatureItem>
+                                <PricingFeatureItem>
+                                    Crea pedidos manualmente
+                                </PricingFeatureItem>
+                                <PricingFeatureItem>
+                                    Estadísticas de tus productos y ventas
+                                </PricingFeatureItem>
+                                <PricingFeatureItem>
+                                    Calcula tu rentabilidad
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Link en Bio
+                                </PricingFeatureItem>
                             </ul>
                         </CardContent>
                         <CardFooter>
@@ -98,43 +81,47 @@ export default function PricingSection() {
                             <CardDescription className="text-lg mt-2">Contestamos, organizamos y vendemos, mientras tú creas productos increíbles.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-1">
-                            <div className="space-y-4 mb-6">
-                                <div className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="font-bold">Changarro</span>
-                                        <span className="font-bold text-primary">$99 MXN</span>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">50 créditos</div>
-                                </div>
-                                <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer ring-1 ring-primary/20">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="font-bold flex items-center gap-1">Bazar <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" /></span>
-                                        <span className="font-bold text-primary">$249 MXN</span>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">150 créditos + 25 créditos gratis</div>
-                                </div>
-                                <div className="p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="font-bold">Patrona</span>
-                                        <span className="font-bold text-primary">$499 MXN</span>
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">400 créditos + 100 créditos gratis</div>
-                                </div>
+                            <div className="mb-6">
+                                <span className="text-5xl font-extrabold">$599</span>
+                                <span className="text-muted-foreground"> mxn / mes</span>
                             </div>
-
                             <ul className="space-y-3">
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>1 Crédito = 1 Conversación Efectiva (Venta)</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>Tus creditos nunca caducan.</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                                    <span>(Proximamente) Validación de Transferencias (OCR)</span>
-                                </li>
+                                <PricingFeatureItem>
+                                    Conversaciones y mensajes ilimitados
+                                </PricingFeatureItem>
+                                <PricingFeatureItem>
+                                    Pedidos en 1 click con Analisis de chat
+                                </PricingFeatureItem>
+                                <PricingFeatureItem>
+                                    Soporte prioritario
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Campañas de marketing
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Validación de Transferencias (OCR)
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Links de pago
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Delivery
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Envíos nacionales
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Automatiza tus pedidos
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Exporta tus datos a excel
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Análisis de chats
+                                </PricingFeatureItem>
+                                <PricingFeatureItem status="soon">
+                                    Seguimiento de metas
+                                </PricingFeatureItem>
                             </ul>
                         </CardContent>
                         <CardFooter>
@@ -157,20 +144,16 @@ export default function PricingSection() {
                                 <span className="text-muted-foreground"> mxn / mes</span>
                             </div>
                             <ul className="space-y-3">
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Crown className="h-5 w-5 text-yellow-500 shrink-0" />
-                                    <div className="flex flex-col">
-                                        <span><strong>Conversaciones Ilimitadas</strong></span>
-                                        <span className="text-muted-foreground text-xs">No vuelvas a preocuparte por tus créditos.</span>
-                                    </div>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Users className="h-5 w-5 text-indigo-500 shrink-0" />
-                                    <div className="flex flex-col">
-                                        <span><strong>Hasta 5 usuarios</strong></span>
-                                        <span className="text-muted-foreground text-xs">Invita hasta 4 personas y controla sus roles y permisos.</span>
-                                    </div>
-                                </li>
+                                <PricingFeatureItem icon={Crown} iconClassName="text-yellow-500">
+                                    <strong>Conversaciones Ilimitadas</strong>
+                                    <br />
+                                    <span className="text-muted-foreground text-xs">No vuelvas a preocuparte por tus créditos.</span>
+                                </PricingFeatureItem>
+                                <PricingFeatureItem icon={Users} iconClassName="text-indigo-500">
+                                    <strong>Hasta 5 usuarios</strong>
+                                    <br />
+                                    <span className="text-muted-foreground text-xs">Invita hasta 4 personas y controla sus roles y permisos.</span>
+                                </PricingFeatureItem>
                             </ul>
                         </CardContent>
                         <CardFooter>
