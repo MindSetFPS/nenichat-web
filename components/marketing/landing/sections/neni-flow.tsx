@@ -14,10 +14,8 @@ export default function NeniFlow() {
     return (
         <section id="neniflow" className="py-32 overflow-hidden bg-linear-to-b from-background via-muted/30 to-background relative">
             {/* Background Effects */}
-            <div className="absolute inset-0 -z-10">
-                <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px]" />
-            </div>
+            <div className="h-96 w-96 bg-gradient-to-tr from-violet-500/30 via-fuchsia-500/30 to-transparent blur-[120px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="h-[500px] w-[500px] bg-gradient-to-bl from-cyan-400/30 via-blue-500/30 to-transparent blur-[120px] absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2"></div>
 
             <div className="container px-4 md:px-6 mx-auto">
                 {/* Header */}
@@ -30,7 +28,7 @@ export default function NeniFlow() {
                     >
                         {/* Badges */}
                         <div className="flex items-center justify-center gap-3 mb-6">
-                            <Badge className="bg-linear-to-r from-purple-500 to-cyan-400 text-white border-0 px-3 py-1">
+                            <Badge className="bg-linear-to-r from-indigo-600 to-indigo-400 text-white border-0 px-3 py-1">
                                 <Crown className="w-3 h-3 mr-1" />
                                 Premium
                             </Badge>
@@ -41,15 +39,15 @@ export default function NeniFlow() {
                         </div>
 
                         <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
-                            Tu negocio vendiendo{" "}
-                            <span className="bg-linear-to-r from-purple-500 via-cyan-400 to-orange-400 bg-clip-text text-transparent">
-                                24/7, sin ti
+                            Menos estrés,{" "}
+                            <span className="bg-linear-to-r from-indigo-600 via-indigo-400 to-slate-400 bg-clip-text text-transparent">
+                                más ganancias
                             </span>
                         </h2>
 
                         <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto">
                             Con <strong className="text-foreground">Nenichat</strong> organizas tus ventas manualmente.
-                            Con <strong className="text-foreground">Neni Flow</strong>, la AI hace todo por ti:
+                            Con <strong className="text-foreground">Neni Flow</strong>, Nenichat hace todo por ti:
                             desde responder hasta cobrar.
                         </p>
                     </motion.div>
@@ -76,16 +74,16 @@ export default function NeniFlow() {
                     {/* Neni Flow - Automatic */}
                     <ComparisonCard
                         title="Con Neni Flow"
-                        subtitle="Premium · AI contesta"
+                        subtitle="Premium · Nenichat contesta"
                         icon={<Bot className="w-5 h-5" />}
                         variant="premium"
                         delay={0.3}
                         items={[
-                            "Cliente escribe a cualquier hora",
-                            "AI responde al instante",
+                            "Tus clientes escriben a cualquier hora",
+                            "Nenichat responde al instante",
                             "Detecta intención de compra",
                             "Genera link de pago automático",
-                            "Confirma el pedido sin ti",
+                            "Confirma el pedido automaticamente",
                         ]}
                     />
                 </div>
@@ -106,7 +104,7 @@ export default function NeniFlow() {
                         {/* Connecting line for desktop - centered on icons */}
                         <div className="hidden md:block absolute top-7 left-[12.5%] right-[12.5%] h-0.5 z-0 overflow-hidden rounded-full">
                             {/* Base line */}
-                            <div className="absolute inset-0 bg-linear-to-r from-purple-500/20 via-cyan-400/20 to-orange-400/20" />
+                            <div className="absolute inset-0 bg-linear-to-r from-indigo-500/20 via-slate-400/20 to-indigo-500/20" />
                             {/* Animated beam */}
                             <motion.div
                                 className="absolute inset-y-0 w-1/4 bg-linear-to-r from-transparent via-white/60 to-transparent"
@@ -131,7 +129,7 @@ export default function NeniFlow() {
                             <TimelineStep
                                 step={2}
                                 icon={<Bot className="w-5 h-5" />}
-                                title="AI responde"
+                                title="Nenichat responde"
                                 description="Conoce tu catálogo y precios"
                                 delay={0.2}
                             />
@@ -195,14 +193,14 @@ function ComparisonCard({ title, subtitle, icon, items, variant, delay }: Compar
             className={cn(
                 "relative p-6 md:p-8 rounded-3xl border",
                 isPremium
-                    ? "bg-linear-to-br from-purple-500/5 via-cyan-400/5 to-orange-500/5 border-purple-500/20"
-                    : "bg-muted/30 border-border"
+                    ? "bg-muted/40 border-indigo-500/20"
+                    : "bg-muted/60 border-border"
             )}
         >
             {isPremium && (
                 <ShineBorder
                     className="absolute inset-0 rounded-3xl"
-                    shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
+                    shineColor={["#6366F1", "#818CF8", "#A5B4FC"]}
                 />
             )}
 
@@ -212,7 +210,7 @@ function ComparisonCard({ title, subtitle, icon, items, variant, delay }: Compar
                     <div className={cn(
                         "p-2.5 rounded-xl",
                         isPremium
-                            ? "bg-linear-to-br from-purple-500 to-cyan-400 text-white"
+                            ? "bg-linear-to-br from-indigo-600 to-indigo-400 text-white"
                             : "bg-muted text-muted-foreground"
                     )}>
                         {icon}
@@ -221,7 +219,7 @@ function ComparisonCard({ title, subtitle, icon, items, variant, delay }: Compar
                         <h3 className="font-bold text-lg">{title}</h3>
                         <p className={cn(
                             "text-sm",
-                            isPremium ? "text-purple-400" : "text-muted-foreground"
+                            isPremium ? "text-indigo-500" : "text-muted-foreground"
                         )}>
                             {subtitle}
                         </p>
@@ -241,7 +239,7 @@ function ComparisonCard({ title, subtitle, icon, items, variant, delay }: Compar
                         >
                             <div className={cn(
                                 "mt-0.5 shrink-0",
-                                isPremium ? "text-green-400" : "text-muted-foreground"
+                                isPremium ? "text-indigo-400" : "text-muted-foreground"
                             )}>
                                 {isPremium ? (
                                     <Zap className="w-4 h-4" />
@@ -285,7 +283,7 @@ function TimelineStep({ step, icon, title, description, delay }: TimelineStepPro
         >
             {/* Step circle */}
             <div className="relative mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-indigo-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
                     {icon}
                 </div>
                 <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-background border-2 border-primary flex items-center justify-center text-xs font-bold text-primary">
