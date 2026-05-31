@@ -107,8 +107,8 @@ export default async function ChatPage({
 
   const me = JSON.parse(JSON.stringify(meData))
   const suggestions = [
-    { id: 1, chat_id: params.id, message_id: "", suggestion: "Hello", is_selected: false, created_at: new Date() },
-    { id: 2, chat_id: params.id, message_id: "", suggestion: "Hi", is_selected: false, created_at: new Date() }
+    { action: "send_message", label: "¡Buenos días!", text: "¡Buenos días!" },
+    { action: "send_message", label: "Hola", text: "Hola" },
   ]
   const suggestionsJson = JSON.parse(JSON.stringify(suggestions))
 

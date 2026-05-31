@@ -1,105 +1,84 @@
 "use client"
 
-import { Sparkles, RotateCw, ChevronUp, ChevronDown } from "lucide-react";
-import { Button } from "../ui/button";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { IChatSuggestion } from "@/Nenichat/ChatSuggestions/domain/IChatSuggestion";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useMemo } from "react"
+import { Sparkles, RotateCw, ChevronUp, ChevronDown, ClipboardList, MessageSquareText } from "lucide-react"
+import { motion, AnimatePresence } from "motion/react"
+import { Button } from "../ui/button"
+import { cn } from "@/lib/utils"
+import { useSuggestionFetcher } from "@/hooks/use-suggestion-fetcher"
+import { SuggestionSection } from "./suggestion-section"
+import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction"
+import type { IContact } from "@/Nenichat/Contacts/domain/IContact"
 
 interface ChatAiSuggestionsProps {
-    lastMessages?: any[];
-    onSuggestionClick: (suggestion: string) => void;
-    disabled?: boolean;
-    me?: IContact | null;
-    suggestions?: IChatSuggestion[];
+    lastMessages?: any[]
+    onSuggestionClick: (suggestion: string) => void
+    onSuggestionAction?: (action: SuggestionAction) => void
+    disabled?: boolean
+    me?: IContact | null
+    suggestions?: SuggestionAction[]
+    textSuggestionCount?: number
+    orderSuggestionCount?: number
 }
 
-/**
- * AI response suggestions component that fetches and displays quick replies based on chat history.
- * 
- * @param {ChatAiSuggestionsProps} props - The component props.
- * @returns {JSX.Element | null} The rendered suggestions or null if none.
- */
-export function ChatAiSuggestions({ lastMessages, onSuggestionClick, disabled, me, suggestions: initialSuggestions }: ChatAiSuggestionsProps) {
-    const [suggestions, setSuggestions] = useState<IChatSuggestion[]>(initialSuggestions || [])
-    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
-    const [isExpanded, setIsExpanded] = useState(false);
+export function ChatAiSuggestions({
+    lastMessages,
+    onSuggestionClick,
+    onSuggestionAction,
+    disabled,
+    me,
+    suggestions: initialSuggestions,
+    textSuggestionCount = 2,
+    orderSuggestionCount = 2,
+}: ChatAiSuggestionsProps) {
+    const [isExpanded, setIsExpanded] = useState(false)
+    const { suggestions, pendingCount, isReloading, tokenStats, reload } = useSuggestionFetcher({
+        lastMessages,
+        initialSuggestions,
+        textSuggestionCount,
+        orderSuggestionCount,
+    })
 
-    // Initialize state from local storage on mount
+    const textSuggestions = useMemo(() => suggestions.filter(s => s.action === "send_message"), [suggestions])
+    const formSuggestions = useMemo(() => suggestions.filter(s => s.action === "open_form"), [suggestions])
+
     useEffect(() => {
-        const stored = localStorage.getItem("chat-ai-suggestions-expanded");
+        const stored = localStorage.getItem("chat-ai-suggestions-expanded")
         if (stored !== null) {
-            setIsExpanded(stored === "true");
+            setIsExpanded(stored === "true")
         }
-    }, []);
+    }, [])
 
     const toggleExpanded = () => {
-        const newState = !isExpanded;
-        setIsExpanded(newState);
-        localStorage.setItem("chat-ai-suggestions-expanded", String(newState));
-    };
+        const newState = !isExpanded
+        setIsExpanded(newState)
+        localStorage.setItem("chat-ai-suggestions-expanded", String(newState))
+    }
 
-    // Sync internal suggestions with prop
+    const handleReload = () => {
+        if (!isExpanded) toggleExpanded()
+        reload()
+    }
+
+    const handleSuggestionClick = (suggestion: SuggestionAction) => {
+        if (suggestion.action === "send_message") {
+            onSuggestionClick(suggestion.text)
+        } else if (suggestion.action === "open_form") {
+            onSuggestionAction?.(suggestion)
+        }
+    }
+
     useEffect(() => {
-        if (initialSuggestions) {
-            setSuggestions(initialSuggestions);
-        }
-    }, [initialSuggestions]);
-
-    /**
-     * Fetches new suggestions from the API and updates the local state.
-     */
-    const handleReload = async () => {
-        if (!lastMessages || lastMessages.length === 0 || isLoadingSuggestions) return;
-
-        // Auto-expand if reloading manually
-        if (!isExpanded) {
-            toggleExpanded();
-        }
-
-        setIsLoadingSuggestions(true);
-        try {
-            const response = await fetch("/api/suggestions/generate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ messages: lastMessages }),
-            });
-
-            if (!response.ok) throw new Error("Failed to fetch suggestions");
-
-            const data = await response.json();
-            const newSuggestions: IChatSuggestion[] = data.suggestions.map((s: string, index: number) => ({
-                id: BigInt(Date.now() + index), // Temporary ID
-                suggestion: s,
-                chat_id: BigInt(0),
-                message_id: "",
-                is_selected: false,
-                created_at: new Date(),
-            }));
-
-            setSuggestions(newSuggestions);
-        } catch (error) {
-            console.error("Error reloading suggestions:", error);
-        } finally {
-            setIsLoadingSuggestions(false);
-        }
-    };
-
-    // Fetch suggestions when lastMessages change, but only if the last message is from the customer
-    useEffect(() => {
-        const lastMessage = lastMessages?.[0];
-        const isFromCustomer = lastMessage && (lastMessage.sender_jid !== me?.lid && lastMessage.sender_jid !== me?.phone_number);
+        const lastMessage = lastMessages?.[0]
+        const isFromCustomer = lastMessage && (
+            lastMessage.sender_jid !== me?.lid && lastMessage.sender_jid !== me?.phone_number
+        )
         if (isFromCustomer) {
-            // Logic to auto-fetch could go here if not provided by prop
+            // TODO: auto-fetch suggestions when a new customer message arrives
         }
-    }, [lastMessages, me?.id]);
+    }, [lastMessages, me?.id])
 
-    const hasMessages = lastMessages && lastMessages.length > 0;
-    if (suggestions.length === 0 && !isLoadingSuggestions && !hasMessages) return null;
+    const hasMessages = lastMessages && lastMessages.length > 0
 
     return (
         <div className="mb-2">
@@ -117,12 +96,12 @@ export function ChatAiSuggestions({ lastMessages, onSuggestionClick, disabled, m
                         size="default"
                         className="hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
                         onClick={handleReload}
-                        disabled={disabled || isLoadingSuggestions || !hasMessages}
+                        disabled={disabled || isReloading || !hasMessages}
                         title="Recargar sugerencias"
                     >
-                        <RotateCw className={cn("w-3.5 h-3.5", isLoadingSuggestions && "animate-spin")} />
+                        <RotateCw className={cn("w-3.5 h-3.5", isReloading && "animate-spin")} />
                         <span>
-                            {isLoadingSuggestions ? "Analizando..." : "Analizar chat"}
+                            {isReloading ? "Analizando..." : "Analizar chat"}
                         </span>
                     </Button>
                     <Button
@@ -149,47 +128,41 @@ export function ChatAiSuggestions({ lastMessages, onSuggestionClick, disabled, m
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="flex flex-wrap gap-2 pb-2">
-                            {isLoadingSuggestions ? (
-                                <motion.div
-                                    key="skeleton"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex gap-2"
-                                >
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="h-9 w-24 bg-muted animate-pulse rounded-full" />
-                                    ))}
-                                </motion.div>
-                            ) : (
-                                suggestions?.map((suggestion, index) => (
-                                    <motion.div
-                                        key={suggestion.id.toString()}
-                                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        transition={{ delay: index * 0.05 }}
-                                    >
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                                onSuggestionClick(suggestion.suggestion);
-                                                // setSuggestions([]); // Clear after selection
-                                            }}
-                                            className="cursor-pointer rounded-full bg-primary/5 hover:bg-primary/10 border-primary/20 hover:border-primary/40 text-xs py-1.5 h-auto transition-all duration-300"
-                                            disabled={disabled}
-                                        >
-                                            {suggestion.suggestion}
-                                        </Button>
-                                    </motion.div>
-                                ))
-                            )}
-                        </div>
+                        {isReloading && suggestions.length === 0 && pendingCount > 0 ? (
+                            <div className="flex flex-wrap gap-1.5 pb-2">
+                                {Array.from({ length: pendingCount }).map((_, i) => (
+                                    <div key={`skel-${i}`} className="h-9 w-24 bg-muted animate-pulse rounded-full" />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                <SuggestionSection
+                                    icon={<MessageSquareText className="w-3 h-3 text-muted-foreground/50" />}
+                                    title="Respuestas"
+                                    variant="text"
+                                    suggestions={textSuggestions}
+                                    disabled={disabled}
+                                    onClick={handleSuggestionClick}
+                                    trailingSkeletonCount={isReloading ? pendingCount : undefined}
+                                />
+                                <SuggestionSection
+                                    icon={<ClipboardList className="w-3 h-3 text-primary/60" />}
+                                    title="Pedidos detectados"
+                                    variant="form"
+                                    suggestions={formSuggestions}
+                                    disabled={disabled}
+                                    onClick={handleSuggestionClick}
+                                />
+                            </div>
+                        )}
+                        {tokenStats && !isReloading && (
+                            <div className="text-[10px] text-muted-foreground/60 text-right px-1 pt-1.5">
+                                {tokenStats.promptTokens} input · {tokenStats.completionTokens} output
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
         </div>
-    );
+    )
 }

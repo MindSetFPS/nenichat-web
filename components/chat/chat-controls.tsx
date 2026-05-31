@@ -4,34 +4,51 @@ import { Paperclip, Send, Smile, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ChatAiSuggestions } from "./chat-ai-suggestions";
-import { IChatSuggestion } from "@/Nenichat/ChatSuggestions/domain/IChatSuggestion";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { useMessageStore } from "@/stores/message-store";
+import { useProductStore } from "@/stores/product-store";
+import { useContactStore } from "@/stores/contact-store";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { CreateOrderForm } from "@/components/forms/create-order-form";
 import type { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender";
+import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction";
+import type { ProductOrder } from "@/Nenichat/Orders/app/dto/product-order";
+import type { OrderItemRow } from "@/components/forms/order-form";
 
 interface ChatControlsProps {
     phone?: string;
     lastMessages?: any[];
     me?: IContact | null;
-    suggestions?: IChatSuggestion[];
+    suggestions?: SuggestionAction[];
 }
 
-/**
- * Chat controls component with AI response suggestions.
- * @param props - Component properties including phone and previous messages context.
- * @returns {JSX.Element} The rendered chat controls footer.
- */
+function mapOrdersToItems(orders: ProductOrder[], products: { id: string; name: string; price: number }[]): OrderItemRow[] {
+    return orders.map(order => {
+        const product = products.find(p =>
+            p.name.toLowerCase().includes(order.productName.toLowerCase())
+        );
+        return {
+            productId: product?.id ?? "",
+            quantity: order.amount,
+            unitPrice: product?.price ?? 0,
+        };
+    });
+}
+
 export default function ChatControls({ phone, lastMessages, me, suggestions }: ChatControlsProps) {
+    const router = useRouter()
     const [newMessage, setNewMessage] = useState("")
     const [isSending, setIsSending] = useState(false)
     const addMessage = useMessageStore((state) => state.addMessage)
+    const { products, fetchProducts } = useProductStore()
+    const getContact = useContactStore((state) => state.getContact)
+    const customerContact = phone ? getContact(phone) : undefined
+    const customerContactValue = typeof customerContact === 'object' ? customerContact : undefined
+    const [pendingFormAction, setPendingFormAction] = useState<SuggestionAction | null>(null)
 
-    /**
-     * Handles sending a message.
-     * @param messageText - The text content of the message to send.
-     */
     const handleSendMessage = async (messageText: string) => {
         if (!phone || messageText.trim() === "" || isSending) return;
 
@@ -41,7 +58,7 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone, message: messageText }),
-                signal: AbortSignal.timeout(60000), // 1 minute timeout
+                signal: AbortSignal.timeout(60000),
             });
 
             if (response.ok) {
@@ -62,13 +79,47 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
         }
     };
 
-    /**
-     * Handles the form submission.
-     * @param e - The form event.
-     */
+    const handleSuggestionAction = (action: SuggestionAction) => {
+        if (action.action === "send_message") {
+            handleSendMessage(action.text);
+        } else if (action.action === "open_form") {
+            if (products.length === 0) fetchProducts();
+            setPendingFormAction(action);
+        }
+    };
+
+    const handleCloseForm = () => {
+        setPendingFormAction(null);
+    };
+
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         handleSendMessage(newMessage);
+    };
+
+    const renderFormModal = () => {
+        if (!pendingFormAction || pendingFormAction.action !== "open_form") return null;
+
+        const orders = (pendingFormAction.data as { orders?: ProductOrder[] }).orders;
+        const initialItems = orders ? mapOrdersToItems(orders, products) : [];
+
+        return (
+            <Sheet open={true} onOpenChange={(open) => { if (!open) handleCloseForm(); }}>
+                <SheetContent className="scroll-auto overflow-y-auto px-2">
+                    <SheetHeader className="p-0 pt-2">
+                        <SheetTitle>Crear venta</SheetTitle>
+                    </SheetHeader>
+                    <CreateOrderForm
+                        contact={customerContactValue}
+                        initialItems={initialItems}
+                        onSubmit={() => {
+                            handleCloseForm()
+                            router.refresh()
+                        }}
+                    />
+                </SheetContent>
+            </Sheet>
+        );
     };
 
     return (
@@ -76,6 +127,7 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
             <ChatAiSuggestions
                 lastMessages={lastMessages}
                 onSuggestionClick={handleSendMessage}
+                onSuggestionAction={handleSuggestionAction}
                 disabled={isSending}
                 me={me}
                 suggestions={suggestions}
@@ -111,6 +163,8 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
                     {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 </Button>
             </form>
+
+            {renderFormModal()}
         </footer>
     );
 }

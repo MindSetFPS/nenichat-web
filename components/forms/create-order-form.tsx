@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { OrderForm, OrderFormValues } from "./order-form";
+import { OrderForm, OrderFormValues, OrderItemRow } from "./order-form";
 import { useProductStore } from "@/stores/product-store";
 import { useContactStore } from "@/stores/contact-store";
 import { IProduct } from "@/Nenichat/Products/domain/IProduct";
@@ -18,6 +18,7 @@ interface CreateOrderFormProps {
     createdAt?: Date;
     className?: string;
     onSubmit?: () => void;
+    initialItems?: OrderItemRow[];
 }
 
 export function CreateOrderForm({
@@ -28,6 +29,7 @@ export function CreateOrderForm({
     createdAt,
     className,
     onSubmit,
+    initialItems,
 }: CreateOrderFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -148,6 +150,7 @@ export function CreateOrderForm({
             initialValues={{
                 contactId: contactId,
                 lid: lid,
+                items: initialItems,
             }}
             products={activeProducts!}
         />
