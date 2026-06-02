@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction"
+import { useTokenUsageStore } from "@/stores/token-usage-store"
 
 interface UseSuggestionFetcherOptions {
     lastMessages?: any[]
@@ -24,6 +25,7 @@ export function useSuggestionFetcher({
     textSuggestionCount = 2,
     orderSuggestionCount = 2,
 }: UseSuggestionFetcherOptions): UseSuggestionFetcherReturn {
+    const addUsage = useTokenUsageStore((s) => s.addUsage)
     const [suggestions, setSuggestions] = useState<SuggestionAction[]>(initialSuggestions || [])
     const [isReloading, setIsReloading] = useState(false)
     const [pendingCount, setPendingCount] = useState(0)
@@ -57,9 +59,14 @@ export function useSuggestionFetcher({
         let tokenAccum = { promptTokens: 0, completionTokens: 0 }
 
         const onResponse = (data: { suggestion?: SuggestionAction | null; promptTokens?: number; completionTokens?: number }) => {
-            tokenAccum.promptTokens += data.promptTokens ?? 0
-            tokenAccum.completionTokens += data.completionTokens ?? 0
+            const pt = data.promptTokens ?? 0
+            const ct = data.completionTokens ?? 0
+            tokenAccum.promptTokens += pt
+            tokenAccum.completionTokens += ct
             setTokenStats({ ...tokenAccum })
+            if (pt > 0 || ct > 0) {
+                addUsage(pt, ct)
+            }
             if (data.suggestion) {
                 setSuggestions(prev => [...prev, data.suggestion!])
             }

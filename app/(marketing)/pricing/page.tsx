@@ -17,12 +17,12 @@ export default function PricingPage() {
                         </div>
                         <div className="grid gap-6">
                             <div className="bg-background p-6 rounded-xl border">
-                                <h3 className="font-bold text-lg mb-2">¿Qué pasa si se me acaban los créditos del plan Recargas?</h3>
-                                <p className="text-muted-foreground">El bot deja de contestar automáticamente, pero tú puedes seguir contestando manualmente. Puedes recargar en cualquier momento y se reactiva al instante.</p>
+                                <h3 className="font-bold text-lg mb-2">¿Qué incluye Neni Flow?</h3>
+                                <p className="text-muted-foreground">Neni Flow incluye detección automatizada de pedidos, respuestas inteligentes a tus clientes y atención al cliente prioritaria, todo por una tarifa plana mensual. Sin límites de uso ni créditos.</p>
                             </div>
                             <div className="bg-background p-6 rounded-xl border">
-                                <h3 className="font-bold text-lg mb-2">¿Qué es una "Conversación Efectiva"?</h3>
-                                <p className="text-muted-foreground">Es cuando el bot logra concretar una venta. Si el bot habla con el cliente pero no se concreta la venta, solo te cuesta 0.3 créditos (Conversación No Efectiva).</p>
+                                <h3 className="font-bold text-lg mb-2">¿Hay algún límite de pedidos?</h3>
+                                <p className="text-muted-foreground">No hay un límite fijo. Neni Flow está diseñado para el volumen normal de un negocio. Si tu negocio tiene un volumen excepcionalmente alto, nos pondremos en contacto contigo para ofrecerte un plan personalizado.</p>
                             </div>
                             <div className="bg-background p-6 rounded-xl border">
                                 <h3 className="font-bold text-lg mb-2">¿Puedo cancelar la suscripción Empresaria?</h3>

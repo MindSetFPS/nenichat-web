@@ -145,9 +145,9 @@ export default function PricingSection() {
                             </div>
                             <ul className="space-y-3">
                                 <PricingFeatureItem icon={Crown} iconClassName="text-yellow-500">
-                                    <strong>Conversaciones Ilimitadas</strong>
+                                    <strong>Pedidos Ilimitados</strong>
                                     <br />
-                                    <span className="text-muted-foreground text-xs">No vuelvas a preocuparte por tus créditos.</span>
+                                    <span className="text-muted-foreground text-xs">Automatiza todas tus ventas sin límites.</span>
                                 </PricingFeatureItem>
                                 <PricingFeatureItem icon={Users} iconClassName="text-indigo-500">
                                     <strong>Hasta 5 usuarios</strong>

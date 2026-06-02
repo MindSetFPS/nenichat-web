@@ -3,11 +3,11 @@
 import { useEffect } from "react"
 import {
     BadgeCheck,
-    Bell,
     ChevronsUpDown,
     CreditCard,
     LogOut,
     Sparkles,
+    Crown,
 } from "lucide-react"
 
 import {
@@ -33,6 +33,7 @@ import {
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useUserStore } from "@/stores/user-store"
+import { usePlanStore, getUpgradePlans, getPlanById } from "@/stores/plan-store"
 import { useBusiness } from "@/components/providers/business-context"
 
 export function NavUser({
@@ -48,6 +49,9 @@ export function NavUser({
     const router = useRouter()
     const { user, supabaseUser, isLoading, fetchUser } = useUserStore()
     const business = useBusiness()
+    const { currentPlan } = usePlanStore()
+    const upgradePlans = getUpgradePlans(currentPlan)
+    const nextUpgrade = upgradePlans.length > 0 ? upgradePlans[0] : null
 
     useEffect(() => {
         fetchUser()
@@ -107,10 +111,17 @@ export function NavUser({
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <Sparkles />
-                                Upgrade to Pro
-                            </DropdownMenuItem>
+                            {nextUpgrade ? (
+                                <DropdownMenuItem onClick={() => router.push(`/checkout?plan=${nextUpgrade.id}`)}>
+                                    <Sparkles />
+                                    Upgrade to {nextUpgrade.name}
+                                </DropdownMenuItem>
+                            ) : (
+                                <DropdownMenuItem disabled className="opacity-100">
+                                    <Crown className="text-yellow-500" />
+                                    <span className="font-bold">{getPlanById(currentPlan).name}</span>
+                                </DropdownMenuItem>
+                            )}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>

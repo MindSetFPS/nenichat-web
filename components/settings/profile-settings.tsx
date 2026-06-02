@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from "react"
-import { User, LogOut, ArrowRight, Sparkles } from "lucide-react"
+import { useEffect } from "react"
+import { User, LogOut, ArrowRight } from "lucide-react"
 import { motion } from "motion/react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -65,11 +65,6 @@ export function ProfileSettings() {
                                         Editar Perfil <ArrowRight className="h-3 w-3" />
                                     </Link>
                                 </Button>
-                                {profile?.is_premium && (
-                                    <div className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-500 text-xs font-bold border border-amber-500/20 flex items-center gap-1 shadow-xs shadow-amber-500/10 animate-pulse">
-                                        <Sparkles className="h-3 w-3" /> Premium
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </CardContent>

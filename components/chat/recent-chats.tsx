@@ -18,15 +18,6 @@ interface RecentChatsProps {
     className?: string
 }
 
-/**
- * RecentChats component displays a list of recent conversations in the app layout.
- * It provides a search input and a scrollable list of chats with contact information.
- * On mobile, it's hidden when viewing a chat and shown when on the chats list.
- * 
- * @param {RecentChatsProps} props - Component props
- * @param {string} props.contacts - JSON string of chats with last messages
- * @returns {JSX.Element} The rendered RecentChats component.
- */
 export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
     const pathname = usePathname()
     const router = useRouter()
@@ -102,7 +93,6 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                                     </span>
                                 </div>
                                 <p className="text-xs text-muted-foreground truncate leading-tight">
-                                    {/* {chat.last_message?.text_content} */}
                                 </p>
                             </div>
                         </div>

@@ -161,7 +161,7 @@ export default function NeniFlow() {
                 >
                     <p className="text-muted-foreground text-sm">
                         <Sparkles className="w-4 h-4 inline mr-1 text-primary" />
-                        Disponible en <strong>Agosto 2026</strong>. Aparta tu lugar hoy y obtén créditos gratis.
+                        Disponible en <strong>Agosto 2026</strong>. Aparta tu lugar hoy y obtén 2 meses de Neni Flow gratis.
                     </p>
                 </motion.div>
             </div>
