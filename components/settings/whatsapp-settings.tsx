@@ -12,17 +12,13 @@ import WappConnected from '../wapp/wapp-connected'
 import WappBusinessMissing from '../wapp/wapp-business-missing'
 import { useBusiness } from '@/components/providers/business-context'
 
-/**
- * @function WhatsAppSettings
- * @description Renders the WhatsApp connection settings view.
- */
 export function WhatsAppSettings() {
     const [loading, setLoading] = useState(true)
     const [container, setContainer] = useState<any>(null)
     const supabase = createBrowserSupabaseClient()
     const searchParams = useSearchParams()
     const reconnect = searchParams.get('reconnect') === 'true'
-    
+
     const business = useBusiness()
 
     useEffect(() => {
@@ -72,7 +68,7 @@ export function WhatsAppSettings() {
         }
 
         if (status === 'error') {
-            return <WappError reconnect={reconnect} />
+            return <WappError />
         }
 
         if (status === 'stopped') {
