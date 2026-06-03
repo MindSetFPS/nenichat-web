@@ -16,26 +16,13 @@ import { CreateOrderForm } from "@/components/forms/create-order-form";
 import type { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender";
 import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction";
 import type { ProductOrder } from "@/Nenichat/Orders/app/dto/product-order";
-import type { OrderItemRow } from "@/components/forms/order-form";
+import { mapExtractedProductsToEcommerceProducts } from "@/Nenichat/Orders/app/product-matching";
 
 interface ChatControlsProps {
     phone?: string;
     lastMessages?: any[];
     me?: IContact | null;
     suggestions?: SuggestionAction[];
-}
-
-function mapOrdersToItems(orders: ProductOrder[], products: { id: string; name: string; price: number }[]): OrderItemRow[] {
-    return orders.map(order => {
-        const product = products.find(p =>
-            p.name.toLowerCase().includes(order.productName.toLowerCase())
-        );
-        return {
-            productId: product?.id ?? "",
-            quantity: order.amount,
-            unitPrice: product?.price ?? 0,
-        };
-    });
 }
 
 export default function ChatControls({ phone, lastMessages, me, suggestions }: ChatControlsProps) {
@@ -101,7 +88,7 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
         if (!pendingFormAction || pendingFormAction.action !== "open_form") return null;
 
         const orders = (pendingFormAction.data as { orders?: ProductOrder[] }).orders;
-        const initialItems = orders ? mapOrdersToItems(orders, products) : [];
+        const initialItems = orders ? mapExtractedProductsToEcommerceProducts(orders, products) : [];
 
         return (
             <Sheet open={true} onOpenChange={(open) => { if (!open) handleCloseForm(); }}>
