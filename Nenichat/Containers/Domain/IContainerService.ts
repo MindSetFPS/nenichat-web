@@ -41,4 +41,10 @@ export interface IContainerService {
         initialPhone: string,
         phoneId: string
     ): Promise<any>;
+
+    /**
+     * Deletes a container project from Dokploy.
+     * @param composeId The ID of the compose project to delete.
+     */
+    deleteContainer(composeId: string): Promise<void>;
 }

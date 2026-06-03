@@ -94,6 +94,13 @@ SUPABASE_KEY=\${{project.SUPABASE_KEY}}
     }
 
     /**
+     * Deletes a compose project from Dokploy.
+     */
+    async deleteContainer(composeId: string): Promise<void> {
+        await this.post("compose.delete", { composeId });
+    }
+
+    /**
      * Updates the container configuration with a specific phone.
      */
     async updateContainerWithPhone(

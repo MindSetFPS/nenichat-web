@@ -90,6 +90,28 @@ export class SupabaseContainerRepository implements IContainerRepository {
     }
 
     /**
+     * Resets a container record to 'none' state (clears container_id, QR, phone_id).
+     * Uses update instead of delete to avoid RLS restrictions on deletes.
+     */
+    async resetContainer(businessId: number): Promise<void> {
+        const { error } = await this.supabase
+            .from("whatsapp-containers")
+            .update({
+                container_id: null,
+                qr_code_url: null,
+                qr_code_updated_at: null,
+                phone_id: null,
+                status: 'none'
+            })
+            .eq("business_id", businessId);
+
+        if (error) {
+            console.error("Error resetting WhatsApp container in Supabase:", error);
+            throw error;
+        }
+    }
+
+    /**
      * Gets a container by business ID.
      */
     async getContainerByBusinessId(businessId: number): Promise<any | null> {
