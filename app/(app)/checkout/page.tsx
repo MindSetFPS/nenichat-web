@@ -66,7 +66,7 @@ function CheckoutContent() {
     };
 
     return (
-        <Content className="p-4 md:p-8">
+        <Content className="p-4 md:p-8 overflow-y-auto">
             <PageHeader title="Finalizar Compra" />
 
             {/* Plan Selector */}

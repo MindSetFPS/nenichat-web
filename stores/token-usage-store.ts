@@ -77,10 +77,11 @@ export interface ModelPricing {
 }
 
 export const MODEL_PRICING: ModelPricing[] = [
-    { name: "gpt-oss:20b",        inputPer1M: 0.03,   outputPer1M: 0.14 },
-    { name: "gpt-oss:120b",       inputPer1M: 0.039,  outputPer1M: 0.18 },
-    { name: "Deepseek V4 Flash",  inputPer1M: 0.0983, outputPer1M: 0.1966 },
-    { name: "gpt-5 mini",         inputPer1M: 0.25,   outputPer1M: 2.0 },
+    { name: "gpt-oss:20b",          inputPer1M: 0.03,   outputPer1M: 0.14 },
+    { name: "gpt-oss:120b",         inputPer1M: 0.039,  outputPer1M: 0.18 },
+    { name: "Deepseek V4 Flash",    inputPer1M: 0.0983, outputPer1M: 0.1966 },
+    { name: "gpt-5 mini",           inputPer1M: 0.25,   outputPer1M: 2.0 },
+    { name: "GPT-5.4 Nano",         inputPer1M: 0.10,   outputPer1M: 0.625 },
 ];
 
 export function computeCost(model: ModelPricing, promptTokens: number, completionTokens: number) {

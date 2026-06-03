@@ -2,7 +2,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useRouter } from "next/navigation"
 import { usePlanStore, getPlanById, PLANS } from "@/stores/plan-store"
 import { useTokenUsageStore, formatMonth, formatTokenCount, MODEL_PRICING, computeCost } from "@/stores/token-usage-store"
 
@@ -10,6 +13,7 @@ export function SubscriptionSettings() {
     const { currentPlan } = usePlanStore()
     const plan = getPlanById(currentPlan)
     const monthlyUsage = useTokenUsageStore((s) => s.monthlyUsage)
+    const router = useRouter()
 
     const isPaid = plan.price > 0
 
@@ -85,7 +89,14 @@ export function SubscriptionSettings() {
                                         const cost = computeCost(m, latest.promptTokens, latest.completionTokens);
                                         return (
                                             <div key={m.name} className="grid grid-cols-4 gap-4 text-sm text-foreground/80">
-                                                <span className="font-medium">{m.name}</span>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="font-medium underline decoration-dotted underline-offset-2 cursor-pointer">{m.name}</span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top" className="text-xs">
+                                                        <span className="font-mono">${m.inputPer1M}/M in · ${m.outputPer1M}/M out</span>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                                 <span className="text-right font-mono">${cost.inputCost.toFixed(6)}</span>
                                                 <span className="text-right font-mono">${cost.outputCost.toFixed(6)}</span>
                                                 <span className="text-right font-mono font-bold">${cost.total.toFixed(6)}</span>
@@ -114,18 +125,18 @@ export function SubscriptionSettings() {
                     <div className="space-y-3">
                         {PLANS.map((p) => {
                             const isCurrent = p.id === currentPlan;
+                            const canUpgrade = !isCurrent && p.id !== "starter";
                             return (
                                 <div
                                     key={p.id}
-                                    className={`flex items-center justify-between p-3 rounded-xl border ${
-                                        isCurrent
-                                            ? "border-primary/50 bg-primary/5"
-                                            : "border-border/50"
-                                    }`}
+                                    className={`flex items-center justify-between p-3 rounded-xl border ${isCurrent
+                                        ? "border-primary/50 bg-primary/5"
+                                        : "border-border/50"
+                                        }`}
                                 >
-                                    <div className="flex items-center gap-3">
-                                        {isCurrent && <Check className="h-4 w-4 text-primary" />}
-                                        <div>
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        {isCurrent && <Check className="h-4 w-4 text-primary shrink-0" />}
+                                        <div className="min-w-0">
                                             <span className="font-bold text-sm">{p.name}</span>
                                             <span className="text-muted-foreground text-xs ml-2">
                                                 {p.price === 0 ? "Gratis" : `$${p.price} MXN/mes`}
@@ -133,7 +144,16 @@ export function SubscriptionSettings() {
                                         </div>
                                     </div>
                                     {isCurrent && (
-                                        <Badge variant="outline" className="text-[10px]">Actual</Badge>
+                                        <Badge variant="outline" className="text-[10px] shrink-0">Actual</Badge>
+                                    )}
+                                    {canUpgrade && (
+                                        <Button
+                                            size="sm"
+                                            className="rounded-xl shrink-0"
+                                            onClick={() => router.push(`/checkout?plan=${p.id}`)}
+                                        >
+                                            Mejorar
+                                        </Button>
                                     )}
                                 </div>
                             );
