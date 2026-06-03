@@ -1,3 +1,5 @@
+"use client"
+
 import { Card } from "@/components/ui/card";
 import { CardContent } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
