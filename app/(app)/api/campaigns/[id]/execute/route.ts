@@ -67,7 +67,7 @@ export async function POST(
     // Note: SendMessage is currently a placeholder/legacy in this codebase
     for (const contact of uniqueContacts) {
       if (contact.phone_number && campaign.message) {
-        await SendMessage(contact.phone_number, campaign.message);
+        await SendMessage(contact.phone_number, campaign.message, business.id);
       }
     }
 
