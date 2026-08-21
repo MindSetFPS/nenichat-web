@@ -1,12 +1,13 @@
 "use client"
 
+import { useState } from "react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { Paperclip, Send, Smile, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { ChatAiSuggestions } from "./chat-ai-suggestions";
+import { TemplateQuickAnswers } from "@/components/templates/template-quick-answers";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { useMessageStore } from "@/stores/message-store";
 import { useProductStore } from "@/stores/product-store";
@@ -119,6 +120,8 @@ export default function ChatControls({ phone, lastMessages, me, suggestions }: C
                 me={me}
                 suggestions={suggestions}
             />
+
+            <TemplateQuickAnswers onSelectTemplate={setNewMessage} disabled={isSending} />
 
             {/* Input Form */}
             <form

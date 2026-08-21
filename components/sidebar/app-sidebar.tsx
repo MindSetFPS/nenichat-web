@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
-import { HomeIcon, UsersIcon, SendIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, SettingsIcon, Truck, Receipt, TrendingUp, LogOut, Menu } from 'lucide-react'
+import { HomeIcon, UsersIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, Truck, Receipt, TrendingUp, Menu, FileText } from 'lucide-react'
 
 import {
     Sidebar,
@@ -48,6 +48,12 @@ export function AppSidebar() {
             href: '/chats',
             icon: MailIcon,
             label: 'Chats'
+        },
+        {
+            id: 'templates',
+            href: '/templates',
+            icon: FileText,
+            label: 'Plantillas'
         },
         {
             id: 'sales',
