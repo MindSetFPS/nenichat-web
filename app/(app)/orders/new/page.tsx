@@ -40,7 +40,7 @@ export default async function NewOrderPage() {
         contactsData = [];
     } else {
         const url = "http://192.168.1.64" + "/api/user" + "/" + business.id
-        const chatRepository = new GoWappChatRepository(url, "admin", "admin")
+        const chatRepository = new GoWappChatRepository(url, "admin", "admin", String(business.id))
         contactsData = await chatRepository.list(0, 26);
     }
 

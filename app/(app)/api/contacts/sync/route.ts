@@ -31,7 +31,11 @@ export async function GET() {
             );
         }
 
-        const response = await fetch("http://" + wappUrl + "/user/my/contacts");
+        const response = await fetch("http://" + wappUrl + "/user/my/contacts", {
+            headers: {
+                'X-Device-Id': String(business.id),
+            },
+        });
 
         if (!response.ok) {
             console.error("Failed to fetch from WAPP_URL:", response.status, response.statusText);

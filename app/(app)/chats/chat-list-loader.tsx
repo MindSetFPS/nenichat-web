@@ -2,7 +2,7 @@ import { IChat } from "@/Nenichat/Chats/domain/IChat";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
+import { GoWappChatRepository, checkContainerHealth } from "@/Nenichat/Chats/infra/api"
 
 interface ChatListLoaderProps {
   businessIdProp?: string
@@ -31,7 +31,7 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
   }
 
   const url = "http://192.168.1.64" + "/api/user" + "/" + businessId
-  const wappChatRepository = new GoWappChatRepository(url, "admin", "admin")
+  const wappChatRepository = new GoWappChatRepository(url, "admin", "admin", String(businessId))
 
   try {
     const chats = await wappChatRepository.list(0, 26)
@@ -55,20 +55,4 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
   }
 }
 
-async function checkContainerHealth(baseUrl: string): Promise<boolean> {
-  try {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
 
-    const response = await fetch(`${baseUrl}/devices`, {
-      headers: {
-        'Authorization': `Basic ${btoa('admin:admin')}`
-      },
-      signal: controller.signal
-    })
-    clearTimeout(timeout)
-    return response.ok || response.status >= 400
-  } catch {
-    return false
-  }
-}

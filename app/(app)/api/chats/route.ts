@@ -33,8 +33,9 @@
  */
 
 import { NextResponse } from 'next/server';
-import { GoWappChatRepository } from '@/Nenichat/Chats/infra/api/GoWappChatRepository';
+import { GoWappChatRepository, checkContainerHealth } from '@/Nenichat/Chats/infra/api/GoWappChatRepository';
 import { IChat } from '@/Nenichat/Chats/domain/IChat';
+import { SupabaseContainerRepository } from '@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 
@@ -65,9 +66,13 @@ const chatCache = new Map<string, CacheEntry>();
 const TTL_MS = 5 * 60 * 1000;
 
 export async function GET(request: Request) {
+    let businessId: string | null = null;
+    let wappUrl: string | null = null;
+    let supabase;
+
     try {
         // PROTECTION: Verify user is authenticated
-        const supabase = await createServerSupabaseClient();
+        supabase = await createServerSupabaseClient();
         const { data: { session }, error: authError } = await supabase.auth.getSession();
 
         if (authError || !session) {
@@ -78,8 +83,8 @@ export async function GET(request: Request) {
         }
 
         const { searchParams } = new URL(request.url);
-        const businessId = searchParams.get('businessId');
-        const wappUrl = searchParams.get('wappUrl');
+        businessId = searchParams.get('businessId');
+        wappUrl = searchParams.get('wappUrl');
 
         if (!businessId || !wappUrl) {
             return NextResponse.json(
@@ -90,7 +95,7 @@ export async function GET(request: Request) {
 
         // PROTECTION: Verify user belongs to this business
         const { business, error: businessError } = await getBusinessFromUser(supabase);
-        
+
         if (businessError || !business) {
             return NextResponse.json(
                 { error: 'Forbidden - user does not have access to this business' },
@@ -115,7 +120,7 @@ export async function GET(request: Request) {
         }
 
         // Fetch from WhatsApp API (cache miss)
-        const wappChatRepository = new GoWappChatRepository(wappUrl, 'admin', 'admin');
+        const wappChatRepository = new GoWappChatRepository(wappUrl, 'admin', 'admin', businessId);
         const chats = await wappChatRepository.list(0, 100);
 
         // Store in cache for future requests
@@ -127,6 +132,24 @@ export async function GET(request: Request) {
         return NextResponse.json(chats);
     } catch (error) {
         console.error('Error fetching chats:', error);
+
+        try {
+            if (wappUrl && businessId && supabase) {
+                const isAlive = await checkContainerHealth(wappUrl);
+                const repo = new SupabaseContainerRepository(supabase);
+
+                if (!isAlive) {
+                    await repo.updateContainerState(Number(businessId), 'unreachable');
+                    return NextResponse.json(
+                        { error: 'container_unreachable' },
+                        { status: 503 }
+                    );
+                }
+            }
+        } catch (dbError) {
+            console.error('Error updating container status:', dbError);
+        }
+
         return NextResponse.json(
             { error: 'Failed to fetch chats' },
             { status: 500 }
@@ -171,7 +194,7 @@ export async function DELETE(request: Request) {
 
         // PROTECTION: Verify user belongs to this business
         const { business, error: businessError } = await getBusinessFromUser(supabase);
-        
+
         if (businessError || !business) {
             return NextResponse.json(
                 { error: 'Forbidden - user does not have access to this business' },
@@ -197,3 +220,4 @@ export async function DELETE(request: Request) {
         );
     }
 }
+

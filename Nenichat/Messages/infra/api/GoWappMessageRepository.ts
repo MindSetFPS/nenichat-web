@@ -14,17 +14,24 @@ export class GoWappMessageRepository implements IMessageRepository {
     private baseUrl: string;
     private user?: string;
     private password?: string;
-
+    private deviceId: string;
     /**
      * Creates an instance of GoWappMessageRepository.
      * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
      * @param {string} [user] - Optional Basic Auth user.
      * @param {string} [password] - Optional Basic Auth password.
+     * @param {string} [deviceId] - Optional device ID for the API.
      */
-    constructor(baseUrl?: string, user?: string, password?: string) {
+    constructor(
+        baseUrl?: string,
+        user?: string,
+        password?: string,
+        deviceId?: string
+    ) {
         this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://localhost:3000';
         this.user = user;
         this.password = password;
+        this.deviceId = deviceId || '';
     }
 
     /**
@@ -48,6 +55,10 @@ export class GoWappMessageRepository implements IMessageRepository {
 
         if (authUser && authPassword) {
             headers['Authorization'] = `Basic ${btoa(`${authUser}:${authPassword}`)}`;
+        }
+
+        if (this.deviceId) {
+            headers['X-Device-Id'] = this.deviceId;
         }
 
         const response = await fetch(`${this.baseUrl}${path}`, {

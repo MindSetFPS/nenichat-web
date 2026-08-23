@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
 
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
+            'X-Device-Id': businessId,
         };
 
         if (userstring && password) {

@@ -13,17 +13,19 @@ export class GoWappChatRepository implements IChatRepository {
     private baseUrl: string;
     private user?: string;
     private password?: string;
-
+    private deviceId: string;
     /**
      * Creates an instance of GoWappChatRepository.
      * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
      * @param {string} [user] - Optional Basic Auth user.
      * @param {string} [password] - Optional Basic Auth password.
+     * @param {string} [deviceId] - Optional device ID for the API.
      */
-    constructor(baseUrl?: string, user?: string, password?: string) {
+    constructor(baseUrl?: string, user?: string, password?: string, deviceId?: string) {
         this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://localhost:3000';
         this.user = user;
         this.password = password;
+        this.deviceId = deviceId || '';
     }
 
     /**
@@ -36,7 +38,12 @@ export class GoWappChatRepository implements IChatRepository {
      * @returns {Promise<T>} The parsed JSON response.
      * @private
      */
-    private async request<T>(path: string, options: RequestInit = {}, user?: string, password?: string): Promise<T> {
+    private async request<T>(
+        path: string,
+        options: RequestInit = {},
+        user?: string,
+        password?: string
+    ): Promise<T> {
         const authUser = user || this.user;
         const authPassword = password || this.password;
 
@@ -49,17 +56,36 @@ export class GoWappChatRepository implements IChatRepository {
             headers['Authorization'] = `Basic ${btoa(`${authUser}:${authPassword}`)}`;
         }
 
-        const response = await fetch(`${this.baseUrl}${path}`, {
+        if (this.deviceId) {
+            headers['X-Device-Id'] = this.deviceId;
+        }
+
+        const fullUrl = `${this.baseUrl}${path}`;
+        console.log(`[GoWappChatRepository] Request URL: ${fullUrl}`);
+        console.log(`[GoWappChatRepository] baseUrl: ${this.baseUrl}, path: ${path}`);
+
+        const response = await fetch(fullUrl, {
             ...options,
             headers,
         });
 
+        console.log(`[GoWappChatRepository] Response status: ${response.status} ${response.statusText}`);
+
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
+            let errorData: any = {};
+            try {
+                errorData = await response.json();
+                console.warn(`[GoWappChatRepository] Error response body:`, JSON.stringify(errorData, null, 2));
+            } catch {
+                const textBody = await response.text().catch(() => '');
+                console.warn(`[GoWappChatRepository] Error response text: ${textBody}`);
+            }
             throw new Error(errorData.message || `GoWapp API request failed with status ${response.status}`);
         }
 
-        return response.json();
+        const data = await response.json();
+        console.log(`[GoWappChatRepository] Response data:`, JSON.stringify(data).slice(0, 500));
+        return data;
     }
 
     /**
@@ -127,7 +153,7 @@ export class GoWappChatRepository implements IChatRepository {
         try {
             const phone = jid.split('@')[0];
             const response = await this.request<any>(`/user/check?phone=${phone}`);
-            return response.code === 'SUCCESS' && response.results?.on_whatsapp === true;
+            return response.code === 'SUCCESS' && response.results?.is_on_whatsapp === true;
         } catch (e) {
             console.error(`Error checking phone ${jid}:`, e);
             return false;
@@ -183,5 +209,23 @@ export class GoWappChatRepository implements IChatRepository {
 
         const data = response.results?.data || [];
         return data.map((c: any) => this.mapToDomain(c));
+    }
+}
+
+export async function checkContainerHealth(baseUrl: string): Promise<boolean> {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(`${baseUrl}/devices`, {
+            headers: {
+                'Authorization': `Basic ${btoa('admin:admin')}`
+            },
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+        return response.ok || response.status >= 400;
+    } catch {
+        return false;
     }
 }

@@ -3,7 +3,7 @@
  */
 export const INITIAL_COMPOSE_FILE = `services:
   whatsapp:
-    image: aldinokemal2104/go-whatsapp-web-multidevice:v7.11.1
+    image: aldinokemal2104/go-whatsapp-web-multidevice:v9.0.0
     restart: always
     networks:
       # - api-network
@@ -53,7 +53,7 @@ networks:
  */
 export const COMPOSE_FILE_WITH_PHONE = `services:
   whatsapp:
-    image: aldinokemal2104/go-whatsapp-web-multidevice:v7.11.1
+    image: aldinokemal2104/go-whatsapp-web-multidevice:v9.0.0
     restart: always
     networks:
       # - api-network
