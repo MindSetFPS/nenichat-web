@@ -33,9 +33,10 @@
  */
 
 import { NextResponse } from 'next/server';
-import { GoWappChatRepository, checkContainerHealth } from '@/Nenichat/Chats/infra/api/GoWappChatRepository';
+import { GoWappChatRepository } from '@/Nenichat/Chats/infra/api/GoWappChatRepository';
 import { IChat } from '@/Nenichat/Chats/domain/IChat';
 import { SupabaseContainerRepository } from '@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository';
+import { checkWappHealth } from '@/Nenichat/Wapp';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 
@@ -135,7 +136,7 @@ export async function GET(request: Request) {
 
         try {
             if (wappUrl && businessId && supabase) {
-                const isAlive = await checkContainerHealth(wappUrl);
+                const isAlive = await checkWappHealth(wappUrl);
                 const repo = new SupabaseContainerRepository(supabase);
 
                 if (!isAlive) {

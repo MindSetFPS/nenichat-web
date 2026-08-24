@@ -2,7 +2,8 @@ import { IChat } from "@/Nenichat/Chats/domain/IChat";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { GoWappChatRepository, checkContainerHealth } from "@/Nenichat/Chats/infra/api"
+import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
+import { checkWappHealth } from "@/Nenichat/Wapp"
 
 interface ChatListLoaderProps {
   businessIdProp?: string
@@ -40,7 +41,7 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
     const supabase = await createServerSupabaseClient();
     const containerRepository = new SupabaseContainerRepository(supabase)
 
-    const isAlive = await checkContainerHealth(url)
+    const isAlive = await checkWappHealth(url)
 
     console.log(isAlive)
     console.log(`Container health check for ${url}: ${isAlive ? 'alive' : 'dead'}`)

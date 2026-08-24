@@ -3,18 +3,42 @@ import { IMessageRepository } from '../../domain/IMessageRepository';
 import { IMessagesReport } from '../../domain/IMessagesReport';
 import { IMessageWithSender } from '../../domain/IMessageWithSender';
 import { Message } from '../../domain/Message';
+import { Wapp } from '@/Nenichat/Wapp';
+
+interface ApiMessage {
+    id?: string;
+    chat_jid?: string;
+    phone?: string;
+    sender_jid?: string;
+    content?: string | null;
+    message?: string | null;
+    timestamp?: string;
+    is_from_me?: boolean;
+    media_type?: string;
+    filename?: string;
+    url?: string;
+    file_length?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface ChatMessagesResults {
+    data?: ApiMessage[];
+}
+
+interface SendMessageResults {
+    message_id: string;
+}
 
 /**
  * Implementation of IMessageRepository using Go-Whatsapp-Web-Multidevice API.
  * This repository interacts with an external WhatsApp gateway to send and retrieve messages.
- * 
+ *
  * @see https://github.com/aldinokemal/go-whatsapp-web-multidevice
  */
 export class GoWappMessageRepository implements IMessageRepository {
-    private baseUrl: string;
-    private user?: string;
-    private password?: string;
-    private deviceId: string;
+    private wapp: Wapp;
+
     /**
      * Creates an instance of GoWappMessageRepository.
      * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
@@ -22,74 +46,8 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @param {string} [password] - Optional Basic Auth password.
      * @param {string} [deviceId] - Optional device ID for the API.
      */
-    constructor(
-        baseUrl?: string,
-        user?: string,
-        password?: string,
-        deviceId?: string
-    ) {
-        this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://localhost:3000';
-        this.user = user;
-        this.password = password;
-        this.deviceId = deviceId || '';
-    }
-
-    /**
-     * Helper to perform fetch requests to the GoWapp API.
-     * @template T
-     * @param {string} path - The API path.
-     * @param {RequestInit} [options={}] - Fetch options.
-     * @param {string} [user] - Optional Basic Auth user override.
-     * @param {string} [password] - Optional Basic Auth password override.
-     * @returns {Promise<T>} The parsed JSON response.
-     * @private
-     */
-    private async request<T>(path: string, options: RequestInit = {}, user?: string, password?: string): Promise<T> {
-        const authUser = user || this.user;
-        const authPassword = password || this.password;
-
-        const headers: any = {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        };
-
-        if (authUser && authPassword) {
-            headers['Authorization'] = `Basic ${btoa(`${authUser}:${authPassword}`)}`;
-        }
-
-        if (this.deviceId) {
-            headers['X-Device-Id'] = this.deviceId;
-        }
-
-        const response = await fetch(`${this.baseUrl}${path}`, {
-            ...options,
-            headers,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.message || errorData.error || `Status ${response.status}`;
-            throw new Error(`GoWapp API: ${errorMessage}`);
-        }
-
-        return response.json();
-    }
-
-    /**
-     * Helper to map a JID to an integer chat_id.
-     * Strips suffixes and attempts to parse as number.
-     * @param {string} jid - The WhatsApp JID.
-     * @returns {number} The numeric part as number.
-     * @private
-     */
-    private jidToInteger(jid: string): number {
-        const numericPart = jid.split('@')[0];
-        try {
-            return parseInt(numericPart, 10);
-        } catch {
-            // For non-numeric JIDs, return 0 as a fallback.
-            return 0;
-        }
+    constructor(baseUrl?: string, user?: string, password?: string, deviceId?: string) {
+        this.wapp = new Wapp({ baseUrl, user, password, deviceId });
     }
 
     /**
@@ -111,9 +69,9 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @returns {IMessage} The mapped domain message.
      * @private
      */
-    private mapToDomain(apiMsg: any): IMessage {
+    private mapToDomain(apiMsg: ApiMessage): IMessage {
         return new Message(
-            apiMsg.id,
+            apiMsg.id ?? '',
             apiMsg.chat_jid || apiMsg.phone || '',
             apiMsg.sender_jid || '',
             apiMsg.content || apiMsg.message || null,
@@ -160,7 +118,7 @@ export class GoWappMessageRepository implements IMessageRepository {
             reply_message_id: message.replied_to_message_id,
         };
 
-        const response = await this.request<any>('/send/message', {
+        const response = await this.wapp.request<SendMessageResults>('/send/message', {
             method: 'POST',
             body: JSON.stringify(payload),
         });
@@ -218,16 +176,14 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @returns {Promise<IMessage[]>} List of messages in the chat.
      */
     async findByChatId(chat_id: string, offset: number, limit: number): Promise<IMessage[]> {
-        // const jid = chat_id.includes('@') ? chat_id : this.integerToJid(Number(chat_id));
-
-        const response = await this.request<any>(`/chat/${chat_id}/messages?limit=${limit}&offset=${offset}`);
+        const response = await this.wapp.request<ChatMessagesResults>(`/chat/${chat_id}/messages?limit=${limit}&offset=${offset}`);
 
         if (response.code !== 'SUCCESS') {
             return [];
         }
 
         const data = response.results?.data || [];
-        return data.map((m: any) => this.mapToDomain(m));
+        return data.map((m) => this.mapToDomain(m));
     }
 
     /**

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { Wapp, WappApiError } from '@/Nenichat/Wapp';
 
 export async function GET(request: NextRequest) {
     try {
@@ -24,64 +25,43 @@ export async function GET(request: NextRequest) {
         }
 
         const wappApiUrl = process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://192.168.1.64';
+        const wapp = new Wapp({ baseUrl: wappApiUrl });
+        const devices = await wapp.getAppDevices(businessId);
 
-        const envUser = process.env.WAPP_USER;
-        const envPassword = process.env.WAPP_PASSWORD;
-
-        let userstring = envUser;
-        let password = envPassword;
-
-        const headers: HeadersInit = {
-            'Content-Type': 'application/json',
-            'X-Device-Id': businessId,
-        };
-
-        if (userstring && password) {
-            headers['Authorization'] = `Basic ${btoa(`${userstring}:${password}`)}`;
-        }
-
-        const response = await fetch(`${wappApiUrl}/api/user/${businessId}/app/devices`, {
-            headers,
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const devices = data.results || [];
-            if (devices.length > 0) {
-                const { error } = await supabase.from('whatsapp-containers')
-                    .update({ status: 'connected' })
-                    .eq('business_id', parseInt(businessId));
-                if (error) {
-                    console.error(error);
-                    return NextResponse.json(
-                        { error: 'Internal Server Error', message: 'An unexpected error occurred.' },
-                        { status: 500 }
-                    );
-                }
+        if (devices.length > 0) {
+            // At least one linked phone means the WhatsApp session is live.
+            const { error } = await supabase.from('whatsapp-containers')
+                .update({ status: 'connected' })
+                .eq('business_id', parseInt(businessId));
+            if (error) {
+                console.error(error);
                 return NextResponse.json(
-                    { success: true, devices },
-                    { status: 200 }
-                );
-            } else {
-                return NextResponse.json(
-                    {
-                        code: "SUCCESS",
-                        message: "Fetch device success",
-                        results: null
-                    },
-                    { status: 200 }
+                    { error: 'Internal Server Error', message: 'An unexpected error occurred.' },
+                    { status: 500 }
                 );
             }
-        } else {
-            const errorText = await response.text();
-            const message = `Failed to get devices: ${response.status}: ${errorText}`;
-            console.error(message);
             return NextResponse.json(
-                { error: 'External API Error', message },
-                { status: response.status }
+                { success: true, devices },
+                { status: 200 }
             );
         }
+
+        return NextResponse.json(
+            {
+                code: "SUCCESS",
+                message: "Fetch device success",
+                results: null
+            },
+            { status: 200 }
+        );
     } catch (error) {
+        if (error instanceof WappApiError) {
+            console.error('Failed to get devices:', error.message);
+            return NextResponse.json(
+                { error: 'External API Error', message: `Failed to get devices: ${error.message}` },
+                { status: error.status }
+            );
+        }
         console.error('Error in whatsapp devices API:', error);
         return NextResponse.json(
             { error: 'Internal Server Error', message: 'An unexpected error occurred.' },

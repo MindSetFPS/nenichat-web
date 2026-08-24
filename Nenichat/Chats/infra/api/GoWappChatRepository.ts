@@ -2,18 +2,38 @@ import { IChat } from '../../domain/IChat';
 import { getJidKind } from '../../domain/Jid';
 import { IChatRepository } from '../../domain/IChatRepository';
 import { Chat } from '../../domain/Chat';
+import { Wapp } from '@/Nenichat/Wapp';
+
+interface ApiChat {
+    jid?: string;
+    name?: string;
+    last_message_time?: string;
+    ephemeral_expiration?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
+interface ChatListResults {
+    data?: ApiChat[];
+}
+
+interface DeviceListResults {
+    data?: Record<string, unknown>[];
+}
+
+interface CheckPhoneResults {
+    is_on_whatsapp?: boolean;
+}
 
 /**
  * Implementation of IChatRepository using Go-Whatsapp-Web-Multidevice API.
  * This repository interacts with an external WhatsApp gateway to manage chats.
- * 
+ *
  * @see https://github.com/aldinokemal/go-whatsapp-web-multidevice
  */
 export class GoWappChatRepository implements IChatRepository {
-    private baseUrl: string;
-    private user?: string;
-    private password?: string;
-    private deviceId: string;
+    private wapp: Wapp;
+
     /**
      * Creates an instance of GoWappChatRepository.
      * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
@@ -22,86 +42,7 @@ export class GoWappChatRepository implements IChatRepository {
      * @param {string} [deviceId] - Optional device ID for the API.
      */
     constructor(baseUrl?: string, user?: string, password?: string, deviceId?: string) {
-        this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://localhost:3000';
-        this.user = user;
-        this.password = password;
-        this.deviceId = deviceId || '';
-    }
-
-    /**
-     * Helper to perform fetch requests to the GoWapp API.
-     * @template T
-     * @param {string} path - The API path.
-     * @param {RequestInit} [options={}] - Fetch options.
-     * @param {string} [user] - Optional Basic Auth user override.
-     * @param {string} [password] - Optional Basic Auth password override.
-     * @returns {Promise<T>} The parsed JSON response.
-     * @private
-     */
-    private async request<T>(
-        path: string,
-        options: RequestInit = {},
-        user?: string,
-        password?: string
-    ): Promise<T> {
-        const authUser = user || this.user;
-        const authPassword = password || this.password;
-
-        const headers: any = {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        };
-
-        if (authUser && authPassword) {
-            headers['Authorization'] = `Basic ${btoa(`${authUser}:${authPassword}`)}`;
-        }
-
-        if (this.deviceId) {
-            headers['X-Device-Id'] = this.deviceId;
-        }
-
-        const fullUrl = `${this.baseUrl}${path}`;
-        console.log(`[GoWappChatRepository] Request URL: ${fullUrl}`);
-        console.log(`[GoWappChatRepository] baseUrl: ${this.baseUrl}, path: ${path}`);
-
-        const response = await fetch(fullUrl, {
-            ...options,
-            headers,
-        });
-
-        console.log(`[GoWappChatRepository] Response status: ${response.status} ${response.statusText}`);
-
-        if (!response.ok) {
-            let errorData: any = {};
-            try {
-                errorData = await response.json();
-                console.warn(`[GoWappChatRepository] Error response body:`, JSON.stringify(errorData, null, 2));
-            } catch {
-                const textBody = await response.text().catch(() => '');
-                console.warn(`[GoWappChatRepository] Error response text: ${textBody}`);
-            }
-            throw new Error(errorData.message || `GoWapp API request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(`[GoWappChatRepository] Response data:`, JSON.stringify(data).slice(0, 500));
-        return data;
-    }
-
-    /**
-     * Helper to map a JID to an integer chat ID.
-     * @param {string} jid - The WhatsApp JID.
-     * @returns {number} The numeric part as number.
-     * @private
-     */
-    private jidToInteger(jid: string): number {
-        const numericPart = jid.split('@')[0];
-        try {
-            return parseInt(numericPart, 10);
-        } catch {
-            // For non-numeric JIDs, return 0 as a fallback.
-            return 0;
-        }
+        this.wapp = new Wapp({ baseUrl, user, password, deviceId });
     }
 
     /**
@@ -110,7 +51,7 @@ export class GoWappChatRepository implements IChatRepository {
      * @returns {IChat} The mapped domain chat.
      * @private
      */
-    private mapToDomain(apiChat: any): IChat {
+    private mapToDomain(apiChat: ApiChat): IChat {
         const isGroup = apiChat.jid ? getJidKind(apiChat.jid) === 'group' : false;
         return new Chat(
             apiChat.jid || '',
@@ -132,9 +73,9 @@ export class GoWappChatRepository implements IChatRepository {
     async findById(id: string): Promise<IChat | null> {
         // Since there isn't a direct "get chat by ID" endpoint that works for both users and groups
         // in the same way, we search the chat list. We use a generous limit for the initial search.
-        const response = await this.request<any>('/chats?limit=100&offset=0');
+        const response = await this.wapp.request<ChatListResults>('/chats?limit=100&offset=0');
         if (response.code === 'SUCCESS' && response.results?.data) {
-            const found = response.results.data.find((c: any) => c.jid === id);
+            const found = response.results.data.find((c) => c.jid === id);
             if (found) {
                 // Determine group status from JID if available
                 return this.mapToDomain(found);
@@ -152,7 +93,7 @@ export class GoWappChatRepository implements IChatRepository {
     async checkPhone(jid: string): Promise<boolean> {
         try {
             const phone = jid.split('@')[0];
-            const response = await this.request<any>(`/user/check?phone=${phone}`);
+            const response = await this.wapp.request<CheckPhoneResults>(`/user/check?phone=${phone}`);
             return response.code === 'SUCCESS' && response.results?.is_on_whatsapp === true;
         } catch (e) {
             console.error(`Error checking phone ${jid}:`, e);
@@ -161,7 +102,7 @@ export class GoWappChatRepository implements IChatRepository {
     }
 
     async getDevices() {
-        const response = await this.request<any>('/devices');
+        const response = await this.wapp.request<DeviceListResults>('/devices');
         if (response.code === 'SUCCESS' && response.results?.data) {
             return response.results.data;
         }
@@ -201,31 +142,13 @@ export class GoWappChatRepository implements IChatRepository {
      * @returns {Promise<IChat[]>} List of chats.
      */
     async list(offset: number, limit: number): Promise<IChat[]> {
-        const response = await this.request<any>(`/chats?limit=${limit}&offset=${offset}`);
+        const response = await this.wapp.request<ChatListResults>(`/chats?limit=${limit}&offset=${offset}`);
 
         if (response.code !== 'SUCCESS') {
             return [];
         }
 
         const data = response.results?.data || [];
-        return data.map((c: any) => this.mapToDomain(c));
-    }
-}
-
-export async function checkContainerHealth(baseUrl: string): Promise<boolean> {
-    try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch(`${baseUrl}/devices`, {
-            headers: {
-                'Authorization': `Basic ${btoa('admin:admin')}`
-            },
-            signal: controller.signal
-        });
-        clearTimeout(timeout);
-        return response.ok || response.status >= 400;
-    } catch {
-        return false;
+        return data.map((c) => this.mapToDomain(c));
     }
 }
