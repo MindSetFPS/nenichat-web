@@ -3,21 +3,15 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 import CheckWappConnectionButton from "../connections/whatsapp/check-wapp-connection-button";
 import { getMyContactAction, setContactAsUserAction } from "@/app/(app)/settings/actions";
-import { getWappDevices } from "../connections/whatsapp/get-wapp-devices";
+import { getWappDevices, getWappInfo, WappContainerRef } from "@/lib/wapp/wapp-api";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
-interface WappDevicesResponse {
-    devices?: Array<{
-        name: string;
-        device: string;
-    }>;
-}
-
-export default function WappConnected({ container, businessId }: { container: any; businessId: number }) {
+export default function WappConnected({ container, businessId }: { container: WappContainerRef; businessId: number }) {
     const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
     const [isUser, setIsUser] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [version, setVersion] = useState<string | null>(null);
 
     useEffect(() => {
         getMyContactAction().then(contact => {
@@ -26,12 +20,17 @@ export default function WappConnected({ container, businessId }: { container: an
                 setIsUser(contact.is_user);
             }
         });
+        getWappInfo(businessId).then(info => {
+            if (info?.version) {
+                setVersion(info.version);
+            }
+        });
     }, []);
 
     async function fetchDeviceAndSave() {
         setLoading(true);
         try {
-            const data = await getWappDevices(businessId) as WappDevicesResponse;
+            const data = await getWappDevices(businessId);
             if (data?.devices?.[0]?.device) {
                 const phone = data.devices[0].device.split(':')[0];
                 setPhoneNumber(phone);
@@ -46,7 +45,7 @@ export default function WappConnected({ container, businessId }: { container: an
     }
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 w-md mx-auto">
             <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
                 <div>
@@ -60,6 +59,12 @@ export default function WappConnected({ container, businessId }: { container: an
                     <span className="text-muted-foreground">Estado</span>
                     <span className="font-medium text-green-600">Activo</span>
                 </div>
+                {version && (
+                    <div className="flex justify-between">
+                        <span className="text-muted-foreground">Versión</span>
+                        <span className="font-mono text-xs">{version}</span>
+                    </div>
+                )}
                 <div className="flex justify-between">
                     <span className="text-muted-foreground">Número</span>
                     <span className="font-mono text-xs">{phoneNumber || '—'}</span>

@@ -3,17 +3,18 @@
 import { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getWappDevices } from "./get-wapp-devices";
+import { getWappDevices } from "@/lib/wapp/wapp-api";
+import type { WappContainerRef } from "@/lib/wapp/wapp-api";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
-export default function CheckWappConnectionButton({ container }: { container: any }) {
+export default function CheckWappConnectionButton({ container }: { container: WappContainerRef }) {
     const [loading, setLoading] = useState(false);
     const supabase = createBrowserSupabaseClient();
 
     async function handleCheckWappAuth() {
         try {
             setLoading(true);
-            const data = await getWappDevices(container.business_id) as { success?: boolean; devices?: Array<{ name: string; device: string }> };
+            const data = await getWappDevices(container.business_id);
 
             if (data.success && data.devices && data.devices.length > 0) {
                 // If there are devices connected, just reload to reflect any new status, or maybe do nothing.

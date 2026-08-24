@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { getWappDevices } from "./get-wapp-devices"
+import { getWappDevices } from "@/lib/wapp/wapp-api"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
 
@@ -13,7 +13,7 @@ export default function CheckWappAuthButton({ businessId }: { businessId: string
         try {
             setLoading(true)
             setError(null)
-            const data = await getWappDevices(parseInt(businessId)) as { success?: boolean; devices?: Array<{ name: string; device: string }> }
+            const data = await getWappDevices(parseInt(businessId))
 
             if (data.success && data.devices && data.devices.length > 0) {
                 // router.refresh() only refetches Server Components. Since the parent WhatsAppSettings
