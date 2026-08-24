@@ -11,6 +11,7 @@ import WappPause from '../wapp/wapp-pause'
 import WappConnected from '../wapp/wapp-connected'
 import WappBusinessMissing from '../wapp/wapp-business-missing'
 import { useBusiness } from '@/components/providers/business-context'
+import WappUnreachable from '../wapp/wapp-unreachable'
 
 export function WhatsAppSettings() {
     const [loading, setLoading] = useState(true)
@@ -73,6 +74,10 @@ export function WhatsAppSettings() {
 
         if (status === 'stopped') {
             return <WappPause />
+        }
+
+        if (status === 'unreachable') {
+            return <WappUnreachable businessId={business.id.toString()} />
         }
 
         if (status === 'deployed') {
