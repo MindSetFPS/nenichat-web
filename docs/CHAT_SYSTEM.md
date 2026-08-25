@@ -15,7 +15,7 @@ The chat system uses a multi-layer architecture:
 │                                                                     │
 │  ┌─────────────────────┐      ┌────────────────────────────────┐    │
 │  │   WhatsApp API      │      │    API Route (cache)           │    │
-│  │  (192.168.1.64)     │ ───► │  app/api/chats/route.ts        │    │
+│  │  (192.168.1.64)     │ ───► │  app/(app)/api/chats/route.ts        │    │
 │  │                     │      │  - Server-side in-memory cache │    │
 │  └─────────────────────┘      │  - TTL: 5 minutes              │    │
 │                                └───────────────────────────────┘    │
@@ -50,7 +50,7 @@ The chat system uses a multi-layer architecture:
 
 ## Files and Their Responsibilities
 
-### 1. `app/api/chats/route.ts`
+### 1. `app/(app)/api/chats/route.ts`
 
 **Purpose:** Server-side API endpoint that fetches chats from WhatsApp API with caching.
 
@@ -66,6 +66,12 @@ The chat system uses a multi-layer architecture:
 - Key: `businessId`
 - TTL: 5 minutes (300000ms)
 - Persistence: None (resets on server restart)
+
+**Error Handling:**
+On WhatsApp API failure, the route probes container health (`checkWappHealth`
+from `@/Nenichat/Wapp`):
+- Container dead → marks it `unreachable` in Supabase, returns `503 {error: 'container_unreachable'}`
+- Container alive but call failed → returns `500 {error: 'fetch_failed'}`, no state change
 
 **Code Reference:**
 ```typescript
@@ -87,6 +93,8 @@ const TTL_MS = 5 * 60 * 1000; // 5 minutes
 - Stores chats in localStorage (key: `nenichat-chats`)
 - Provides methods: `addChat`, `removeChat`, `updateChat`, `clearChats`, `getChat`
 - Tracks loading state (`isLoading`, `isLoaded`)
+- Tracks `networkError`: true when the browser can't reach the API at all
+- Sets `isLoaded` on every path — API errors keep cached chats and never refetch-loop
 
 **Persistence:**
 - Storage: Browser localStorage
@@ -102,6 +110,7 @@ persist(
         chats: [],
         isLoaded: false,
         isLoading: false,
+        networkError: false,
         // ... methods
     }),
     {
@@ -116,7 +125,7 @@ persist(
 
 ---
 
-### 3. `hooks/useInitializeChats.ts`
+### 3. `hooks/use-initialize-chats.ts`
 
 **Purpose:** React hook that triggers chat fetching on app mount.
 
@@ -335,7 +344,7 @@ clearChats(); // Resets store and localStorage
 
 **Server (API route):**
 ```typescript
-// app/api/chats/route.ts
+// app/(app)/api/chats/route.ts
 const TTL_MS = 5 * 60 * 1000; // Change this value
 ```
 
@@ -398,7 +407,7 @@ fetchChats: async (business) => {
 
 **Request:**
 ```
-GET /api/chats?businessId=123&wappUrl=http://192.168.1.64/api/user/123
+GET /api/chats?businessId=123&wappUrl={NEXT_PUBLIC_WAPP_API_URL}
 ```
 
 **Response:**
