@@ -25,8 +25,7 @@ export default async function OrdersPage() {
     const orderRepository: IOrderRepository = new SupabaseOrderRepository(supabase);
     const contactRepository = new SupabaseContactRepository(supabase);
 
-    const gowappBaseUrl = "http://192.168.1.64/api/user/" + business.id
-    const gowappChatRepository = new GoWappChatRepository(gowappBaseUrl, "admin", "admin", String(business.id))
+    const gowappChatRepository = new GoWappChatRepository({ deviceId: String(business.id) })
 
     let orders: OrderWithContactName[] = await orderRepository.getAll(business.id);
 

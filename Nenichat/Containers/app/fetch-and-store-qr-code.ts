@@ -15,12 +15,7 @@ export async function fetchAndStoreQrCode(
     repository: IContainerRepository,
     businessId: number,
 ): Promise<boolean> {
-    const dokployHost = process.env.DOKPLOY_SERVER_URL ? new URL(process.env.DOKPLOY_SERVER_URL).hostname : 'localhost';
-    const wapp = new Wapp({
-        baseUrl: `http://${dokployHost}`,
-        user: 'admin',
-        password: 'admin',
-    });
+    const wapp = new Wapp();
 
     const qrImageLink = await wapp.getLoginQrLink(businessId);
     if (!qrImageLink) {

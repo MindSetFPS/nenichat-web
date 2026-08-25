@@ -6,8 +6,7 @@ export default async function SendMessage(
     messageTextContent: string,
     businessId: number,
 ): Promise<IMessage> {
-    const gowappUrl = `http://192.168.1.64/api/user/${businessId}`;
-    const wappRepo = new GoWappMessageRepository(gowappUrl, "admin", "admin", String(businessId));
+    const wappRepo = new GoWappMessageRepository({ deviceId: String(businessId) });
 
     return wappRepo.save({
         chat_jid: phone,

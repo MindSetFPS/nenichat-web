@@ -24,9 +24,8 @@ export default async function ChatPage({
 
   const contactRepository = new SupabaseContactRepository(supabase)
   const orderRepository = new SupabaseOrderRepository(supabase)
-  const gowappBaseUrl = "http://192.168.1.64/api/user/" + business.id
-  const gowappChatRepository = new GoWappChatRepository(gowappBaseUrl, "admin", "admin", String(business.id))
-  const gowappMessageRepository = new GoWappMessageRepository(gowappBaseUrl, "admin", "admin", String(business.id))
+  const gowappChatRepository = new GoWappChatRepository({ deviceId: String(business.id) })
+  const gowappMessageRepository = new GoWappMessageRepository({ deviceId: String(business.id) })
 
   const params = await paramsPromise
   const jid = decodeURIComponent(params.id)

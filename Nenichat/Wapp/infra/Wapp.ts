@@ -283,17 +283,24 @@ export class Wapp {
 /**
  * Checks whether a GoWapp container answers at all. Lenient by design: any HTTP
  * response means the container is up; only network failures/timeouts mean down.
+ * When no explicit baseUrl is given, the gateway origin comes from
+ * NEXT_PUBLIC_WAPP_API_URL and, if a deviceId is provided, the probe targets
+ * that business's Traefik route (/api/user/{deviceId}/devices).
  */
 export async function checkWappHealth(
-    baseUrl: string,
-    options?: { user?: string; password?: string; timeoutMs?: number },
+    baseUrl?: string,
+    options?: { deviceId?: number | string; user?: string; password?: string; timeoutMs?: number },
 ): Promise<boolean> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), options?.timeoutMs ?? 5000);
     try {
         const user = options?.user ?? process.env.WAPP_USER ?? 'admin';
         const password = options?.password ?? process.env.WAPP_PASSWORD ?? 'admin';
-        await fetch(`${baseUrl}/devices`, {
+        const origin = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || DEFAULT_BASE_URL;
+        const target = options?.deviceId != null
+            ? `${origin}/api/user/${options.deviceId}/devices`
+            : `${origin}/devices`;
+        await fetch(target, {
             headers: { 'Authorization': `Basic ${btoa(`${user}:${password}`)}` },
             signal: controller.signal,
         });

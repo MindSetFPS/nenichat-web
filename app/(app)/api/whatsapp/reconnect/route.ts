@@ -24,8 +24,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const wappApiUrl = process.env.NEXT_PUBLIC_WAPP_API_URL || 'http://192.168.1.64';
-        const wapp = new Wapp({ baseUrl: wappApiUrl });
+        const wapp = new Wapp({ deviceId: businessId });
         await wapp.reconnect(businessId);
 
         return NextResponse.json(

@@ -3,7 +3,7 @@ import { IMessageRepository } from '../../domain/IMessageRepository';
 import { IMessagesReport } from '../../domain/IMessagesReport';
 import { IMessageWithSender } from '../../domain/IMessageWithSender';
 import { Message } from '../../domain/Message';
-import { Wapp } from '@/Nenichat/Wapp';
+import { Wapp, WappConfig } from '@/Nenichat/Wapp';
 
 interface ApiMessage {
     id?: string;
@@ -38,16 +38,24 @@ interface SendMessageResults {
  */
 export class GoWappMessageRepository implements IMessageRepository {
     private wapp: Wapp;
+    private deviceId?: string;
 
     /**
      * Creates an instance of GoWappMessageRepository.
-     * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
-     * @param {string} [user] - Optional Basic Auth user.
-     * @param {string} [password] - Optional Basic Auth password.
-     * @param {string} [deviceId] - Optional device ID for the API.
+     * Base URL and Basic auth credentials default to the NEXT_PUBLIC_WAPP_API_URL
+     * and WAPP_USER / WAPP_PASSWORD environment variables.
      */
-    constructor(baseUrl?: string, user?: string, password?: string, deviceId?: string) {
-        this.wapp = new Wapp({ baseUrl, user, password, deviceId });
+    constructor(config: WappConfig = {}) {
+        this.wapp = new Wapp(config);
+        this.deviceId = config.deviceId !== undefined ? String(config.deviceId) : undefined;
+    }
+
+    /**
+     * Scopes a GoWapp endpoint to this business's Traefik route
+     * (/api/user/{deviceId}), which is how requests reach the right container.
+     */
+    private scopedPath(path: string): string {
+        return this.deviceId ? `/api/user/${this.deviceId}${path}` : path;
     }
 
     /**
@@ -118,7 +126,7 @@ export class GoWappMessageRepository implements IMessageRepository {
             reply_message_id: message.replied_to_message_id,
         };
 
-        const response = await this.wapp.request<SendMessageResults>('/send/message', {
+        const response = await this.wapp.request<SendMessageResults>(this.scopedPath('/send/message'), {
             method: 'POST',
             body: JSON.stringify(payload),
         });
@@ -176,7 +184,7 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @returns {Promise<IMessage[]>} List of messages in the chat.
      */
     async findByChatId(chat_id: string, offset: number, limit: number): Promise<IMessage[]> {
-        const response = await this.wapp.request<ChatMessagesResults>(`/chat/${chat_id}/messages?limit=${limit}&offset=${offset}`);
+        const response = await this.wapp.request<ChatMessagesResults>(this.scopedPath(`/chat/${chat_id}/messages?limit=${limit}&offset=${offset}`));
 
         if (response.code !== 'SUCCESS') {
             return [];

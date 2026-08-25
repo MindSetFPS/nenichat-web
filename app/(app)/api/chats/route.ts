@@ -21,7 +21,7 @@
  * - For manual invalidation, call DELETE endpoint or implement webhook handler
  * 
  * REQUEST FORMAT:
- * GET /api/chats?businessId=123&wappUrl=http://192.168.1.64/api/user/123
+ * GET /api/chats?businessId=123&wappUrl={NEXT_PUBLIC_WAPP_API_URL}/api/user/123
  * 
  * RESPONSE FORMAT:
  * JSON array of IChat objects
@@ -121,7 +121,7 @@ export async function GET(request: Request) {
         }
 
         // Fetch from WhatsApp API (cache miss)
-        const wappChatRepository = new GoWappChatRepository(wappUrl, 'admin', 'admin', businessId);
+        const wappChatRepository = new GoWappChatRepository({ baseUrl: wappUrl, deviceId: businessId });
         const chats = await wappChatRepository.list(0, 100);
 
         // Store in cache for future requests

@@ -99,9 +99,7 @@ export default async function Page() {
   let recentConversations: any[] = [];
   if (containerData && containerData.status === "connected") {
     try {
-      // Maintaining the same URL logic as in chats/layout.tsx
-      let url = "http://192.168.1.64" + "/api/user" + "/" + business.id;
-      const wappChatRepository = new GoWappChatRepository(url, "admin", "admin", String(business.id));
+      const wappChatRepository = new GoWappChatRepository({ deviceId: String(business.id) });
       const chats = await wappChatRepository.list(0, 10);
       recentConversations = JSON.parse(JSON.stringify(chats));
     } catch (error) {

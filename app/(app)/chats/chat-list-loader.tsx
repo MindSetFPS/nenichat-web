@@ -31,8 +31,7 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
     businessId = business.id
   }
 
-  const url = "http://192.168.1.64" + "/api/user" + "/" + businessId
-  const wappChatRepository = new GoWappChatRepository(url, "admin", "admin", String(businessId))
+  const wappChatRepository = new GoWappChatRepository({ deviceId: String(businessId), baseUrl: process.env.NEXT_PUBLIC_WAPP_API_URL, password: process.env.WAPP_PASSWORD, user: process.env.WAPP_USER })
 
   try {
     const chats = await wappChatRepository.list(0, 26)
@@ -41,10 +40,7 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
     const supabase = await createServerSupabaseClient();
     const containerRepository = new SupabaseContainerRepository(supabase)
 
-    const isAlive = await checkWappHealth(url)
-
-    console.log(isAlive)
-    console.log(`Container health check for ${url}: ${isAlive ? 'alive' : 'dead'}`)
+    const isAlive = await checkWappHealth(undefined, { deviceId: businessId })
 
     if (isAlive) {
       await containerRepository.updateContainerState(Number(businessId), 'deployed')
@@ -55,5 +51,3 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
     }
   }
 }
-
-

@@ -18,7 +18,7 @@ export default async function ContactsPage() {
 
     const contactRepository = new SupabaseContactRepository(supabase);
     // const messageRepository = new SupabaseMessageRepository(supabase);
-    const messageRepository = new GoWappMessageRepository("http://192.168.1.64" + "/api/user/" + business.id, "admin", "admin", String(business.id))
+    const messageRepository = new GoWappMessageRepository({ deviceId: String(business.id) })
 
     // get all the contacts from contacts table
     const result = await contactRepository.list(business.id, 0, 100);

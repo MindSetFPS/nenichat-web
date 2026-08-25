@@ -2,7 +2,7 @@ import { IChat } from '../../domain/IChat';
 import { getJidKind } from '../../domain/Jid';
 import { IChatRepository } from '../../domain/IChatRepository';
 import { Chat } from '../../domain/Chat';
-import { Wapp } from '@/Nenichat/Wapp';
+import { Wapp, WappConfig } from '@/Nenichat/Wapp';
 
 interface ApiChat {
     jid?: string;
@@ -33,16 +33,24 @@ interface CheckPhoneResults {
  */
 export class GoWappChatRepository implements IChatRepository {
     private wapp: Wapp;
+    private deviceId?: string;
 
     /**
      * Creates an instance of GoWappChatRepository.
-     * @param {string} [baseUrl] - The base URL of the GoWapp API. Defaults to NEXT_PUBLIC_WAPP_API_URL or http://localhost:3000.
-     * @param {string} [user] - Optional Basic Auth user.
-     * @param {string} [password] - Optional Basic Auth password.
-     * @param {string} [deviceId] - Optional device ID for the API.
+     * Base URL and Basic auth credentials default to the NEXT_PUBLIC_WAPP_API_URL
+     * and WAPP_USER / WAPP_PASSWORD environment variables.
      */
-    constructor(baseUrl?: string, user?: string, password?: string, deviceId?: string) {
-        this.wapp = new Wapp({ baseUrl, user, password, deviceId });
+    constructor(config: WappConfig = {}) {
+        this.wapp = new Wapp(config);
+        this.deviceId = config.deviceId !== undefined ? String(config.deviceId) : undefined;
+    }
+
+    /**
+     * Scopes a GoWapp endpoint to this business's Traefik route
+     * (/api/user/{deviceId}), which is how requests reach the right container.
+     */
+    private scopedPath(path: string): string {
+        return this.deviceId ? `/api/user/${this.deviceId}${path}` : path;
     }
 
     /**
@@ -73,7 +81,7 @@ export class GoWappChatRepository implements IChatRepository {
     async findById(id: string): Promise<IChat | null> {
         // Since there isn't a direct "get chat by ID" endpoint that works for both users and groups
         // in the same way, we search the chat list. We use a generous limit for the initial search.
-        const response = await this.wapp.request<ChatListResults>('/chats?limit=100&offset=0');
+        const response = await this.wapp.request<ChatListResults>(this.scopedPath('/chats?limit=100&offset=0'));
         if (response.code === 'SUCCESS' && response.results?.data) {
             const found = response.results.data.find((c) => c.jid === id);
             if (found) {
@@ -93,7 +101,7 @@ export class GoWappChatRepository implements IChatRepository {
     async checkPhone(jid: string): Promise<boolean> {
         try {
             const phone = jid.split('@')[0];
-            const response = await this.wapp.request<CheckPhoneResults>(`/user/check?phone=${phone}`);
+            const response = await this.wapp.request<CheckPhoneResults>(this.scopedPath(`/user/check?phone=${phone}`));
             return response.code === 'SUCCESS' && response.results?.is_on_whatsapp === true;
         } catch (e) {
             console.error(`Error checking phone ${jid}:`, e);
@@ -102,7 +110,7 @@ export class GoWappChatRepository implements IChatRepository {
     }
 
     async getDevices() {
-        const response = await this.wapp.request<DeviceListResults>('/devices');
+        const response = await this.wapp.request<DeviceListResults>(this.scopedPath('/devices'));
         if (response.code === 'SUCCESS' && response.results?.data) {
             return response.results.data;
         }
@@ -142,7 +150,7 @@ export class GoWappChatRepository implements IChatRepository {
      * @returns {Promise<IChat[]>} List of chats.
      */
     async list(offset: number, limit: number): Promise<IChat[]> {
-        const response = await this.wapp.request<ChatListResults>(`/chats?limit=${limit}&offset=${offset}`);
+        const response = await this.wapp.request<ChatListResults>(this.scopedPath(`/chats?limit=${limit}&offset=${offset}`));
 
         if (response.code !== 'SUCCESS') {
             return [];
