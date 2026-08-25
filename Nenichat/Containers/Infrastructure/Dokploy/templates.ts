@@ -31,8 +31,8 @@ export const INITIAL_COMPOSE_FILE = `services:
     #  - whatsapp_data:/app
     command:
       - rest
-      - --basic-auth=admin:admin
-      - --webhook=http://192.168.1.64:5824/webhook/{business_id}
+      - --basic-auth={basic_auth}
+      - --webhook={webhook_base_url}/webhook/{business_id}
       - --port=3000
       - --debug=true
       - --os=Chrome
@@ -81,8 +81,8 @@ export const COMPOSE_FILE_WITH_PHONE = `services:
     #  - whatsapp_data:/app
     command:
       - rest
-      - --basic-auth=admin:admin
-      - --webhook=http://192.168.1.64:5824/webhook/connected/{business_id}
+      - --basic-auth={basic_auth}
+      - --webhook={webhook_base_url}/webhook/connected/{business_id}
       - --port=3000
       - --debug=true
       - --os=Chrome

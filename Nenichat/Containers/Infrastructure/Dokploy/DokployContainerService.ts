@@ -76,7 +76,7 @@ export class DokployContainerService implements IContainerService {
         composeId: string,
         businessId: number,
     ): Promise<any> {
-        const composeFile = INITIAL_COMPOSE_FILE.replace(/{business_id}/g, businessId.toString())
+        const composeFile = this.renderComposeFile(INITIAL_COMPOSE_FILE, businessId);
 
         const env = `BUSINESS_ID=${businessId}
 SUPABASE_URL=\${{project.SUPABASE_URL}}
@@ -101,6 +101,20 @@ SUPABASE_KEY=\${{project.SUPABASE_KEY}}
     }
 
     /**
+     * Renders a compose template with per-business and environment-derived values.
+     * Basic auth matches the credentials the Wapp client uses (WAPP_USER / WAPP_PASSWORD).
+     */
+    private renderComposeFile(template: string, businessId: number): string {
+        const basicAuth = `${process.env.WAPP_USER || "admin"}:${process.env.WAPP_PASSWORD || "admin"}`;
+        const webhookBaseUrl = process.env.WAPP_WEBHOOK_BASE_URL || "http://localhost:5824";
+
+        return template
+            .replace(/{business_id}/g, businessId.toString())
+            .replace(/{basic_auth}/g, basicAuth)
+            .replace(/{webhook_base_url}/g, webhookBaseUrl);
+    }
+
+    /**
      * Updates the container configuration with a specific phone.
      */
     async updateContainerWithPhone(
@@ -109,8 +123,7 @@ SUPABASE_KEY=\${{project.SUPABASE_KEY}}
         initialPhone: string,
         phoneId: string
     ): Promise<any> {
-        const composeFile = COMPOSE_FILE_WITH_PHONE
-            .replace(/{business_id}/g, businessId.toString())
+        const composeFile = this.renderComposeFile(COMPOSE_FILE_WITH_PHONE, businessId)
             .replace(/{initial_phone}/g, initialPhone)
             .replace(/{phone_id}/g, phoneId);
 
