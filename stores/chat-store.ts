@@ -30,12 +30,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { IChat } from '@/Nenichat/Chats/domain/IChat';
+import { getWappBaseUrl } from '@/lib/wapp/config';
 
 interface ChatState {
     chats: IChat[];
     isLoaded: boolean;
     isLoading: boolean;
     error: string | null;
+    networkError: boolean;
 
     fetchChats: (business: { id: number } | null) => Promise<void>;
     addChat: (chat: IChat) => void;
@@ -52,6 +54,7 @@ export const useChatStore = create<ChatState>()(
             isLoaded: false,
             isLoading: false,
             error: null,
+            networkError: false,
 
             /**
              * Fetches chats from API endpoint
@@ -79,12 +82,10 @@ export const useChatStore = create<ChatState>()(
                     return;
                 }
 
-                // Construct WhatsApp URL from business id
-                // NOTE: This assumes wapp_url is constructed as http://192.168.1.64/api/user/{businessId}
-                // TO CHANGE: Update this URL pattern if your WhatsApp API URL format is different
-                const wappUrl = `http://192.168.1.64/api/user/${business.id}`;
+                // The gateway origin only; the server-side repository appends /api/user/{businessId}
+                const wappUrl = getWappBaseUrl();
 
-                set({ isLoading: true, error: null });
+                set({ isLoading: true, error: null, networkError: false });
 
                 try {
                     const params = new URLSearchParams({
@@ -95,7 +96,17 @@ export const useChatStore = create<ChatState>()(
                     const response = await fetch(`/api/chats?${params.toString()}`);
 
                     if (!response.ok) {
-                        throw new Error('Failed to fetch chats');
+                        let errorCode = 'fetch_failed';
+                        try {
+                            const body = await response.json();
+                            if (body?.error) {
+                                errorCode = body.error;
+                            }
+                        } catch {
+                            // ignore parse errors
+                        }
+                        set({ error: errorCode, isLoaded: true, isLoading: false });
+                        return;
                     }
 
                     const chats: IChat[] = await response.json();
@@ -107,8 +118,11 @@ export const useChatStore = create<ChatState>()(
                     });
                 } catch (error) {
                     console.error('Error fetching chats:', error);
-                    const message = error instanceof Error ? error.message : 'Failed to fetch chats';
-                    set({ error: message, isLoading: false });
+                    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                        set({ networkError: true, isLoaded: true, isLoading: false });
+                    } else {
+                        set({ error: 'unknown', isLoaded: true, isLoading: false });
+                    }
                 }
             },
 
