@@ -72,7 +72,7 @@ function levenshtein(a: string, b: string): number {
  * matchProduct("White Rice",   { name: "Rice White", price: 4 })  // true  (token overlap 100%)
  * matchProduct("Laptop",       { name: "Notebook",   price: 9 })  // false (completely different)
  */
-function matchProduct(
+export function matchProduct(
     orderName: string,
     product: { name: string },
 ): boolean {
