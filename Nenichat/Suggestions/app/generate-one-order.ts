@@ -1,9 +1,9 @@
 import { IMessage } from '@/Nenichat/Messages/domain/IMessage';
 import { DEFAULT_MODEL } from '@/Nenichat/Shared/infra/llm/models';
-import { ollama } from '@/Nenichat/Shared/infra/llm/client';
+import { llm } from '@/Nenichat/Shared/infra/llm/client';
 import { generateStructured } from '@/Nenichat/Shared/infra/llm/generate-structured';
 import { ProductOrderListSchema } from '@/Nenichat/Orders/app/dto/product-order';
-import { chatToOllamaHistory } from '@/Nenichat/Suggestions/app/chat-to-ollama-history';
+import { chatToLlmHistory } from '@/Nenichat/Suggestions/app/chat-to-llm-history';
 import type { SuggestionAction } from '@/Nenichat/Suggestions/domain/ISuggestionAction';
 
 export async function generateOneOrder(
@@ -11,11 +11,11 @@ export async function generateOneOrder(
     modelName: string = DEFAULT_MODEL,
 ): Promise<{ suggestion: SuggestionAction | null; promptTokens: number; completionTokens: number }> {
     const llmMessages = [
-        ...chatToOllamaHistory(messages),
+        ...chatToLlmHistory(messages),
         { role: 'user', content: 'Extract the product orders from the conversation above. Return ONLY a JSON object with an "orders" key containing an array of { productName, amount } objects. No explanations.' },
     ];
     try {
-        const { data, promptTokens, completionTokens } = await generateStructured(ollama, ProductOrderListSchema, llmMessages, modelName);
+        const { data, promptTokens, completionTokens } = await generateStructured(llm, ProductOrderListSchema, llmMessages, modelName);
         if (!data.orders || data.orders.length === 0) return { suggestion: null, promptTokens, completionTokens };
         return {
             suggestion: {

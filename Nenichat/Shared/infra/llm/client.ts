@@ -1,8 +1,8 @@
-import { Ollama } from 'ollama';
-import fetch from "node-fetch"; // this breaks streaming requests
+import OpenAI from 'openai';
 
-// https://github.com/ollama/ollama-js/issues/72#issuecomment-2198327974
-export const ollama = new Ollama({
-    host: process.env.OLLAMA_HOST,
-    fetch: fetch as any, // Explicitly cast to 'any' to bypass type incompatibility 
+// Placeholder key keeps module import safe during build-time page data collection;
+// unconfigured environments fail at request time and are handled by callers.
+export const llm = new OpenAI({
+    baseURL: process.env.LLM_BASE_URL,
+    apiKey: process.env.LLM_API_KEY || 'not-configured',
 });
