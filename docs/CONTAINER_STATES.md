@@ -1,7 +1,8 @@
 # Container Lifecycle States & Known Issues
 
-Reference for `whatsapp-containers.status`, who writes it, and two known bugs
-around the `deployed ↔ connected` transitions. Related reading:
+Reference for `whatsapp-containers.status`, who writes it, and three known bugs
+around the `deployed ↔ connected` transitions and the terminal-ish
+`unreachable` state. Related reading:
 [WHATSAPP_INFRA.md](./WHATSAPP_INFRA.md), [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## The state machine (canonical)
@@ -76,12 +77,49 @@ Planned remedy: auto-poll `/api/whatsapp/devices` while the setup page shows
 the QR, keeping the route as the single writer; optionally reconcile lazily
 in `chats/layout.tsx` for users who closed the tab mid-scan.
 
-## Recovering rows stuck in `deployed` (while issues are open)
+## Known issue #3 — `unreachable` never self-recovers after a transient outage
 
-If the gateway still reports the device as logged in, either click
-*"Verificar estado de conexión"* on `/wapp` once, or flip the row manually:
+**Status:** unfixed. **Observed in production:** yes (business 115,
+2026-08-26, during a Traefik/IPAM host outage — see
+[WHATSAPP_INFRA.md](./WHATSAPP_INFRA.md)).
+
+Both chat-path writers classify *any* request failure as `unreachable`:
+
+1. `chat-list-loader.tsx`: catch block probes liveness and writes
+   `unreachable` when the probe itself fails.
+2. `app/(app)/api/chats/route.ts`: same on the API path (503
+   `container_unreachable`).
+
+That classification assumes network failure == container dead. But during an
+infrastructure outage (reverse proxy down, host networking broken) every
+container is equally "unreachable" while being perfectly healthy. Once the
+host recovers:
+
+- Nothing transitions out of `unreachable` — no writer re-probes, so the row
+  stays stuck even though the gateway answers again.
+- The `'connected'` gates (`chats/layout.tsx`, `home/page.tsx`,
+  `whatsapp-settings.tsx`) keep users blocked behind error screens.
+- `whatsapp-settings.tsx` offers **Recreate**, which would destroy a healthy
+  container and its registered device slot — destructive overkill for what
+  was a transient outage.
+
+Correct rule (same probe logic as issue #1): a successful
+`getAppDevices(businessId)` proves the container is alive, so it must demote
+`unreachable` back to `deployed`/`connected`. Only keep `unreachable` when
+the probe *still* fails after infra recovery — only then is Recreate
+appropriate.
+
+## Recovering rows stuck in `deployed` / `unreachable` (while issues are open)
+
+If the gateway answers (JSON body, not refusal/plain-text 404), the container
+is fine and the row just needs flipping — do not use Recreate:
 
 ```bash
 curl -u admin:<password> http://192.168.1.64/api/user/{business_id}/devices   # confirm logged_in
 # then update whatsapp-containers.status = 'connected' for that business_id
 ```
+
+This applies equally to rows stuck in `deployed` (issues #1/#2) and to rows
+stuck in `unreachable` after a host outage recovered (issue #3). Reserve the
+Recreate flow for endpoints that stay dead — connection refused or plain-text
+404 — per the triage table in [WHATSAPP_INFRA.md](./WHATSAPP_INFRA.md).

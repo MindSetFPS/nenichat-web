@@ -77,3 +77,97 @@ treats any HTTP response as "alive", including Traefik's plain-text 404 — so a
 missing container can be classified as reachable. This is intentional for now
 (only network failures/timeouts mark a container `unreachable`); revisit if
 stricter detection is ever needed.
+
+## Host Outage Playbook — "Connection refused" on port 80/443
+
+**Observed:** 2026-08-26, and likely explains the `dokploy.1 Failed` entries
+recurring every few days in swarm history.
+
+### Symptom
+
+Every gateway URL refuses to connect (`connect to 192.168.1.64 port 80 failed:
+Connection refused`) even though `docker ps` shows all business containers Up.
+Nothing about Nenichat's own code or data is wrong — the front door of the
+host is gone.
+
+### What actually happens
+
+The boot sequence has a race:
+
+1. Host reboots; Docker comes up with Swarm mode active (single manager node).
+2. `dokploy-traefik` (standalone container, owns ports 80/443) tries to attach
+   to `dokploy-network` — an **overlay** network managed by Swarm.
+3. The Swarm IPAM ledger still holds stale allocations from before the crash,
+   so the attach times out:
+   ```
+   failed to set up container networking: attaching to network failed ...
+   context deadline exceeded
+   ```
+4. Traefik exits (code 128) and nothing ever listens on 80/443 again. Every
+   routed service — including healthy GoWapp containers — becomes unreachable.
+
+Confirm with
+`docker inspect dokploy-traefik --format '{{.State.ExitCode}} | {{.State.Error}}'`;
+the Docker log line that names the true root cause is
+`could not allocate IP from IPAM: Address already in use`
+(`journalctl -u docker --since "-2 hours"`).
+
+### Triage order
+
+```bash
+# 1. Is anything listening on the front-door ports?
+ss -tlnp | grep -E ':(80|443)\b'
+
+# 2. Is traefik the casualty?
+docker ps -a --filter name=dokploy-traefik --format '{{.Status}}'
+docker inspect dokploy-traefik --format '{{.State.ExitCode}} | {{.State.Error}}'
+
+# 3. Check for the IPAM leak signature
+journalctl -u docker --since "-2 hours" --no-pager | grep -iE 'IPAM|Address already'
+```
+
+### Fix ladder (least invasive first)
+
+1. **Restart the Docker daemon.** Rebuilds network state from live
+   attachments and almost always clears the leaked ledger. Brief downtime
+   (~30s) for all containers; Swarm services reschedule themselves.
+   ```bash
+   sudo systemctl restart docker
+   docker start dokploy-traefik
+   ```
+2. **Only if step 1 fails: reset the Swarm network store.** Back it up, stop
+   Docker, remove the corrupted ledger, start over:
+   ```bash
+   sudo systemctl stop docker
+   sudo mv /var/lib/docker/network/files/local-kv.db /tmp/local-kv.db.bak
+   sudo systemctl start docker
+   # recreate the overlay only if it doesn't come back automatically:
+   docker network create -d overlay --attachable dokploy-network
+   docker start dokploy-traefik
+   ```
+3. Verify recovery: port 80 listening + a JSON answer (not refusal) from a
+   known route:
+   ```bash
+   ss -tlnp | grep ':80'
+   curl -u admin:<password> http://192.168.1.64/api/user/{business_id}/devices
+   ```
+
+Do **not** jump to recreating `dokploy-network` or leaving/rejoining Swarm —
+unnecessary risk for what is a state-file problem.
+
+### Distinguishing this from app-level failures
+
+| Probe result | Meaning |
+|---|---|
+| Connection refused on 80/443 | Host/Traefik down — this playbook |
+| Plain-text `404 page not found` | Traefik alive, container missing/stopped — see Failure Modes above |
+| HTTP response from GoWapp | Infra fine; debug app/session level |
+
+Note: `dokploy`'s own dashboard listens on port **3000** — finding something
+answering there does *not* mean the gateway recovered.
+
+App-level aftermath: any business whose row was marked `unreachable` while
+the proxy was down stays stuck there after recovery — chats gated behind
+error screens and settings offering Recreate for a healthy container. See
+[CONTAINER_STATES.md](./CONTAINER_STATES.md), known issue #3, for why and
+for the one-curl manual fix.
