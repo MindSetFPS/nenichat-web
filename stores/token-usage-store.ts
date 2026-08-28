@@ -8,8 +8,15 @@ export interface MonthlyUsage {
     completionTokens: number;
 }
 
+export interface DailyUsage {
+    date: string;
+    promptTokens: number;
+    completionTokens: number;
+}
+
 interface TokenUsageState {
     monthlyUsage: MonthlyUsage[];
+    dailyUsage: DailyUsage[];
     addUsage: (promptTokens: number, completionTokens: number) => void;
 }
 
@@ -18,20 +25,28 @@ function getCurrentMonthKey(): { year: number; month: number } {
     return { year: now.getFullYear(), month: now.getMonth() + 1 };
 }
 
+function getTodayKey(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 export const useTokenUsageStore = create<TokenUsageState>()(
     persist(
         (set, get) => ({
             monthlyUsage: [],
+            dailyUsage: [],
 
             addUsage: (promptTokens, completionTokens) => {
                 const { year, month } = getCurrentMonthKey();
+                const today = getTodayKey();
                 set((state) => {
-                    const existing = state.monthlyUsage.find(
+                    const existingMonthly = state.monthlyUsage.find(
                         (u) => u.year === year && u.month === month
                     );
-                    if (existing) {
-                        return {
-                            monthlyUsage: state.monthlyUsage.map((u) =>
+                    const existingDaily = state.dailyUsage.find((u) => u.date === today);
+                    return {
+                        monthlyUsage: existingMonthly
+                            ? state.monthlyUsage.map((u) =>
                                 u.year === year && u.month === month
                                     ? {
                                         ...u,
@@ -39,14 +54,25 @@ export const useTokenUsageStore = create<TokenUsageState>()(
                                         completionTokens: u.completionTokens + completionTokens,
                                     }
                                     : u
-                            ),
-                        };
-                    }
-                    return {
-                        monthlyUsage: [
-                            ...state.monthlyUsage,
-                            { year, month, promptTokens, completionTokens },
-                        ],
+                            )
+                            : [
+                                ...state.monthlyUsage,
+                                { year, month, promptTokens, completionTokens },
+                            ],
+                        dailyUsage: existingDaily
+                            ? state.dailyUsage.map((u) =>
+                                u.date === today
+                                    ? {
+                                        ...u,
+                                        promptTokens: u.promptTokens + promptTokens,
+                                        completionTokens: u.completionTokens + completionTokens,
+                                    }
+                                    : u
+                            )
+                            : [
+                                ...state.dailyUsage,
+                                { date: today, promptTokens, completionTokens },
+                            ],
                     };
                 });
             },
@@ -68,6 +94,18 @@ export function formatMonth(year: number, month: number): string {
 
 export function formatTokenCount(n: number): string {
     return n.toLocaleString('en-US');
+}
+
+export function getDailyUsageForMonth(dailyUsage: DailyUsage[], year: number, month: number): DailyUsage[] {
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    return dailyUsage
+        .filter((d) => d.date.startsWith(prefix))
+        .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function formatDateShort(dateStr: string): string {
+    const [, month, day] = dateStr.split('-');
+    return `${parseInt(day)}/${parseInt(month)}`;
 }
 
 export interface ModelPricing {

@@ -8,6 +8,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useRouter } from "next/navigation"
 import { usePlanStore, getPlanById, PLANS } from "@/stores/plan-store"
 import { useTokenUsageStore, formatMonth, formatTokenCount, MODEL_PRICING, computeCost } from "@/stores/token-usage-store"
+import { DailyTokenUsageChart } from "./daily-token-usage-chart"
+import { MonthlyTokenUsageChart } from "./monthly-token-usage-chart"
 
 export function SubscriptionSettings() {
     const { currentPlan } = usePlanStore()
@@ -64,6 +66,13 @@ export function SubscriptionSettings() {
                             <span className="text-2xl font-black">—</span>
                             <p className="text-xs text-muted-foreground mt-1">Facturas</p>
                         </div>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-border">
+                        <DailyTokenUsageChart />
+                    </div>
+                    <div className="mt-6 pt-6 border-t border-border">
+                        <MonthlyTokenUsageChart />
                     </div>
                     {monthlyUsage.length > 0 && (() => {
                         const sorted = [...monthlyUsage].reverse();
