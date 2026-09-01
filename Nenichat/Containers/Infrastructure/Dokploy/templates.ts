@@ -3,7 +3,7 @@
  */
 export const INITIAL_COMPOSE_FILE = `services:
   whatsapp:
-    image: aldinokemal2104/go-whatsapp-web-multidevice:v9.0.0
+    image: aldinokemal2104/go-whatsapp-web-multidevice:v9.2.1
     restart: always
     networks:
       # - api-network
@@ -37,6 +37,8 @@ export const INITIAL_COMPOSE_FILE = `services:
       - --debug=true
       - --os=Chrome
       - --account-validation=false
+      - --ui-enabled=false
+      - --mcp-enabled=false
 
 networks:
   dokploy-network:
@@ -53,7 +55,7 @@ networks:
  */
 export const COMPOSE_FILE_WITH_PHONE = `services:
   whatsapp:
-    image: aldinokemal2104/go-whatsapp-web-multidevice:v9.0.0
+    image: aldinokemal2104/go-whatsapp-web-multidevice:v9.2.1
     restart: always
     networks:
       # - api-network
@@ -87,6 +89,8 @@ export const COMPOSE_FILE_WITH_PHONE = `services:
       - --debug=true
       - --os=Chrome
       - --account-validation=false
+      - --ui-enabled=false
+      - --mcp-enabled=false
 
 networks:
   dokploy-network:

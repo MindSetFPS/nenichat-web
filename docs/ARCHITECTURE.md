@@ -103,7 +103,7 @@ Nenichat/{Context}/
 - Templates generate compose files with Traefik labels
 
 ### GoWapp Containers
-- Image: `aldinokemal2104/go-whatsapp-web-multidevice:v9.0.0`
+- Image: `aldinokemal2104/go-whatsapp-web-multidevice:v9.2.1`
 - Each container holds exactly one WhatsApp session, in a device slot named after the business ID
 - Internal port: 3000 (not exposed, only accessible via Traefik)
 - Basic Auth: `admin:admin`

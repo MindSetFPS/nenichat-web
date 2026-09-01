@@ -18,8 +18,15 @@ export interface IMessageContent {
  * Represents a generic event from the webhook.
  * It can be a message acknowledgement, a new message, or other event types.
  * The optional properties will only be present for certain event types.
+ *
+ * Schema notes (go-whatsapp-web-multidevice v9):
+ * - Top-level `device_id` identifies the device that received the event.
+ * - `sender_display_name` (when present) is the gateway-resolved sender label.
  */
 export interface IWebhookEvent {
+  // v9: device that emitted the event
+  device_id?: string;
+
   // Fields for a message acknowledgement event
   event?: "message.ack" | string;
   payload?: IMessageAckPayload;
@@ -30,12 +37,14 @@ export interface IWebhookEvent {
   message?: IMessageContent;
   pushname: string | null;
   sender_id?: string;
+  sender_display_name?: string;
 
   // Common field present in all events
   timestamp: string;
 }
 
 export class WebhookEvent implements IWebhookEvent {
+  device_id?: string;
   event?: "message.ack" | string;
   payload?: IMessageAckPayload;
   chat_id?: string;
@@ -43,9 +52,11 @@ export class WebhookEvent implements IWebhookEvent {
   message?: IMessageContent;
   pushname: string | null;
   sender_id?: string;
+  sender_display_name?: string;
   timestamp: string;
 
   constructor(data: IWebhookEvent) {
+    this.device_id = data.device_id;
     this.event = data.event;
     this.payload = data.payload;
     this.chat_id = data.chat_id;
@@ -53,6 +64,7 @@ export class WebhookEvent implements IWebhookEvent {
     this.message = data.message;
     this.pushname = data.pushname;
     this.sender_id = data.sender_id;
+    this.sender_display_name = data.sender_display_name;
     this.timestamp = data.timestamp;
   }
 

@@ -15,23 +15,25 @@ export class Message implements IMessage {
    * @param file_length Length of the file if applicable.
    * @param created_at Creation timestamp.
    * @param updated_at Last update timestamp.
-   * @param replied_to_message_id Optional ID of the message being replied to.
-   * @param quoted_message_text Optional text of the quoted message.
-   */
-  constructor(
-    public id: string,
-    public chat_jid: string,
-    public sender_jid: string,
-    public content: string | null,
-    public timestamp: string,
-    public is_from_me: boolean,
-    public media_type: string,
-    public filename: string,
-    public url: string,
-    public file_length: number,
-    public created_at: string,
-    public updated_at: string,
-    public replied_to_message_id?: string,
-    public quoted_message_text?: string
-  ) { }
+ * @param replied_to_message_id Optional ID of the message being replied to.
+ * @param quoted_message_text Optional text of the quoted message.
+ * @param sender_display_name Optional resolved sender display name (gateway v9.0.1+).
+ */
+constructor(
+  public id: string,
+  public chat_jid: string,
+  public sender_jid: string,
+  public content: string | null,
+  public timestamp: string,
+  public is_from_me: boolean,
+  public media_type: string,
+  public filename: string,
+  public url: string,
+  public file_length: number,
+  public created_at: string,
+  public updated_at: string,
+  public replied_to_message_id?: string,
+  public quoted_message_text?: string,
+  public sender_display_name?: string
+) { }
 }

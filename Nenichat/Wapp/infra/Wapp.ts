@@ -63,18 +63,30 @@ export class WappApiError extends Error {
 /**
  * The container reports its URL based on its internal view, but external access
  * through Traefik requires the specific /api/user/{business_id} path prefix.
+ * The gateway (v9.0.1+) keeps the request port in generated URLs; we use the
+ * hostname only so the rewritten URL stays reachable through Traefik on the
+ * public port (80/443) and never carries the internal :3000.
  */
-function resolveQrImageUrl(rawUrl: string, businessId: number): string {
-    if (!rawUrl.includes('/statics/qrcode/') || rawUrl.includes(`/api/user/${businessId}`)) {
+export function normalizeGatewayUrl(rawUrl: string, businessId: number | string): string {
+    const prefix = `/api/user/${businessId}`;
+    if (!rawUrl.includes('/statics/') || rawUrl.includes(prefix)) {
         return rawUrl;
     }
     try {
         const urlObj = new URL(rawUrl);
-        return `${urlObj.protocol}//${urlObj.host}/api/user/${businessId}${urlObj.pathname}`;
+        return `${urlObj.protocol}//${urlObj.hostname}${prefix}${urlObj.pathname}${urlObj.search}`;
     } catch (e) {
-        console.error("Error parsing QR URL:", e);
+        console.error("Error parsing gateway URL:", e);
         return rawUrl;
     }
+}
+
+/**
+ * Rewrites the gateway's QR link to be reachable through Traefik, preserving the
+ * /api/user/{business_id} prefix and dropping any internal port.
+ */
+function resolveQrImageUrl(rawUrl: string, businessId: number): string {
+    return normalizeGatewayUrl(rawUrl, businessId);
 }
 
 /**

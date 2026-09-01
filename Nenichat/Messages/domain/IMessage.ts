@@ -13,4 +13,5 @@ export interface IMessage {
   updated_at: string;
   replied_to_message_id?: string;
   quoted_message_text?: string;
+  sender_display_name?: string;
 }

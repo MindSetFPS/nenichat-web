@@ -3,7 +3,7 @@ import { IMessageRepository } from '../../domain/IMessageRepository';
 import { IMessagesReport } from '../../domain/IMessagesReport';
 import { IMessageWithSender } from '../../domain/IMessageWithSender';
 import { Message } from '../../domain/Message';
-import { Wapp, WappConfig } from '@/Nenichat/Wapp';
+import { Wapp, WappConfig, normalizeGatewayUrl } from '@/Nenichat/Wapp';
 
 interface ApiMessage {
     id?: string;
@@ -20,6 +20,7 @@ interface ApiMessage {
     file_length?: number;
     created_at?: string;
     updated_at?: string;
+    sender_display_name?: string;
 }
 
 interface ChatMessagesResults {
@@ -78,6 +79,8 @@ export class GoWappMessageRepository implements IMessageRepository {
      * @private
      */
     private mapToDomain(apiMsg: ApiMessage): IMessage {
+        const rawUrl = apiMsg.url || '';
+        const mediaUrl = this.deviceId ? normalizeGatewayUrl(rawUrl, this.deviceId) : rawUrl;
         return new Message(
             apiMsg.id ?? '',
             apiMsg.chat_jid || apiMsg.phone || '',
@@ -87,12 +90,13 @@ export class GoWappMessageRepository implements IMessageRepository {
             apiMsg.is_from_me || false,
             apiMsg.media_type || '',
             apiMsg.filename || '',
-            apiMsg.url || '',
+            mediaUrl,
             apiMsg.file_length || 0,
             apiMsg.created_at || new Date().toISOString(),
             apiMsg.updated_at || new Date().toISOString(),
             undefined,
-            undefined
+            undefined,
+            apiMsg.sender_display_name
         );
     }
 

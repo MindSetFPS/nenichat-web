@@ -43,9 +43,11 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
 
     const senderContact = getContact(message.sender_jid)
     const senderContactValue = typeof senderContact === 'object' ? senderContact : undefined
+    const localName = senderContactValue ? getContactName(senderContactValue) : ""
+    const displayName = localName || message.sender_display_name || message.sender_jid
 
     // Show avatar only in group chats, for first message in consecutive sequence
-    const shouldShowAvatar = isGroup && showAvatar && senderContact && !isMe
+    const shouldShowAvatar = isGroup && showAvatar && !!displayName && !isMe
     // Show placeholder in group chats for consecutive messages from same sender
     const shouldShowPlaceholder = isGroup && !showAvatar && !isMe
 
@@ -53,8 +55,8 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
         <div className="flex gap-2">
             {shouldShowAvatar && (
                 <Avatar className="h-8 w-8">
-                    <ContactAvatar seed={getContactName(senderContact)!} />
-                    <AvatarFallback>{getContactName(senderContact)!.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <ContactAvatar seed={displayName} />
+                    <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
             )}
             {shouldShowPlaceholder && <div className="h-8 w-8" />}
@@ -70,10 +72,10 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                 <Accordion type="single" collapsible className="p-0">
                     <AccordionItem value="item-1" className="p-0">
                         {
-                            senderContact && !isMe && isGroup && showAvatar ?
+                            displayName && !isMe && isGroup && showAvatar ?
                                 <Link href={`/chats/${message.sender_jid}`}>
                                     <span className="text-xs font-bold">
-                                        {getContactName(senderContact)}
+                                        {displayName}
                                     </span>
                                 </Link>
                                 : <></>
