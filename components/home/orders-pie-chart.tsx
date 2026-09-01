@@ -58,7 +58,7 @@ export function DailyOrdersChart({ data }: OrdersPieChartProps) {
 
     return (
         <Card
-            className="flex flex-col overflow-hidden border-none shadow-md bg-white dark:bg-zinc-900/50 backdrop-blur-sm"
+            className="flex flex-col overflow-hidden shadow-none bg-white dark:bg-zinc-900/50 backdrop-blur-sm"
         >
             <CardHeader className="items-center pb-0">
                 <CardTitle>Ventas del día</CardTitle>

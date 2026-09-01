@@ -34,7 +34,7 @@ function StatCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay }}
         >
-            <Card className={cn("overflow-hidden border-none shadow-md bg-white dark:bg-zinc-900/50 backdrop-blur-sm", className)}>
+            <Card className={cn("overflow-hidden shadow-none bg-white dark:bg-zinc-900/50 backdrop-blur-sm", className)}>
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-2 bg-primary/10 rounded-lg text-primary">

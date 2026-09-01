@@ -41,7 +41,7 @@ export function OutstandingPaymentsCard({ payments }: OutstandingPaymentsCardPro
     }, 0);
 
     return (
-        <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
+        <Card className="shadow-none bg-white dark:bg-zinc-900/50">
             <div className="p-6 pb-0">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 text-amber-500" />
