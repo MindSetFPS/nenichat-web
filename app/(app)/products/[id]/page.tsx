@@ -1,21 +1,14 @@
 import { notFound } from 'next/navigation';
-import { ProductForm } from '@/components/forms/product-form'; // Import the new edit form
+import { ProductForm } from '@/components/forms/product-form';
 import { IProduct } from '@/Nenichat/Products/domain/IProduct';
 import { ChartBarLabel } from '@/components/products/chart';
 import { ProductOrdersByDate } from '@/Nenichat/Products/app/dto/product-orders-by-date';
 import { PageHeader } from '@/components/ui/page-header';
-import Content from '@/components/layout/content';
+import { Badge } from '@/components/ui/badge';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
 
-/**
- * @function ProductEditPage
- * @description A server component page to display and allow editing of a single product.
- * @param {Object} props - The props for the component.
- * @param {Object} props.params - The route parameters, containing the product ID.
- * @param {string} props.params.id - The ID of the product to display.
- */
 export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -29,32 +22,30 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   const productRepository = new SupabaseProductRepository(supabase);
   const product = await productRepository.getById(business.id, id);
 
-  // get sales by date using repository
   const order_items = await productRepository.getProductSales(business.id, id);
 
-  const sales: ProductOrdersByDate[] = [];
+  const salesMap = new Map<string, { display: string; quantity: number }>();
   for (const item of order_items) {
-    // format date to "lunes 23 de diciembre"
-    const date = item.created_at.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      weekday: 'long',
-    });
-    const quantity = item.quantity;
-
-    const existingSale = sales.find((sale) => sale.date === date);
-    if (existingSale) {
-      existingSale.quantity += quantity;
+    const d = item.created_at;
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const display = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+    const existing = salesMap.get(key);
+    if (existing) {
+      existing.quantity += item.quantity;
     } else {
-      sales.push({ date, quantity });
+      salesMap.set(key, { display, quantity: item.quantity });
     }
   }
 
+  const sales: ProductOrdersByDate[] = Array.from(salesMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, v]) => ({ date: v.display, quantity: v.quantity }));
+
   if (!product) {
-    notFound(); // Render Next.js 404 page if product not found
+    notFound();
   }
 
-  let plainProduct: IProduct = {
+  const plainProduct: IProduct = {
     id: product.id,
     name: product.name,
     description: product.description,
@@ -69,10 +60,20 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <PageHeader title="Editar producto" />
-      <div className="overflow-y-auto mt-2">
-        <ProductForm product={plainProduct} businessId={business.id} />
-        <ChartBarLabel data={sales} />
+      <PageHeader title={plainProduct.name}>
+        <Badge variant={plainProduct.is_active ? "default" : "secondary"}>
+          {plainProduct.is_active ? "Activo" : "Inactivo"}
+        </Badge>
+      </PageHeader>
+      <div className="overflow-y-auto mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="lg:col-span-3 space-y-8">
+            <ProductForm product={plainProduct} businessId={business.id} />
+          </div>
+          <div className="lg:col-span-2 space-y-8">
+            <ChartBarLabel data={sales} />
+          </div>
+        </div>
       </div>
     </>
   );

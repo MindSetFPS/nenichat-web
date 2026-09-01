@@ -35,7 +35,7 @@ export function CreateProductDialog({ onProductCreated }: { onProductCreated: (p
           Agrega un producto
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] md:max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Agrega un producto</DialogTitle>
           <DialogDescription>
