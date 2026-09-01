@@ -52,7 +52,7 @@ export default async function Page() {
   const containerData = await containerRepository.getContainerByBusinessId(business.id);
 
   const messagesPerDay: any[] = []; //await messageRepository.getMessageCountPerDay(business.id, 14);
-  const orders: any[] = await orderRepository.getAll(business.id);
+  const orders: any[] = await orderRepository.getAll(business.id, "monthly");
   const plainOrders = JSON.parse(JSON.stringify(orders));
 
   if (orders.length === 0) {
@@ -129,14 +129,14 @@ export default async function Page() {
 
           {/* Main Business Analysis - Spans 2 columns */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="border-none shadow-md overflow-hidden bg-white dark:bg-zinc-900/50">
+            <Card className="shadow-none overflow-hidden bg-white dark:bg-zinc-900/50">
               <div className="p-6">
                 <OrdersTotalValueChart data={orderTotalsPerDay} />
               </div>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50 relative overflow-hidden">
+              <Card className="shadow-none bg-white dark:bg-zinc-900/50 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-32 h-32 text-primary">
                     <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
@@ -149,7 +149,7 @@ export default async function Page() {
 
               <OrderProductChart data={ordersCountByDateInterval} />
 
-              <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50 flex flex-col h-full max-h-[400px]">
+              <Card className="shadow-none bg-white dark:bg-zinc-900/50 flex flex-col h-full max-h-100">
                 <div className="p-6 pb-2">
                   <h3 className="font-semibold text-lg flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
@@ -172,7 +172,7 @@ export default async function Page() {
             <OutstandingPaymentsCard payments={outstandingPayments} />
             <ActionRequiredCard activeOrders={activeOrders} />
 
-            <Card className="border-none shadow-md bg-white dark:bg-zinc-900/50">
+            <Card className="shadow-none bg-white dark:bg-zinc-900/50">
               <div className="p-6 pb-0 mb-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-primary" />

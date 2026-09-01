@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { IOrder } from "../../domain/IOrder";
-import { IOrderRepository } from "../../domain/IOrderRepository";
+import { IOrderRepository, OrderTimePeriod } from "../../domain/IOrderRepository";
 import { IOrderItemWithProduct } from "../../domain/IOrderItemWithProduct";
 import { IOrdersReport } from "../../domain/IOrdersReport";
 import { Order } from "../../domain/Order";
@@ -90,20 +90,60 @@ export class SupabaseOrderRepository implements IOrderRepository {
     }
 
     /**
-     * Retrieves all orders for a business.
+     * Retrieves all orders for a business, optionally filtered by time period.
      */
-    async getAll(businessId: number): Promise<IOrder[]> {
-        const { data, error } = await this.supabase
+    async getAll(businessId: number, period?: OrderTimePeriod): Promise<IOrder[]> {
+        let query = this.supabase
             .from('orders')
             .select('*')
             .eq('business_id', businessId)
             .order('created_at', { ascending: false });
+
+        if (period && period !== "all") {
+            const startDate = this.getPeriodStartDate(period);
+            query = query.gte('created_at', startDate.toISOString());
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error("Error fetching all orders:", error);
             throw error;
         }
         return (data || []).map(row => this.mapToOrder(row));
+    }
+
+    /**
+     * Returns the start date for a given time period.
+     */
+    private getPeriodStartDate(period: OrderTimePeriod): Date {
+        const now = new Date();
+
+        switch (period) {
+            case "today": {
+                const start = new Date(now);
+                start.setHours(0, 0, 0, 0);
+                return start;
+            }
+            case "this_week": {
+                const start = new Date(now);
+                const dayOfWeek = start.getDay();
+                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = 0
+                start.setDate(start.getDate() - diff);
+                start.setHours(0, 0, 0, 0);
+                return start;
+            }
+            case "monthly": {
+                const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                return start;
+            }
+            case "yearly": {
+                const start = new Date(now.getFullYear(), 0, 1);
+                return start;
+            }
+            default:
+                return new Date(0);
+        }
     }
 
     /**

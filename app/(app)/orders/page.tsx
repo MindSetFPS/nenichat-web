@@ -7,14 +7,24 @@ import { CreateOrderButton } from "@/components/orders/create-order-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { IOrderRepository } from "@/Nenichat/Orders/domain/IOrderRepository";
+import { IOrderRepository, OrderTimePeriod } from "@/Nenichat/Orders/domain/IOrderRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
 import { OrdersTableClient } from "./orders-table-client";
 import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api";
 
 export const dynamic = 'force-dynamic';
 
-export default async function OrdersPage() {
+const VALID_PERIODS: OrderTimePeriod[] = ["today", "this_week", "monthly", "yearly", "all"];
+
+export default async function OrdersPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ period?: string }>;
+}) {
+    const { period: periodParam } = await searchParams;
+    const period: OrderTimePeriod = VALID_PERIODS.includes(periodParam as OrderTimePeriod)
+        ? (periodParam as OrderTimePeriod)
+        : "all";
     const supabase = await createServerSupabaseClient();
     const { business, error: authError } = await getBusinessFromUser(supabase);
 
@@ -27,7 +37,7 @@ export default async function OrdersPage() {
 
     const gowappChatRepository = new GoWappChatRepository({ deviceId: String(business.id) })
 
-    let orders: OrderWithContactName[] = await orderRepository.getAll(business.id);
+    let orders: OrderWithContactName[] = await orderRepository.getAll(business.id, period);
 
     // 1. Fetch WhatsApp chats once to avoid redundant API calls per order
     let chatMap = new Map<string, any>();

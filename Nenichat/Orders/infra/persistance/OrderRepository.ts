@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { IOrder } from '../../domain/IOrder';
-import { IOrderRepository } from '../../domain/IOrderRepository';
+import { IOrderRepository, OrderTimePeriod } from '../../domain/IOrderRepository';
 import { Order } from '../../domain/Order';
 import { IOrdersReport } from '../../domain/IOrdersReport';
 import { IOrderWithProducts } from '../../domain/IOrderWithProducts';
@@ -51,9 +51,47 @@ export class OrderRepository implements IOrderRepository {
         return this.mapRowToOrder(result.rows[0]);
     }
 
-    async getAll(businessId: number): Promise<IOrder[]> {
+    async getAll(businessId: number, period?: OrderTimePeriod): Promise<IOrder[]> {
+        if (period && period !== "all") {
+            const startDate = this.getPeriodStartDate(period);
+            const result = await this.pool.query(
+                'SELECT * FROM orders WHERE business_id = $1 AND created_at >= $2 ORDER BY created_at DESC',
+                [businessId, startDate]
+            );
+            return result.rows.map(this.mapRowToOrder);
+        }
         const result = await this.pool.query('SELECT * FROM orders WHERE business_id = $1 ORDER BY created_at DESC', [businessId]);
         return result.rows.map(this.mapRowToOrder);
+    }
+
+    private getPeriodStartDate(period: OrderTimePeriod): Date {
+        const now = new Date();
+
+        switch (period) {
+            case "today": {
+                const start = new Date(now);
+                start.setHours(0, 0, 0, 0);
+                return start;
+            }
+            case "this_week": {
+                const start = new Date(now);
+                const dayOfWeek = start.getDay();
+                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                start.setDate(start.getDate() - diff);
+                start.setHours(0, 0, 0, 0);
+                return start;
+            }
+            case "monthly": {
+                const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                return start;
+            }
+            case "yearly": {
+                const start = new Date(now.getFullYear(), 0, 1);
+                return start;
+            }
+            default:
+                return new Date(0);
+        }
     }
 
     async getByContactId(businessId: number, contactId: number): Promise<IOrder[]> {
