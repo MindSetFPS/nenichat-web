@@ -144,7 +144,7 @@ export class GoWappChatRepository implements IChatRepository {
     }
 
     /**
-     * Lists chats with pagination.
+     * Lists most recent chats with pagination. Consider this a timeline of recent conversations.
      * @param {number} offset - The number of records to skip.
      * @param {number} limit - The maximum number of records to return.
      * @returns {Promise<IChat[]>} List of chats.
