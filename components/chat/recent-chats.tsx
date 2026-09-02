@@ -1,46 +1,54 @@
 'use client'
 
+import { useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
-import { getContactName } from '@/Nenichat/Contacts/app/get-contact-name'
-import ContactAvatar from '@/components/contact-avatar'
-import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { cn } from "@/lib/utils"
 import { useIsMobile } from '@/hooks/use-mobile'
 import { PageHeader } from '../ui/page-header'
 import { IChat } from '@/Nenichat/Chats/domain/IChat'
+import { IContact } from '@/Nenichat/Contacts/domain/IContact'
 import { useContactStore } from '@/stores/contact-store'
-import { useMemo } from 'react'
+import { ChatItem } from './chat-item'
 
 interface RecentChatsProps {
-    contacts: string
+    chatsSortedByLastMessage: string // JSON barely has any data. we still need to fetch contact data for each chat. this is a serialized IChat[].
     className?: string
 }
 
-export function RecentChats({ contacts: contactsJson, className }: RecentChatsProps) {
+export function RecentChats({ chatsSortedByLastMessage: chatsSortedByLastMessageJson, className }: RecentChatsProps) {
     const pathname = usePathname()
     const router = useRouter()
     const isMobile = useIsMobile()
 
-    const chats: IChat[] = useMemo(() => {
-        return (JSON.parse(contactsJson) as IChat[])
+    const chatsToFetch: IChat[] = useMemo(() => {
+        return (JSON.parse(chatsSortedByLastMessageJson) as IChat[])
             .filter(chat => chat.jid !== 'status@broadcast')
-    }, [contactsJson])
+    }, [chatsSortedByLastMessageJson])
 
     const getContact = useContactStore((state) => state.getContact)
     const contactsByPhone = useContactStore((state) => state.contactsByPhone)
     const contactsByLid = useContactStore((state) => state.contactsByLid)
 
-    // Filter out hidden contacts using cached contacts
-    const visibleChats = useMemo(() => {
-        return chats.filter(chat => {
-            const contact = getContact(chat.jid);
-            return !contact?.is_hidden;
-        });
-    }, [chats, getContact, contactsByPhone, contactsByLid])
-
-
+    // Transform chats to contacts, filter hidden, sort by last_message_time
+    const visibleContacts: (IContact & { chat_jid: string; last_message_time: Date })[] = useMemo(() => {
+        return chatsToFetch
+            .map(chat => ({
+                chat,
+                contact: getContact(chat.jid)
+            }))
+            .filter(({ contact }) => !contact?.is_hidden)
+            .map(({ chat, contact }) => ({
+                ...contact!,
+                chat_jid: chat.jid,
+                last_message_time: chat.last_message_time
+            }))
+            .sort((a, b) => {
+                const timeA = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
+                const timeB = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
+                return timeB - timeA;
+            });
+    }, [chatsToFetch, getContact, contactsByPhone, contactsByLid])
 
     // Check if we're viewing a specific chat (has an ID after /chats/)
     const isViewingChat = pathname.match(/^\/chats\/[^/]+$/)
@@ -67,36 +75,13 @@ export function RecentChats({ contacts: contactsJson, className }: RecentChatsPr
                 <Input type="text" className="w-full border-none rounded-lg mt-2" placeholder="Buscar" />
             </div>
             <div className="flex-1 overflow-y-auto scrollbar-none">
-                {visibleChats.map((chat: IChat) => (
-                    <div
-                        key={chat.jid}
-                        className={`p-3 hover:bg-accent/40 cursor-pointer transition-colors group ${isActive(`/chats/${chat.jid}`) ? 'bg-accent/40' : ''}`}
-                        onClick={() => changeRoute(`/chats/${chat.jid}`)}
-                    >
-                        <div className="flex items-center gap-3">
-                            <Avatar className="size-6 lg:size-8 shrink-0">
-                                <ContactAvatar seed={getContactName(chat.jid.toString())!} />
-                                <AvatarFallback>
-                                    <AvatarImage src="https://github.com/shadcn.png" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-center mb-0.5">
-                                    <span className="text-sm font-medium truncate">
-                                        {getContactName(getContact(chat.jid), chat)}
-                                    </span>
-                                    <span className="text-[10px] text-muted-foreground">
-                                        {(() => {
-                                            const createdAt = chat.last_message_time;
-                                            return dateToHuman(String(createdAt));
-                                        })()}
-                                    </span>
-                                </div>
-                                <p className="text-xs text-muted-foreground truncate leading-tight">
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                {visibleContacts.map((contact) => (
+                    <ChatItem
+                        key={contact.chat_jid}
+                        contact={contact}
+                        isActive={isActive(`/chats/${contact.chat_jid}`)}
+                        onClick={() => changeRoute(`/chats/${contact.chat_jid}`)}
+                    />
                 ))}
             </div>
         </div>

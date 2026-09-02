@@ -31,7 +31,7 @@ export default async function ChatLayout({
   const isUnreachable = containerData?.status === "unreachable"
   const isDeployed = containerData?.status === "deployed"
 
-  let chats: IChat[] = []
+  let chatsSortedByLastMessage: IChat[] = []
   let error: 'disconnected' | 'unreachable' | null = null
 
   if (isUnreachable) {
@@ -40,7 +40,7 @@ export default async function ChatLayout({
     error = 'disconnected'
   } else if (isConnected) {
     const result = await ChatListLoader({ businessIdProp: business.id })
-    chats = result.chats
+    chatsSortedByLastMessage = result.chats
     error = result.error
   }
 
@@ -59,7 +59,7 @@ export default async function ChatLayout({
           <Spinner className="size-6" />
         </div>
       }>
-        <RecentChats className="w-full md:max-w-52 lg:max-w-xs md:border-r" contacts={JSON.stringify(chats)} />
+        <RecentChats className="w-full md:max-w-52 lg:max-w-xs md:border-r" chatsSortedByLastMessage={JSON.stringify(chatsSortedByLastMessage)} />
       </Suspense>
       <div className="flex-1 overflow-hidden bg-background">
         {children}

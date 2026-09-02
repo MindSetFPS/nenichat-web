@@ -31,10 +31,15 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
     businessId = business.id
   }
 
-  const wappChatRepository = new GoWappChatRepository({ deviceId: String(businessId), baseUrl: process.env.NEXT_PUBLIC_WAPP_API_URL, password: process.env.WAPP_PASSWORD, user: process.env.WAPP_USER })
+  const wappRecentChatsRepository = new GoWappChatRepository({
+    deviceId: String(businessId),
+    baseUrl: process.env.NEXT_PUBLIC_WAPP_API_URL,
+    password: process.env.WAPP_PASSWORD,
+    user: process.env.WAPP_USER
+  })
 
   try {
-    const chats = await wappChatRepository.list(0, 26)
+    const chats = await wappRecentChatsRepository.list(0, 26) // returns the most recent 26 chats. does not have contact data
     return { chats, error: null }
   } catch {
     const supabase = await createServerSupabaseClient();
