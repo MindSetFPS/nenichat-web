@@ -1,14 +1,13 @@
 "use client"
 
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
 import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
-import { getPaymentStatusColor } from "@/lib//utils";
 import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
 import PaymentStatusDropdown from "../payment-status-dropdown";
+import { ContactNameCell } from "../contact-name-cell";
 
 export const columns: ColumnDef<OrderWithContactName>[] = [
     {
@@ -44,12 +43,7 @@ export const columns: ColumnDef<OrderWithContactName>[] = [
 
             return (
                 <div className="flex flex-col gap-1">
-                    <Link href={`/contacts/${row.original.contact_id}`}
-                        className="hover:underline text-blue-400 w-min text-xs md:text-sm font-medium"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {row.original.contact_name || `#${row.original.contact_id}`}
-                    </Link>
+                    <ContactNameCell contactId={row.original.contact_id} />
                     <div className="flex flex-col text-xs text-muted-foreground whitespace-nowrap">
                         {displayItems.map((item, index) => (
                             <span key={index}>

@@ -11,6 +11,7 @@ interface ContactState {
     error: string | null;
 
     getContact: (phoneOrLid: string) => IContact | undefined;
+    getContactById: (id: number) => IContact | undefined;
     setContact: (contact: IContact) => void;
     setContacts: (contacts: IContact[]) => void;
     fetchContact: (phoneOrLid: string) => Promise<IContact | null>;
@@ -61,6 +62,18 @@ export const useContactStore = create<ContactState>()(
 
                 const contact = contactsByLid.get(phoneOrLid) || contactsByPhone.get(normalized);
                 return contact;
+            },
+
+            getContactById: (id: number) => {
+                const { contactsByPhone, contactsByLid } = get();
+                
+                for (const contact of contactsByPhone.values()) {
+                    if (contact.id === id) return contact;
+                }
+                for (const contact of contactsByLid.values()) {
+                    if (contact.id === id) return contact;
+                }
+                return undefined;
             },
 
             setContact: (contact: IContact) => {
