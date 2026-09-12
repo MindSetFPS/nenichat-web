@@ -38,6 +38,20 @@ export interface WappAppInfo {
     chatwoot_enabled?: boolean;
 }
 
+/**
+ * Result of downloading media from a message via the gateway's
+ * /message/{message_id}/download endpoint.
+ */
+export interface WappMediaDownload {
+    status?: string;
+    message_id?: string;
+    media_type?: string;
+    filename?: string;
+    file_path?: string;
+    file_url?: string;
+    file_size?: number;
+}
+
 function wait(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -266,6 +280,28 @@ export class Wapp {
             headers: this.buildHeaders(businessId),
         });
         return response.results ?? [];
+    }
+
+    /**
+     * Downloads media from a WhatsApp message via the gateway's download endpoint.
+     * The gateway fetches media from WhatsApp, saves it to its statics directory,
+     * and returns a file_url. The URL is normalized to be reachable through Traefik.
+     * @param messageId The WhatsApp message ID.
+     * @param phone The chat JID (phone number).
+     * @returns The media download result, or null if no file_url is returned.
+     * @throws {WappApiError} When the gateway rejects the request.
+     * @throws {Error} On network failure or timeout.
+     */
+    async downloadMessageMedia(messageId: string, phone: string): Promise<WappMediaDownload | null> {
+        const path = this.deviceId
+            ? `/api/user/${this.deviceId}/message/${messageId}/download?phone=${encodeURIComponent(phone)}`
+            : `/message/${messageId}/download?phone=${encodeURIComponent(phone)}`;
+        const response = await this.request<WappMediaDownload>(path);
+        const result = response.results ?? null;
+        if (result?.file_url && this.deviceId) {
+            result.file_url = normalizeGatewayUrl(result.file_url, this.deviceId);
+        }
+        return result;
     }
 
     /**
