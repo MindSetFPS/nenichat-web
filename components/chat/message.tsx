@@ -24,10 +24,10 @@ import ContactAvatar from "../contact-avatar"
 import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
 import Link from "next/link"
 import { useContactStore } from "@/stores/contact-store"
-
 import { useRouter } from "next/navigation"
 import { countTokens } from "@/lib/token-count"
-
+import MessageImage from "./message-image"
+import Lightbox from "./lightbox"
 
 interface MessageProps {
     message: IMessageWithSender
@@ -36,8 +36,14 @@ interface MessageProps {
     showAvatar?: boolean
 }
 
+function hasImage(message: IMessageWithSender): boolean {
+    return !!message.url && message.media_type?.startsWith?.("image")
+}
+
 export default function Message({ message, isMe, isGroup = false, showAvatar = true }: MessageProps) {
     const [open, setOpen] = useState(false)
+    const [lightboxOpen, setLightboxOpen] = useState(false)
+    const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
     const router = useRouter()
     const getContact = useContactStore((state) => state.getContact)
 
@@ -45,6 +51,8 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
     const senderContactValue = typeof senderContact === 'object' ? senderContact : undefined
     const localName = senderContactValue ? getContactName(senderContactValue) : ""
     const displayName = localName || message.sender_display_name || message.sender_jid
+
+    const isImage = hasImage(message)
 
     // Show avatar only in group chats, for first message in consecutive sequence
     const shouldShowAvatar = isGroup && showAvatar && !!displayName && !isMe
@@ -63,7 +71,8 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
             <div
                 key={message.id}
                 className={cn(
-                    "flex flex-row w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity break-all",
+                    "flex w-max max-w-[75%] border gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:opacity-90 transition-opacity break-all",
+                    isImage ? "flex-col" : "flex-row",
                     isMe
                         ? "ml-auto pl-2 pb-2 text-primary rounded-tr-none"
                         : "bg-muted rounded-tl-none"
@@ -81,7 +90,24 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                 : <></>
                         }
 
-                        {!isMe ? (
+                        {isImage && (
+                            <div className="flex flex-col items-start gap-1">
+                                <MessageImage
+                                    messageId={message.id}
+                                    chatJid={message.chat_jid}
+                                    alt={message.filename || "Image"}
+                                    onLoaded={(url) => setLightboxSrc(url)}
+                                    onClick={() => setLightboxOpen(true)}
+                                />
+                                {message.content && (
+                                    <p className="text-sm py-1 break-words whitespace-pre-wrap">
+                                        {message.content}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {!isImage && !isMe ? (
                             <AccordionTrigger className="items-center p-0 no-underline hover:no-underline">
                                 <div className="flex flex-col items-start">
                                     <p className="text-sm py-2 break-words whitespace-pre-wrap">
@@ -89,7 +115,7 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                     </p>
                                 </div>
                             </AccordionTrigger>
-                        ) : (
+                        ) : !isImage && (
                             <>
                                 <p className="text-sm py-2 break-words whitespace-pre-wrap">
                                     {message.content}
@@ -113,7 +139,7 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                         </SheetDescription>
                                         <div
                                             className="bg-muted font-normal italic text-primary-foreground p-3 rounded-b-lg rounded-tr-lg">
-                                            <span className="text-primary">"{message.content}"</span>
+                                            <span className="text-primary">&quot;{message.content}&quot;</span>
                                             <span className="text-muted-foreground text-sm block">{new Date(message.created_at).toLocaleString()}</span>
                                         </div>
                                         <CreateOrderForm
@@ -129,9 +155,11 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                                 </Sheet>
                             </div>
                         </AccordionContent>
-                        <span className="block text-[0.6rem] text-muted-foreground">
-                            {countTokens(message.content || "")} tokens
-                        </span>
+                        {!isImage && (
+                            <span className="block text-[0.6rem] text-muted-foreground">
+                                {countTokens(message.content || "")} tokens
+                            </span>
+                        )}
                     </AccordionItem>
                 </Accordion>
 
@@ -149,6 +177,16 @@ export default function Message({ message, isMe, isGroup = false, showAvatar = t
                     })}
                 </span>
             </div>
+
+            {hasImage(message) && lightboxSrc && (
+                <Lightbox
+                    src={lightboxSrc}
+                    alt={message.filename || "Image"}
+                    caption={message.content}
+                    open={lightboxOpen}
+                    onOpenChange={setLightboxOpen}
+                />
+            )}
         </div>
     )
 }
