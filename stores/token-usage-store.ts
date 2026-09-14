@@ -131,3 +131,15 @@ export function computeCost(model: ModelPricing, promptTokens: number, completio
         total: inputCost + outputCost,
     };
 }
+
+const DEFAULT_MODEL: ModelPricing = MODEL_PRICING[0];
+
+export function estimateCost(promptTokens: number, completionTokens: number): number {
+    return computeCost(DEFAULT_MODEL, promptTokens, completionTokens).total;
+}
+
+export function formatCost(usd: number): string {
+    if (usd < 0.01) return `$${usd.toFixed(4)}`;
+    if (usd < 1) return `$${usd.toFixed(2)}`;
+    return `$${usd.toFixed(2)}`;
+}

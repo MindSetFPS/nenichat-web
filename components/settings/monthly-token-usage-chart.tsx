@@ -1,13 +1,13 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
 import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
     type ChartConfig,
 } from "@/components/ui/chart"
-import { useTokenUsageStore, formatMonth } from "@/stores/token-usage-store"
+import { useTokenUsageStore, formatMonth, estimateCost, formatCost } from "@/stores/token-usage-store"
 
 const chartConfig = {
     promptTokens: {
@@ -17,6 +17,10 @@ const chartConfig = {
     completionTokens: {
         label: "Output",
         color: "hsl(160, 84%, 39%)",
+    },
+    cost: {
+        label: "Costo",
+        color: "hsl(45, 93%, 47%)",
     },
 } satisfies ChartConfig
 
@@ -28,11 +32,14 @@ export function MonthlyTokenUsageChart() {
         .map((m) => ({
             ...m,
             label: formatMonth(m.year, m.month),
-            total: m.promptTokens + m.completionTokens,
+            cost: estimateCost(m.promptTokens, m.completionTokens),
         }))
 
-    const totalTokens = sorted.reduce((acc, m) => acc + m.total, 0)
-    const avgMonthly = sorted.length > 0 ? Math.round(totalTokens / sorted.length) : 0
+    const totalPrompt = sorted.reduce((acc, m) => acc + m.promptTokens, 0)
+    const totalCompletion = sorted.reduce((acc, m) => acc + m.completionTokens, 0)
+    const avgPrompt = sorted.length > 0 ? Math.round(totalPrompt / sorted.length) : 0
+    const avgCompletion = sorted.length > 0 ? Math.round(totalCompletion / sorted.length) : 0
+    const totalCost = sorted.reduce((acc, m) => acc + m.cost, 0)
 
     return (
         <div className="w-full space-y-3">
@@ -40,7 +47,12 @@ export function MonthlyTokenUsageChart() {
                 <p className="text-xs font-bold text-foreground uppercase tracking-wider">Uso mensual de tokens</p>
                 {sorted.length > 0 && (
                     <p className="text-xs text-muted-foreground">
-                        Promedio: <span className="font-mono">{avgMonthly.toLocaleString("en-US")}</span> tokens/mes
+                        Promedio: <span className="font-mono">{avgPrompt.toLocaleString("en-US")}</span> in · <span className="font-mono">{avgCompletion.toLocaleString("en-US")}</span> out / mes
+                    </p>
+                )}
+                {sorted.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                        Total gastado: <span className="font-mono font-bold">{formatCost(totalCost)}</span>
                     </p>
                 )}
             </div>
@@ -69,11 +81,16 @@ export function MonthlyTokenUsageChart() {
                             cursor={false}
                             content={
                                 <ChartTooltipContent
-                                    formatter={(value, name) => (
-                                        <span className="font-mono">
-                                            {Number(value).toLocaleString("en-US")} {name === "promptTokens" ? "in" : "out"}
-                                        </span>
-                                    )}
+                                    formatter={(value, name) => {
+                                        if (name === "cost") {
+                                            return <span className="font-mono">{formatCost(Number(value))}</span>
+                                        }
+                                        return (
+                                            <span className="font-mono">
+                                                {Number(value).toLocaleString("en-US")} {name === "promptTokens" ? "in" : "out"}
+                                            </span>
+                                        )
+                                    }}
                                 />
                             }
                         />
@@ -86,7 +103,14 @@ export function MonthlyTokenUsageChart() {
                             dataKey="completionTokens"
                             fill="var(--color-completionTokens)"
                             radius={[2, 2, 0, 0]}
-                        />
+                        >
+                            <LabelList
+                                dataKey="cost"
+                                position="top"
+                                formatter={(value: number) => formatCost(value)}
+                                className="fill-muted-foreground text-[9px]"
+                            />
+                        </Bar>
                     </BarChart>
                 </ChartContainer>
             ) : (

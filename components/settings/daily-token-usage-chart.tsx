@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
 import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
     type ChartConfig,
 } from "@/components/ui/chart"
-import { useTokenUsageStore, getDailyUsageForMonth, formatMonth } from "@/stores/token-usage-store"
+import { useTokenUsageStore, getDailyUsageForMonth, formatMonth, estimateCost, formatCost } from "@/stores/token-usage-store"
 
 const chartConfig = {
     promptTokens: {
@@ -18,6 +18,10 @@ const chartConfig = {
     completionTokens: {
         label: "Output",
         color: "hsl(160, 84%, 39%)",
+    },
+    cost: {
+        label: "Costo",
+        color: "hsl(45, 93%, 47%)",
     },
 } satisfies ChartConfig
 
@@ -36,8 +40,12 @@ export function DailyTokenUsageChart() {
     const [selectedMonth, setSelectedMonth] = useState(currentMonth)
 
     const dailyData = getDailyUsageForMonth(dailyUsage, selectedYear, selectedMonth)
-    const totalTokens = dailyData.reduce((acc, d) => acc + d.promptTokens + d.completionTokens, 0)
-    const avgDaily = dailyData.length > 0 ? Math.round(totalTokens / dailyData.length) : 0
+        .map((d) => ({ ...d, cost: estimateCost(d.promptTokens, d.completionTokens) }))
+    const totalPrompt = dailyData.reduce((acc, d) => acc + d.promptTokens, 0)
+    const totalCompletion = dailyData.reduce((acc, d) => acc + d.completionTokens, 0)
+    const avgPrompt = dailyData.length > 0 ? Math.round(totalPrompt / dailyData.length) : 0
+    const avgCompletion = dailyData.length > 0 ? Math.round(totalCompletion / dailyData.length) : 0
+    const totalCost = dailyData.reduce((acc, d) => acc + d.cost, 0)
 
     return (
         <div className="w-full space-y-3">
@@ -46,7 +54,12 @@ export function DailyTokenUsageChart() {
                     <p className="text-xs font-bold text-foreground uppercase tracking-wider">Uso diario de tokens</p>
                     {dailyData.length > 0 && (
                         <p className="text-xs text-muted-foreground">
-                            Promedio: <span className="font-mono">{avgDaily.toLocaleString("en-US")}</span> tokens/día
+                            Promedio: <span className="font-mono">{avgPrompt.toLocaleString("en-US")}</span> in · <span className="font-mono">{avgCompletion.toLocaleString("en-US")}</span> out / día
+                        </p>
+                    )}
+                    {dailyData.length > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                            Gastado este mes: <span className="font-mono font-bold">{formatCost(totalCost)}</span>
                         </p>
                     )}
                 </div>
@@ -104,11 +117,16 @@ export function DailyTokenUsageChart() {
                                         const [, month, day] = (label as string).split("-")
                                         return `${parseInt(day)}/${parseInt(month)}`
                                     }}
-                                    formatter={(value, name) => (
-                                        <span className="font-mono">
-                                            {Number(value).toLocaleString("en-US")} {name === "promptTokens" ? "in" : "out"}
-                                        </span>
-                                    )}
+                                    formatter={(value, name) => {
+                                        if (name === "cost") {
+                                            return <span className="font-mono">{formatCost(Number(value))}</span>
+                                        }
+                                        return (
+                                            <span className="font-mono">
+                                                {Number(value).toLocaleString("en-US")} {name === "promptTokens" ? "in" : "out"}
+                                            </span>
+                                        )
+                                    }}
                                 />
                             }
                         />
@@ -121,7 +139,14 @@ export function DailyTokenUsageChart() {
                             dataKey="completionTokens"
                             fill="var(--color-completionTokens)"
                             radius={[2, 2, 0, 0]}
-                        />
+                        >
+                            <LabelList
+                                dataKey="cost"
+                                position="top"
+                                formatter={(value: number) => formatCost(value)}
+                                className="fill-muted-foreground text-[9px]"
+                            />
+                        </Bar>
                     </BarChart>
                 </ChartContainer>
             ) : (
