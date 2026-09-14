@@ -17,7 +17,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             onOpenChange={setIsOpen}
             className="h-svh overflow-hidden"
             style={{
-                "--sidebar-width": "12rem",
+                "--sidebar-width": "16rem",
             } as React.CSSProperties}
         >
             <AppSidebar />

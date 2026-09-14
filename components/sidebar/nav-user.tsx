@@ -36,18 +36,10 @@ import { useUserStore } from "@/stores/user-store"
 import { usePlanStore, getUpgradePlans, getPlanById } from "@/stores/plan-store"
 import { useBusiness } from "@/components/providers/business-context"
 
-export function NavUser({
-    user: initialUser,
-}: {
-    user: {
-        name: string
-        email: string
-        avatar: string
-    }
-}) {
+export function NavUser() {
     const supabase = createBrowserSupabaseClient()
     const router = useRouter()
-    const { user, supabaseUser, isLoading, fetchUser } = useUserStore()
+    const { user, supabaseUser, fetchUser } = useUserStore()
     const business = useBusiness()
     const { currentPlan } = usePlanStore()
     const upgradePlans = getUpgradePlans(currentPlan)
@@ -58,9 +50,9 @@ export function NavUser({
     }, [fetchUser])
 
     const userData = {
-        name: user?.pushname || user?.username || supabaseUser?.user_metadata?.display_name || supabaseUser?.email?.split("@")[0] || initialUser.name,
-        email: supabaseUser?.email || initialUser.email,
-        avatar: user?.avatar_url || supabaseUser?.user_metadata?.avatar_url || initialUser.avatar,
+        name: user?.pushname || user?.username || supabaseUser?.user_metadata?.display_name || supabaseUser?.email?.split("@")[0] || 'Usuario',
+        email: supabaseUser?.email || '',
+        avatar: user?.avatar_url || supabaseUser?.user_metadata?.avatar_url || '',
     }
 
     const businessName = business?.name || null

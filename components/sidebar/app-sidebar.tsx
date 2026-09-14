@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import { usePathname, useRouter } from 'next/navigation'
-import { HomeIcon, UsersIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, Truck, Receipt, TrendingUp, Menu, FileText } from 'lucide-react'
+import { HomeIcon, UsersIcon, MailIcon, PackageIcon, ChevronDown, ShoppingBag, Truck, Receipt, TrendingUp, Menu, FileText, SendIcon, Motorbike, Brain } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 import {
     Sidebar,
@@ -26,6 +27,24 @@ import { NavUser } from "./nav-user"
 import { Logo } from "../logo"
 import { SettingsDialog } from "../settings-dialog"
 
+type MenuItemState = 'visible' | 'soon' | 'hidden'
+
+type MenuSubItem = {
+    id: string
+    href: string
+    label: string
+    state?: MenuItemState
+}
+
+type MenuItem = {
+    id: string
+    href?: string
+    icon: LucideIcon
+    label: string
+    state?: MenuItemState
+    submenu?: MenuSubItem[]
+}
+
 export function AppSidebar() {
     const router = useRouter()
     const pathname = usePathname()
@@ -36,7 +55,7 @@ export function AppSidebar() {
         return pathname === path
     }
 
-    const menuItems = [
+    const menuItems: MenuItem[] = [
         {
             id: 'home',
             href: '/home',
@@ -48,12 +67,6 @@ export function AppSidebar() {
             href: '/chats',
             icon: MailIcon,
             label: 'Chats'
-        },
-        {
-            id: 'templates',
-            href: '/templates',
-            icon: FileText,
-            label: 'Plantillas'
         },
         {
             id: 'sales',
@@ -71,7 +84,7 @@ export function AppSidebar() {
             id: 'expenses',
             href: '/expenses',
             icon: Receipt,
-            label: 'Gastos'
+            label: 'Gastos',
         },
         {
             id: 'profitability',
@@ -79,23 +92,44 @@ export function AppSidebar() {
             icon: TrendingUp,
             label: 'Rentabilidad'
         },
-        // {
-        //     id: 'campaigns',
-        //     href: '/campaigns',
-        //     icon: SendIcon,
-        //     label: 'Campañas'
-        // },
-        // {
-        //     id: 'audiences',
-        //     href: '/audiences',
-        //     icon: MailIcon,
-        //     label: 'Audiencias'
-        // },
+        {
+            id: 'templates',
+            href: '/templates',
+            icon: FileText,
+            label: 'Plantillas',
+        },
+        {
+            id: 'campaigns',
+            href: '/campaigns',
+            icon: SendIcon,
+            label: 'Campañas',
+        },
+        {
+            id: 'audiences',
+            href: '/audiences',
+            icon: MailIcon,
+            label: 'Audiencias',
+        },
+        {
+            id: 'bi',
+            href: '/bi',
+            icon: Brain,
+            label: 'Analisis Interactivo',
+            state: 'soon'
+        },
+        {
+            id: 'delivery',
+            href: '/delivery',
+            icon: Motorbike,
+            label: 'Entrega',
+            state: 'soon'
+        },
         {
             id: 'shipments',
             href: '/shipments',
             icon: Truck,
-            label: 'Envíos'
+            label: 'Envíos',
+            state: 'soon'
         },
         {
             id: 'contacts',
@@ -125,12 +159,6 @@ export function AppSidebar() {
     }, [pathname]);
 
 
-    const user = {
-        name: 'Daniel',
-        email: 'daniel@nenichat.com',
-        avatar: 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
-    }
-
     return (
         <Sidebar variant="floating" collapsible="icon">
             <SidebarHeader>
@@ -144,10 +172,12 @@ export function AppSidebar() {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenu>
-                        {menuItems.map((item) => {
+                        {menuItems.filter((item) => item.state !== 'hidden').map((item) => {
                             const Icon = item.icon
+                            const isSoon = item.state === 'soon'
+                            const submenu = item.submenu?.filter((subItem) => subItem.state !== 'hidden') ?? []
                             // If item has submenu, render collapsible
-                            if (item.submenu && item.submenu.length > 0) {
+                            if (submenu.length > 0) {
                                 return (
                                     <Collapsible key={item.id} defaultOpen className="group/collapsible">
                                         <SidebarMenuItem>
@@ -160,7 +190,7 @@ export function AppSidebar() {
                                             </CollapsibleTrigger>
                                             <CollapsibleContent>
                                                 <SidebarMenuSub>
-                                                    {item.submenu.map((subItem) => (
+                                                    {submenu.map((subItem) => (
                                                         <SidebarMenuSubItem key={subItem.id}>
                                                             <SidebarMenuSubButton
                                                                 className='cursor-pointer'
@@ -180,15 +210,17 @@ export function AppSidebar() {
                             return (
                                 <SidebarMenuItem key={item.id}>
                                     <SidebarMenuButton
-                                        disabled={item.href === '/shipments'}
+                                        disabled={isSoon}
                                         className='cursor-pointer'
                                         isActive={isActive(item.href!)}
                                         onClick={() => changeRoute(item.href!)}>
                                         <Icon className='w-5! h-5! md:h-4! md:w-4!' />
-                                        <span className='text-lg md:text-sm'>
-                                            {item.label}
-                                            {item.href === '/shipments' && <Badge className="text-xs ml-2">Pronto</Badge>}
-                                        </span>
+                                        <span className='min-w-0 flex-1 truncate text-lg md:text-sm'>{item.label}</span>
+                                        {isSoon && (
+                                            <Badge className='shrink-0 text-xs group-data-[collapsible=icon]:hidden'>
+                                                Pronto
+                                            </Badge>
+                                        )}
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             )
@@ -199,7 +231,7 @@ export function AppSidebar() {
 
             <SidebarFooter>
                 <SettingsDialog />
-                <NavUser user={user} />
+                <NavUser />
             </SidebarFooter>
         </Sidebar>
     )
