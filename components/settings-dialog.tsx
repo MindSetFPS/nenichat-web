@@ -36,10 +36,10 @@ import { cn } from "@/lib/utils"
 
 import { AccountSettings } from "./settings/account-settings"
 import { BusinessSettings } from "./settings/business-settings"
-import { WhatsAppSettings } from "./settings/whatsapp-settings"
 import { HiddenContactsSettings } from "./settings/hidden-contacts-settings"
 import { SubscriptionSettings } from "./settings/subscription-settings"
 import { ModeToggle } from "./mode-toggle"
+import WhatsAppStatus from "./settings/whatsapp-status"
 
 const sections = [
     {
@@ -58,7 +58,7 @@ const sections = [
         id: 'connections',
         title: "WhatsApp",
         icon: MessageCircle,
-        component: WhatsAppSettings
+        component: WhatsAppStatus
     },
     {
         id: 'privacy',

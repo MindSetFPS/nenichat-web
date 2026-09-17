@@ -2,30 +2,24 @@
 
 import { CheckCircle2, Loader2 } from "lucide-react";
 import CheckWappConnectionButton from "../connections/whatsapp/check-wapp-connection-button";
-import { getMyContactAction, setContactAsUserAction } from "@/app/(app)/settings/actions";
-import { getWappDevices, getWappInfo, WappContainerRef } from "@/lib/wapp/wapp-api";
+import { setContactAsUserAction } from "@/app/(app)/settings/actions";
+import { getWappDevices, WappContainerRef } from "@/lib/wapp/wapp-api";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { useWappStore } from "@/stores/wapp-store";
 
 export default function WappConnected({ container, businessId }: { container: WappContainerRef; businessId: number }) {
-    const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-    const [isUser, setIsUser] = useState(false);
+    const { me, info, fetchMe, fetchInfo, setMe } = useWappStore();
     const [loading, setLoading] = useState(false);
-    const [version, setVersion] = useState<string | null>(null);
+
+    const phoneNumber = me?.phone_number ?? null;
+    const isUser = me?.is_user ?? false;
+    const version = info?.version ?? null;
 
     useEffect(() => {
-        getMyContactAction().then(contact => {
-            if (contact) {
-                setPhoneNumber(contact.phone_number);
-                setIsUser(contact.is_user);
-            }
-        });
-        getWappInfo(businessId).then(info => {
-            if (info?.version) {
-                setVersion(info.version);
-            }
-        });
-    }, []);
+        fetchMe();
+        fetchInfo(businessId);
+    }, [businessId, fetchMe, fetchInfo]);
 
     async function fetchDeviceAndSave() {
         setLoading(true);
@@ -33,8 +27,7 @@ export default function WappConnected({ container, businessId }: { container: Wa
             const data = await getWappDevices(businessId);
             if (data?.devices?.[0]?.device) {
                 const phone = data.devices[0].device.split(':')[0];
-                setPhoneNumber(phone);
-                setIsUser(true);
+                setMe({ phone_number: phone, is_user: true });
                 await setContactAsUserAction(phone);
             }
         } catch (error) {

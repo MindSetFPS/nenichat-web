@@ -1,9 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import WhatsAppSetupPage from "@/components/connections/whatsapp/whatsapp-setup-page"
-import { createBrowserSupabaseClient } from "@/lib/supabase/client"
-import { container_states } from "@/Nenichat/Containers/Domain/container-states"
 import { Spinner } from "@/components/ui/spinner"
 import { useSearchParams } from 'next/navigation'
 import WappError from '../wapp/wapp-error'
@@ -12,44 +10,35 @@ import WappConnected from '../wapp/wapp-connected'
 import WappBusinessMissing from '../wapp/wapp-business-missing'
 import { useBusiness } from '@/components/providers/business-context'
 import WappUnreachable from '../wapp/wapp-unreachable'
+import { useWappStore, type ContainerRow } from '@/stores/wapp-store'
 
-export function WhatsAppSettings() {
-    const [loading, setLoading] = useState(true)
-    const [container, setContainer] = useState<any>(null)
-    const supabase = createBrowserSupabaseClient()
+interface WhatsAppSettingsProps {
+    container?: ContainerRow | null
+}
+
+export function WhatsAppSettings({ container: containerProp }: WhatsAppSettingsProps) {
+    const { container: storedContainer, isContainerLoaded, fetchContainer } = useWappStore()
     const searchParams = useSearchParams()
     const reconnect = searchParams.get('reconnect') === 'true'
 
     const business = useBusiness()
+    const hasContainerProp = containerProp !== undefined
 
     useEffect(() => {
-        async function fetchContainer() {
-            if (!business?.id) {
-                setLoading(false)
-                return
-            }
-
-            try {
-                const { data: containers } = await supabase
-                    .from('whatsapp-containers')
-                    .select('*')
-                    .eq('business_id', business.id)
-                    .limit(1)
-
-                if (containers && containers.length > 0) {
-                    setContainer(containers[0])
-                }
-            } catch (err) {
-                console.error('Error fetching WhatsApp data:', err)
-            } finally {
-                setLoading(false)
-            }
+        if (hasContainerProp) {
+            return
         }
 
-        fetchContainer()
-    }, [business, supabase])
+        if (business?.id) {
+            fetchContainer(business.id)
+        }
+    }, [hasContainerProp, business?.id, fetchContainer])
 
-    if (loading) {
+    if (!business?.id) {
+        return <WappBusinessMissing />
+    }
+
+    if (!hasContainerProp && !isContainerLoaded) {
         return (
             <div className="flex items-center justify-center p-12">
                 <Spinner className="h-8 w-8 text-primary" />
@@ -57,12 +46,10 @@ export function WhatsAppSettings() {
         )
     }
 
-    if (!business?.id) {
-        return <WappBusinessMissing />
-    }
+    const container = hasContainerProp ? containerProp : storedContainer
 
     if (container && !reconnect) {
-        const status = container.status as container_states
+        const status = container.status
 
         if (status === 'connected') {
             return <WappConnected container={container} businessId={business.id} />
@@ -84,7 +71,7 @@ export function WhatsAppSettings() {
             return <WhatsAppSetupPage
                 businessId={business.id.toString()}
                 initialStep={2}
-                initialQrCode={container.qr_code}
+                initialQrCode={container.qr_code_url}
                 initialQrCodeUpdatedAt={container.qr_code_updated_at}
             />
         }
