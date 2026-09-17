@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import WhatsAppSetupPage from "@/components/connections/whatsapp/whatsapp-setup-page"
 import { Spinner } from "@/components/ui/spinner"
 import { useSearchParams } from 'next/navigation'
@@ -10,29 +9,20 @@ import WappConnected from '../wapp/wapp-connected'
 import WappBusinessMissing from '../wapp/wapp-business-missing'
 import { useBusiness } from '@/components/providers/business-context'
 import WappUnreachable from '../wapp/wapp-unreachable'
-import { useWappStore, type ContainerRow } from '@/stores/wapp-store'
+import { type ContainerRow } from '@/stores/wapp-store'
+import { useWappContainer } from '@/hooks/use-wapp-container'
 
 interface WhatsAppSettingsProps {
     container?: ContainerRow | null
 }
 
 export function WhatsAppSettings({ container: containerProp }: WhatsAppSettingsProps) {
-    const { container: storedContainer, isContainerLoaded, fetchContainer } = useWappStore()
     const searchParams = useSearchParams()
     const reconnect = searchParams.get('reconnect') === 'true'
 
     const business = useBusiness()
     const hasContainerProp = containerProp !== undefined
-
-    useEffect(() => {
-        if (hasContainerProp) {
-            return
-        }
-
-        if (business?.id) {
-            fetchContainer(business.id)
-        }
-    }, [hasContainerProp, business?.id, fetchContainer])
+    const { container: storedContainer, isContainerLoaded } = useWappContainer({ enabled: !hasContainerProp })
 
     if (!business?.id) {
         return <WappBusinessMissing />
