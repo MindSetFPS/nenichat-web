@@ -31,7 +31,7 @@ export function RecentChats({ chatsSortedByLastMessage: chatsSortedByLastMessage
     const contactsByLid = useContactStore((state) => state.contactsByLid)
 
     // Transform chats to contacts, filter hidden, sort by last_message_time
-    const visibleContacts: (IContact & { chat_jid: string; last_message_time: Date | null })[] = useMemo(() => {
+    const visibleContacts: (IContact & { chat: IChat; chat_jid: string; last_message_time: Date | null })[] = useMemo(() => {
         return chatsToFetch
             .map(chat => ({
                 chat,
@@ -40,6 +40,7 @@ export function RecentChats({ chatsSortedByLastMessage: chatsSortedByLastMessage
             .filter(({ contact }) => !contact?.is_hidden)
             .map(({ chat, contact }) => ({
                 ...contact!,
+                chat,
                 chat_jid: chat.jid,
                 last_message_time: chat.last_message_time
             }))

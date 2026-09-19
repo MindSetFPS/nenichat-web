@@ -10,12 +10,18 @@ interface ContactNameCellProps {
 
 export function ContactNameCell({ contactId }: ContactNameCellProps) {
     const getContactById = useContactStore((state) => state.getContactById)
-    
     if (!contactId) {
         return <span className="text-xs">#{contactId}</span>
     }
 
     const contact = getContactById(contactId)
+
+    // check if contact is null or undefined
+
+    if (!contact) {
+        return <span className="text-xs">#{contactId}</span>
+    }
+
     const displayName = getContactName(contact) || `#${contactId}`
 
     return (

@@ -6,13 +6,10 @@ import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
 
 interface ChatHeaderProps {
     contact: IContact;
-    chatName?: string;
 }
 
-export default function ChatHeader({ contact, chatName }: ChatHeaderProps) {
-    console.log("contact", contact)
-    console.log("chatName", chatName)
-    const contactName = getContactName(contact, chatName ? { name: chatName } as any : null) || "Unknown"
+export default function ChatHeader({ contact }: ChatHeaderProps) {
+    const contactName = getContactName(contact) || "Unknown"
 
     return (
         <div className="flex items-center justify-between w-full">

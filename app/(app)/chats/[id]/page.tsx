@@ -188,11 +188,12 @@ export default async function ChatPage({
   const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
   const mostRecentMessages = [...messagesJson].reverse().slice(-10)
   const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
+  const chatJson = JSON.parse(JSON.stringify(chatData))
 
   return (
     <div className="h-dvh flex flex-col">
       <ChatView
-        chatName={chatData?.name}
+        chat={chatJson}
         initialMessages={messagesJson}
         me={me}
         orders={ordersJson}

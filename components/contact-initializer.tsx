@@ -48,7 +48,7 @@ interface ContactInitializerProps {
 
 export function ContactInitializer({ children }: ContactInitializerProps) {
     const { chats, isLoaded: chatsLoaded } = useChatStore();
-    const { setContacts, contactsByPhone, contactsByLid } = useContactStore();
+    const setContacts = useContactStore((state) => state.setContacts);
     const business = useBusiness();
 
     useEffect(() => {
@@ -56,6 +56,8 @@ export function ContactInitializer({ children }: ContactInitializerProps) {
         if (!chatsLoaded || chats.length === 0) {
             return;
         }
+
+        const { contactsByPhone, contactsByLid } = useContactStore.getState();
 
         // Extract JIDs from chats for contact lookup
         const lookups: { value: string; is_lid: boolean }[] = [];
@@ -104,8 +106,7 @@ export function ContactInitializer({ children }: ContactInitializerProps) {
         };
 
         fetchContacts();
-        // }, [chats, chatsLoaded, business, setContacts, contactsByPhone, contactsByLid]);
-    }, []);
+    }, [chats, chatsLoaded, business?.id, setContacts]);
 
     return <>{children}</>;
 }

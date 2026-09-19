@@ -4,6 +4,7 @@ import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { IContact } from "@/Nenichat/Contacts/domain/IContact"
+import { IChat } from "@/Nenichat/Chats/domain/IChat"
 import Message from "./message"
 import OrderMessage from "./order-message"
 import DateSeparator from "./date-separator"
@@ -29,9 +30,9 @@ interface ChatViewProps {
   isGroup: boolean,
   orders: Order[],
   jid?: string,
-  chatName?: string
+  chat?: IChat | null
   groupSenderContacts?: string
-  initialContact?: IContact | null
+  initialContact: IContact
 }
 
 export default function ChatView({
@@ -39,7 +40,7 @@ export default function ChatView({
   isGroup,
   orders,
   jid,
-  chatName,
+  chat,
   groupSenderContacts,
   initialContact,
 }: ChatViewProps) {
@@ -68,7 +69,7 @@ export default function ChatView({
   const isMobile = useIsMobile()
   const getContact = useContactStore((state) => state.getContact)
 
-  const contact = initialContact || (jid ? getContact(jid) : null)
+  const contact = initialContact || (jid ? getContact(jid) : "unknown")
 
   const messages = storedMessages ?? initialMessages
 
@@ -154,9 +155,9 @@ export default function ChatView({
           )}
           <div className="flex-1">
             {isGroup ? (
-              <h1 className="text-lg md:text-2xl font-bold">{getContactName(contact) || "Unknown"}</h1>
+              <h1 className="text-lg md:text-2xl font-bold">{getContactName(contact, chat) || "Unknown"}</h1>
             ) : (
-              <ChatHeader contact={contact!} chatName={chatName} />
+              <ChatHeader contact={contact!} />
             )}
           </div>
         </div>

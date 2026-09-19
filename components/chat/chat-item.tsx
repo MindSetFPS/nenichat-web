@@ -5,14 +5,16 @@ import { getContactName } from '@/Nenichat/Contacts/app/get-contact-name'
 import ContactAvatar from '@/components/contact-avatar'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { IContact } from '@/Nenichat/Contacts/domain/IContact'
+import { IChat } from '@/Nenichat/Chats/domain/IChat'
 
 interface ChatItemProps {
-    contact: IContact & { chat_jid: string; last_message_time: Date | null }
+    contact: IContact & { chat: IChat; chat_jid: string; last_message_time: Date | null }
     isActive: boolean
     onClick: () => void
 }
 
 export function ChatItem({ contact, isActive, onClick }: ChatItemProps) {
+    const displayName = getContactName(contact, contact.chat)
     return (
         <div
             className={`p-3 hover:bg-accent/40 cursor-pointer transition-colors group ${isActive ? 'bg-accent/40' : ''}`}
@@ -20,7 +22,7 @@ export function ChatItem({ contact, isActive, onClick }: ChatItemProps) {
         >
             <div className="flex items-center gap-3">
                 <Avatar className="size-6 lg:size-8 shrink-0">
-                    <ContactAvatar seed={getContactName(contact)!} />
+                    <ContactAvatar seed={displayName} />
                     <AvatarFallback>
                         <AvatarImage src="https://github.com/shadcn.png" />
                     </AvatarFallback>
@@ -28,7 +30,7 @@ export function ChatItem({ contact, isActive, onClick }: ChatItemProps) {
                 <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-0.5">
                         <span className="text-sm font-medium truncate">
-                            {getContactName(contact)}
+                            {displayName}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
                             {contact.last_message_time && dateToHuman(String(contact.last_message_time))}
