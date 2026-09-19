@@ -20,8 +20,8 @@ import { useMessageStore } from "@/stores/message-store"
 
 // Union type for timeline items
 type TimelineItem =
-  | { type: 'message'; data: IMessageWithSender }
-  | { type: 'order'; data: Order & { items?: IOrderItemWithProduct[] } }
+  | { type: 'message'; data: IMessageWithSender; sortIndex: number }
+  | { type: 'order'; data: Order & { items?: IOrderItemWithProduct[] }; sortIndex: number }
 
 interface ChatViewProps {
   initialMessages: IMessageWithSender[]
@@ -75,15 +75,15 @@ export default function ChatView({
   // Merge messages and orders, then sort by created_at
   const timelineItems = useMemo(() => {
     const items: TimelineItem[] = [
-      ...messages.map((msg: IMessageWithSender) => ({ type: 'message' as const, data: msg })),
-      ...orders.map(order => ({ type: 'order' as const, data: order }))
+      ...messages.map((msg: IMessageWithSender, sortIndex: number) => ({ type: 'message' as const, data: msg, sortIndex })),
+      ...orders.map((order, index: number) => ({ type: 'order' as const, data: order, sortIndex: messages.length + index }))
     ]
 
     // Sort by created_at timestamp (newest first for flex-col-reverse)
     return items.sort((a, b) => {
       const dateA = new Date(a.data.created_at).getTime()
       const dateB = new Date(b.data.created_at).getTime()
-      return dateB - dateA
+      return (dateB - dateA) || (a.sortIndex - b.sortIndex)
     })
   }, [messages, orders])
 
@@ -110,7 +110,7 @@ export default function ChatView({
     // Sort items within each group oldest-first
     return Object.entries(grouped).map(([date, items]) => ({
       date,
-      items: items.sort((a, b) => new Date(a.data.created_at).getTime() - new Date(b.data.created_at).getTime())
+      items: items.sort((a, b) => (new Date(a.data.created_at).getTime() - new Date(b.data.created_at).getTime()) || (a.sortIndex - b.sortIndex))
     }))
   }, [timelineItems]) // Re-run this logic only when timelineItems changes
 

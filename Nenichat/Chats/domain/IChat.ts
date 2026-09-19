@@ -10,7 +10,8 @@ interface IChat {
   /**********************************************************************************/
 
   name: string;
-  last_message_time: Date;
+  /** Null when the gateway has no recorded message for this chat yet. */
+  last_message_time: Date | null;
   ephemeral_expiration: number;
   is_group: boolean;
   created_at: Date;

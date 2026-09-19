@@ -4,6 +4,7 @@ import { IMessagesReport } from '../../domain/IMessagesReport';
 import { IMessageWithSender } from '../../domain/IMessageWithSender';
 import { Message } from '../../domain/Message';
 import { Wapp, WappConfig, normalizeGatewayUrl } from '@/Nenichat/Wapp';
+import { parseGatewayDate } from '@/Nenichat/Shared/app/parse-gateway-date';
 
 interface ApiMessage {
     id?: string;
@@ -81,19 +82,25 @@ export class GoWappMessageRepository implements IMessageRepository {
     private mapToDomain(apiMsg: ApiMessage): IMessage {
         const rawUrl = apiMsg.url || '';
         const mediaUrl = this.deviceId ? normalizeGatewayUrl(rawUrl, this.deviceId) : rawUrl;
+        const sentAt = (
+            parseGatewayDate(apiMsg.timestamp) ??
+            parseGatewayDate(apiMsg.created_at) ??
+            new Date()
+        ).toISOString();
+        const updatedAt = parseGatewayDate(apiMsg.updated_at)?.toISOString() ?? sentAt;
         return new Message(
             apiMsg.id ?? '',
             apiMsg.chat_jid || apiMsg.phone || '',
             apiMsg.sender_jid || '',
             apiMsg.content || apiMsg.message || null,
-            apiMsg.timestamp || '',
+            sentAt,
             apiMsg.is_from_me || false,
             apiMsg.media_type || '',
             apiMsg.filename || '',
             mediaUrl,
             apiMsg.file_length || 0,
-            apiMsg.created_at || new Date().toISOString(),
-            apiMsg.updated_at || new Date().toISOString(),
+            sentAt,
+            updatedAt,
             undefined,
             undefined,
             apiMsg.sender_display_name

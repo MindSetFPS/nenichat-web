@@ -12,7 +12,7 @@ export class ChatRepository implements IChatRepository {
     return new Chat(
       data.id,
       data.name || 'Unknown',
-      data.last_message_time || new Date(),
+      data.last_message_time ?? null,
       data.ephemeral_expiration || 0,
       data.is_group,
       data.created_at || new Date(),

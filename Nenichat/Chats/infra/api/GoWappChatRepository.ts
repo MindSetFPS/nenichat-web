@@ -3,6 +3,7 @@ import { getJidKind } from '../../domain/Jid';
 import { IChatRepository } from '../../domain/IChatRepository';
 import { Chat } from '../../domain/Chat';
 import { Wapp, WappConfig } from '@/Nenichat/Wapp';
+import { parseGatewayDate } from '@/Nenichat/Shared/app/parse-gateway-date';
 
 interface ApiChat {
     jid?: string;
@@ -64,11 +65,11 @@ export class GoWappChatRepository implements IChatRepository {
         return new Chat(
             apiChat.jid || '',
             apiChat.name || apiChat.jid || 'Unknown',
-            apiChat.last_message_time ? new Date(apiChat.last_message_time) : new Date(),
+            parseGatewayDate(apiChat.last_message_time),
             apiChat.ephemeral_expiration || 0,
             isGroup,
-            apiChat.created_at ? new Date(apiChat.created_at) : new Date(),
-            apiChat.updated_at ? new Date(apiChat.updated_at) : new Date()
+            parseGatewayDate(apiChat.created_at) ?? new Date(),
+            parseGatewayDate(apiChat.updated_at) ?? new Date()
         );
     }
 
@@ -135,7 +136,7 @@ export class GoWappChatRepository implements IChatRepository {
         return new Chat(
             chat.jid,
             chat.name || 'Unknown',
-            chat.last_message_time || new Date(),
+            chat.last_message_time ?? null,
             chat.ephemeral_expiration || 0,
             chat.is_group || false,
             chat.created_at || new Date(),

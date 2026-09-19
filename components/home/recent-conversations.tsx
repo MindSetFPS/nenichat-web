@@ -10,7 +10,11 @@ import Link from "next/link";
 export function RecentConversations({ chats }: { chats: IChat[] }) {
     // Sort by last_message_time descending and take top 5
     const recentChats = [...chats]
-        .sort((a, b) => new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime())
+        .sort((a, b) => {
+            const timeA = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
+            const timeB = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
+            return timeB - timeA;
+        })
         .slice(0, 5);
 
     if (recentChats.length === 0) {
@@ -48,7 +52,7 @@ export function RecentConversations({ chats }: { chats: IChat[] }) {
                                     {chat.name}
                                 </p>
                                 <p className="text-[10px] text-muted-foreground shrink-0">
-                                    {formatDistanceToNow(new Date(chat.last_message_time), { addSuffix: false, locale: es })}
+                                    {chat.last_message_time && formatDistanceToNow(new Date(chat.last_message_time), { addSuffix: false, locale: es })}
                                 </p>
                             </div>
                             <p className="text-xs text-muted-foreground truncate opacity-70">

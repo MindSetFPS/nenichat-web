@@ -7,7 +7,7 @@ import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
 import { IContact } from '@/Nenichat/Contacts/domain/IContact'
 
 interface ChatItemProps {
-    contact: IContact & { chat_jid: string; last_message_time: Date }
+    contact: IContact & { chat_jid: string; last_message_time: Date | null }
     isActive: boolean
     onClick: () => void
 }
@@ -31,7 +31,7 @@ export function ChatItem({ contact, isActive, onClick }: ChatItemProps) {
                             {getContactName(contact)}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
-                            {dateToHuman(String(contact.last_message_time))}
+                            {contact.last_message_time && dateToHuman(String(contact.last_message_time))}
                         </span>
                     </div>
                     <p className="text-xs text-muted-foreground truncate leading-tight">

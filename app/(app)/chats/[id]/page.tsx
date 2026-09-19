@@ -130,7 +130,7 @@ export default async function ChatPage({
 
     const messagesJson = JSON.parse(JSON.stringify(messages))
     const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
-    const mostRecentMessages = messagesJson.reverse().slice(-10)
+    const mostRecentMessages = [...messagesJson].reverse().slice(-10)
     const contactJson = JSON.parse(JSON.stringify(contactInfo))
 
     return (
@@ -186,7 +186,7 @@ export default async function ChatPage({
 
   const messagesJson = JSON.parse(JSON.stringify(messages))
   const ordersJson = JSON.parse(JSON.stringify(ordersWithItems))
-  const mostRecentMessages = messagesJson.reverse().slice(-10)
+  const mostRecentMessages = [...messagesJson].reverse().slice(-10)
   const contactJson = JSON.parse(JSON.stringify(contactInfo || chatData))
 
   return (
