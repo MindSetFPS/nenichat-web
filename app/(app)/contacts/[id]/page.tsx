@@ -3,7 +3,7 @@ import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance
 import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { ContactClientPage } from "./client";
+import { ContactDetail } from "@/components/contacts/contact-detail";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +19,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
     const { business, error: authError } = await getBusinessFromUser(supabase);
 
     if (authError || !business) {
-        return <div>Unauthorized</div>;
+        return <div>No autorizado</div>;
     }
 
     const contactRepository = new SupabaseContactRepository(supabase);
@@ -39,7 +39,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
     const plainContact = JSON.parse(JSON.stringify(contact));
 
     return (
-        <ContactClientPage
+        <ContactDetail
             initialContact={plainContact}
             orders={plainOrders}
             ordersByDay={ordersByDay}
