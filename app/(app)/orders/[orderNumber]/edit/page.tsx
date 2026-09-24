@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { BackButton } from "@/components/ui/back-button";
 import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
 import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
 import { EditOrderForm } from "@/components/forms/edit-order-form";
@@ -22,7 +23,7 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
     const { business, error: authError } = await getBusinessFromUser(supabase);
 
     if (authError || !business) {
-        return <div>Unauthorized</div>;
+        return <div>No autorizado</div>;
     }
 
     const orderRepository = new SupabaseOrderRepository(supabase);
@@ -59,8 +60,11 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
 
     return (
         <>
-            <PageHeader title={`Editar Orden #${order.order_number}`} />
-            <div className="overflow-scroll">
+            <PageHeader
+                title={`Editar Orden #${order.order_number}`}
+                leftContent={<BackButton className="md:hidden" />}
+            />
+            <div className="mt-4 overflow-y-auto pb-4">
                 <EditOrderForm
                     contacts={plainContacts}
                     contact={plainContact}
@@ -76,7 +80,6 @@ export default async function EditOrderPage({ params }: EditOrderPageProps) {
                         items: transformedItems,
                         contactId: order.contact_id ? String(order.contact_id) : "",
                     }}
-                    className="mt-4"
                 />
             </div>
         </>
