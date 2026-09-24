@@ -67,11 +67,11 @@ export function EditOrderForm({
                 throw new Error("Failed to update order");
             }
 
-            toast.success("Order updated successfully");
+            toast.success("Orden actualizada");
             router.refresh();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to update order");
+            toast.error("Error al actualizar la orden");
         } finally {
             setLoading(false);
         }
