@@ -3,6 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn, getStatusColor } from "@/lib/utils";
 import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/Nenichat/Orders/app/order-labels";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -49,11 +50,11 @@ export default function OrderStatusDropdown({ order }: OrderStatusDropdownProps)
                 <SelectValue placeholder={status} />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="pending">Pendiente</SelectItem>
-                <SelectItem value="processing">Procesando</SelectItem>
-                <SelectItem value="shipped">Enviado</SelectItem>
-                <SelectItem value="delivered">Entregado</SelectItem>
-                <SelectItem value="cancelled">Cancelado</SelectItem>
+                {ORDER_STATUSES.map((value) => (
+                    <SelectItem key={value} value={value}>
+                        {ORDER_STATUS_LABELS[value]}
+                    </SelectItem>
+                ))}
             </SelectContent>
         </Select>
     )

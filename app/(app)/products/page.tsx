@@ -28,7 +28,7 @@ export default async function ProductsPage() {
     const { business, error: authError } = await getBusinessFromUser(supabase);
 
     if (authError || !business) {
-      error = authError || 'Unauthorized';
+      error = 'No autorizado';
     } else {
       const productRepository = new SupabaseProductRepository(supabase);
 
@@ -40,11 +40,18 @@ export default async function ProductsPage() {
     }
   } catch (err: any) {
     console.error('Error fetching products in server component:', err);
-    error = 'Failed to load products.';
+    error = 'No se pudieron cargar los productos.';
   }
 
   if (error) {
-    return <div className="container mx-auto p-4 text-red-500">Error: {error}</div>;
+    return (
+      <>
+        <PageHeader title="Productos" />
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
+      </>
+    );
   }
 
   if (products.length === 0) {
@@ -66,7 +73,7 @@ export default async function ProductsPage() {
       <PageHeader title="Productos">
         <ProductActions />
       </PageHeader>
-      <ProductsList />
+      <ProductsList initialProducts={products} />
     </>
   );
 }
