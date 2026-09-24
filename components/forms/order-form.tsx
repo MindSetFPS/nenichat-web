@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -14,9 +15,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@/Nenichat/Orders/app/order-labels";
 import { IContact } from "@/Nenichat/Contacts/domain/IContact";
 import { ContactSelectorCombobox } from "@/components/contact-selector-combobox";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { IProduct } from "@/Nenichat/Products/domain/IProduct";
@@ -179,11 +181,11 @@ export function OrderForm({
 
     return (
         <form onSubmit={handleFormSubmit} className={cn("@container md:grid grid-cols-1 md:grid-cols-2 space-y-2 md:space-y-0 md:gap-4 p-0 pb-2", className)}>
-            <Card className="col-span-2 @md:col-span-1 pt-3 pb-1">
-                <CardHeader className="px-2">
-                    <CardTitle>Cliente y estado</CardTitle>
+            <Card className="col-span-2 @md:col-span-1 gap-4 py-4">
+                <CardHeader className="px-4">
+                    <CardTitle className="text-base">Cliente y estado</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 px-2">
+                <CardContent className="space-y-4 px-4">
                     <div className="space-y-2">
                         <Label>Cliente</Label>
                         <ContactSelectorCombobox
@@ -206,42 +208,52 @@ export function OrderForm({
                     <div className="space-y-2">
                         <Label>Estado</Label>
                         <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Estado de la orden">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="pending">Pendiente</SelectItem>
-                                <SelectItem value="processing">Procesando</SelectItem>
-                                <SelectItem value="shipped">Enviado</SelectItem>
-                                <SelectItem value="delivered">Entregado</SelectItem>
-                                <SelectItem value="cancelled">Cancelado</SelectItem>
+                                {ORDER_STATUSES.map((value) => (
+                                    <SelectItem key={value} value={value}>
+                                        {ORDER_STATUS_LABELS[value]}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
                 </CardContent>
             </Card>
 
-            <Card className="col-span-2 @md:col-span-1 pt-3 pb-2">
-                <CardHeader className="px-2">
-                    <CardTitle>Detalles de envío
-                        <Checkbox checked={isShippingEnabled} onCheckedChange={() => setIsShippingEnabled(!isShippingEnabled)} className="ml-2" />
-                    </CardTitle>
+            <Card className="col-span-2 @md:col-span-1 gap-4 py-4">
+                <CardHeader className="flex flex-row items-center justify-between px-4">
+                    <CardTitle className="text-base">Detalles de envío</CardTitle>
+                    <div className="flex items-center gap-2">
+                        <Checkbox
+                            id="shipping-enabled"
+                            checked={isShippingEnabled}
+                            onCheckedChange={() => setIsShippingEnabled(!isShippingEnabled)}
+                        />
+                        <Label htmlFor="shipping-enabled" className="cursor-pointer font-normal text-muted-foreground">
+                            {isShippingEnabled ? "Activado" : "Desactivado"}
+                        </Label>
+                    </div>
                 </CardHeader>
                 {
                     isShippingEnabled && (
-                        <CardContent className="space-y-4 px-2">
+                        <CardContent className="space-y-4 px-4">
                             <>
                                 <div className="space-y-2">
-                                    <Label>Dirección de envío</Label>
+                                    <Label htmlFor="shipping-address">Dirección de envío</Label>
                                     <Input
+                                        id="shipping-address"
                                         value={shippingAddress}
                                         onChange={(e) => setShippingAddress(e.target.value)}
                                         placeholder="Ingresar dirección"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Costo de envío</Label>
+                                    <Label htmlFor="shipping-cost">Costo de envío</Label>
                                     <Input
+                                        id="shipping-cost"
                                         type="number"
                                         value={shippingCost}
                                         onChange={(e) => setShippingCost(parseFloat(e.target.value) || 0)}
@@ -253,103 +265,126 @@ export function OrderForm({
                 }
             </Card>
 
-            <Card className="col-span-2 md:col-span-2 pt-3 pb-2">
-                <CardHeader className="flex flex-row items-center justify-between px-2">
-                    <CardTitle>Productos</CardTitle>
+            <Card className="col-span-2 md:col-span-2 gap-4 py-4">
+                <CardHeader className="flex flex-row items-center justify-between px-4">
+                    <CardTitle className="text-base">Productos</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={addItem}>
                         <Plus className="w-4 h-4 mr-2" />
                         Agregar artículo
                     </Button>
                 </CardHeader>
-                <CardContent className="space-y-4 px-2">
-                    <div className="flex gap-x-2 gap-y-2 pb-0 last:border-0">
-                        <Label className="w-full">Producto</Label>
-                        <Label className="w-14">Cantidad</Label>
-                        <Label className="w-14"> </Label>
-                    </div>
-                    {items.map((item, index) => (
-                        <div key={index}
-                            className="flex items-end place-items-start gap-x-2 gap-y-2 pb-0 last:border-0">
-                            <div className="w-full space-y-2 min-w-0">
-                                <Select
-                                    value={item.productId}
-                                    onValueChange={(val) => updateItem(index, "productId", val)}
-                                >
-                                    <SelectTrigger className="w-full my-0.5">
-                                        <SelectValue placeholder="Seleccionar producto" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {products.map((p) => (
-                                            <SelectItem key={p.id} value={p.id} disabled={p.stock <= 0} className="max-w-[calc(100vw-4rem)] md:max-w-md">
-                                                <span className="truncate">
-                                                    {p.name} (${p.price}) - {p.stock} unidades
-                                                </span>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                <CardContent className="space-y-3 px-4">
+                    {items.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center gap-1 rounded-md border border-dashed py-8 text-center">
+                            <Package className="size-6 text-muted-foreground/60" strokeWidth={1.5} />
+                            <p className="text-sm text-muted-foreground">Aún no hay productos en esta orden.</p>
+                            <p className="text-xs text-muted-foreground">Usa &quot;Agregar artículo&quot; para comenzar.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-x-2">
+                                <span className="flex-1 text-xs font-medium text-muted-foreground">Producto</span>
+                                <span className="w-16 text-xs font-medium text-muted-foreground">Cantidad</span>
+                                <span className="hidden @md:block w-24 text-xs font-medium text-muted-foreground">Precio unit.</span>
+                                <span className="hidden @md:block w-24 text-xs font-medium text-muted-foreground">Total</span>
+                                <span className="hidden @md:block w-9" />
                             </div>
 
-                            <div className="space-y-2 max-w-14 mb-0.5">
-                                <Input
-                                    type="number"
-                                    min="1"
-                                    value={item.quantity}
-                                    onChange={(e) => updateItem(index, "quantity", e.target.value)}
-                                />
-                            </div>
+                            {items.map((item, index) => (
+                                <div key={index} className="flex items-center gap-x-2">
+                                    <div className="flex-1 min-w-0">
+                                        <Select
+                                            value={item.productId}
+                                            onValueChange={(val) => updateItem(index, "productId", val)}
+                                        >
+                                            <SelectTrigger className="w-full" aria-label={`Producto ${index + 1}`}>
+                                                <SelectValue placeholder="Seleccionar producto" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {products.map((p) => (
+                                                    <SelectItem key={p.id} value={p.id} disabled={p.stock <= 0} className="max-w-[calc(100vw-4rem)] md:max-w-md">
+                                                        <span className="truncate">
+                                                            {p.name} ({formatCurrency(p.price)}) - {p.stock} unidades
+                                                        </span>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            <div className="space-y-2 justify-end hidden @md:block">
-                                <Label>Precio unitario</Label>
-                                <Input
-                                    type="number"
-                                    value={item.unitPrice}
-                                    onChange={(e) => updateItem(index, "unitPrice", e.target.value)}
-                                />
-                            </div>
+                                    <Input
+                                        type="number"
+                                        min="1"
+                                        value={item.quantity}
+                                        onChange={(e) => updateItem(index, "quantity", e.target.value)}
+                                        className="w-16"
+                                        aria-label={`Cantidad del producto ${index + 1}`}
+                                    />
 
-                            <div className="space-y-2 min-w-20 hidden @md:block">
-                                <Label>Total</Label>
-                                <div className="h-10 flex items-center font-medium">
-                                    ${(item.quantity * item.unitPrice).toFixed(2)}
+                                    <Input
+                                        type="number"
+                                        value={item.unitPrice}
+                                        onChange={(e) => updateItem(index, "unitPrice", e.target.value)}
+                                        className="hidden @md:block w-24"
+                                        aria-label={`Precio unitario del producto ${index + 1}`}
+                                    />
+
+                                    <div className="hidden @md:flex h-9 w-24 items-center font-medium tabular-nums">
+                                        {formatCurrency(item.quantity * item.unitPrice)}
+                                    </div>
+
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="shrink-0 text-muted-foreground hover:text-destructive"
+                                        onClick={() => removeItem(index)}
+                                        aria-label={`Quitar producto ${index + 1}`}
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ))}
+
+                            <div className="flex flex-col items-end gap-1 border-t pt-3">
+                                <div className="flex w-full max-w-56 items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span className="tabular-nums">{formatCurrency(itemsTotal)}</span>
+                                </div>
+                                {shippingCost > 0 && (
+                                    <div className="flex w-full max-w-56 items-center justify-between text-sm">
+                                        <span className="text-muted-foreground">Envío</span>
+                                        <span className="tabular-nums">{formatCurrency(shippingCost)}</span>
+                                    </div>
+                                )}
+                                <div className="flex w-full max-w-56 items-center justify-between font-semibold">
+                                    <span>Total</span>
+                                    <span className="text-lg tabular-nums">{formatCurrency(totalAmount)}</span>
                                 </div>
                             </div>
-
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                className="text-red-500 mb-0.5"
-                                onClick={() => removeItem(index)}
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    ))}
-
-                    <div className="flex justify-end text-lg font-bold">
-                        Total: ${totalAmount.toFixed(2)}
-                    </div>
+                        </>
+                    )}
                 </CardContent>
             </Card>
 
-            <Card className="col-span-2 md:col-span-2 pt-3 pb-2">
-                <CardHeader className="px-2">
-                    <CardTitle>Pago</CardTitle>
+            <Card className="col-span-2 md:col-span-2 gap-4 py-4">
+                <CardHeader className="px-4">
+                    <CardTitle className="text-base">Pago</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 px-2">
+                <CardContent className="space-y-4 px-4">
                     <div className="grid grid-cols-2 @md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <Label>Método de pago</Label>
                             <Select value={paymentMethod} defaultValue="cash" onValueChange={setPaymentMethod}>
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className="w-full" aria-label="Método de pago">
                                     <SelectValue placeholder="Seleccionar método" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="cash">Efectivo</SelectItem>
-                                    <SelectItem value="card">Tarjeta</SelectItem>
-                                    <SelectItem value="transfer">Transferencia</SelectItem>
-                                    <SelectItem value="other">Otro</SelectItem>
+                                    {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+                                        <SelectItem key={value} value={value}>
+                                            {label}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -357,7 +392,7 @@ export function OrderForm({
                         <div className="space-y-2 w-full">
                             <Label>Estado de pago</Label>
                             <Select value={effectivePaymentStatus} onValueChange={handlePaymentStatusChange}>
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className="w-full" aria-label="Estado de pago">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -372,8 +407,9 @@ export function OrderForm({
                         {
                             effectivePaymentStatus === "partial" && (
                                 <div className="space-y-2 w-full">
-                                    <Label>Importe pagado</Label>
+                                    <Label htmlFor="amount-paid">Importe pagado</Label>
                                     <Input
+                                        id="amount-paid"
                                         type="number"
                                         value={amountPaid}
                                         onChange={(e) => handleAmountPaidChange(parseFloat(e.target.value) || 0)}
@@ -384,17 +420,19 @@ export function OrderForm({
 
                     </div>
                     <div className="space-y-2">
-                        <Label>Notas</Label>
-                        <Input
+                        <Label htmlFor="order-notes">Notas</Label>
+                        <Textarea
+                            id="order-notes"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             placeholder="Notas adicionales..."
+                            className="min-h-20"
                         />
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="flex justify-end gap-4 md:col-span-2">
+            <div className="flex justify-end gap-3 border-t pt-4 md:col-span-2">
                 <Button type="button" variant="outline" onClick={() => window.history.back()}>
                     Cancelar
                 </Button>

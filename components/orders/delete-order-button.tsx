@@ -16,9 +16,13 @@ export function DeleteOrderButton({ orderId }: DeleteOrderButtonProps) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="destructive" size="sm">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Order
+                    Eliminar
                 </Button>
             </DialogTrigger>
             <DeleteOrderDialogContent orderId={orderId} />
