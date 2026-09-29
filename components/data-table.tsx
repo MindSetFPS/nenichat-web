@@ -50,6 +50,7 @@ interface DataTableProps<TData, TValue> {
     getRowId?: (row: TData) => string,
     onRowSelectionChange?: (selection: RowSelectionState) => void,
     onRowClick?: (row: TData) => void,
+    containerClassName?: string,
 }
 
 export function DataTable<TData, TValue>({
@@ -68,6 +69,7 @@ export function DataTable<TData, TValue>({
     getRowId: getRowId,
     onRowSelectionChange: setExternalRowSelection,
     onRowClick,
+    containerClassName,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -219,7 +221,7 @@ export function DataTable<TData, TValue>({
                     }
                 </div>
                 <div className="overflow-auto">
-                    <Table className="mb-0">
+                    <Table className="mb-0" containerClassName={containerClassName}>
                         <TableHeader className="sticky top-0 z-10 bg-background">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>

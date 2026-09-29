@@ -22,7 +22,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
 import { formatCurrency } from "@/lib/utils";
 import { DetailField } from "@/components/detail-field";
-import { toDate } from "@/Nenichat/Shared/app/to-date";
+import { parseGatewayDate } from "@/Nenichat/Shared/app/parse-gateway-date";
 import { PAYMENT_METHOD_LABELS } from "@/Nenichat/Orders/app/order-labels";
 import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithProduct";
 
@@ -35,7 +35,7 @@ interface OrderDetailPageProps {
 const money = (amount: number) => formatCurrency(Number(amount));
 
 const formatDate = (value: Date | string | null | undefined) => {
-    const date = toDate(value);
+    const date = parseGatewayDate(value);
     return date ? format(date, "PPpp") : null;
 };
 

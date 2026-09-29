@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileSummaryCard } from "@/components/profile-summary-card";
 import { DetailField } from "@/components/detail-field";
-import { toDate } from "@/Nenichat/Shared/app/to-date";
+import { parseGatewayDate } from "@/Nenichat/Shared/app/parse-gateway-date";
 import { ORDER_STATUSES, ORDER_STATUS_PLURAL_LABELS, PAYMENT_METHOD_LABELS } from "@/Nenichat/Orders/app/order-labels";
 import { DataTable } from "@/components/data-table";
 import { PageHeader } from "@/components/ui/page-header";
@@ -75,8 +75,8 @@ export function ContactDetail({ initialContact, orders, ordersByDay }: ContactDe
     const debt = totalPurchased - totalPaid;
     const averageTicket = totalOrders > 0 ? totalPurchased / totalOrders : 0;
 
-    const lastOrderDate = toDate(orders[0]?.created_at);
-    const firstOrderDate = toDate(orders[totalOrders - 1]?.created_at);
+    const lastOrderDate = parseGatewayDate(orders[0]?.created_at);
+    const firstOrderDate = parseGatewayDate(orders[totalOrders - 1]?.created_at);
     const lastShippingAddress = orders.find((order) => order.shipping_address)?.shipping_address ?? null;
 
     const statusCounts = orders.reduce<Record<string, number>>((acc, order) => {
@@ -98,7 +98,7 @@ export function ContactDetail({ initialContact, orders, ordersByDay }: ContactDe
         if (storeContact.phone_number) candidates.push(phoneNumberToJid(storeContact.phone_number));
         if (storeContact.lid) candidates.push(`${storeContact.lid}@lid`);
         const chat = chats.find((candidate) => candidates.includes(candidate.jid));
-        return toDate(chat?.last_message_time);
+        return parseGatewayDate(chat?.last_message_time);
     }, [chats, storeContact.phone_number, storeContact.lid]);
 
     const summary = [
