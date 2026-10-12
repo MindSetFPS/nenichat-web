@@ -1,6 +1,6 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { getContactName } from '@/Nenichat/Contacts/app/get-contact-name'
 import ContactAvatar from '@/components/contact-avatar'
 import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
@@ -24,7 +24,7 @@ export function ChatItem({ contact, isActive, onClick }: ChatItemProps) {
                 <Avatar className="size-6 lg:size-8 shrink-0">
                     <ContactAvatar seed={displayName} />
                     <AvatarFallback>
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                        {displayName ? displayName.charAt(0).toUpperCase() : "C"}
                     </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">

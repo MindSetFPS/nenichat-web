@@ -50,7 +50,6 @@ export default async function ChatPage({
 
   // Retrieve contact info from our local CRM database as a fallback
   let contactInfo = null;
-  const isLid = jidIsLid(jid) || jidIsGroup(jid)
 
   if (jidIsPhoneNumber(jid)) {
     contactInfo = await contactRepository.findByPhoneNumber(business.id, jidToNumeric(jid));
@@ -86,18 +85,8 @@ export default async function ChatPage({
     }
   }
 
-  // If we have a valid JID and it's not already in our CRM, save it now.
-  // This ensures the contact exists for orders, tags, etc. even before the first message.
-  if (jidKind !== 'unknown') {
-    if (!contactInfo) {
-      contactInfo = await contactRepository.save({
-        business_id: business.id,
-        is_user: false,
-        pushname: chatData.name || null,
-        ...(isLid ? { lid: jid } : { phone_number: jidToNumeric(jid) })
-      });
-    }
-  }
+  // Contact creation is owned by the webhook bridge (gowapp-supabase-bridge).
+  // This page only reads contacts; it must not create them.
 
   // todo: setMe() we currently does not have a way to tell the app what is my profile
   let messages: IMessageWithSender[] = []
@@ -163,10 +152,11 @@ export default async function ChatPage({
 
     groupSenderContactsJson = '[]'
     if (filteredUserIdList.length > 0) {
+      // Read-only: the bridge owns contact creation for group senders.
       const groupSenderContacts = await Promise.all(
-        filteredUserIdList.map((jid) => contactRepository.getOrCreateContact(business.id, jid))
+        filteredUserIdList.map((jid) => contactRepository.findByPhoneNumberOrLid(business.id, jid))
       )
-      groupSenderContactsJson = JSON.stringify(groupSenderContacts)
+      groupSenderContactsJson = JSON.stringify(groupSenderContacts.filter(Boolean))
     }
 
     const ordersList = await Promise.all(
