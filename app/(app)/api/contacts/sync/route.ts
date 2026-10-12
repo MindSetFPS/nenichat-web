@@ -21,24 +21,24 @@ export async function GET() {
     const contactRepository = new SupabaseContactRepository(supabase);
 
     try {
-        const wappUrl = process.env.WAPP_URL;
+        const gowappHostUrl = process.env.NEXT_PUBLIC_GOWAPP_HOST_URL;
 
-        if (!wappUrl) {
-            console.error("WAPP_URL environment variable is not set");
+        if (!gowappHostUrl) {
+            console.error("NEXT_PUBLIC_GOWAPP_HOST_URL environment variable is not set");
             return NextResponse.json(
-                { error: "WAPP_URL is not configured" },
+                { error: "NEXT_PUBLIC_GOWAPP_HOST_URL is not configured" },
                 { status: 500 }
             );
         }
 
-        const response = await fetch("http://" + wappUrl + "/user/my/contacts", {
+        const response = await fetch(`${gowappHostUrl}/user/my/contacts`, {
             headers: {
                 'X-Device-Id': String(business.id),
             },
         });
 
         if (!response.ok) {
-            console.error("Failed to fetch from WAPP_URL:", response.status, response.statusText);
+            console.error("Failed to fetch from NEXT_PUBLIC_GOWAPP_HOST_URL:", response.status, response.statusText);
             return NextResponse.json(
                 { error: "Failed to fetch from WhatsApp API" },
                 { status: response.status }

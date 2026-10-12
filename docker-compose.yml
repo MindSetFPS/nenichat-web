@@ -10,7 +10,7 @@ services:
         - DB_HOST=${DB_HOST}
         - DB_PORT=${DB_PORT}
         - DB_NAME=${DB_NAME}
-        - WAPP_URL=${WAPP_URL}
+        - NEXT_PUBLIC_GOWAPP_HOST_URL=${NEXT_PUBLIC_GOWAPP_HOST_URL}
     container_name: nenichat-web
     restart: always
     ports:

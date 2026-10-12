@@ -407,7 +407,7 @@ fetchChats: async (business) => {
 
 **Request:**
 ```
-GET /api/chats?businessId=123&wappUrl={NEXT_PUBLIC_WAPP_API_URL}
+GET /api/chats?businessId=123&wappUrl={NEXT_PUBLIC_GOWAPP_HOST_URL}
 ```
 
 **Response:**

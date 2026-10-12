@@ -12,9 +12,9 @@ function envFromDotEnv(key: string): string | undefined {
     return line ? line.slice(key.length + 1).trim() : undefined;
 }
 
-const GATEWAY_URL = envFromDotEnv('NEXT_PUBLIC_WAPP_API_URL');
-const USER = envFromDotEnv('WAPP_USER');
-const PASSWORD = envFromDotEnv('WAPP_PASSWORD');
+const GATEWAY_URL = envFromDotEnv('NEXT_PUBLIC_GOWAPP_HOST_URL');
+const USER = envFromDotEnv('GOWAPP_USER');
+const PASSWORD = envFromDotEnv('GOWAPP_PASSWORD');
 const BUSINESS_ID = '115';
 
 const describeIfConfigured = GATEWAY_URL ? describe : describe.skip;

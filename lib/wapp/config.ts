@@ -3,9 +3,9 @@
  * Required in every environment; there is intentionally no hardcoded fallback.
  */
 export function getWappBaseUrl(): string {
-    const baseUrl = process.env.NEXT_PUBLIC_WAPP_API_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_GOWAPP_HOST_URL;
     if (!baseUrl) {
-        throw new Error('NEXT_PUBLIC_WAPP_API_URL is not configured');
+        throw new Error('NEXT_PUBLIC_GOWAPP_HOST_URL is not configured');
     }
     return baseUrl.replace(/\/+$/, '');
 }

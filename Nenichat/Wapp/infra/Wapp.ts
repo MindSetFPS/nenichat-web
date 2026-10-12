@@ -119,9 +119,9 @@ export class Wapp {
     private readonly timeoutMs: number;
 
     constructor(config: WappConfig = {}) {
-        this.baseUrl = config.baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || DEFAULT_BASE_URL;
-        this.user = config.user ?? process.env.WAPP_USER;
-        this.password = config.password ?? process.env.WAPP_PASSWORD;
+        this.baseUrl = config.baseUrl || process.env.NEXT_PUBLIC_GOWAPP_HOST_URL || DEFAULT_BASE_URL;
+        this.user = config.user ?? process.env.GOWAPP_USER;
+        this.password = config.password ?? process.env.GOWAPP_PASSWORD;
         this.deviceId = config.deviceId;
         this.timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     }
@@ -332,7 +332,7 @@ export class Wapp {
  * Checks whether a GoWapp container answers at all. Lenient by design: any HTTP
  * response means the container is up; only network failures/timeouts mean down.
  * When no explicit baseUrl is given, the gateway origin comes from
- * NEXT_PUBLIC_WAPP_API_URL and, if a deviceId is provided, the probe targets
+ * NEXT_PUBLIC_GOWAPP_HOST_URL and, if a deviceId is provided, the probe targets
  * that business's Traefik route (/api/user/{deviceId}/devices).
  */
 export async function checkWappHealth(
@@ -342,9 +342,9 @@ export async function checkWappHealth(
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), options?.timeoutMs ?? 5000);
     try {
-        const user = options?.user ?? process.env.WAPP_USER ?? 'admin';
-        const password = options?.password ?? process.env.WAPP_PASSWORD ?? 'admin';
-        const origin = baseUrl || process.env.NEXT_PUBLIC_WAPP_API_URL || DEFAULT_BASE_URL;
+        const user = options?.user ?? process.env.GOWAPP_USER ?? 'admin';
+        const password = options?.password ?? process.env.GOWAPP_PASSWORD ?? 'admin';
+        const origin = baseUrl || process.env.NEXT_PUBLIC_GOWAPP_HOST_URL || DEFAULT_BASE_URL;
         const target = options?.deviceId != null
             ? `${origin}/api/user/${options.deviceId}/devices`
             : `${origin}/devices`;

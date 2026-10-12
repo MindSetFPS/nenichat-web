@@ -33,9 +33,9 @@ export async function ChatListLoader({ businessIdProp }: ChatListLoaderProps): P
 
   const wappRecentChatsRepository = new GoWappChatRepository({
     deviceId: String(businessId),
-    baseUrl: process.env.NEXT_PUBLIC_WAPP_API_URL,
-    password: process.env.WAPP_PASSWORD,
-    user: process.env.WAPP_USER
+    baseUrl: process.env.NEXT_PUBLIC_GOWAPP_HOST_URL,
+    password: process.env.GOWAPP_PASSWORD,
+    user: process.env.GOWAPP_USER
   })
 
   try {

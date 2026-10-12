@@ -168,11 +168,11 @@ never refetch-loop.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
 | `DOKPLOY_SERVER_URL` | Dokploy API host |
 | `DOKPLOY_API_KEY` | Dokploy API key |
-| `DOCKPLOY_PROJECT_ID` | Dokploy project ID |
-| `DOCKPLOY_ENVIRONMENT_ID` | Dokploy environment ID |
+| `DOKPLOY_PROJECT_ID` | Dokploy project ID |
+| `DOKPLOY_ENVIRONMENT_ID` | Dokploy environment ID |
 | `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD` | PostgreSQL connection |
-| `NEXT_PUBLIC_WAPP_API_URL` | Default base URL for GoWapp gateway calls (`Wapp` client) |
-| `WAPP_USER` / `WAPP_PASSWORD` | GoWapp Basic auth credentials (health check falls back to `admin:admin`) |
+| `NEXT_PUBLIC_GOWAPP_HOST_URL` | Default base URL for GoWapp gateway calls (`Wapp` client) |
+| `GOWAPP_USER` / `GOWAPP_PASSWORD` | GoWapp Basic auth credentials (health check falls back to `admin`/`admin`) |
 | `WAPP_DEBUG` | Set to `true` to log every Wapp request/response |
 | `OLLAMA_HOST` | LLM host for AI suggestions |
 

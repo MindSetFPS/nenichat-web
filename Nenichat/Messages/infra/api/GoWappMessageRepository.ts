@@ -44,8 +44,8 @@ export class GoWappMessageRepository implements IMessageRepository {
 
     /**
      * Creates an instance of GoWappMessageRepository.
-     * Base URL and Basic auth credentials default to the NEXT_PUBLIC_WAPP_API_URL
-     * and WAPP_USER / WAPP_PASSWORD environment variables.
+     * Base URL and Basic auth credentials default to the NEXT_PUBLIC_GOWAPP_HOST_URL
+     * and GOWAPP_USER / GOWAPP_PASSWORD environment variables.
      */
     constructor(config: WappConfig = {}) {
         this.wapp = new Wapp(config);

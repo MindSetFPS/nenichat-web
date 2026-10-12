@@ -21,7 +21,7 @@
  * - For manual invalidation, call DELETE endpoint or implement webhook handler
  * 
  * REQUEST FORMAT:
- * GET /api/chats?businessId=123&wappUrl={NEXT_PUBLIC_WAPP_API_URL}/api/user/123
+ * GET /api/chats?businessId=123&wappUrl={NEXT_PUBLIC_GOWAPP_HOST_URL}/api/user/123
  * 
  * RESPONSE FORMAT:
  * JSON array of IChat objects

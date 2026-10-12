@@ -13,8 +13,8 @@ export class DokployContainerService implements IContainerService {
     constructor() {
         this.serverUrl = process.env.DOKPLOY_SERVER_URL || "";
         this.apiKey = process.env.DOKPLOY_API_KEY || "";
-        this.projectId = process.env.DOCKPLOY_PROJECT_ID || "";
-        this.environmentId = process.env.DOCKPLOY_ENVIRONMENT_ID || "";
+        this.projectId = process.env.DOKPLOY_PROJECT_ID || "";
+        this.environmentId = process.env.DOKPLOY_ENVIRONMENT_ID || "";
 
         if (!this.serverUrl || !this.apiKey || !this.projectId || !this.environmentId) {
             console.warn("Dokploy environment variables are missing. Some container operations may fail.");
@@ -102,10 +102,10 @@ SUPABASE_KEY=\${{project.SUPABASE_KEY}}
 
     /**
      * Renders a compose template with per-business and environment-derived values.
-     * Basic auth matches the credentials the Wapp client uses (WAPP_USER / WAPP_PASSWORD).
+     * Basic auth matches the credentials the Wapp client uses (GOWAPP_USER / GOWAPP_PASSWORD).
      */
     private renderComposeFile(template: string, businessId: number): string {
-        const basicAuth = `${process.env.WAPP_USER || "admin"}:${process.env.WAPP_PASSWORD || "admin"}`;
+        const basicAuth = `${process.env.GOWAPP_USER || "admin"}:${process.env.GOWAPP_PASSWORD || "admin"}`;
         const webhookBaseUrl = process.env.WAPP_WEBHOOK_BASE_URL || "http://localhost:5824";
 
         return template
