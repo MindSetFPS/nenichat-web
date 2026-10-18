@@ -9,15 +9,27 @@ export class DokployContainerService implements IContainerService {
     private readonly apiKey: string;
     private readonly projectId: string;
     private readonly environmentId: string;
+    private readonly wappWebhookBaseUrl: string;
 
     constructor() {
         this.serverUrl = process.env.DOKPLOY_SERVER_URL || "";
         this.apiKey = process.env.DOKPLOY_API_KEY || "";
         this.projectId = process.env.DOKPLOY_PROJECT_ID || "";
         this.environmentId = process.env.DOKPLOY_ENVIRONMENT_ID || "";
+        this.wappWebhookBaseUrl = process.env.WAPP_WEBHOOK_BASE_URL || "";
 
-        if (!this.serverUrl || !this.apiKey || !this.projectId || !this.environmentId) {
-            console.warn("Dokploy environment variables are missing. Some container operations may fail.");
+        const missing = [
+            ["DOKPLOY_SERVER_URL", this.serverUrl],
+            ["DOKPLOY_API_KEY", this.apiKey],
+            ["DOKPLOY_PROJECT_ID", this.projectId],
+            ["DOKPLOY_ENVIRONMENT_ID", this.environmentId],
+            ["WAPP_WEBHOOK_BASE_URL", this.wappWebhookBaseUrl],
+        ]
+            .filter(([, value]) => !value)
+            .map(([name]) => name);
+
+        if (missing.length > 0) {
+            throw new Error(`Missing Dokploy environment variables: ${missing.join(", ")}`);
         }
     }
 
@@ -106,7 +118,7 @@ SUPABASE_KEY=\${{project.SUPABASE_KEY}}
      */
     private renderComposeFile(template: string, businessId: number): string {
         const basicAuth = `${process.env.GOWAPP_USER || "admin"}:${process.env.GOWAPP_PASSWORD || "admin"}`;
-        const webhookBaseUrl = process.env.WAPP_WEBHOOK_BASE_URL || "http://localhost:5824";
+        const webhookBaseUrl = this.wappWebhookBaseUrl;
 
         return template
             .replace(/{business_id}/g, businessId.toString())
