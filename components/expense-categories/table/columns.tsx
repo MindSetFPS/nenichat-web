@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { IExpenseCategory } from "@/Nenichat/Expenses/domain/IExpenseCategory";
+import { IExpenseCategory } from "@nenichat/domain/Expenses/domain/IExpenseCategory";
 import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<IExpenseCategory>[] = [

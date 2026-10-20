@@ -1,9 +1,9 @@
-import { IChat } from "@/Nenichat/Chats/domain/IChat";
+import { IChat } from "@nenichat/domain/Chats/domain/IChat";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
+import { SupabaseContainerRepository } from "@nenichat/domain/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api"
-import { checkWappHealth } from "@/Nenichat/Wapp"
+import { GoWappChatRepository } from "@nenichat/domain/Chats/infra/api"
+import { checkWappHealth } from "@nenichat/domain/Wapp"
 
 interface ChatListLoaderProps {
   businessIdProp?: string

@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { MessageSquare, User, Users } from "lucide-react";
-import { IChat } from "@/Nenichat/Chats/domain/IChat";
+import { IChat } from "@nenichat/domain/Chats/domain/IChat";
 import Link from "next/link";
 
 export function RecentConversations({ chats }: { chats: IChat[] }) {

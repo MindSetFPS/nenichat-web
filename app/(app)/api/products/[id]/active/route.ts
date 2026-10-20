@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { SupabaseProductRepository } from "@/Nenichat/Products/infra/persistance/SupabaseProductRepository";
+import { SupabaseProductRepository } from "@nenichat/domain/Products/infra/persistance/SupabaseProductRepository";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;

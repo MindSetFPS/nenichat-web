@@ -8,16 +8,16 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ChatAiSuggestions } from "./chat-ai-suggestions";
 import { TemplateQuickAnswers } from "@/components/templates/template-quick-answers";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import { useMessageStore } from "@/stores/message-store";
 import { useProductStore } from "@/stores/product-store";
 import { useContactStore } from "@/stores/contact-store";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CreateOrderForm } from "@/components/forms/create-order-form";
-import type { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender";
-import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction";
-import type { ProductOrder } from "@/Nenichat/Orders/app/dto/product-order";
-import { mapExtractedProductsToEcommerceProducts } from "@/Nenichat/Orders/app/product-matching";
+import type { IMessageWithSender } from "@nenichat/domain/Messages/domain/IMessageWithSender";
+import type { SuggestionAction } from "@nenichat/domain/Suggestions/domain/ISuggestionAction";
+import type { ProductOrder } from "@nenichat/domain/Orders/app/dto/product-order";
+import { mapExtractedProductsToEcommerceProducts } from "@nenichat/domain/Orders/app/product-matching";
 
 interface ChatControlsProps {
     phone?: string;

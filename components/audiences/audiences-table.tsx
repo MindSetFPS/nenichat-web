@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MoreHorizontal } from "lucide-react";
-import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
+import { IAudience } from "@nenichat/domain/Audiences/domain/IAudience";
 
 interface AudiencesTableProps {
     audiences: IAudience[];

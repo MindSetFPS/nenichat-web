@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Spinner } from "@/components/ui/spinner"
 import ContactAvatar from "@/components/contact-avatar"
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name"
 import { getHiddenContactsAction } from "@/app/(app)/settings/actions"
 import { useRouter, useSearchParams } from "next/navigation"
 

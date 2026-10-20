@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseContainerRepository, fetchAndStoreQrCode } from '@/Nenichat/Containers';
+import { SupabaseContainerRepository, fetchAndStoreQrCode } from '@nenichat/domain/Containers';
 
 /*
 Regenerates the QR Code in case a user interrupted the process,

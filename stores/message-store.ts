@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IMessageWithSender } from '@/Nenichat/Messages/domain/IMessageWithSender';
+import { IMessageWithSender } from '@nenichat/domain/Messages/domain/IMessageWithSender';
 
 interface MessageState {
     messagesByChat: Record<string, IMessageWithSender[]>;

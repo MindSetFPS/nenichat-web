@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
+import { contactRepository } from '@nenichat/domain/Contacts/infra/persistance/ContactRepository';
 
 /**
  * GET handler for the profile API.

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 
 interface ContactFormProps {
     onSubmit: (data: {

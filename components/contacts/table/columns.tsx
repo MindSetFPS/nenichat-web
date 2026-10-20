@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
+import dateToHuman from "@nenichat/domain/Shared/app/date-to-human";
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name";
 import Link from "next/link";
-import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
+import { dateIntervalFilter } from "@nenichat/domain/Orders/app/date-interval-funtion";
 
 export const columns: ColumnDef<IContact & { last_message_time?: string }>[] = [
     {

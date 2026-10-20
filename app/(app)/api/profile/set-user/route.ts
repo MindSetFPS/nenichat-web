@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { contactRepository } from '@/Nenichat/Contacts/infra/persistance/ContactRepository';
+import { contactRepository } from '@nenichat/domain/Contacts/infra/persistance/ContactRepository';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 

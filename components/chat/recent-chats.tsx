@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from '@/hooks/use-mobile'
 import { PageHeader } from '../ui/page-header'
-import { IChat } from '@/Nenichat/Chats/domain/IChat'
-import { IContact } from '@/Nenichat/Contacts/domain/IContact'
+import { IChat } from '@nenichat/domain/Chats/domain/IChat'
+import { IContact } from '@nenichat/domain/Contacts/domain/IContact'
 import { useContactStore } from '@/stores/contact-store'
 import { ChatItem } from './chat-item'
 

@@ -6,7 +6,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { IMessagesReport } from "@/Nenichat/Messages/domain/IMessagesReport";
+import { IMessagesReport } from "@nenichat/domain/Messages/domain/IMessagesReport";
 
 interface MessagesChartProps {
   data: IMessagesReport[];

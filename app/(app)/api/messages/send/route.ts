@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import SendMessage from '@/Nenichat/Messages/app/send-message';
+import SendMessage from '@nenichat/domain/Messages/app/send-message';
 
 export async function POST(request: NextRequest) {
     try {

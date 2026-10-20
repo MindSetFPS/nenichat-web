@@ -1,7 +1,7 @@
-import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
-import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
+import { ICampaign } from '@nenichat/domain/Campaigns/domain/ICampaign';
+import { SupabaseCampaignRepository } from '@nenichat/domain/Campaigns/infra/persistance/SupabaseCampaignRepository';
 import { EditCampaignForm } from '@/components/forms/edit-campaign-form';
-import { cronToStr } from '@/Nenichat/Shared/domain/cron-to-string-converter';
+import { cronToStr } from '@nenichat/domain/Shared/domain/cron-to-string-converter';
 import { PageHeader } from '@/components/ui/page-header';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';

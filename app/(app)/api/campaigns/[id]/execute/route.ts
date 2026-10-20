@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
-import { SupabaseAudienceContactRepository } from '@/Nenichat/Audiences/infra/persistance/SupabaseAudienceContactRepository';
+import { SupabaseCampaignRepository } from '@nenichat/domain/Campaigns/infra/persistance/SupabaseCampaignRepository';
+import { SupabaseAudienceContactRepository } from '@nenichat/domain/Audiences/infra/persistance/SupabaseAudienceContactRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import SendMessage from "@/Nenichat/Messages/app/send-message";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
+import SendMessage from "@nenichat/domain/Messages/app/send-message";
 
 /**
  * Executes a campaign by sending messages to all contacts in the audience.

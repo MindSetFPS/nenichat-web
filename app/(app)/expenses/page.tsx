@@ -1,4 +1,4 @@
-import { SupabaseExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository";
+import { SupabaseExpenseRepository } from "@nenichat/domain/Expenses/infra/persistance/SupabaseExpenseRepository";
 import { Receipt } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
 import { DataTable } from "@/components/data-table";

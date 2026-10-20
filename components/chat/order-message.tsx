@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Order } from "@/Nenichat/Orders/domain/Order"
+import { Order } from "@nenichat/domain/Orders/domain/Order"
 import { formatCurrency, getPaymentStatusColor, getStatusColor, cn } from "@/lib/utils"
 import { Package, Truck, CreditCard, Receipt, FileText, ChevronRight, ShoppingBag } from "lucide-react"
-import { IOrderItemWithProduct } from "@/Nenichat/Orders/domain/IOrderItemWithProduct"
+import { IOrderItemWithProduct } from "@nenichat/domain/Orders/domain/IOrderItemWithProduct"
 
 interface OrderMessageProps {
     order: Order,

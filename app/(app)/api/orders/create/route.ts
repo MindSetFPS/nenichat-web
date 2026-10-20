@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { SupabaseOrderRepository } from '@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository';
-import { SupabaseContactRepository } from '@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository';
+import { SupabaseOrderRepository } from '@nenichat/domain/Orders/infra/persistance/SupabaseOrderRepository';
+import { SupabaseContactRepository } from '@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
+import { SupabaseCampaignRepository } from '@nenichat/domain/Campaigns/infra/persistance/SupabaseCampaignRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { ICampaign } from '@/Nenichat/Campaigns/domain/ICampaign';
+import { ICampaign } from '@nenichat/domain/Campaigns/domain/ICampaign';
 
 export async function GET(
   request: Request,

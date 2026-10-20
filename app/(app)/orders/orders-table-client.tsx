@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/data-table";
 import { columns } from "@/components/orders/table/columns";
-import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
+import { OrderWithContactName } from "@nenichat/domain/Orders/app/dto/order-with-contact-name";
 
 interface OrdersTableClientProps {
     orders: OrderWithContactName[];

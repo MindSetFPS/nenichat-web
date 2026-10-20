@@ -6,7 +6,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import { IOrdersReport } from "@/Nenichat/Orders/domain/IOrdersReport";
+import { IOrdersReport } from "@nenichat/domain/Orders/domain/IOrdersReport";
 import { format, parseISO } from "date-fns";
 
 interface OrdersTotalChartProps {

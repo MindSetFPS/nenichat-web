@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { container_states } from '@/Nenichat/Containers/Domain/container-states';
+import { container_states } from '@nenichat/domain/Containers/Domain/container-states';
 import { getWappInfo, type WappAppInfo } from '@/lib/wapp/wapp-api';
 import { getMyContactAction } from '@/app/(app)/settings/actions';
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { Wapp } from "@/Nenichat/Wapp";
+import { Wapp } from "@nenichat/domain/Wapp";
 
 /*
   It is a little weird that we need an endpoint to tell the wapp container to download media,

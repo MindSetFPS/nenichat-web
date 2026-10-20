@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ITemplate } from '@/Nenichat/Templates/domain/ITemplate';
+import { ITemplate } from '@nenichat/domain/Templates/domain/ITemplate';
 
 interface TemplateState {
   templates: ITemplate[];

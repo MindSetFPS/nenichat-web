@@ -5,7 +5,7 @@ import { FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useTemplateStore } from "@/stores/template-store"
 import { useProductStore } from "@/stores/product-store"
-import { renderTemplate } from "@/Nenichat/Templates/app/render-template"
+import { renderTemplate } from "@nenichat/domain/Templates/app/render-template"
 
 interface TemplateQuickAnswersProps {
   onSelectTemplate: (message: string) => void

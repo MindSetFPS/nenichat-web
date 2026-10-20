@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { messageRepository } from '@/Nenichat/Messages/infra/persistance/MessageRepository';
+import { messageRepository } from '@nenichat/domain/Messages/infra/persistance/MessageRepository';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

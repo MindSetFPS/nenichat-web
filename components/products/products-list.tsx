@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { columns } from '@/components/products/table/columns';
 import { DataTable } from "../data-table";
-import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
+import { IProductWithUnitsSold } from '@nenichat/domain/Products/domain/IProduct';
 import { useProductStore } from "@/stores/product-store";
 
 interface ProductsListProps {

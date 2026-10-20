@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseCampaignRepository } from '@/Nenichat/Campaigns/infra/persistance/SupabaseCampaignRepository';
+import { SupabaseCampaignRepository } from '@nenichat/domain/Campaigns/infra/persistance/SupabaseCampaignRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
 import { CronExpressionParser } from 'cron-parser'
-import { ICampaignRequest } from '@/Nenichat/Campaigns/dto/ICampaignRequest';
+import { ICampaignRequest } from '@nenichat/domain/Campaigns/dto/ICampaignRequest';
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();

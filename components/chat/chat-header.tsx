@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import ContactAvatar from "../contact-avatar";
 import Link from "next/link";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name";
 
 interface ChatHeaderProps {
     contact: IContact;

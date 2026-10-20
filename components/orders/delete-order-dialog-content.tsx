@@ -1,6 +1,6 @@
 import { Button } from "../ui/button";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { deleteOrder } from "@/Nenichat/Orders/app/delete-order-client";
+import { deleteOrder } from "@nenichat/domain/Orders/app/delete-order-client";
 import { useRouter } from "next/navigation";
 
 interface DeleteOrderDialogContentProps {

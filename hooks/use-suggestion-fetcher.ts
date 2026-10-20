@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction"
+import type { SuggestionAction } from "@nenichat/domain/Suggestions/domain/ISuggestionAction"
 import { useTokenUsageStore } from "@/stores/token-usage-store"
 
 interface UseSuggestionFetcherOptions {

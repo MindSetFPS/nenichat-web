@@ -4,7 +4,7 @@ import { ClipboardList } from "lucide-react"
 import { motion } from "motion/react"
 import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
-import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction"
+import type { SuggestionAction } from "@nenichat/domain/Suggestions/domain/ISuggestionAction"
 
 interface SuggestionPillProps {
     suggestion: SuggestionAction

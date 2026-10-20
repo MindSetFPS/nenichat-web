@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateOneOrder } from '@/Nenichat/Suggestions/app/generate-one-order';
+import { generateOneOrder } from '@nenichat/domain/Suggestions/app/generate-one-order';
 
 export const maxDuration = 60;
 

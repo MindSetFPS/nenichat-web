@@ -7,13 +7,13 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { IProduct, IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
+import { IProduct, IProductWithUnitsSold } from '@nenichat/domain/Products/domain/IProduct';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Trash2, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
+import { SupabaseProductRepository } from '@nenichat/domain/Products/infra/persistance/SupabaseProductRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
 import { useProductStore } from '@/stores/product-store';
 import {

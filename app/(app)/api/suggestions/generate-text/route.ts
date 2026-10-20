@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateOneText } from '@/Nenichat/Suggestions/app/generate-one-text';
+import { generateOneText } from '@nenichat/domain/Suggestions/app/generate-one-text';
 
 export const maxDuration = 60;
 

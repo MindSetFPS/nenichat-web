@@ -6,8 +6,8 @@ import { useEffect, useMemo } from "react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { MessageCircle } from "lucide-react";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { phoneNumberToJid } from "@/Nenichat/Chats/domain/Jid";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
+import { phoneNumberToJid } from "@nenichat/domain/Chats/domain/Jid";
 import { useContactStore } from "@/stores/contact-store";
 import { useChatStore } from "@/stores/chat-store";
 import { BackButton } from "@/components/ui/back-button";
@@ -16,14 +16,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileSummaryCard } from "@/components/profile-summary-card";
 import { DetailField } from "@/components/detail-field";
-import { parseGatewayDate } from "@/Nenichat/Shared/app/parse-gateway-date";
-import { ORDER_STATUSES, ORDER_STATUS_PLURAL_LABELS, PAYMENT_METHOD_LABELS } from "@/Nenichat/Orders/app/order-labels";
+import { parseGatewayDate } from "@nenichat/domain/Shared/app/parse-gateway-date";
+import { ORDER_STATUSES, ORDER_STATUS_PLURAL_LABELS, PAYMENT_METHOD_LABELS } from "@nenichat/domain/Orders/app/order-labels";
 import { DataTable } from "@/components/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import { columns } from "@/components/orders/table/columns";
 import { ChatDropDownDialog } from "@/components/chat/chat-dropdown";
 import { OrdersByDayChart } from "@/components/contacts/orders-by-day-chart";
-import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
+import { OrderWithContactName } from "@nenichat/domain/Orders/app/dto/order-with-contact-name";
 import { cn, formatCurrency } from "@/lib/utils";
 
 /*

@@ -13,7 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { IExpenseCategory } from "@/Nenichat/Expenses/domain/IExpenseCategory";
+import { IExpenseCategory } from "@nenichat/domain/Expenses/domain/IExpenseCategory";
 import { Loader2 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 

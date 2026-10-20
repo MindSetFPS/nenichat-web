@@ -18,10 +18,10 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
+import { IMessageWithSender } from "@nenichat/domain/Messages/domain/IMessageWithSender"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import ContactAvatar from "../contact-avatar"
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name"
 import Link from "next/link"
 import { useContactStore } from "@/stores/contact-store"
 import { useRouter } from "next/navigation"

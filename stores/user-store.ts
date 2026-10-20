@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { User } from '@supabase/supabase-js';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { IContact } from '@/Nenichat/Contacts/domain/IContact';
+import { IContact } from '@nenichat/domain/Contacts/domain/IContact';
 
 /**
  * Interface representing the merged profile and contact data.

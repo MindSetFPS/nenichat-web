@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { IContact } from '@/Nenichat/Contacts/domain/IContact';
+import { IContact } from '@nenichat/domain/Contacts/domain/IContact';
 import { useUserStore } from './user-store';
-import { jidIsGroup } from '@/Nenichat/Chats/domain/Jid';
+import { jidIsGroup } from '@nenichat/domain/Chats/domain/Jid';
 
 interface ContactState {
     contactsByPhone: Map<string, IContact>;

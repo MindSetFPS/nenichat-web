@@ -29,7 +29,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { IChat } from '@/Nenichat/Chats/domain/IChat';
+import { IChat } from '@nenichat/domain/Chats/domain/IChat';
 import { getWappBaseUrl } from '@/lib/wapp/config';
 
 interface ChatState {

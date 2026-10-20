@@ -1,4 +1,4 @@
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { EditContactForm } from "../forms/edit-contact-form";
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
+import { SupabaseOrderRepository } from "@nenichat/domain/Orders/infra/persistance/SupabaseOrderRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { OrderTimePeriod } from "@/Nenichat/Orders/domain/IOrderRepository";
+import { OrderTimePeriod } from "@nenichat/domain/Orders/domain/IOrderRepository";
 
 const VALID_PERIODS: OrderTimePeriod[] = ["today", "this_week", "monthly", "yearly", "all"];
 

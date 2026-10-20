@@ -1,4 +1,4 @@
-import { IMessage } from "@/Nenichat/Messages/domain/IMessage";
+import { IMessage } from "@nenichat/domain/Messages/domain/IMessage";
 
 export default function DateSeparator({ messages, index }: { messages: IMessage[], index: number }) {
     return (

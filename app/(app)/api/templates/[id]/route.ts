@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { SupabaseTemplateRepository } from '@/Nenichat/Templates/infra/persistance/SupabaseTemplateRepository';
+import { SupabaseTemplateRepository } from '@nenichat/domain/Templates/infra/persistance/SupabaseTemplateRepository';
 
 export async function PUT(
   request: NextRequest,

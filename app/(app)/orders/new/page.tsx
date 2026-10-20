@@ -1,10 +1,10 @@
 import { CreateOrderForm } from "@/components/forms/create-order-form";
 import { PageHeader } from "@/components/ui/page-header";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api";
-import { getJidKind } from "@/Nenichat/Chats/domain/Jid";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { GoWappChatRepository } from "@nenichat/domain/Chats/infra/api";
+import { getJidKind } from "@nenichat/domain/Chats/domain/Jid";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
+import { SupabaseContactRepository } from "@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository";
 
 export const dynamic = 'force-dynamic';
 

@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CampaignForm } from "./forms/campaign-form";
-import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
+import { NewCampaignData } from "@nenichat/domain/Campaigns/domain/new-campaign-dto";
 
 export function CreateCampaignDialog() {
   const router = useRouter();

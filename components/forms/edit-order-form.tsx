@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import { OrderForm, OrderFormValues } from "./order-form";
 import { useProductStore } from "@/stores/product-store";
 

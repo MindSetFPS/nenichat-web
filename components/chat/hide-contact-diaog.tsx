@@ -2,7 +2,7 @@
 
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Contact } from "@/Nenichat/Contacts/domain/Contact";
+import { Contact } from "@nenichat/domain/Contacts/domain/Contact";
 import { useEffect, useState } from "react";
 
 interface HideContactDialogContentProps {

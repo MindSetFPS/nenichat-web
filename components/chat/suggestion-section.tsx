@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react"
 import { SuggestionPill } from "./suggestion-pill"
-import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction"
+import type { SuggestionAction } from "@nenichat/domain/Suggestions/domain/ISuggestionAction"
 
 interface SuggestionSectionProps {
     icon: ReactNode

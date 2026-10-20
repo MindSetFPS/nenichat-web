@@ -15,17 +15,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { IContact } from '@/Nenichat/Contacts/domain/IContact';
-import { IAudience } from '@/Nenichat/Audiences/domain/IAudience';
+import { IContact } from '@nenichat/domain/Contacts/domain/IContact';
+import { IAudience } from '@nenichat/domain/Audiences/domain/IAudience';
 import { AudienceForm } from "@/components/forms/AudienceForm";
-import updateAudienceMembers from "@/Nenichat/Audiences/app/update-audience-members-from-api";
+import updateAudienceMembers from "@nenichat/domain/Audiences/app/update-audience-members-from-api";
 import { DataTable } from "@/components/data-table";
 import { columns } from "../../../../../components/audiences/columns";
 import { Toggle } from "@/components/ui/toggle";
-import { getAudienceDetails } from "@/Nenichat/Audiences/app/get-audience-details-from-api";
-import { getAudienceMembers } from "@/Nenichat/Audiences/app/get-audience-members-from-api";
-import { getAudienceUnselectedContacts } from "@/Nenichat/Audiences/app/get-audience-unselected-contacts";
-import updateAudienceDetailsFromApi from "@/Nenichat/Audiences/app/update-audience-details-from-api";
+import { getAudienceDetails } from "@nenichat/domain/Audiences/app/get-audience-details-from-api";
+import { getAudienceMembers } from "@nenichat/domain/Audiences/app/get-audience-members-from-api";
+import { getAudienceUnselectedContacts } from "@nenichat/domain/Audiences/app/get-audience-unselected-contacts";
+import updateAudienceDetailsFromApi from "@nenichat/domain/Audiences/app/update-audience-details-from-api";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function AudienceMembersPage() {

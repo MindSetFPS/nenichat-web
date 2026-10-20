@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useContactStore } from "@/stores/contact-store"
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name"
 
 interface ContactNameCellProps {
     contactId: number | null

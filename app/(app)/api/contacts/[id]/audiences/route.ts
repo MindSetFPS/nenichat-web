@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { SupabaseAudienceContactRepository } from "@/Nenichat/Audiences/infra/persistance/SupabaseAudienceContactRepository";
-import { IAudienceUpdate } from "@/Nenichat/Audiences/dto/IAudienceUpdate";
+import { SupabaseAudienceContactRepository } from "@nenichat/domain/Audiences/infra/persistance/SupabaseAudienceContactRepository";
+import { IAudienceUpdate } from "@nenichat/domain/Audiences/dto/IAudienceUpdate";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     const supabase = await createServerSupabaseClient();

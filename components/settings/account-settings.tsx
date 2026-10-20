@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useDebounce } from "@/hooks/use-debounce"
-import { IContact } from "@/Nenichat/Contacts/domain/IContact"
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact"
 import { User } from "@supabase/supabase-js"
 import { ContactSelectorCombobox } from "@/components/contact-selector-combobox"
 

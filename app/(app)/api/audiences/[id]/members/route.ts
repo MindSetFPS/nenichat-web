@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseAudienceContactRepository } from '@/Nenichat/Audiences/infra/persistance/SupabaseAudienceContactRepository';
+import { SupabaseAudienceContactRepository } from '@nenichat/domain/Audiences/infra/persistance/SupabaseAudienceContactRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
 
 export async function GET(

@@ -1,6 +1,6 @@
 'use server'
 
-import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { SupabaseContactRepository } from "@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
 

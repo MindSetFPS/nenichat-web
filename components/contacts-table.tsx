@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -24,7 +24,7 @@ import { Pagination } from "./ui/pagination";
 import { EmptyList } from "./empty-list";
 import { UsersIcon } from "lucide-react";
 import { Input } from "./ui/input";
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name";
 
 interface IContactResponse {
     data: IContact[];

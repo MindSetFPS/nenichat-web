@@ -1,6 +1,6 @@
 import { ExpenseFormClient } from "@/components/expense-form-client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { SupabaseExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository";
+import { SupabaseExpenseRepository } from "@nenichat/domain/Expenses/infra/persistance/SupabaseExpenseRepository";
 
 export const dynamic = 'force-dynamic';
 

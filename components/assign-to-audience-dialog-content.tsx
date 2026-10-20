@@ -1,15 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
-import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
+import { IAudience } from "@nenichat/domain/Audiences/domain/IAudience";
 import { AudiencesTable } from "./audiences/audiences-table";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
-import { getAudiences } from "@/Nenichat/Audiences/app/get-audiences-from-api";
+import { getAudiences } from "@nenichat/domain/Audiences/app/get-audiences-from-api";
 import { Button } from "@/components/ui/button";
-import { getContactAudiences } from "@/Nenichat/Audiences/app/get-contact-audiences";
-import { updateContactAudiences } from "@/Nenichat/Audiences/app/update-contact-audiences";
-import { IAudienceUpdate } from "@/Nenichat/Audiences/dto/IAudienceUpdate";
+import { getContactAudiences } from "@nenichat/domain/Audiences/app/get-contact-audiences";
+import { updateContactAudiences } from "@nenichat/domain/Audiences/app/update-contact-audiences";
+import { IAudienceUpdate } from "@nenichat/domain/Audiences/dto/IAudienceUpdate";
 
 interface AssignToAudienceDialogContentProps {
     contact: IContact;

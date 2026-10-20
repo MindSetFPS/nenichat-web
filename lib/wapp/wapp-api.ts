@@ -1,4 +1,4 @@
-import type { WappAppInfo } from "@/Nenichat/Wapp";
+import type { WappAppInfo } from "@nenichat/domain/Wapp";
 
 export type { WappAppInfo };
 

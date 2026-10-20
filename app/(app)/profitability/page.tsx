@@ -7,7 +7,7 @@ import { ExpenseBreakdownChart } from "@/components/profitability/expense-breakd
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IProfitabilityReport } from "@/Nenichat/Expenses/app/dto/IProfitabilityReport";
+import { IProfitabilityReport } from "@nenichat/domain/Expenses/app/dto/IProfitabilityReport";
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

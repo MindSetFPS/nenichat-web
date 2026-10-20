@@ -15,13 +15,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@/Nenichat/Orders/app/order-labels";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@nenichat/domain/Orders/app/order-labels";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import { ContactSelectorCombobox } from "@/components/contact-selector-combobox";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { IProduct } from "@/Nenichat/Products/domain/IProduct";
+import { IProduct } from "@nenichat/domain/Products/domain/IProduct";
 
 export interface OrderItemRow {
     productId: string;

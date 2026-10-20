@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseExpenseRepository } from '@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository';
+import { SupabaseExpenseRepository } from '@nenichat/domain/Expenses/infra/persistance/SupabaseExpenseRepository';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { IProfitabilityReport } from '@/Nenichat/Expenses/app/dto/IProfitabilityReport';
+import { IProfitabilityReport } from '@nenichat/domain/Expenses/app/dto/IProfitabilityReport';
 
 /**
  * GET /api/analytics/profitability

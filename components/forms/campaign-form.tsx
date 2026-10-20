@@ -10,11 +10,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
-import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
+import { ICampaign } from "@nenichat/domain/Campaigns/domain/ICampaign";
+import { IAudience } from "@nenichat/domain/Audiences/domain/IAudience";
 import { Checkbox } from "../ui/checkbox";
 import { Frequency } from "./campaign-form/frequency";
-import { NewCampaignData } from "@/Nenichat/Campaigns/domain/new-campaign-dto";
+import { NewCampaignData } from "@nenichat/domain/Campaigns/domain/new-campaign-dto";
 import { Switch } from "../ui/switch";
 
 interface CampaignFormProps {

@@ -8,8 +8,8 @@ import { EmptyList } from "@/components/empty-list"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { TemplateComposer } from "@/components/templates/template-composer"
 import { useProductStore } from "@/stores/product-store"
-import { renderTemplate } from "@/Nenichat/Templates/app/render-template"
-import type { ITemplate } from "@/Nenichat/Templates/domain/ITemplate"
+import { renderTemplate } from "@nenichat/domain/Templates/app/render-template"
+import type { ITemplate } from "@nenichat/domain/Templates/domain/ITemplate"
 
 interface TemplateListProps {
   initialTemplates: ITemplate[]

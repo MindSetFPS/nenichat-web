@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { MailIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { IAudience } from "@/Nenichat/Audiences/domain/IAudience";
+import { IAudience } from "@nenichat/domain/Audiences/domain/IAudience";
 import { Spinner } from "@/components/ui/spinner";
 import { EmptyList } from "@/components/empty-list";
 import { CreateAudienceDialog, DeleteAudienceDialog } from "@/components/audience-dialog";
 import { AudiencesTable } from "@/components/audiences/audiences-table";
-import { getAudiences } from "@/Nenichat/Audiences/app/get-audiences-from-api";
+import { getAudiences } from "@nenichat/domain/Audiences/app/get-audiences-from-api";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function AudiencesPage() {

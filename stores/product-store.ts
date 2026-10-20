@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IProduct, IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
+import { IProduct, IProductWithUnitsSold } from '@nenichat/domain/Products/domain/IProduct';
 
 interface ProductState {
     products: IProductWithUnitsSold[];

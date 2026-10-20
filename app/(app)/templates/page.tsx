@@ -1,5 +1,5 @@
-import { SupabaseTemplateRepository } from '@/Nenichat/Templates/infra/persistance/SupabaseTemplateRepository'
-import { ITemplate } from '@/Nenichat/Templates/domain/ITemplate'
+import { SupabaseTemplateRepository } from '@nenichat/domain/Templates/infra/persistance/SupabaseTemplateRepository'
+import { ITemplate } from '@nenichat/domain/Templates/domain/ITemplate'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getBusinessFromUser } from '@/lib/user-auth'
 import { TemplateList } from '@/components/templates/template-list'

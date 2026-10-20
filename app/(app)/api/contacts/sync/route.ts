@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { SupabaseContactRepository } from "@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository";
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 
 /**
  * Syncs contacts from the WhatsApp API

@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import { ProductForm } from '@/components/forms/product-form';
-import { IProduct } from '@/Nenichat/Products/domain/IProduct';
+import { IProduct } from '@nenichat/domain/Products/domain/IProduct';
 import { ChartBarLabel } from '@/components/products/chart';
-import { ProductOrdersByDate } from '@/Nenichat/Products/app/dto/product-orders-by-date';
+import { ProductOrdersByDate } from '@nenichat/domain/Products/app/dto/product-orders-by-date';
 import { PageHeader } from '@/components/ui/page-header';
 import { Badge } from '@/components/ui/badge';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
-import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
+import { SupabaseProductRepository } from '@nenichat/domain/Products/infra/persistance/SupabaseProductRepository';
 
 export default async function ProductEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

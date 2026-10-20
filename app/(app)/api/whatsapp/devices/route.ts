@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { Wapp, WappApiError } from '@/Nenichat/Wapp';
+import { Wapp, WappApiError } from '@nenichat/domain/Wapp';
 
 export async function GET(request: NextRequest) {
     try {

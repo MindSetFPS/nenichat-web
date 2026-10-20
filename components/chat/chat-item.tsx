@@ -1,11 +1,11 @@
 'use client'
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { getContactName } from '@/Nenichat/Contacts/app/get-contact-name'
+import { getContactName } from '@nenichat/domain/Contacts/app/get-contact-name'
 import ContactAvatar from '@/components/contact-avatar'
-import dateToHuman from '@/Nenichat/Shared/app/date-to-human'
-import { IContact } from '@/Nenichat/Contacts/domain/IContact'
-import { IChat } from '@/Nenichat/Chats/domain/IChat'
+import dateToHuman from '@nenichat/domain/Shared/app/date-to-human'
+import { IContact } from '@nenichat/domain/Contacts/domain/IContact'
+import { IChat } from '@nenichat/domain/Chats/domain/IChat'
 
 interface ChatItemProps {
     contact: IContact & { chat: IChat; chat_jid: string; last_message_time: Date | null }

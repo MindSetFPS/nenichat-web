@@ -33,10 +33,10 @@
  */
 
 import { NextResponse } from 'next/server';
-import { GoWappChatRepository } from '@/Nenichat/Chats/infra/api/GoWappChatRepository';
-import { IChat } from '@/Nenichat/Chats/domain/IChat';
-import { SupabaseContainerRepository } from '@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository';
-import { checkWappHealth } from '@/Nenichat/Wapp';
+import { GoWappChatRepository } from '@nenichat/domain/Chats/infra/api/GoWappChatRepository';
+import { IChat } from '@nenichat/domain/Chats/domain/IChat';
+import { SupabaseContainerRepository } from '@nenichat/domain/Containers/Infrastructure/Supabase/SupabaseContainerRepository';
+import { checkWappHealth } from '@nenichat/domain/Wapp';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getBusinessFromUser } from '@/lib/user-auth';
 

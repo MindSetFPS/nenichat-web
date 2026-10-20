@@ -8,7 +8,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { CalendarDays, MessageSquare } from "lucide-react";
-import { ICampaign } from "@/Nenichat/Campaigns/domain/ICampaign";
+import { ICampaign } from "@nenichat/domain/Campaigns/domain/ICampaign";
 import Link from "next/link";
 
 interface CampaignCardProps {

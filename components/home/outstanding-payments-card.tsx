@@ -1,12 +1,12 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import { AlertCircle, User, Clock } from "lucide-react";
 import Link from "next/link";
 import { useContactStore } from "@/stores/contact-store";
 import { useEffect } from "react";
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name";
 import { differenceInDays } from "date-fns";
 
 interface OutstandingPayment {

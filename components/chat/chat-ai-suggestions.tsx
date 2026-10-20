@@ -7,8 +7,8 @@ import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 import { useSuggestionFetcher } from "@/hooks/use-suggestion-fetcher"
 import { SuggestionSection } from "./suggestion-section"
-import type { SuggestionAction } from "@/Nenichat/Suggestions/domain/ISuggestionAction"
-import type { IContact } from "@/Nenichat/Contacts/domain/IContact"
+import type { SuggestionAction } from "@nenichat/domain/Suggestions/domain/ISuggestionAction"
+import type { IContact } from "@nenichat/domain/Contacts/domain/IContact"
 
 interface ChatAiSuggestionsProps {
     lastMessages?: any[]

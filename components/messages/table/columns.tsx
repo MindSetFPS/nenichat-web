@@ -1,8 +1,8 @@
 "use client"
 
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name"
-import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender"
-import dateToHuman from "@/Nenichat/Shared/app/date-to-human"
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name"
+import { IMessageWithSender } from "@nenichat/domain/Messages/domain/IMessageWithSender"
+import dateToHuman from "@nenichat/domain/Shared/app/date-to-human"
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
 

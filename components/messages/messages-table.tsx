@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { IMessageWithSender } from "@/Nenichat/Messages/domain/IMessageWithSender";
+import { IMessageWithSender } from "@nenichat/domain/Messages/domain/IMessageWithSender";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -22,9 +22,9 @@ import { Pagination } from "@/components/ui/pagination";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { EmptyList } from "@/components/empty-list";
 import { MessageSquare } from "lucide-react";
-import { getContactName } from "@/Nenichat/Contacts/app/get-contact-name";
+import { getContactName } from "@nenichat/domain/Contacts/app/get-contact-name";
 import { SetContactAsUserDropdown } from "@/components/messages/set-contact-as-user-dropdown";
-import { Contact } from "@/Nenichat/Contacts/domain/Contact";
+import { Contact } from "@nenichat/domain/Contacts/domain/Contact";
 
 interface IMessageResponse {
     data: IMessageWithSender[];

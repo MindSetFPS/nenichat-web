@@ -16,9 +16,9 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { IContact } from "@/Nenichat/Contacts/domain/IContact"
-import { getContactName, getContactPhone } from "@/Nenichat/Contacts/app/get-contact-name"
-import { normalizeContact, type ContactIdentifier } from "@/Nenichat/Contacts/app/contact-utils"
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact"
+import { getContactName, getContactPhone } from "@nenichat/domain/Contacts/app/get-contact-name"
+import { normalizeContact, type ContactIdentifier } from "@nenichat/domain/Contacts/app/contact-utils"
 import { useContactStore } from "@/stores/contact-store"
 
 /**

@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
+import dateToHuman from "@nenichat/domain/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
-import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
-import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
+import { OrderWithContactName } from "@nenichat/domain/Orders/app/dto/order-with-contact-name";
+import { dateIntervalFilter } from "@nenichat/domain/Orders/app/date-interval-funtion";
 import PaymentStatusDropdown from "../payment-status-dropdown";
 import { ContactNameCell } from "../contact-name-cell";
 

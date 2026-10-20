@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { BackButton } from "@/components/ui/back-button";
-import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
-import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { SupabaseOrderRepository } from "@nenichat/domain/Orders/infra/persistance/SupabaseOrderRepository";
+import { SupabaseContactRepository } from "@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository";
 import { EditOrderForm } from "@/components/forms/edit-order-form";
 import { PageHeader } from "@/components/ui/page-header";
 import { createServerSupabaseClient } from "@/lib/supabase/server";

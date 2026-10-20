@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { VariableIcon } from "lucide-react"
 import { useProductStore } from "@/stores/product-store"
-import { renderTemplate } from "@/Nenichat/Templates/app/render-template"
+import { renderTemplate } from "@nenichat/domain/Templates/app/render-template"
 
 interface TemplateComposerProps {
     open: boolean

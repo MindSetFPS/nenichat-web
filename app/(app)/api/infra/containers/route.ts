@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { containerService, SupabaseContainerRepository, fetchAndStoreQrCode } from '@/Nenichat/Containers';
+import { containerService, SupabaseContainerRepository, fetchAndStoreQrCode } from '@nenichat/domain/Containers';
 
 /**
  * GET is not supported. Return a generic error.

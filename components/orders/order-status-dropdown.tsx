@@ -2,8 +2,8 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn, getStatusColor } from "@/lib/utils";
-import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
-import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/Nenichat/Orders/app/order-labels";
+import { IOrder } from "@nenichat/domain/Orders/domain/IOrder";
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@nenichat/domain/Orders/app/order-labels";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";

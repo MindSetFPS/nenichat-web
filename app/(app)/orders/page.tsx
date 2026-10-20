@@ -1,11 +1,11 @@
 import { Package } from "lucide-react";
 import { EmptyList } from "@/components/empty-list";
-import { OrderWithContactName } from "@/Nenichat/Orders/app/dto/order-with-contact-name";
+import { OrderWithContactName } from "@nenichat/domain/Orders/app/dto/order-with-contact-name";
 import { CreateOrderButton } from "@/components/orders/create-order-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
+import { SupabaseOrderRepository } from "@nenichat/domain/Orders/infra/persistance/SupabaseOrderRepository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { IOrderRepository, OrderTimePeriod } from "@/Nenichat/Orders/domain/IOrderRepository";
+import { IOrderRepository, OrderTimePeriod } from "@nenichat/domain/Orders/domain/IOrderRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
 import { OrdersTableClient } from "./orders-table-client";
 

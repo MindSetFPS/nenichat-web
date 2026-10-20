@@ -1,4 +1,4 @@
-import { SupabaseExpenseRepository } from "@/Nenichat/Expenses/infra/persistance/SupabaseExpenseRepository";
+import { SupabaseExpenseRepository } from "@nenichat/domain/Expenses/infra/persistance/SupabaseExpenseRepository";
 import { ExpenseForm } from "@/components/forms/expense-form";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";

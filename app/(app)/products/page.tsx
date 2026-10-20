@@ -1,5 +1,5 @@
-import { IProductWithUnitsSold } from '@/Nenichat/Products/domain/IProduct';
-import { SupabaseProductRepository } from '@/Nenichat/Products/infra/persistance/SupabaseProductRepository';
+import { IProductWithUnitsSold } from '@nenichat/domain/Products/domain/IProduct';
+import { SupabaseProductRepository } from '@nenichat/domain/Products/infra/persistance/SupabaseProductRepository';
 import { ProductActions } from './ProductActions';
 import { Metadata } from 'next/dist/lib/metadata/types/metadata-interface';
 import ProductsList from '@/components/products/products-list';

@@ -1,11 +1,11 @@
 import { OrdersTotalValueChart } from "@/components/home/orders-total-chart";
-import { SupabaseOrderRepository } from "@/Nenichat/Orders/infra/persistance/SupabaseOrderRepository";
+import { SupabaseOrderRepository } from "@nenichat/domain/Orders/infra/persistance/SupabaseOrderRepository";
 import { OrderProductChart } from "@/components/home/product-orders-chart";
 import BusinessSummary from "@/components/home/business-summary";
 import { RecentOrdersFeed } from "@/components/home/recent-orders-feed";
 import { MonthlyGoalCard } from "@/components/home/monthly-goal-card";
-import { GoWappChatRepository } from "@/Nenichat/Chats/infra/api";
-import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
+import { GoWappChatRepository } from "@nenichat/domain/Chats/infra/api";
+import { SupabaseContainerRepository } from "@nenichat/domain/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
 import { RecentConversations } from "@/components/home/recent-conversations";
 import { MessageSquare } from "lucide-react";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
@@ -18,7 +18,7 @@ import { WelcomePage } from "@/components/home/welcome-page";
 import { Card } from "@/components/ui/card";
 import { ActionRequiredCard } from "@/components/home/action-required-card";
 import { OutstandingPaymentsCard } from "@/components/home/outstanding-payments-card";
-import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { SupabaseContactRepository } from "@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository";
 import Greeting from "@/components/home/greeting";
 
 export const dynamic = 'force-dynamic';

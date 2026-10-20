@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { IContact } from '@/Nenichat/Contacts/domain/IContact';
+import { IContact } from '@nenichat/domain/Contacts/domain/IContact';
 import { ComboboxDemo } from './combobox';
 import { useDebounce } from '@/hooks/use-debounce';
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"

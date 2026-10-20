@@ -19,7 +19,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { IContact } from "@/Nenichat/Contacts/domain/IContact"
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact"
 import { useRouter } from "next/navigation"
 
 interface SetContactAsUserDropdownProps {

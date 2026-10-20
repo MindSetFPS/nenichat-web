@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn, getPaymentStatusColor } from "@/lib/utils";
-import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
+import { IOrder } from "@nenichat/domain/Orders/domain/IOrder";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";

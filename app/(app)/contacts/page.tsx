@@ -1,10 +1,10 @@
 import { DataTable } from "@/components/data-table";
-import { SupabaseContactRepository } from "@/Nenichat/Contacts/infra/persistance/SupabaseContactRepository";
+import { SupabaseContactRepository } from "@nenichat/domain/Contacts/infra/persistance/SupabaseContactRepository";
 import { columns } from "@/components/contacts/table/columns";
 import { PageHeader } from "@/components/ui/page-header";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getBusinessFromUser } from "@/lib/user-auth";
-import { GoWappMessageRepository } from "@/Nenichat/Messages/infra/api";
+import { GoWappMessageRepository } from "@nenichat/domain/Messages/infra/api";
 
 export const dynamic = 'force-dynamic';
 

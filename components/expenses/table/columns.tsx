@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import dateToHuman from "@/Nenichat/Shared/app/date-to-human";
 import { ColumnDef } from "@tanstack/react-table";
-import { IExpenseWithCategory } from "@/Nenichat/Expenses/domain/IExpense";
+import { IExpenseWithCategory } from "@nenichat/domain/Expenses/domain/IExpense";
 import { ArrowUpDown, Trash2 } from "lucide-react";
-import { dateIntervalFilter } from "@/Nenichat/Orders/app/date-interval-funtion";
+import { dateIntervalFilter } from "@nenichat/domain/Orders/app/date-interval-funtion";
 
 export const columns: ColumnDef<IExpenseWithCategory>[] = [
     {

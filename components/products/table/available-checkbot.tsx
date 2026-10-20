@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { IProductWithUnitsSold } from "@/Nenichat/Products/domain/IProduct";
+import { IProductWithUnitsSold } from "@nenichat/domain/Products/domain/IProduct";
 import { useProductStore } from "@/stores/product-store";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 

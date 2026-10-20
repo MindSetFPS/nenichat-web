@@ -2,7 +2,7 @@ import { RecentChats } from "@/components/chat/recent-chats";
 import Content from "@/components/layout/content";
 import { ChatListLoader } from "./chat-list-loader";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { SupabaseContainerRepository } from "@/Nenichat/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
+import { SupabaseContainerRepository } from "@nenichat/domain/Containers/Infrastructure/Supabase/SupabaseContainerRepository";
 import { getBusinessFromUser } from "@/lib/user-auth";
 import { WhatsAppSettings } from "@/components/settings/whatsapp-settings";
 import { EmptyChats } from "@/components/chat/empty-chats";

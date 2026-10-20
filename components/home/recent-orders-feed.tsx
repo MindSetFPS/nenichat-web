@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { ShoppingBag, CheckCircle2, Clock } from "lucide-react";
-import { IOrder } from "@/Nenichat/Orders/domain/IOrder";
+import { IOrder } from "@nenichat/domain/Orders/domain/IOrder";
 
 export function RecentOrdersFeed({ orders }: { orders: IOrder[] }) {
     // Sort by created_at descending and take top 5

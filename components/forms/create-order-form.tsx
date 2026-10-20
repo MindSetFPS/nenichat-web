@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { IContact } from "@/Nenichat/Contacts/domain/IContact";
+import { IContact } from "@nenichat/domain/Contacts/domain/IContact";
 import { OrderForm, OrderFormValues, OrderItemRow } from "./order-form";
 import { useProductStore } from "@/stores/product-store";
 import { useContactStore } from "@/stores/contact-store";
-import { IProduct } from "@/Nenichat/Products/domain/IProduct";
+import { IProduct } from "@nenichat/domain/Products/domain/IProduct";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 interface CreateOrderFormProps {
