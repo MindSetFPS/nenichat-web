@@ -1,16 +1,23 @@
 import { create } from 'zustand';
 import { User } from '@supabase/supabase-js';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { IContact } from '@nenichat/domain/Contacts/domain/IContact';
 
 /**
- * Interface representing the merged profile and contact data.
+ * Personal profile of the registered (authenticated) user.
  * This structure follows what is returned by the /api/profile endpoint.
  */
-export interface UserProfile extends Omit<IContact, 'id'> {
-    id: string;
-    contact_id?: string | null;
-    [key: string]: any; // To allow for other profile fields
+export interface UserProfile {
+    user_id: string;
+    name: string | null;
+    last_name: string | null;
+    email: string | null;
+    phone: string | null;
+    birth_date: string | null;
+    avatar_url: string | null;
+    country: string | null;
+    created_at: string;
+    updated_at: string;
+    business_id: number;
 }
 
 interface UserState {
@@ -92,10 +99,10 @@ export const useUserStore = create<UserState>((set, get) => ({
                 supabaseUser: authRes.data.user,
                 isLoading: false
             });
-        } catch (error: any) {
+        } catch (error) {
             console.error('Failed to fetch user in store:', error);
             set({
-                error: error.message || 'Failed to fetch user',
+                error: error instanceof Error ? error.message : 'Failed to fetch user',
                 isLoading: false
             });
         }

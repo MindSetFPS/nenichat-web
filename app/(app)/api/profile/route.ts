@@ -1,75 +1,107 @@
-
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { contactRepository } from '@nenichat/domain/Contacts/infra/persistance/ContactRepository';
+import { getBusinessFromUser } from '@/lib/user-auth';
+
+const UPDATABLE_FIELDS = [
+  'name',
+  'last_name',
+  'email',
+  'phone',
+  'birth_date',
+  'avatar_url',
+  'country',
+] as const;
+
+type UpdatableField = (typeof UPDATABLE_FIELDS)[number];
+
+/**
+ * Returns the authenticated user's profile row, creating a default one if it
+ * does not exist yet.
+ */
+async function getOrCreateProfile(supabase: SupabaseClient, userId: string, email: string | undefined) {
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (profile) return profile;
+
+  const { data: created, error: createError } = await supabase
+    .from('profiles')
+    .upsert({ user_id: userId, email }, { onConflict: 'user_id' })
+    .select('*')
+    .single();
+
+  if (createError) throw createError;
+  return created;
+}
 
 /**
  * GET handler for the profile API.
- * Retrieves the current authenticated user's ID from Supabase and then fetches the profile data.
- * 
- * @returns {Promise<NextResponse>} A JSON response containing the profile data or an error message.
+ * Returns the personal profile of the registered (authenticated) user.
  */
 export async function GET() {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { user: authUser, business, error: authError } = await getBusinessFromUser(supabase);
 
-  return NextResponse.json({
-    "id": "1",
-    "name": "Daniel",
-    "phone": "1234567890",
-    "email": "[EMAIL_ADDRESS]",
-    "is_user": true,
-    "created_at": "2022-01-01T00:00:00.000Z",
-    "updated_at": "2022-01-01T00:00:00.000Z"
-  })
+    if (authError || !authUser || !business) {
+      return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
 
-  // try {
-  //   const supabase = await createServerSupabaseClient();
+    const profile = await getOrCreateProfile(supabase, authUser.id, authUser.email);
 
-  //   // Get the current authenticated user from Supabase
-  //   const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    return NextResponse.json({ ...profile, business_id: business.id });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return NextResponse.json({ error: 'Failed to fetch user profile' }, { status: 500 });
+  }
+}
 
-  //   if (authError || !authUser) {
-  //     return NextResponse.json({ error: 'No authenticated user found' }, { status: 401 });
-  //   }
+/**
+ * PATCH handler for the profile API.
+ * Updates the optional personal-information fields of the authenticated user.
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { user: authUser, business, error: authError } = await getBusinessFromUser(supabase);
 
-  //   // Get profile data from Supabase profiles table
-  //   const { data: profile, error: profileError } = await supabase
-  //     .from('profiles')
-  //     .select('*')
-  //     .eq('id', authUser.id)
-  //     .single();
+    if (authError || !authUser || !business) {
+      return NextResponse.json({ error: authError || 'Unauthorized' }, { status: 401 });
+    }
 
-  //   if (profileError && profileError.code !== 'PGRST116') { // PGRST116 is 'not found'
-  //     console.error('Error fetching profile from Supabase:', profileError);
-  //   }
+    const body = await request.json();
+    const updates: Partial<Record<UpdatableField, string | null>> = {};
 
-  //   // If we have a profile and it contains a contact_id, fetch the corresponding contact data
-  //   if (profile && profile.contact_id) {
-  //     try {
-  //       const contact = await contactRepository.findById(BigInt(profile.contact_id));
-  //       if (contact) {
-  //         // Merge profile and contact data
-  //         return NextResponse.json({ ...profile, ...contact });
-  //       }
-  //     } catch (contactErr) {
-  //       console.error('Error fetching contact for profile:', contactErr);
-  //     }
-  //   }
+    for (const field of UPDATABLE_FIELDS) {
+      if (field in body) {
+        const value = body[field];
+        updates[field] = value === '' || value === null || value === undefined ? null : String(value);
+      }
+    }
 
-  //   // Fallback: if no profile or no contact_id in profile, try to find the "me" contact as before
-  //   const user = await contactRepository.findMe();
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: 'No updatable fields provided' }, { status: 400 });
+    }
 
-  //   if (!user) {
-  //     // If we have a profile but no contact, return the profile
-  //     if (profile) {
-  //       return NextResponse.json(profile);
-  //     }
-  //     return NextResponse.json(null, { status: 404 });
-  //   }
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .upsert({ user_id: authUser.id, ...updates }, { onConflict: 'user_id' })
+      .select('*')
+      .single();
 
-  //   // If we have both profile and fallback user, merger them (prefer profile data)
-  //   return NextResponse.json(profile ? { ...user, ...profile } : user);
-  // } catch (error) {
-  //   console.error('Unexpected error in profile API:', error);
-  //   return NextResponse.json({ error: 'Failed to fetch user profile' }, { status: 500 });
-  // }
+    if (error) {
+      console.error('Error updating user profile:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ...profile, business_id: business.id });
+  } catch (error) {
+    console.error('Unexpected error updating user profile:', error);
+    return NextResponse.json({ error: 'Failed to update user profile' }, { status: 500 });
+  }
 }

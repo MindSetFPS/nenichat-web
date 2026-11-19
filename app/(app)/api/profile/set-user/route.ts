@@ -28,23 +28,6 @@ export async function POST(request: NextRequest) {
     // 1. Update the local contact repository
     const user = await contactRepository.setMe(business.id, userId);
 
-    // 2. Link the contact ID to the Supabase profile
-    const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
-
-    if (authUser) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: authUser.id,
-          contact_id: userId,
-          updated_at: new Date().toISOString()
-        });
-
-      if (profileError) {
-        console.error('Error updating Supabase profile:', profileError);
-      }
-    }
-
     return NextResponse.json(user);
   } catch (error) {
     console.error('Error setting user:', error);

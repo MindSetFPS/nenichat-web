@@ -50,8 +50,8 @@ export function NavUser() {
     }, [fetchUser])
 
     const userData = {
-        name: user?.pushname || user?.username || supabaseUser?.user_metadata?.display_name || supabaseUser?.email?.split("@")[0] || 'Usuario',
-        email: supabaseUser?.email || '',
+        name: [user?.name, user?.last_name].filter(Boolean).join(' ') || supabaseUser?.user_metadata?.display_name || supabaseUser?.email?.split("@")[0] || 'Usuario',
+        email: user?.email || supabaseUser?.email || '',
         avatar: user?.avatar_url || supabaseUser?.user_metadata?.avatar_url || '',
     }
 

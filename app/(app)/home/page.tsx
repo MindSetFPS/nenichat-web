@@ -111,11 +111,23 @@ export default async function Page() {
   }
 
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('name, last_name')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const userName =
+    [profile?.name, profile?.last_name].filter(Boolean).join(' ') ||
+    (user.user_metadata?.display_name as string | undefined) ||
+    user.email?.split('@')[0] ||
+    '';
+
   return (
     <Content className="p-4 md:p-8 bg-gray-50/50 dark:bg-zinc-950/50 scroll-auto overflow-y-auto">
       <PageHeader />
 
-      <Greeting user={user} business={business} />
+      <Greeting userName={userName} business={business} />
 
       <div className="flex flex-col gap-8">
         {/* Rewarding Stats Section */}
