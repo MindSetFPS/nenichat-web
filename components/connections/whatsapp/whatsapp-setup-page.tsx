@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Loader2, QrCode, CheckCircle2, AlertCircle, RefreshCcw } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "motion/react"
 import { toast } from "sonner"
 import { createBrowserSupabaseClient } from "@/lib/supabase/client"
 import { useEffect, useMemo } from "react"
