@@ -52,14 +52,17 @@ export default async function Page() {
   const containerData = await containerRepository.getContainerByBusinessId(business.id);
 
   const messagesPerDay: any[] = []; //await messageRepository.getMessageCountPerDay(business.id, 14);
-  const orders: any[] = await orderRepository.getAll(business.id, "monthly");
-  const plainOrders = JSON.parse(JSON.stringify(orders));
 
-  if (orders.length === 0) {
+  const hasAnyOrder = await orderRepository.hasAnyOrders(business.id);
+  if (!hasAnyOrder) {
     return (
       <WelcomePage isWhatsAppConnected={containerData?.status === "connected"} />
     );
   }
+
+  const orders: any[] = await orderRepository.getAll(business.id, "monthly");
+  console.log(orders)
+  const plainOrders = JSON.parse(JSON.stringify(orders));
 
   const orderTotalsPerDay: any[] = await orderRepository.getOrderTotalPerDay(business.id, 14);
 

@@ -6,7 +6,7 @@ Planned features and technical improvements.
 
 ## WhatsApp Container Image Updates
 
-**Status:** Partially complete (version bumped to v9.2.1, batch update system still planned)  
+**Status:** Partially complete (version bumped to v9.8.0, batch update system still planned)  
 **Priority:** P2 (post-launch)
 
 ### Problem
@@ -48,9 +48,9 @@ Admin UI  →  POST /api/infra/containers/update  →  update-all-containers use
 
 #### 1. Version Configuration
 
-- Add `WAPP_IMAGE_VERSION=v9.2.1` to `.env.example`
+- Add `WAPP_IMAGE_VERSION=v9.8.0` to `.env.example`
 - Read it in `DokployContainerService` constructor
-- Default fallback to `v9.2.1` if not set
+- Default fallback to `v9.8.0` if not set
 
 #### 2. Template Updates — Volumes + Version Placeholder
 
